@@ -59,7 +59,7 @@ for image in images:
             print(f"WARNING: {image} does not have just r, g, b values")
         cur_bright = (math.sqrt(0.241*(r**2) + 0.691*(g**2) + 0.068*(b**2)))/255
         bright_score = min(cur_bright, 1-cur_bright) #too bright or too dark
-        bright[count] = bright_score
+        bright[count-1] = bright_score
         
         #Finds duplicates
         cur_hash = hashlib.md5(img.tobytes()).hexdigest()
@@ -83,9 +83,6 @@ for image in images:
 
     
 def analyze_scores(scores): 
-    '''
-    returns: tuple
-    '''
     mean = statistics.mean(scores.values())
     stdev = statistics.stdev(scores.values())
     sorted_scores = {k: v for k, v in sorted(scores.items(), key=lambda item: item[1])} #sort scores from low to high (worse to better images)
@@ -105,7 +102,7 @@ def analyze_scores(scores):
     return (issue_indices, issue_bool, issue_score, image_names, sorted_scores, sorted_zscores)
 
 
-def output(dup_indices, image_names, analyze_scores, verbose = True):
+def output(dup_indices, images, analyze_scores, verbose = True):
     tests = [bright, prop, entropy]
     issue_names = ["Brightness", "Odd size", "Potential occlusion"]
     issue_dict = {}
@@ -122,7 +119,9 @@ def output(dup_indices, image_names, analyze_scores, verbose = True):
             except:
                 break
     for t in tests:
+        print(t)
         analysis = analyze_scores(t)
+        print(analysis)
         im = analysis[1].keys()
         boolean = list(analysis[1].values())
         issue_indices = analysis[0]
