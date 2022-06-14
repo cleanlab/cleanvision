@@ -1,15 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jun  8 15:17:33 2022
-
-@author: yimingchen
-"""
 import statistics
 from collections import OrderedDict
 from PIL import Image
-import numpy as np
-import pandas as pd
+
+
 
 def analyze_scores(scores): 
     '''

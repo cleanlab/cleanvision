@@ -1,21 +1,14 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jun  8 17:06:23 2022
-
-@author: yimingchen
-"""
 import time 
 from utils import *
-from ImageDataset import ImageDataset
+from image_dataset import ImageDataset
 
 
 start = time.time()
-imgset = ImageDataset((128,128))
+imgset = ImageDataset()
 
 print("The path is:", imgset.path) #Question: How to stop this from triggering the progress bar?
-print("There are ", str(imgset.image_num), "images in the dataset")
-print(imgset.audit_images(True)) #returns the dictionary of issues and pandas dataframe of information
+print("There are ", str(len(imgset.image_files)), "images in the dataset")
+print(imgset.audit_images(False)) #returns the dictionary of issues and pandas dataframe of information
 
 
 end = time.time()
