@@ -1,5 +1,4 @@
 import time 
-from utils import *
 from image_dataset import ImageDataset
 
 

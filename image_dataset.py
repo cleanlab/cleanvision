@@ -3,17 +3,17 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 from tqdm import tqdm
-from issue_check_helpers import *
-from utils import *
+from issue_checks import brightness_check, prop_check, entropy_check, dup_check
+from utils import analyze_scores, get_sorted_images
 
-possible_issues= {"Duplicates": find_dup, "Brightness": brightness_check, "Odd size": prop_check,  "Potential occlusion": entropy_check} #Question: could this be defined here?
+possible_issues= {"Duplicates": dup_check, "Brightness": brightness_check, "Odd size": prop_check,  "Potential occlusion": entropy_check} #Question: could this be defined here?
 
 class ImageDataset:
     def __init__(self, path = None, image_files = None, thumbnail_size = None, checks = None):
         if path is None:
             self.path = os.getcwd()
         if image_files is None:
-            self.image_files = sorted_images(self.path)
+            self.image_files = get_sorted_images(self.path)
         if thumbnail_size is None:
             self.thumbnail_size = (128, 128)
         #TODO: revisit default value for thumbnail_size
@@ -61,10 +61,10 @@ class ImageDataset:
             for c in self.checks: #run each check for each image
                 if c == "Duplicates":
                     check_dup = True
-                    find_dup_call = find_dup(img, image_name, count) #Question: is it bad to ask later calls of this function to reference the variables updated below?
-                    dup_indices = find_dup_call[0]
-                    hashes = find_dup_call[1]
-                    dup_dict = find_dup_call[2] #keys are hashes, values are images with that hash
+                    dup_check_call = dup_check(img, image_name, count) #Question: is it bad to ask later calls of this function to reference the variables updated below?
+                    dup_indices = dup_check_call[0]
+                    hashes = dup_check_call[1]
+                    dup_dict = dup_check_call[2] #keys are hashes, values are images with that hash
                 else:
                     self.issue_info.setdefault(c,[]).append(possible_issues[c](img))
             count += 1

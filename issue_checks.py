@@ -1,37 +1,6 @@
-import math, hashlib, os, glob
+import math, hashlib
 from PIL import ImageStat
 
-types = ["*.jpg", "*.jpeg", "*.gif", "*.jp2", "*.TIFF", "*.WebP","*.PNG"] #filetypes supported by PIL
-
-def sorted_images(path): #Question: should this not be its own function but instead just carried out in __init__ of our Class?
-    '''
-    Used in initialization of ImageDataset Class
-    Sorts image files based on image filenames numerically and alphabetically
-    
-     
-    Parameters
-    ----------
-    path: string (an attribute of ImageDataset Class)
-    a string represening the current working directory
-    
-    
-    Returns
-    -------
-    sorted_names: list
-    a list of image filenames sorted numerically and alphabetically
-    '''
-    raw_images = []
-    pathlen = len(path)
-    for type in types:
-        filetype = glob.glob(os.path.join(path, type))
-        if filetype == []:
-            continue
-        raw_images += filetype
-    raw_names = []
-    for r in raw_images: 
-        raw_names.append(r[pathlen+1:]) #extract image name
-    sorted_names = sorted(raw_names)#sort image names alphabetically and numerically
-    return sorted_names 
 
 def brightness_check(img):
     '''
@@ -54,6 +23,7 @@ def brightness_check(img):
     try:
         r,g,b = stat.mean
     except:
+        r,g,b = stat.mean[:3]
         print(f"WARNING: {img} does not have just r, g, b values")
     cur_bright = (math.sqrt(0.241*(r**2) + 0.691*(g**2) + 0.068*(b**2)))/255
     bright_score = min(cur_bright, 1-cur_bright) #too bright or too dark
@@ -100,7 +70,7 @@ def entropy_check(img):
     entropy_score = img.entropy()/10 
     return entropy_score
 
-def find_dup(img, image_name, count, dup_indices = [], hashes = set(), dup_dict = {}):
+def dup_check(img, image_name, count, dup_indices = [], hashes = set(), dup_dict = {}):
     '''
     Updates hash information for the set of images to find duplicates
     
