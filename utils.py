@@ -1,8 +1,38 @@
-import statistics
+import statistics, os, glob
 from collections import OrderedDict
 from PIL import Image
 
+types = ["*.jpg", "*.jpeg", "*.gif", "*.jp2", "*.TIFF", "*.WebP","*.PNG"] #filetypes supported by PIL
 
+def get_sorted_images(path): #Question: should this not be its own function but instead just carried out in __init__ of our Class?
+    '''
+    Used in initialization of ImageDataset Class
+    Sorts image files based on image filenames numerically and alphabetically
+    
+     
+    Parameters
+    ----------
+    path: string (an attribute of ImageDataset Class)
+    a string represening the current working directory
+    
+    
+    Returns
+    -------
+    sorted_names: list
+    a list of image filenames sorted numerically and alphabetically
+    '''
+    raw_images = []
+    pathlen = len(path)
+    for type in types:
+        filetype = glob.glob(os.path.join(path, type))
+        if filetype == []:
+            continue
+        raw_images += filetype
+    raw_names = []
+    for r in raw_images: 
+        raw_names.append(r[pathlen+1:]) #extract image name
+    sorted_names = sorted(raw_names)#sort image names alphabetically and numerically
+    return sorted_names 
 
 def analyze_scores(scores): 
     '''
@@ -46,3 +76,5 @@ def analyze_scores(scores):
         else:
             issue_bool[k2] = 0
     return (issue_indices, issue_bool)
+
+
