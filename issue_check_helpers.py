@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jun  9 13:15:32 2022
-
-@author: yimingchen
-"""
 import math, hashlib, os, glob
 from PIL import ImageStat
 

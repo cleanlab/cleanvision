@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jun  7 17:52:39 2022
-
-@author: yimingchen
-"""
-
 from setuptools import setup, find_packages
 from setuptools.command.egg_info import egg_info
 
