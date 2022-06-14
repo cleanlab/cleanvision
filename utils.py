@@ -21,18 +21,18 @@ def get_sorted_images(path): #Question: should this not be its own function but 
     sorted_names: list
     a list of image filenames sorted numerically and alphabetically
     '''
-    raw_images = []
-    pathlen = len(path)
+    if path is None or path == "":
+        raise Exception(f"The current path {path} is not valid.")
+    image_file_names = []
     for type in types:
-        filetype = glob.glob(os.path.join(path, type))
-        if filetype == []:
+        filetype_images = glob.glob(os.path.join(path, type))
+        if filetype_images == []:
             continue
-        raw_images += filetype
-    raw_names = []
-    for r in raw_images: 
-        raw_names.append(r[pathlen+1:]) #extract image name
-    sorted_names = sorted(raw_names)#sort image names alphabetically and numerically
-    return sorted_names 
+        image_file_names += filetype_images
+    base_image_names = []
+    for r in image_file_names: 
+        base_image_names.append(os.path.basename(r)) #extract image name
+    return sorted(base_image_names) #sort image names alphabetically and numerically
 
 def analyze_scores(scores): 
     '''

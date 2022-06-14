@@ -14,11 +14,18 @@ class ImageDataset:
             self.path = os.getcwd()
         if image_files is None:
             self.image_files = get_sorted_images(self.path)
+        else: 
+            self.image_files = image_files
         if thumbnail_size is None:
             self.thumbnail_size = (128, 128)
         #TODO: revisit default value for thumbnail_size
         if checks is None: #defaults to run all checks
             self.checks = list(possible_issues.keys())
+        else:
+            for c in checks: 
+                if c not in possible_issues:
+                    raise ValueError ("Not a valid issue check!")
+            self.checks = checks
         self.issue_info = {} #key: issue name string, value: list of issue scores (index in list corresponds to image index)
         self.misc_info = {} #key: misc info name string, value: intuitive data structure containing that info
         
