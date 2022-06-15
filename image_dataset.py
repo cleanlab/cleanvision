@@ -3,13 +3,14 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 from tqdm import tqdm
-from issue_checks import brightness_check, prop_check, entropy_check, dup_check
-from utils import analyze_scores, get_sorted_images
+from issue_checks import check_brightness, check_odd_size, check_entropy, check_duplicated
+from utils.utils import analyze_scores, get_sorted_images
 
-possible_issues= {"Duplicates": dup_check, "Brightness": brightness_check, "Odd size": prop_check,  "Potential occlusion": entropy_check} #Question: could this be defined here?
+possible_issues= {"Duplicated": check_duplicated, "Brightness": check_brightness, "Odd size": check_odd_size,  "Potential occlusion": check_entropy} #Question: could this be defined here?
+#TODO: a global list to keep track of checks needing info from entire dataset
 
 class ImageDataset:
-    def __init__(self, path = None, image_files = None, thumbnail_size = None, checks = None):
+    def __init__(self, path = None, image_files = None, thumbnail_size = None, issues_checked = None):
         if path is None:
             self.path = os.getcwd()
         if image_files is None:
@@ -19,17 +20,17 @@ class ImageDataset:
         if thumbnail_size is None:
             self.thumbnail_size = (128, 128)
         #TODO: revisit default value for thumbnail_size
-        if checks is None: #defaults to run all checks
-            self.checks = list(possible_issues.keys())
+        if issues_checked is None: #defaults to run all checks
+            self.issues_checked = list(possible_issues.keys())
         else:
-            for c in checks: 
+            for c in issues_checked: 
                 if c not in possible_issues:
                     raise ValueError ("Not a valid issue check!")
-            self.checks = checks
+            self.issues_checked = issues_checked
         self.issue_info = {} #key: issue name string, value: list of issue scores (index in list corresponds to image index)
         self.misc_info = {} #key: misc info name string, value: intuitive data structure containing that info
         
-    def audit_images(self, verbose = True):
+    def audit_images(self, verbose = True, num_preview=10):
         '''
         Audits self.image_files 
         For issue checks performed on each image (i.e. brightness, odd size, potential occlusion)
@@ -55,9 +56,13 @@ class ImageDataset:
         and respective values are a list of images indices suffering from the given issue ordered by severity (high to low)
         
         issue_df: pd.DataFrame 
-        A pandas dataframe where each row represents a image index 
+        a pandas dataframe where each row represents a image index 
         each column represents a property of the image
+        For binary checks (i.e. duplicated images), each cell contains a boolean of 1 represents if an image suffer from the issue, 0 otherwise
+        For other checks, each cell contains a score between 0 and 1 (with low score being severe issue)
         
+        misc_info: dict
+        a dictionary where keys are string names of miscellaneous info and values are the info stored in the most intuitive data structure.
         '''
         count = 0
         check_dup = False #flag variable for checking duplicates 
@@ -65,37 +70,38 @@ class ImageDataset:
             img = Image.open(image_name)
             img.thumbnail(self.thumbnail_size) 
             #Question: would it be a good idea to keep a set of all the checks that require info from the entire dataset and use this structure?
-            for c in self.checks: #run each check for each image
-                if c == "Duplicates":
+            #TODO: restructure the ones that depend on entire dataset so audit_images is not check specific
+            for c in self.issues_checked: #run each check for each image
+                if c == "Duplicated":
                     check_dup = True
-                    dup_check_call = dup_check(img, image_name, count) #Question: is it bad to ask later calls of this function to reference the variables updated below?
-                    dup_indices = dup_check_call[0]
-                    hashes = dup_check_call[1]
-                    dup_dict = dup_check_call[2] #keys are hashes, values are images with that hash
+                    check_duplicated_call = check_duplicated(img, image_name, count) #Question: is it bad to ask later calls of this function to reference the variables updated below?
+                    dup_indices = check_duplicated_call[0]
+                    hashes = check_duplicated_call[1]
+                    dup_dict = check_duplicated_call[2] #keys are hashes, values are images with that hash
                 else:
                     self.issue_info.setdefault(c,[]).append(possible_issues[c](img))
             count += 1
         if check_dup:
-            self.issue_info["Duplicates"] = dup_indices
+            self.issue_info["Duplicated"] = dup_indices
         #Prepares for output
         issue_dict = {}
         issue_data = {}
         overall_scores = [] #product of scores of all checks
-        issue_dict["Duplicates"] = dup_indices
-        issue_data["Image names"] = self.image_files #Question: is the column label in the right location?
+        issue_dict["Duplicated"] = dup_indices
+        issue_data["Names"] = self.image_files 
         if verbose:
-            print("Here are some duplicate images")
-            for x in range(10): #show the first 10 duplicate images (if exists)
+            print("Here are some duplicated images")
+            for x in range(num_preview): #show the first 10 duplicate images (if exists)
                 try: 
                     img = Image.open(self.image_files[dup_indices[x]])
                     img.show()
                 except:
                     break
-        for c1 in self.checks:
-            if c1 != "Duplicates":
+        for c1 in self.issues_checked:
+            if c1 != "Duplicated":
                 analysis = analyze_scores(self.issue_info[c1])
                 issue_indices = analysis[0]
-                im = analysis[1].keys() #list of ascending image indices
+                img_ind = analysis[1].keys() #list of ascending image indices
                 boolean = list(analysis[1].values())
                 issue_scores = self.issue_info[c1]
                 if len(overall_scores) == 0:
@@ -107,21 +113,21 @@ class ImageDataset:
                 issue_data[c1 +" score"] = issue_scores
                 if verbose:
                     print("These images have", c1, "issue")
-                    for ind in range(10): #show the top 10 issue images (if exists)
+                    for ind in range(num_preview): #show the top 10 issue images (if exists)
                         try:
                             img = Image.open(self.image_files[issue_indices[ind]])
                             img.show()
                         except:
                             break
         issue_data["Overall Score"] = list(overall_scores)
-        issue_df = pd.DataFrame(issue_data, index=im)
+        issue_df = pd.DataFrame(issue_data, index=img_ind)
         #Analysis for misc_info
         dup_tups = []
         for v in dup_dict.values():
             if len(v)>1:
                 dup_tups.append(tuple(v))
         self.misc_info["Duplicate Image Groups"] = dup_tups
-        return (issue_dict, issue_df)
+        return (issue_dict, issue_df, self.misc_info)
        
         
         

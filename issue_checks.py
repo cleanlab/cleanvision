@@ -2,7 +2,7 @@ import math, hashlib
 from PIL import ImageStat
 
 
-def brightness_check(img):
+def check_brightness(img):
     '''
     Calculates the brightness score for a given image
     
@@ -29,9 +29,9 @@ def brightness_check(img):
     bright_score = min(cur_bright, 1-cur_bright) #too bright or too dark
     return bright_score
     
-def prop_check(img):
+def check_odd_size(img):
     '''
-    Calculates the proportions score for a given image
+    Calculates the proportions score for a given image to find odd image sizes
     
      
     Parameters
@@ -50,9 +50,9 @@ def prop_check(img):
     prop_score = min(width/height, height/width) #consider extreme shapes
     return prop_score
         
-def entropy_check(img):
+def check_entropy(img):
     '''
-    Calculates the entropy score for a given image
+    Calculates the entropy score for a given image to find potentially occluded images
     
      
     Parameters
@@ -70,7 +70,7 @@ def entropy_check(img):
     entropy_score = img.entropy()/10 
     return entropy_score
 
-def dup_check(img, image_name, count, dup_indices = [], hashes = set(), dup_dict = {}):
+def check_duplicated(img, image_name, count, dup_indices = [], hashes = set(), dup_dict = {}):
     '''
     Updates hash information for the set of images to find duplicates
     
