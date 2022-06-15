@@ -101,7 +101,6 @@ class ImageDataset:
             if c1 != "Duplicated":
                 analysis = analyze_scores(self.issue_info[c1])
                 issue_indices = analysis[0]
-                img_ind = analysis[1].keys() #list of ascending image indices
                 boolean = list(analysis[1].values())
                 issue_scores = self.issue_info[c1]
                 if len(overall_scores) == 0:
@@ -120,7 +119,7 @@ class ImageDataset:
                         except:
                             break
         issue_data["Overall Score"] = list(overall_scores)
-        issue_df = pd.DataFrame(issue_data, index=img_ind)
+        issue_df = pd.DataFrame(issue_data)
         #Analysis for misc_info
         dup_tups = []
         for v in dup_dict.values():

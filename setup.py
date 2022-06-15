@@ -31,45 +31,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 setup(
     name="image_data_quality",
     version="0.0.0",
-    #license="AGPLv3+",
-    #long_description=long_description,
-    #long_description_content_type="text/markdown",
-    #description="The standard package for data-centric AI, machine learning with label errors, "
-    #"and automatically finding and fixing dataset issues in Python.",
-    #url="https://cleanlab.ai",
-    # project_urls={
-    #     "Documentation": "https://docs.cleanlab.ai",
-    #     "Bug Tracker": "https://github.com/cleanlab/cleanlab/issues",
-    #     "Source Code": "https://github.com/cleanlab/cleanlab",
-    # },
-    author="Cleanlab Inc.",
-    author_email="team@cleanlab.ai",
-    # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
-        "Intended Audience :: Education",
-        "Intended Audience :: Science/Research",
-        "Intended Audience :: Information Technology",
-        "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
-        "Natural Language :: English",
-        # We believe this package works will these versions, but we do not guarantee it!
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python",
-        "Topic :: Software Development",
-        "Topic :: Scientific/Engineering",
-        "Topic :: Scientific/Engineering",
-        "Topic :: Scientific/Engineering :: Mathematics",
-        "Topic :: Scientific/Engineering :: Artificial Intelligence",
-        "Topic :: Software Development",
-        "Topic :: Software Development :: Libraries",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-    ],
+    license="AGPLv3+",
     python_requires=">=3.6",
     # What does your project relate to?
     # keywords="machine_learning data_cleaning confident_learning classification weak_supervision "
