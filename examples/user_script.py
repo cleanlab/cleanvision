@@ -2,8 +2,8 @@ import time
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # import importlib  
 # image_data_quality = importlib.import_module("image-data-quality")
-#from image_data_quality.image_dataset import ImageDataset
-from image_dataset import ImageDataset
+from image_data_quality.image_dataset import ImageDataset
+#from image_dataset import ImageDataset
 #Question: can access from examples folder?
 #progress bars
 
