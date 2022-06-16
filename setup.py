@@ -25,8 +25,6 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
-# Get version number and store it in __version__
-
 
 setup(
     name="image_data_quality",
@@ -38,7 +36,7 @@ setup(
     # "learning_with_noisy_labels unsupervised_learning datacentric_ai, datacentric",
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    #packages=find_packages(exclude=[]),
+    packages=find_packages("src"),
     # Include cleanlab license file.
     #include_package_data=True,
     package_data={
