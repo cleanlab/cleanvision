@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 from tqdm import tqdm
-from issue_checks import check_brightness, check_odd_size, check_entropy, check_duplicated
-from utils.utils import analyze_scores, get_sorted_images
+from image_data_quality.issue_checks import check_brightness, check_odd_size, check_entropy, check_duplicated
+from image_data_quality.utils.utils import analyze_scores, get_sorted_images
 
 possible_issues= {"Duplicated": check_duplicated, "Brightness": check_brightness, "Odd size": check_odd_size,  "Potential occlusion": check_entropy} #Question: could this be defined here?
 #TODO: a global list to keep track of checks needing info from entire dataset
