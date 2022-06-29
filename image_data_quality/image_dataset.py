@@ -46,10 +46,12 @@ def flattenList(nestedList):
 
 class ImageDataset:
     def __init__(
-        self, path=None, image_files=None, thumbnail_size=None, issues_checked=None
+        self, path = None, image_files=None, thumbnail_size=None, issues_checked=None
     ):
         if path is None:
             self.path = os.getcwd()
+        else:
+            self.path = path
         if image_files is None:
             self.image_files = get_sorted_images(self.path)
         else:
@@ -110,7 +112,7 @@ class ImageDataset:
             {}
         )  # dict where keys are string names of issues, values are list in image order of scores between 0 and 1
         for image_name in tqdm(self.image_files):
-            img = Image.open(image_name)
+            img = Image.open(os.path.join(self.path, image_name))
             img.thumbnail(self.thumbnail_size)
             for c in self.issues_checked:  # run each check for each image
                 if c in dataset_wide_issues:
@@ -130,11 +132,11 @@ class ImageDataset:
                     num_preview
                 ):  # show the first 10 duplicate images (if exists)
                     img = Image.open(
-                        self.image_files[flattenList(self.issue_info[c])[x]]
+                        os.path.join(self.path, self.image_files[flattenList(self.issue_info[c])[x]])
                     )
                     try:
                         img = Image.open(
-                            self.image_files[flattenList(self.issue_info[c])[x]]
+                            os.path.join(self.path, self.image_files[flattenList(self.issue_info[c])[x]])
                         )
                         img.show()
                     except:
@@ -156,7 +158,7 @@ class ImageDataset:
                             num_preview
                         ):  # show the top 10 issue images (if exists)
                             try:
-                                img = Image.open(self.image_files[issue_indices[ind]])
+                                img = Image.open(os.path.join(self.path, self.image_files[issue_indices[ind]]))
                                 img.show()
                             except:
                                 break

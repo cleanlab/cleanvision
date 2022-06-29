@@ -49,9 +49,10 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        "Pillow >= 9.0",
+        "Pillow >= 8.4",
         "numpy>=1.11.3",
         "pandas>=1.0.0",
+        "imagehash>=4.2.0",
     ],
 )
 
