@@ -30,35 +30,37 @@ DATASET_WIDE_ISSUES = {
 
 class ImageDataset:
     """
-    Auto-detects issues in image data that may cause problems in training. 
+    Auto-detects issues in image data that may be problematic for machine learning 
     This class takes in a dataset of images and performs targeted checks 
     to report the indices of problematic images and other relevant information. 
 
     Parameters
     ----------
-    path: string
-      path to folder where image dataset is located
+    path: str, optional
+      Path to folder where image dataset is located
       If not provided with path, default set to current working directory.
 
-    image_files: list of strings
-      a list of filenames in the image dataset sorted numerically and alphabetically
+    image_files: list[str], optional
+      A list of filenames in the image dataset sorted numerically and alphabetically
       If provided with filenames, sorts using built-in sorting function.
       Default set to list of all images in the dataset.
     
-    thumbnail_size: tuple of 2 integers
-      a tuple specifying the size of the thumbnail in which image analysis is based on. 
+    thumbnail_size: tuple[int, int], optional
+      A tuple specifying the size of the thumbnail in which image analysis is based on. 
       If not provided with the 2-tuple, default set to (128, 128). 
 
-    self.issue_info: a dictionary
-      a dictionary where keys are strings describing issue names, 
-      and respective values are either a list of indices of images with this issue, 
-      or a nested list containing groups of images with the same issue. 
-        
-    self.misc_info: a dictionary
-      a dictionary where keys are strings describing names of miscellaneous information, 
+    issues_checked: dict, optional
+        A dictionary where keys are string names of checks being run, and respective values
+        are another dictionary containing hyperparameters. 
+        Values are empty dict by default
+         
     """
+    issue_info = {}
+    """key: issue name string, value: list of indices of images with this issue (dict)"""
+    misc_info = {}
+    """key: miscellanous info name string, value: intuitive data structure containing that info (dict)"""
     def __init__(
-        self, path: str=None, image_files: list=None, thumbnail_size: tuple=None
+        self, path: str = None, image_files: list=None, thumbnail_size: tuple=None, issues_checked: dict = None
     ):
         if path is None:
             self.path = os.getcwd()
@@ -72,15 +74,49 @@ class ImageDataset:
             self.thumbnail_size = (128, 128)
         else: 
             self.thumbnail_size = thumbnail_size
+        if issues_checked is None:
+            self.issues_checked = {}
+        else:
+            self.issues_checked = issues_checked
         # TODO: revisit default value for thumbnail_size
-        self.issue_info = (
-            {}
-        )  # key: issue name string, value: list of indices of images with this issue
-        self.misc_info = (
-            {}
-        )  # key: misc info name string, value: intuitive data structure containing that info
-
-    def find_issues(self, verbose=True, num_preview=10, threshold = 5, issues_checked: list = None, **kwargs):
+    
+        
+    def __repr__(self):
+        if self.issue_info == {}:
+            num_issues = None
+        else:
+            num_issues = 0
+            for check in self.issue_info.values():
+                if type(check[0]) == list:
+                    flat_issue = []
+                    for l in check: 
+                        flat_issue += l
+                    num_issues += len(flat_issue)
+                else: 
+                    num_issues += len(check) 
+        display_str = "ImageDataset(num_images = " + str(len(self.image_files)) + ", path = " + str(self.path) + ", num_images_with_issue = " + str(num_issues)+")"
+        # Useful info could be: num_images, path, number of images with issues identified so far (numeric or None if issue-finding not run yet).
+        return display_str
+  
+    def __str__(self):
+        '''
+        if self.issue_info == {}:
+            num_issues = None
+        else:
+            num_issues = 0
+            for check in self.issue_info.values():
+                if type(check[0]) == list:
+                    flat_issue = []
+                    for l in check: 
+                        flat_issue += l
+                    num_issues += len(flat_issue)
+                else: 
+                    num_issues += len(check) 
+        display_info = "num_images = " + str(len(self.image_files)) + ", path = " + str(self.path) + ", num_images_with_issue = " + str(num_issues)
+        '''
+        return self.__repr__()[13:-1]  # display_info could be same information as above in display_str without the ImageDataset(...) wrapper text.   
+    
+    def find_issues(self, threshold = None, issues_checked: dict = None, verbose=True, num_preview = None, **kwargs):
         """
         Audits self.image_files
         For issue checks performed on each image (i.e. brightness, odd size, potential occlusion)
@@ -90,21 +126,31 @@ class ImageDataset:
             for each image, take these data structures as input and update accordingly
         calls analyze_scores to perform analysis and obtain data for output
 
-
         Parameters
         ----------
-        verbose: bool (defaults to True)
-        a boolean variable where iff True, show a subset of images (<= 10) with issues
+        verbose: bool, Default = True
+        A boolean variable where iff True, show a subset of images (<= num_preview) with issues.
 
-        num_preview: int
-        an integer representing the number of images with the issue shown 
-        or the number of issue image groups shown
+        num_preview: int, Default = 10
+        An integer representing the number of images with the issue shown (i.e. Blurry)
+        or the number of groups of images shown for issues identified in image groups (i.e. Near Duplicates)
+
+        threshold: int, Default = 5
+        An integer representing the percentile threshold for issue scores below which an 
+        image is considered as suffering from that issue.
+        A larger threshold values will lead to more images being flagged with issues.
+
+        issues_checked: dict, optional
+        A dictionary where keys are string names of checks being run, and respective values
+        are another dictionary containing hyperparameters. 
+        Values are empty dict by default
+         
 
         Returns
         -------
-        a tuple: (issue_dict, issue_df)
+        (issue_dict, issue_df): tuple
 
-        issue_dict: dict
+        issue_dict: dict[str, list]
         a dictionary where keys are string names of issue checks
         and respective values are a list of images indices suffering from the given issue ordered by severity (high to low)
 
@@ -114,12 +160,19 @@ class ImageDataset:
         For binary checks (i.e. duplicated images), each cell contains a boolean of 1 represents if an image suffer from the issue, 0 otherwise
         For other checks, each cell contains a score between 0 and 1 (with low score being severe issue)
 
-        misc_info: dict
+        misc_info: dict[str, Any]
         a dictionary where keys are string names of miscellaneous info and values are the info stored in the most intuitive data structure.
         """
+        if threshold is None:
+            threshold = 5
+        if num_preview <= 0:
+            verbose = False
+        elif num_preview is None:
+            num_preview = 10
         if issues_checked is None:  # defaults to run all checks
-            issues_checked = list(POSSIBLE_ISSUES.keys())
+            self.issues_checked = {k:{} for k in POSSIBLE_ISSUES.keys()}
         else:
+            self.issues_checked = {**self.issues_checked, **issues_checked}
             for c in issues_checked:
                 if c not in POSSIBLE_ISSUES:
                     raise ValueError("Not a valid issue check!")
@@ -130,14 +183,14 @@ class ImageDataset:
         for image_name in tqdm(self.image_files):
             img = Image.open(os.path.join(self.path, image_name))
             img.thumbnail(self.thumbnail_size)
-            for c in issues_checked:  # run each check for each image
+            for c in self.issues_checked:  # run each check for each image
+                c_kwargs = self.issues_checked[c]
                 if c in DATASET_WIDE_ISSUES:
-                    if c in kwargs:
-                        (self.issue_info, self.misc_info) = POSSIBLE_ISSUES[c](
-                            img, image_name, count, self.issue_info, self.misc_info, **kwargs[c]
-                        )
+                    (self.issue_info, self.misc_info) = POSSIBLE_ISSUES[c](
+                            img, image_name, count, self.issue_info, self.misc_info, **c_kwargs
+                    )
                 else:
-                    issue_scores.setdefault(c, []).append(POSSIBLE_ISSUES[c](img))
+                    issue_scores.setdefault(c, []).append(POSSIBLE_ISSUES[c](img, **c_kwargs))
             count += 1
         if verbose:
             for c in DATASET_WIDE_ISSUES:
@@ -156,7 +209,7 @@ class ImageDataset:
                             break
         issue_data = {}
         issue_data["Names"] = self.image_files
-        for c1 in issues_checked:
+        for c1 in self.issues_checked:
             if c1 not in DATASET_WIDE_ISSUES:
                 analysis = analyze_scores(issue_scores[c1], threshold)
                 issue_indices = analysis[0]
@@ -177,7 +230,7 @@ class ImageDataset:
         overall_scores = (
             []
         )  # compute overall score with element-wise multiplication of all nonbinary scores
-        for c1 in issues_checked:
+        for c1 in self.issues_checked:
             if c1 not in DATASET_WIDE_ISSUES:
                 if overall_scores == []:
                     overall_scores = np.array(issue_scores[c1])
