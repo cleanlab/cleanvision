@@ -48,5 +48,6 @@ setup(
         "numpy>=1.11.3",
         "pandas>=1.0.0",
         "imagehash>=4.2.0",
+        "tqdm>=4.53.0",
     ],
 )

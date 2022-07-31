@@ -4,7 +4,7 @@ import numpy as np
 
 
 
-def check_brightness(img):
+def check_brightness(img, **kwargs):
     """
     Scores the overall brightness for a given image to find ones that are too bright and too dark
 
@@ -38,7 +38,7 @@ def check_brightness(img):
     return bright_score
 
 
-def check_odd_size(img):
+def check_odd_size(img, **kwargs):
     """
     Scores the proportions for a given image to find ones with odd sizes
 
@@ -60,7 +60,7 @@ def check_odd_size(img):
     return size_score
 
 
-def check_entropy(img):
+def check_entropy(img, **kwargs):
     """
     Scores the entropy for a given image to find ones that are potentially occluded. 
 
@@ -80,7 +80,7 @@ def check_entropy(img):
     entropy_score = img.entropy() / 10
     return entropy_score
 
-def check_static(img):
+def check_static(img, **kwargs):
     """
     Calls check_entropy to get images that may be static images
 
@@ -99,7 +99,7 @@ def check_static(img):
     """
     return 1-check_entropy(img)
 
-def check_blurriness(img):
+def check_blurriness(img, **kwargs):
     """
     Scores the overall blurriness for a given image
 
@@ -122,13 +122,11 @@ def check_blurriness(img):
     final = img.filter(ImageFilter.Kernel((3, 3), (-1, -1, -1, -1, 8,
                                             -1, -1, -1, -1), 1, 0))
     out = ImageStat.Stat(final).var[0]
-    if out < threshold: 
-        return 0
-    else: 
-        return 1
+    blur_score = 1/(1+(math.e)**(2*(-out+260))) #calculate score between 0 & 1 using modified sigmoid function
+    return blur_score
 
 
-def check_duplicated(img, image_name, count, issue_info, misc_info):
+def check_duplicated(img, image_name, count, issue_info, misc_info, **kwargs):
     """
     Updates hash information for the set of images to find duplicates
 
@@ -138,22 +136,22 @@ def check_duplicated(img, image_name, count, issue_info, misc_info):
     img: PIL image
     a PIL image object for which the hash is calculated
 
-    image_name: string
+    image_name: str
     a string representing the image name
 
     count: int
     an integer representing the current image index in the dataset
 
-    issue_info: dict
+    issue_info: dict[str, list[int]]
     the ImageDataset attribute self.issue_info where the key is the issue checked by this function ("Duplicated")
-    and the value is all the indices with this issue
+    and the value is a list of all the indices with this issue
 
-    misc_info: dict
+    misc_info: dict[str, list]
     the ImageDataset attribute self.misc_info
 
     Returns
     -------
-    a tuple: (issue_info, misc_info)
+    (issue_info, misc_info): tuple
 
     a tuple of the dictionaries updated with new information given by img
 
@@ -185,32 +183,36 @@ def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwarg
     img: PIL image
     a PIL image object for which the hash is calculated
 
-    image_name: string
+    image_name: str
     a string representing the image name
 
     count: int
     an integer representing the current image index in the dataset
 
-    issue_info: dict
+    issue_info: dict[str, list[int]]
     the ImageDataset attribute self.issue_info where the key is the issue checked by this function ("Duplicated")
     and the value is all the indices with this issue
 
-    misc_info: dict
+    misc_info: dict[str, list]
     the ImageDataset attribute self.misc_info
 
     Returns
     -------
-    a tuple: (issue_info, misc_info)
+    (issue_info, misc_info): tuple
 
     a tuple of the dictionaries updated with new information given by img
 
     """
+    hashtypes = {"whash": imagehash.whash, "phash": imagehash.phash, "colorhash": imagehash.colorhash, "ahash": imagehash.average_hash}
     if "Near Duplicates" not in issue_info:
         issue_info["Near Duplicates"] = []
         misc_info["Near Duplicate Imagehashes"] = set()
         misc_info["Imagehash to Image"] = {}
         misc_info["Near Duplicate Image Groups"] = {}
-    cur_hash = kwargs["hashtype"](img, hash_size = 8)
+    if kwargs: #hash function specified by user
+        cur_hash = hashtypes[kwargs["hashtype"]](img, hash_size = 8)
+    else: 
+        cur_hash = imagehash.phash(img, hash_size = 8)
     if cur_hash in misc_info["Near Duplicate Imagehashes"]:
         misc_info["Imagehash to Image"][cur_hash].append(count)
         imgs_with_cur_hash = misc_info["Imagehash to Image"][cur_hash]
@@ -221,63 +223,3 @@ def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwarg
         misc_info["Imagehash to Image"][cur_hash] = [count]
     issue_info["Near Duplicates"] = list(misc_info["Near Duplicate Image Groups"].values())
     return (issue_info, misc_info)
-
-'''
-def check_near_duplicates(img, image_name, count, issue_info, misc_info):
-    """
-    Updates imagehash (wavelet hashing) information for the set of images to find near-duplicates
-
-    Parameters
-    ----------
-    img: PIL image
-    a PIL image object for which the brightness score is calculated
-
-    image_name: string
-    a string representing the image name
-
-    count: int
-    an integer representing the current image index in the dataset
-
-    issue_info: dict
-    the ImageDataset attribute self.issue_info where the key is the issue checked by this function ("Near duplicates")
-    and the value a nested list where each sublist is a group of near duplicates
-
-    misc_info: dict
-    the ImageDataset attribute self.misc_info
-
-    Returns
-    -------
-    a tuple: (issue_info, misc_info)
-
-    a tuple of the dictionaries updated with new information given by img
-
-    """
-    cur_imagehash = imagehash.whash(img)
-    if "Near duplicates" not in issue_info:
-        misc_info["Near duplicates tuples"] = []
-        issue_info["Near duplicates"] = []
-    modify = False  # whether img is a near duplicate that requires modification of issue_info
-    alone = True  # image is not a near-duplicate of any previously checked images
-    for index in range(len(misc_info["Near duplicates tuples"])):
-        group = misc_info["Near duplicates tuples"][index]
-        near_count = 0
-        group_len = len(group)
-        temp_group_tuple = copy.deepcopy(group)
-        for img_and_hash in group:
-            if img_and_hash[0] - cur_imagehash < 8:
-                alone = False  # found a near duplicates pair
-                near_count += 1
-        if near_count == group_len:  # near duplicates with every image in a group
-            temp_group_tuple.append((cur_imagehash, count))
-            misc_info["Near duplicates tuples"][index] = temp_group_tuple
-            modify = True
-    if alone:  # img is not a near duplicate of any seen images
-        misc_info["Near duplicates tuples"].append([(imagehash.whash(img), count)])
-    if modify:
-        issue_info["Near duplicates"] = [
-            [tup[1] for tup in L]
-            for L in misc_info["Near duplicates tuples"]
-            if len(L) > 1
-        ]
-    return (issue_info, misc_info)
-'''
