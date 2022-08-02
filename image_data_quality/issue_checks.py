@@ -7,7 +7,7 @@ import numpy as np
 def check_brightness(img, **kwargs):
     """
     Scores the overall brightness for a given image to find ones that are too bright and too dark
-
+    generates 'Brightness sorted z-scores' in images.misc_info 
 
     Parameters
     ----------
@@ -41,7 +41,7 @@ def check_brightness(img, **kwargs):
 def check_odd_size(img, **kwargs):
     """
     Scores the proportions for a given image to find ones with odd sizes
-
+    generates 'Odd Size sorted z-scores' in images.misc_info
 
     Parameters
     ----------
@@ -63,7 +63,7 @@ def check_odd_size(img, **kwargs):
 def check_entropy(img, **kwargs):
     """
     Scores the entropy for a given image to find ones that are potentially occluded. 
-
+    generates 'Potential Occlusion sorted z-scores' in images.misc_info
 
     Parameters
     ----------
@@ -83,7 +83,7 @@ def check_entropy(img, **kwargs):
 def check_static(img, **kwargs):
     """
     Calls check_entropy to get images that may be static images
-
+    generates 'Potential Static sorted z-scores' in images.misc_info
 
     Parameters
     ----------
@@ -102,7 +102,7 @@ def check_static(img, **kwargs):
 def check_blurriness(img, **kwargs):
     """
     Scores the overall blurriness for a given image
-
+    generates 'Blurry sorted z-scores' in images.misc_info
 
     Parameters
     ----------
@@ -115,9 +115,7 @@ def check_blurriness(img, **kwargs):
     blur_score: int
     an integer score where 0 means image is blurry, 1 otherwise
     """
-    threshold = 260
     img = img.convert("L") #Convert image to grayscale
-  
     # Calculating Edges using the Laplacian Kernel
     final = img.filter(ImageFilter.Kernel((3, 3), (-1, -1, -1, -1, 8,
                                             -1, -1, -1, -1), 1, 0))
@@ -129,7 +127,11 @@ def check_blurriness(img, **kwargs):
 def check_duplicated(img, image_name, count, issue_info, misc_info, **kwargs):
     """
     Updates hash information for the set of images to find duplicates
-
+    generates 
+    'Image Hashes',
+    'Hash to Image',
+    'Duplicate Image Groups'
+    in images.misc_info
 
     Parameters
     ----------
@@ -176,8 +178,16 @@ def check_duplicated(img, image_name, count, issue_info, misc_info, **kwargs):
 def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwargs):
     """
     Updates hash information for the set of images to find duplicates
+    generates 
+    'Near Duplicate Imagehashes',
+    'Imagehash to Image',
+    'Near Duplicate Image Groups'
+    in images.misc_info
 
-
+    kwargs: 
+    "hashtype"= "whash", "phash", "color_hash", "ahash"
+    "hash_size" = int
+    
     Parameters
     ----------
     img: PIL image
@@ -210,7 +220,8 @@ def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwarg
         misc_info["Imagehash to Image"] = {}
         misc_info["Near Duplicate Image Groups"] = {}
     if kwargs: #hash function specified by user
-        cur_hash = hashtypes[kwargs["hashtype"]](img, hash_size = 8)
+        hash_size = kwargs["hash_size"]
+        cur_hash = hashtypes[kwargs["hashtype"]](img, hash_size)
     else: 
         cur_hash = imagehash.phash(img, hash_size = 8)
     if cur_hash in misc_info["Near Duplicate Imagehashes"]:
