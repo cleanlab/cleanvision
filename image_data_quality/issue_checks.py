@@ -1,7 +1,13 @@
-import math, hashlib, imagehash, copy
+import math, hashlib, copy, imagehash
 from PIL import ImageStat, ImageFilter
-import numpy as np
 
+def try_import_imagehash():
+    try:
+        import imagehash
+    except ImportError:
+        raise ImportError(
+            "Unable to import dependency imagehash. "
+            "A quick tip is to install via `pip install imagehash`. ")
 
 
 def check_brightness(img, **kwargs):
@@ -213,17 +219,15 @@ def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwarg
     a tuple of the dictionaries updated with new information given by img
 
     """
+    try_import_imagehash() #try lazy import
     hashtypes = {"whash": imagehash.whash, "phash": imagehash.phash, "colorhash": imagehash.colorhash, "ahash": imagehash.average_hash}
+    variables = {**{"hashtype":"phash", "hash_size": 8}, **kwargs}
     if "Near Duplicates" not in issue_info:
         issue_info["Near Duplicates"] = []
         misc_info["Near Duplicate Imagehashes"] = set()
         misc_info["Imagehash to Image"] = {}
         misc_info["Near Duplicate Image Groups"] = {}
-    if kwargs: #hash function specified by user
-        hash_size = kwargs["hash_size"]
-        cur_hash = hashtypes[kwargs["hashtype"]](img, hash_size)
-    else: 
-        cur_hash = imagehash.phash(img, hash_size = 8)
+    cur_hash = hashtypes[variables["hashtype"]](img, variables["hash_size"])
     if cur_hash in misc_info["Near Duplicate Imagehashes"]:
         misc_info["Imagehash to Image"][cur_hash].append(count)
         imgs_with_cur_hash = misc_info["Imagehash to Image"][cur_hash]

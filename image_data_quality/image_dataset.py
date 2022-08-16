@@ -1,4 +1,4 @@
-import os
+import os, warnings
 import numpy as np
 import pandas as pd
 from PIL import Image
@@ -88,32 +88,17 @@ class ImageDataset:
             self.thumbnail_size = (128, 128)
         else: 
             self.thumbnail_size = thumbnail_size
-        if issues_checked is None:
-            self.issues_checked = {}
-        else:
-            self.issues_checked = issues_checked
+        #if issues_checked is None:
+            #self.issues_checked = {}
+        #else:
+            #self.issues_checked = issues_checked
         # TODO: revisit default value for thumbnail_size
     
         
     def __repr__(self):
-        return "ImageDataset(num_images = " + str(self.num_images) + ", path = " + str(self.path) + ", num_images_with_issue = " + str(num_issues)+")"
+        return "ImageDataset(num_images = " + str(self.num_images) + ", path = " + str(self.path) + ", num_images_with_issue = " + str(self.total_num_issues)+")"
   
     def __str__(self):
-        '''
-        if self.issue_summary == {}:
-            num_issues = None
-        else:
-            num_issues = 0
-            for check in self.issue_summary.values():
-                if type(check[0]) == list:
-                    flat_issue = []
-                    for l in check: 
-                        flat_issue += l
-                    num_issues += len(flat_issue)
-                else: 
-                    num_issues += len(check) 
-        display_info = "num_images = " + str(len(self.image_files)) + ", path = " + str(self.path) + ", num_images_with_issue = " + str(num_issues)
-        '''
         return "num_images = " + str(self.num_images) + ", path = " + str(self.path) + ", num_images_with_issue = " + str(self.total_num_issues)
        
     
@@ -173,10 +158,10 @@ class ImageDataset:
         if issues_checked is None:  # defaults to run all checks
             self.issues_checked = {k:{} for k in POSSIBLE_ISSUES.keys()}
         else:
-            self.issues_checked = {**self.issues_checked, **issues_checked}
             for c in issues_checked:
                 if c not in POSSIBLE_ISSUES:
                     raise ValueError("Not a valid issue check!")
+            self.issues_checked = {**self.issues_checked, **issues_checked}
         count = 0
         issue_scores = (
             {}
@@ -185,13 +170,19 @@ class ImageDataset:
             img = Image.open(os.path.join(self.path, image_name))
             img.thumbnail(self.thumbnail_size)
             for c in self.issues_checked:  # run each check for each image
-                c_kwargs = self.issues_checked[c]
-                if c in DATASET_WIDE_ISSUES:
-                    (self.issue_summary, self.misc_info) = POSSIBLE_ISSUES[c](
-                            img, image_name, count, self.issue_summary, self.misc_info, **c_kwargs
-                    )
-                else:
-                    issue_scores.setdefault(c, []).append(POSSIBLE_ISSUES[c](img, **c_kwargs))
+                try:
+                    c_kwargs = self.issues_checked[c]
+                    if c in DATASET_WIDE_ISSUES:
+                        (self.issue_summary, self.misc_info) = POSSIBLE_ISSUES[c](
+                                img, image_name, count, self.issue_summary, self.misc_info, **c_kwargs
+                        )
+                    else:
+                        issue_scores.setdefault(c, []).append(POSSIBLE_ISSUES[c](img, **c_kwargs))
+                except Exception as e:
+                    warnings.warn("issue_check_func threw exception, this check was not run on your data."
+ 				    "Exception: " + e
+    		        )
+                    del self.issues_checked[c]
             count += 1
         if verbose:
             for c in DATASET_WIDE_ISSUES:
