@@ -131,3 +131,16 @@ def display_images(indices, num_preview):
         return indices[:outlen]
     else: #if nested list
         return [item for i in range(outlen) for item in indices[i]]
+
+def get_total_num_issues(issue_info):
+    if issue_info == {}:
+            num_issues = None
+    else:
+        num_issues = 0
+        for check in issue_info.values():
+            if type(check[0]) == list: #if nested list
+                flat_issue = [item for l in check for item in l]
+                num_issues += len(flat_issue)
+            else: 
+                num_issues += len(check) 
+    return num_issues
