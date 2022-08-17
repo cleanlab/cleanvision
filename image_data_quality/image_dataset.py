@@ -9,10 +9,11 @@ from image_data_quality.issue_checks import (
     check_entropy,
     check_static,
     check_blurriness,
+    check_corrupt,
     check_duplicated,
     check_near_duplicates,
 )
-from image_data_quality.utils.utils import analyze_scores, get_sorted_images, display_images, get_total_num_issues
+from image_data_quality.utils.utils import analyze_scores, get_sorted_images, display_images, get_total_num_issues, try_import_PIL
 
 POSSIBLE_ISSUES = {
     "Brightness": check_brightness,
@@ -20,6 +21,7 @@ POSSIBLE_ISSUES = {
     "Potential Occlusion": check_entropy,
     "Potential Static": check_static,
     "Blurry": check_blurriness,
+    "Corrupt": check_corrupt,
     "Duplicated": check_duplicated,
     "Near Duplicates": check_near_duplicates,
 }
@@ -31,9 +33,10 @@ DATASET_WIDE_ISSUES = {
 MISC_INFO = {
     "Brightness": ['Brightness sorted z-scores'],
     "Odd Size": ['Odd Size sorted z-scores'],
-    "Potential Occlusion": ['Potential Occlusion sorted z_scores'],
-    "Potential Static": ['Potential Static sorted z_scores'],
+    "Potential Occlusion": ['Potential Occlusion sorted z-scores'],
+    "Potential Static": ['Potential Static sorted z-scores'],
     "Blurry": ['Blurry sorted z-scores'],
+    "Corrupt": ['Corrupt sorted z-scores'],
     "Duplicated": ['Image Hashes', 'Hash to Image', 'Duplicate Image Groups'],
     "Near Duplicates": ['Near Duplicate Imagehashes', 'Imagehash to Image', 'Near Duplicate Image Groups']
 }
@@ -88,10 +91,10 @@ class ImageDataset:
             self.thumbnail_size = (128, 128)
         else: 
             self.thumbnail_size = thumbnail_size
-        #if issues_checked is None:
-            #self.issues_checked = {}
-        #else:
-            #self.issues_checked = issues_checked
+        if issues_checked is None:
+            self.issues_checked = {}
+        else:
+            self.issues_checked = issues_checked
         # TODO: revisit default value for thumbnail_size
     
         
@@ -167,6 +170,8 @@ class ImageDataset:
             {}
         )  # dict where keys are string names of issues, values are list in image order of scores between 0 and 1
         for image_name in tqdm(self.image_files):
+            try_import_PIL()
+            from PIL import Image
             img = Image.open(os.path.join(self.path, image_name))
             img.thumbnail(self.thumbnail_size)
             for c in self.issues_checked:  # run each check for each image
@@ -236,10 +241,12 @@ class ImageDataset:
         issue_names = self.issue_summary.keys()
         issue_indices = list(self.issue_summary.values())
         self.total_num_issues = get_total_num_issues(self.issue_summary)
-        num_examples = []
+        num_examples = [] #stores number of issue images for each check
         info_list = [MISC_INFO[check] for check in issue_names]
         for e in issue_indices: 
-            if type(e[0]) is list: #if nested list
+            if e == []: #no issue images
+                num_examples.append(0)
+            elif type(e[0]) is list: #if nested list
                 num_examples.append(len([item for l in e for item in l]))
             else:
                 num_examples.append(len(e))

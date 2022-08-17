@@ -14,6 +14,20 @@ TYPES = [
     "*.JPEG",
 ]  # filetypes supported by PIL
 
+def try_import_PIL():
+   try:
+       from PIL import Image
+   except ImportError:
+       print("PIL must be installed for this functionality to work, you can use: pip install PIL>=8.4")
+
+def try_import_imagehash():
+    try:
+        import imagehash
+    except ImportError:
+        raise ImportError(
+            "Unable to import dependency imagehash. "
+            "A quick tip is to install via `pip install imagehash`. ")
+
 
 def get_sorted_images(
     path,
@@ -133,8 +147,12 @@ def display_images(indices, num_preview):
         return [item for i in range(outlen) for item in indices[i]]
 
 def get_total_num_issues(issue_info):
-    if issue_info == {}:
-            num_issues = None
+    issues = False
+    for l in issue_info.values():
+        if l != []:
+            issues = True
+    if not issues:
+        num_issues = None
     else:
         num_issues = 0
         for check in issue_info.values():

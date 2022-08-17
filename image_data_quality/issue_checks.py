@@ -1,13 +1,5 @@
-import math, hashlib, copy, imagehash
-from PIL import ImageStat, ImageFilter
-
-def try_import_imagehash():
-    try:
-        import imagehash
-    except ImportError:
-        raise ImportError(
-            "Unable to import dependency imagehash. "
-            "A quick tip is to install via `pip install imagehash`. ")
+import math, hashlib, copy
+from image_data_quality.utils.utils import try_import_PIL, try_import_imagehash
 
 
 def check_brightness(img, **kwargs):
@@ -27,6 +19,8 @@ def check_brightness(img, **kwargs):
     a float between 0 and 1 representing if the image suffers from being too bright or too dark
     a lower number means a more severe issue
     """
+    try_import_PIL()
+    from PIL import ImageStat
     stat = ImageStat.Stat(img)
     try:
         r, g, b = stat.mean
@@ -118,9 +112,11 @@ def check_blurriness(img, **kwargs):
 
     Returns
     -------
-    blur_score: int
-    an integer score where 0 means image is blurry, 1 otherwise
+    blur_score: float
+    an float score between 0 and 1 where smaller value means image is more blurry
     """
+    try_import_PIL()
+    from PIL import ImageStat, ImageFilter
     img = img.convert("L") #Convert image to grayscale
     # Calculating Edges using the Laplacian Kernel
     final = img.filter(ImageFilter.Kernel((3, 3), (-1, -1, -1, -1, 8,
@@ -129,6 +125,26 @@ def check_blurriness(img, **kwargs):
     blur_score = 1/(1+(math.e)**(2*(-out+260))) #calculate score between 0 & 1 using modified sigmoid function
     return blur_score
 
+def check_corrupt(img):
+    """
+    Assign a boolean score for if an image is corrupted or broken
+
+    Parameters
+    ----------
+    img: PIL image
+    a PIL image object for which the brightness score is calculated
+
+
+    Returns
+    -------
+    blur_score: int
+    a boolean integer score where 0 means image is corrupted/broken, 1 otherwise
+    """
+    try:
+        img.verify()
+        return 1
+    except:
+        return 0
 
 def check_duplicated(img, image_name, count, issue_info, misc_info, **kwargs):
     """
@@ -220,6 +236,7 @@ def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwarg
 
     """
     try_import_imagehash() #try lazy import
+    import imagehash
     hashtypes = {"whash": imagehash.whash, "phash": imagehash.phash, "colorhash": imagehash.colorhash, "ahash": imagehash.average_hash}
     variables = {**{"hashtype":"phash", "hash_size": 8}, **kwargs}
     if "Near Duplicates" not in issue_info:
