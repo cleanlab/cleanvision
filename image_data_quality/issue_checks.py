@@ -143,7 +143,7 @@ def check_corrupt(img):
     try:
         img.verify()
         return 1
-    except:
+    except Exception as e:
         return 0
 
 def check_duplicated(img, image_name, count, issue_info, misc_info, **kwargs):
