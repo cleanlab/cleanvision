@@ -1,13 +1,11 @@
-import math, hashlib, imagehash, copy
-from PIL import ImageStat, ImageFilter
-import numpy as np
+import math, hashlib, copy
+from image_data_quality.utils.utils import try_import_PIL, try_import_imagehash
 
 
-
-def check_brightness(img):
+def check_brightness(img, **kwargs):
     """
     Scores the overall brightness for a given image to find ones that are too bright and too dark
-
+    generates 'Brightness sorted z-scores' in images.misc_info 
 
     Parameters
     ----------
@@ -21,6 +19,8 @@ def check_brightness(img):
     a float between 0 and 1 representing if the image suffers from being too bright or too dark
     a lower number means a more severe issue
     """
+    try_import_PIL()
+    from PIL import ImageStat
     stat = ImageStat.Stat(img)
     try:
         r, g, b = stat.mean
@@ -38,10 +38,10 @@ def check_brightness(img):
     return bright_score
 
 
-def check_odd_size(img):
+def check_odd_size(img, **kwargs):
     """
     Scores the proportions for a given image to find ones with odd sizes
-
+    generates 'Odd Size sorted z-scores' in images.misc_info
 
     Parameters
     ----------
@@ -60,10 +60,10 @@ def check_odd_size(img):
     return size_score
 
 
-def check_entropy(img):
+def check_entropy(img, **kwargs):
     """
     Scores the entropy for a given image to find ones that are potentially occluded. 
-
+    generates 'Potential Occlusion sorted z-scores' in images.misc_info
 
     Parameters
     ----------
@@ -80,10 +80,10 @@ def check_entropy(img):
     entropy_score = img.entropy() / 10
     return entropy_score
 
-def check_static(img):
+def check_static(img, **kwargs):
     """
     Calls check_entropy to get images that may be static images
-
+    generates 'Potential Static sorted z-scores' in images.misc_info
 
     Parameters
     ----------
@@ -99,10 +99,35 @@ def check_static(img):
     """
     return 1-check_entropy(img)
 
-def check_blurriness(img):
+def check_blurriness(img, **kwargs):
     """
     Scores the overall blurriness for a given image
+    generates 'Blurry sorted z-scores' in images.misc_info
 
+    Parameters
+    ----------
+    img: PIL image
+    a PIL image object for which the brightness score is calculated
+
+
+    Returns
+    -------
+    blur_score: float
+    an float score between 0 and 1 where smaller value means image is more blurry
+    """
+    try_import_PIL()
+    from PIL import ImageStat, ImageFilter
+    img = img.convert("L") #Convert image to grayscale
+    # Calculating Edges using the Laplacian Kernel
+    final = img.filter(ImageFilter.Kernel((3, 3), (-1, -1, -1, -1, 8,
+                                            -1, -1, -1, -1), 1, 0))
+    out = ImageStat.Stat(final).var[0]
+    blur_score = 1/(1+(math.e)**(2*(-out+260))) #calculate score between 0 & 1 using modified sigmoid function
+    return blur_score
+
+def check_corrupt(img):
+    """
+    Assign a boolean score for if an image is corrupted or broken
 
     Parameters
     ----------
@@ -113,25 +138,22 @@ def check_blurriness(img):
     Returns
     -------
     blur_score: int
-    an integer score where 0 means image is blurry, 1 otherwise
+    a boolean integer score where 0 means image is corrupted/broken, 1 otherwise
     """
-    threshold = 260
-    img = img.convert("L") #Convert image to grayscale
-  
-    # Calculating Edges using the Laplacian Kernel
-    final = img.filter(ImageFilter.Kernel((3, 3), (-1, -1, -1, -1, 8,
-                                            -1, -1, -1, -1), 1, 0))
-    out = ImageStat.Stat(final).var[0]
-    if out < threshold: 
-        return 0
-    else: 
+    try:
+        img.verify()
         return 1
+    except Exception as e:
+        return 0
 
-
-def check_duplicated(img, image_name, count, issue_info, misc_info):
+def check_duplicated(img, image_name, count, issue_info, misc_info, **kwargs):
     """
     Updates hash information for the set of images to find duplicates
-
+    generates 
+    'Image Hashes',
+    'Hash to Image',
+    'Duplicate Image Groups'
+    in images.misc_info
 
     Parameters
     ----------
@@ -178,8 +200,16 @@ def check_duplicated(img, image_name, count, issue_info, misc_info):
 def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwargs):
     """
     Updates hash information for the set of images to find duplicates
+    generates 
+    'Near Duplicate Imagehashes',
+    'Imagehash to Image',
+    'Near Duplicate Image Groups'
+    in images.misc_info
 
-
+    kwargs: 
+    "hashtype"= "whash", "phash", "color_hash", "ahash"
+    "hash_size" = int
+    
     Parameters
     ----------
     img: PIL image
@@ -205,13 +235,16 @@ def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwarg
     a tuple of the dictionaries updated with new information given by img
 
     """
-    hashtypes = {"whash": imagehash.whash}
+    try_import_imagehash() #try lazy import
+    import imagehash
+    hashtypes = {"whash": imagehash.whash, "phash": imagehash.phash, "colorhash": imagehash.colorhash, "ahash": imagehash.average_hash}
+    variables = {**{"hashtype":"phash", "hash_size": 8}, **kwargs}
     if "Near Duplicates" not in issue_info:
         issue_info["Near Duplicates"] = []
         misc_info["Near Duplicate Imagehashes"] = set()
         misc_info["Imagehash to Image"] = {}
         misc_info["Near Duplicate Image Groups"] = {}
-    cur_hash = hashtypes[kwargs["hashtype"]](img, hash_size = 8)
+    cur_hash = hashtypes[variables["hashtype"]](img, variables["hash_size"])
     if cur_hash in misc_info["Near Duplicate Imagehashes"]:
         misc_info["Imagehash to Image"][cur_hash].append(count)
         imgs_with_cur_hash = misc_info["Imagehash to Image"][cur_hash]
