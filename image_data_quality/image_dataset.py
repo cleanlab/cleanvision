@@ -241,7 +241,7 @@ class ImageDataset:
         issue_names = self.issue_summary.keys()
         issue_indices = list(self.issue_summary.values())
         self.total_num_issues = get_total_num_issues(self.issue_summary)
-        num_examples = [] #stores number of issue images for each check
+        num_examples = []  # stores number of issue images for each check
         info_list = [MISC_INFO[check] for check in issue_names]
         for e in issue_indices: 
             if e == []: #no issue images
