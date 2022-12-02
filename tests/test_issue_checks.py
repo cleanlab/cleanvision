@@ -47,7 +47,3 @@ def test_7_check_near_duplicates(issue_info = {}, misc_info={}):
     assert len(issue_info["Near Duplicates"][0])==2 #only img1 and img3
     assert len(misc_info) == 3
     assert len(misc_info['Near Duplicate Imagehashes']) == 4 #img1 and img3 has the same hash
-
-        
-        
-        
