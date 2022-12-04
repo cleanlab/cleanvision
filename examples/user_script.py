@@ -1,9 +1,15 @@
+""" Example use of this library to check a collection of (unlabeled) images for various issues. 
+	First make sure you have placed your images in the path: image_files/
+""" 
+
+
 import time, os, sys
 from image_data_quality.image_dataset import ImageDataset
 
 start = time.time()
 
-images = ImageDataset("image_files/", thumbnail_size = (128,128))
+path_to_images = "image_files/"  # folder where your image files live
+images = ImageDataset(path_to_images, thumbnail_size = (128,128))
 print("The path is:", images.path)
 print("There are ", str(len(images.image_files)), "images in the dataset")
 
