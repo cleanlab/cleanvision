@@ -106,7 +106,7 @@ class ImageDataset:
         '''
         return self.__repr__()[13:-1]  # display_info could be same information as above in display_str without the ImageDataset(...) wrapper text.   
     
-    def find_issues(self, threshold = None, issues_checked: list = None, verbose=True, num_preview = None, **kwargs):
+    def find_issues(self, threshold = None, issues_checked: list = None, verbose = True, num_preview = 3, **kwargs):
         """
         Audits self.image_files
         For issue checks performed on each image (i.e. brightness, odd size, potential occlusion)
@@ -124,7 +124,8 @@ class ImageDataset:
 
         num_preview: int, Default = 10
         An integer representing the number of images with the issue shown (i.e. Blurry)
-        or the number of groups of images shown for issues identified in image groups (i.e. Near Duplicates)
+        or the number of groups of images shown for issues identified in image groups (i.e. Near Duplicates).
+        Set `num_preview` = 0 to not show any image previews.
 
         threshold: int, Default = 5
         An integer representing the percentile threshold for issue scores below which an 
