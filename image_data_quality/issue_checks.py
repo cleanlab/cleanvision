@@ -198,6 +198,16 @@ def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwarg
     misc_info: dict[str, list]
     the ImageDataset attribute self.misc_info
 
+    kwargs: dict
+        Keyword arguments specifying:
+        what type of image hash to compare between images in order to decide near-duplicates,
+        and other configuration-settings of this hash function (eg. the size of the output hash)
+
+        Possible kwargs include: 
+            `hash_type`: (str) type of hash to use.
+            `hash_size`: (int) size of hash to use.
+            TODO:list possibilities or point to link with them.
+
     Returns
     -------
     (issue_info, misc_info): tuple
@@ -205,13 +215,25 @@ def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwarg
     a tuple of the dictionaries updated with new information given by img
 
     """
-    hashtypes = {"whash": imagehash.whash}
+    HASHTYPES = {"whash": imagehash.whash}
+    DEFAULT_HASHTYPE = "whash"
+    DEFAULT_HASHSIZE = 8
+    hash_size = kwargs.get("hash_size", DEFAULT_HASHSIZE)
+    if not (isinstance(hash_size, int) and hash_size > 0):
+        raise ValueError("Invalid `hash_size` specified in kwargs, must be positive integer.")
+    hash_type = kwargs.get("hash_type", DEFAULT_HASHTYPE)
+    if hash_type in HASHTYPES:
+        hash_function = HASHTYPES[hash_type]
+    else:
+        raise ValueError(f"Invalid `hash_type` specificed in kwargs, must be one of: {HASHTYPES.keys()}")
+    
     if "Near Duplicates" not in issue_info:
         issue_info["Near Duplicates"] = []
         misc_info["Near Duplicate Imagehashes"] = set()
         misc_info["Imagehash to Image"] = {}
         misc_info["Near Duplicate Image Groups"] = {}
-    cur_hash = hashtypes[kwargs["hashtype"]](img, hash_size = 8)
+    print(kwargs)
+    cur_hash = hash_function(img, hash_size=hash_size)
     if cur_hash in misc_info["Near Duplicate Imagehashes"]:
         misc_info["Imagehash to Image"][cur_hash].append(count)
         imgs_with_cur_hash = misc_info["Imagehash to Image"][cur_hash]
