@@ -14,25 +14,12 @@ TYPES = [
     "*.JPEG",
 ]  # filetypes supported by PIL
 
-def try_import_PIL():
-   try:
-       from PIL import Image
-   except ImportError:
-       print("PIL must be installed for this functionality to work, you can use: pip install PIL>=8.4")
-
-def try_import_imagehash():
-    try:
-        import imagehash
-    except ImportError:
-        raise ImportError(
-            "Unable to import dependency imagehash. "
-            "A quick tip is to install via `pip install imagehash`. ")
-
 
 def get_sorted_images(
     path,
 ):  
     """
+    Used in initialization of ImageDataset Class
     Obtains image files of supported types and 
     sorts them based on filenames numerically and alphabetically
 
@@ -92,38 +79,39 @@ def analyze_scores(scores, threshold):
     a dictionary sorted based on values from low to high
     where keys are image indices, and respective values are z-scores
     """
-    num_images = len(scores)
-    scores_array = np.array(scores)
-    mean = np.mean(scores_array)
-    stdev = np.std(scores_array)
-    threshold_score = np.percentile(scores_array, threshold)
-    scores_nested = [] # stores index and scores
-    zscores_nested = []
-    for i, val in np.ndenumerate(scores_array):
-        scores_nested.append([i[0], val])
-        zscores_nested.append([i[0],(val - mean) / stdev])
-    scores_array = np.array(scores_nested)
-    zscores_array = np.array(zscores_nested)
-    scores_array_sorted = scores_array[scores_array[:, 1].argsort()] # sort scores from low to high (worse to better images)
-    zscores_array_sorted = zscores_array[zscores_array[:, 1].argsort()]
+    mean = statistics.mean(scores)
+    stdev = statistics.stdev(scores)
+    threshold_score = np.percentile(scores, threshold)
+    scores_dict = {}  # stores index and scores
+    for i, val in enumerate(scores):
+        scores_dict[i] = val
+    sorted_scores = {
+        k: v for k, v in sorted(scores_dict.items(), key=lambda item: item[1])
+    }  # sort scores from low to high (worse to better images)
+    sorted_zscores = {k: (v - mean) / stdev for k, v in sorted_scores.items()}
     issue_indices = []  # high to low severity
     issue_bool = (
         OrderedDict()
     )  # ascending image indices, boolean to denote if issue present
-    scores_filtered = scores_array_sorted[scores_array_sorted[:,1] < threshold_score]
-    for i in scores_filtered:
-        issue_indices.append(int(i[0]))
-    for n in range(num_images):# ascending indices order for images, label if an image suffers from an issue
-        if n in issue_indices:
-            issue_bool[n] = 1
+    for k1, v1 in sorted_scores.items():
+        if v1 < threshold_score:
+            issue_indices.append(k1)
+    for (
+        k2,
+        v2,
+    ) in (
+        scores_dict.items()
+    ):  # ascending indices order for images, label if an image suffers from an issue
+        if v2 < threshold_score:
+            issue_bool[k2] = 1
         else:
-            issue_bool[n] = 0
-    return (issue_indices, issue_bool, list(zscores_array_sorted))
+            issue_bool[k2] = 0
+    return (issue_indices, issue_bool, sorted_zscores)
 
 def display_images(indices, num_preview):
     '''
-    Takes in a flat list or a nested list and 
-    returns a flat list of image indices to be displayed
+    Used in initialization of ImageDataset Class
+    Sorts image files based on image filenames numerically and alphabetically
 
 
     Parameters
@@ -134,31 +122,16 @@ def display_images(indices, num_preview):
     num_preview: int
     if indices is a flat list: an integer representing the number of images with the issue shown
     if indices is a nested list: an integer representing the number of issue image groups shown
-    if num_preview is greater than len(indices), show all images with issue. 
 
     Returns
     -------
     A flat list with length num_preview, containing indices of images displayed to user
     '''
     outlen = min(num_preview, len(indices))
-    if type(indices[0])==int: #if flat list
+    if type(indices[0])==int:
         return indices[:outlen]
-    else: #if nested list
-        return [item for i in range(outlen) for item in indices[i]]
-
-def get_total_num_issues(issue_info):
-    issues = False
-    for l in issue_info.values():
-        if l != []:
-            issues = True
-    if not issues:
-        num_issues = None
     else:
-        num_issues = 0
-        for check in issue_info.values():
-            if type(check[0]) == list: #if nested list
-                flat_issue = [item for l in check for item in l]
-                num_issues += len(flat_issue)
-            else: 
-                num_issues += len(check) 
-    return num_issues
+        out = []
+        for i in range(outlen):
+            out+=indices[i]
+        return out
