@@ -132,7 +132,6 @@ def check_duplicated(img, image_name, count, issue_info, misc_info):
     """
     Updates hash information for the set of images to find duplicates
 
-
     Parameters
     ----------
     img: PIL image
@@ -221,7 +220,7 @@ def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwarg
     hash_size = kwargs.get("hash_size", DEFAULT_HASHSIZE)
     if not (isinstance(hash_size, int) and hash_size > 0):
         raise ValueError("Invalid `hash_size` specified in kwargs, must be positive integer.")
-    hash_type = kwargs.get("hash_type", DEFAULT_HASHTYPE)
+    hash_type = kwargs.get("hash_type", DEFAULT_HASHTYPE) # [TODO] kwargs not handled correctly
     if hash_type in HASHTYPES:
         hash_function = HASHTYPES[hash_type]
     else:
@@ -232,7 +231,7 @@ def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwarg
         misc_info["Near Duplicate Imagehashes"] = set()
         misc_info["Imagehash to Image"] = {}
         misc_info["Near Duplicate Image Groups"] = {}
-    print(kwargs)
+
     cur_hash = hash_function(img, hash_size=hash_size)
     if cur_hash in misc_info["Near Duplicate Imagehashes"]:
         misc_info["Imagehash to Image"][cur_hash].append(count)
