@@ -49,7 +49,19 @@ def get_sorted_images(
     return sorted(base_image_names)  # sort image names alphabetically and numerically
 
 
-def analyze_scores(scores, threshold):
+def get_zscores(scores):
+    mean = statistics.mean(scores)
+    stdev = statistics.stdev(scores)
+    zscores = [(x - mean) / stdev for x in scores]
+    return zscores
+
+
+def get_is_issue(scores, threshold):
+    threshold_score = np.percentile(scores, threshold)
+    return scores < threshold_score
+
+
+def analyze_scores_old(scores, threshold):
     """
     Analyzes the scores for a given issue check,
     including computing the z-scores (where 2 standard deviations left of mean is considered as significant)
