@@ -272,13 +272,15 @@ class Imagelab:
         for issue_manager in self.issue_managers:
             issue_manager.aggregate()
 
-    def summary(self):
+    def summary(self, num_preview=10):
         if self.results is None or self.results.shape[0] == 1:
             print('Call find_issues() then aggregate() to get summary')
             return
 
-        if self.verbose:
+        if num_preview > 0:
             print('verbose')
+            for issue_manager in self.issue_managers:
+                issue_manager.visualize(num_preview)
 
         return self.results
 
@@ -368,6 +370,16 @@ class DatasetWideIssueManager(IssueManager):
         scores = self.imagelab.issue_scores[self.issue_name]
         return scores
 
+    def visualize(self, num_preview):
+        for x in display_images(self.imagelab.issue_info[self.issue_name],num_preview):  # show the first num_preview duplicate images (if exists)
+            try:
+                img = Image.open(
+                    os.path.join(self.imagelab.path, self.imagelab.image_files[x])
+                )
+                img.show()
+            except:
+                break
+
 # THIS IS A DATASET WIDE ISSUE
 # testing for check_duplicated
 class CheckNearDuplicatesIssueManager(IssueManager):
@@ -389,6 +401,16 @@ class CheckNearDuplicatesIssueManager(IssueManager):
     def aggregate(self):
         scores = self.imagelab.issue_scores[self.issue_name]
         return scores
+
+    def visualize(self, num_preview):
+        for x in display_images(self.imagelab.issue_info[self.issue_name],num_preview):  # show the first num_preview duplicate images (if exists)
+            try:
+                img = Image.open(
+                    os.path.join(self.imagelab.path, self.imagelab.image_files[x])
+                )
+                img.show()
+            except:
+                break
 
 # THIS IS NOT A DATASET WIDE ISSUE
 # testing for check_odd_size
@@ -415,6 +437,19 @@ class DatasetSkinnyIssueManager(IssueManager):
         self.imagelab.results[f'{self.issue_name} raw_score'] = self.imagelab.results['image_name'].map(scores)
         self.imagelab.results[f'{self.issue_name} zscore'] = get_zscores(self.imagelab.results[f'{self.issue_name} raw_score'].tolist())
         self.imagelab.results[f'{self.issue_name} bool'] = get_is_issue(self.imagelab.results[f'{self.issue_name} zscore'].tolist(), self.imagelab.thresholds)
+
+        print("These images have", np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist()), "issues")
+
+    def visualize(self, num_preview=10):
+        results_col = self.imagelab.results[f'{self.issue_name} bool']
+        issue_indices = self.imagelab.results.index[results_col].tolist()
+
+        for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+            try:
+                img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+                img.show()
+            except:
+                break
 
 # Construct concrete issue manager with a from_str method
 class _IssueManagerFactory:
