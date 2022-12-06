@@ -22,9 +22,10 @@ from .issue_checks import check_odd_size, check_duplicated, check_near_duplicate
 
 POSSIBLE_ISSUES = {
     "Duplicated": check_duplicated,
-    # "Brightness": check_brightness,
+    "Brightness": check_brightness,
     "Odd Size": check_odd_size,
-    # "Blurry": check_blurriness,
+    "Blurred": check_blurriness,
+    "Entropy": check_entropy,
     # "Potential Occlusion": check_entropy,
     # "Potential Static": check_static,
     "Near Duplicates": check_near_duplicates,
@@ -94,7 +95,7 @@ class Imagelab:
         self.issue_df = None
         self.issue_scores = None
         self.results = None
-        self.thresholds = 5 # [TODO] Ulya double check
+        self.thresholds = 5 # TODO Ulya double check
 
         # set up
 
@@ -192,34 +193,48 @@ class Imagelab:
         if num_preview <= 0:
             verbose = False
 
+
+        # Issues to be detected
         if issue_types is None:  # defaults to run all checks
             all_issues = list(POSSIBLE_ISSUES.keys())
-            issue_types = dict(zip(all_issues, [True] * len(all_issues)))
+            self.issue_types = dict(zip(all_issues, [True] * len(all_issues))) #todo: check why we need this
         else:
             for c in issue_types:
                 if c not in POSSIBLE_ISSUES:
                     raise ValueError("Not a valid issue check!")
-
-        issue_managers = [
+            self.issue_types = dict(zip(issue_types, [True] * len(issue_types)))
+        print(f"Checking for {self.issue_types }")
+        # Instantiating issue managers
+        self.issue_managers = [
             factory(imagelab=self)
-            for factory in _IssueManagerFactory.from_list(list(issue_types.keys()))
+            for factory in _IssueManagerFactory.from_list(list(self.issue_types.keys()))
         ]
 
-        self.issue_types = issue_types
-        self.issue_managers = issue_managers
-        self.issue_scores = dict(zip(self.issue_types.keys(), [{}]* len(self.issue_types.keys())))  # dict where keys are string names of issues, values are list in image order of scores between 0 and 1
-        print('ISSUE SCORES!', self.issue_scores)
+        """
+            issue_score= {
+                "Brightness": {
+                    "image_0.jpg": 0.4
+                    ....
+                }
+            }
+        """
+        self.issue_scores = {}
+        for issue_type in self.issue_types.keys():
+            self.issue_scores[issue_type] = {}
+
+        # self.issue_scores = dict(zip(self.issue_types.keys(), [{}] * len(self.issue_types.keys())))  # dict where keys are string names of issues, values are list in image order of scores between 0 and 1
+        # print('ISSUE SCORES!', self.issue_scores)
         self.results = pd.DataFrame(self.image_files, columns=['image_name'])
         print('RESULTS HEAD', self.results.head())
         # populates self.issue_scores{} and self.issue_info{}
-        count = 0
+
         for image_name in tqdm(self.image_files):
             img = Image.open(os.path.join(self.path, image_name))
-            img.thumbnail(self.thumbnail_size)
+            # img.thumbnail(self.thumbnail_size)
             for issue_manager in self.issue_managers:
-                issue_manager.find_issues(img, image_name, count, **issue_kwargs)
+                issue_manager.find_issues(img, image_name, **issue_kwargs)
 
-        count = 0
+
 
         # for image_name in tqdm(self.image_files):
         #     img = Image.open(os.path.join(self.path, image_name))
@@ -390,6 +405,7 @@ class CheckNearDuplicatesIssueManager(IssueManager):
         scores = self.imagelab.issue_scores[self.issue_name]
         return scores
 
+
 # THIS IS NOT A DATASET WIDE ISSUE
 # testing for check_odd_size
 class DatasetSkinnyIssueManager(IssueManager):
@@ -416,17 +432,90 @@ class DatasetSkinnyIssueManager(IssueManager):
         self.imagelab.results[f'{self.issue_name} zscore'] = get_zscores(self.imagelab.results[f'{self.issue_name} raw_score'].tolist())
         self.imagelab.results[f'{self.issue_name} bool'] = get_is_issue(self.imagelab.results[f'{self.issue_name} zscore'].tolist(), self.imagelab.thresholds)
 
+class EntropyIssueManager(IssueManager):
+
+    # TODO: Add `results_key = "label"` to this class
+    # TODO: Add `info_keys = ["label"]` to this class
+    def __init__(self, imagelab: Imagelab):
+        super().__init__(imagelab)
+        self.issue_name = 'Entropy'
+
+    def find_issues(self, img, image_name, **kwargs) -> pd.DataFrame:
+        score = check_entropy(img)
+        self.update_info(image_name, score)
+        return score
+
+    def update_info(self, image_name, score, **kwargs) -> None:
+        print(f'Update info called for {image_name} {self.issue_name}')
+        self.imagelab.issue_scores[self.issue_name][image_name] = score
+
+    def aggregate(self):
+        scores = self.imagelab.issue_scores[self.issue_name]
+
+        self.imagelab.results[f'{self.issue_name} raw_score'] = self.imagelab.results['image_name'].map(scores)
+        self.imagelab.results[f'{self.issue_name} zscore'] = get_zscores(self.imagelab.results[f'{self.issue_name} raw_score'].tolist())
+        self.imagelab.results[f'{self.issue_name} bool'] = get_is_issue(self.imagelab.results[f'{self.issue_name} zscore'].tolist(), self.imagelab.thresholds)
+class BrightnessIssueManager(IssueManager):
+
+    # TODO: Add `results_key = "label"` to this class
+    # TODO: Add `info_keys = ["label"]` to this class
+    # todo: remove imagelab as a parameter to make it lightweight
+    def __init__(self, imagelab: Imagelab):
+        super().__init__(imagelab)
+        self.issue_name = 'Brightness'
+
+    def find_issues(self, img, image_name, count, **kwargs) -> pd.DataFrame:
+        score = check_brightness(img)
+        self.update_info(image_name, score)
+        return score
+
+    def update_info(self, image_name, score, **kwargs) -> None:
+        print(f'Update info called for {image_name} {self.issue_name}')
+        self.imagelab.issue_scores[self.issue_name][image_name] = score
+
+    def aggregate(self):
+        scores = self.imagelab.issue_scores[self.issue_name]
+
+        self.imagelab.results[f'{self.issue_name} raw_score'] = self.imagelab.results['image_name'].map(scores)
+        self.imagelab.results[f'{self.issue_name} zscore'] = get_zscores(self.imagelab.results[f'{self.issue_name} raw_score'].tolist())
+        self.imagelab.results[f'{self.issue_name} bool'] = get_is_issue(self.imagelab.results[f'{self.issue_name} zscore'].tolist(), self.imagelab.thresholds)
+
+class BlurredIssueManager(IssueManager):
+
+    # TODO: Add `results_key = "label"` to this class
+    # TODO: Add `info_keys = ["label"]` to this class
+    # todo: remove imagelab as a parameter to make it lightweight
+    def __init__(self, imagelab: Imagelab):
+        super().__init__(imagelab)
+        self.issue_name = 'Blurred'
+
+    def find_issues(self, img, image_name, count, **kwargs) -> pd.DataFrame:
+        score = check_blurriness(img)
+        self.update_info(image_name, score)
+        return score
+
+    def update_info(self, image_name, score, **kwargs) -> None:
+        print(f'Update info called for {image_name} {self.issue_name}')
+        self.imagelab.issue_scores[self.issue_name][image_name] = score
+
+    def aggregate(self):
+        scores = self.imagelab.issue_scores[self.issue_name]
+
+        self.imagelab.results[f'{self.issue_name} raw_score'] = self.imagelab.results['image_name'].map(scores)
+        self.imagelab.results[f'{self.issue_name} zscore'] = get_zscores(self.imagelab.results[f'{self.issue_name} raw_score'].tolist())
+        self.imagelab.results[f'{self.issue_name} bool'] = get_is_issue(self.imagelab.results[f'{self.issue_name} zscore'].tolist(), self.imagelab.thresholds)
+
 # Construct concrete issue manager with a from_str method
 class _IssueManagerFactory:
     """Factory class for constructing concrete issue managers."""
-
+    #todo: convert these strings to constants
     types = {
         "Duplicated": DatasetWideIssueManager,
         "Odd Size": DatasetSkinnyIssueManager,
-        "Brightness": DatasetSkinnyIssueManager,
-        "Blurry": DatasetSkinnyIssueManager,
+        "Brightness": BrightnessIssueManager,
+        "Blurred": BlurredIssueManager,
         "Potential Occlusion": DatasetSkinnyIssueManager,
-        "Potential Static": DatasetSkinnyIssueManager,
+        "Entropy": EntropyIssueManager,
         "Near Duplicates": CheckNearDuplicatesIssueManager,
     }
 
