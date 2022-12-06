@@ -97,8 +97,6 @@ class Imagelab:
         self.results = None
         self.thresholds = 5 # TODO Ulya double check
 
-        # set up
-
     def __repr__(self):
         """What is displayed in console if user executes: >>> imagelab"""
         if self.issue_info == {}:
@@ -225,60 +223,21 @@ class Imagelab:
         # self.issue_scores = dict(zip(self.issue_types.keys(), [{}] * len(self.issue_types.keys())))  # dict where keys are string names of issues, values are list in image order of scores between 0 and 1
         # print('ISSUE SCORES!', self.issue_scores)
         self.results = pd.DataFrame(self.image_files, columns=['image_name'])
-        print('RESULTS HEAD', self.results.head())
-        # populates self.issue_scores{} and self.issue_info{}
 
+        # populates self.issue_scores{} and self.issue_info{}
+        count=0
         for image_name in tqdm(self.image_files):
             img = Image.open(os.path.join(self.path, image_name))
             # img.thumbnail(self.thumbnail_size)
             for issue_manager in self.issue_managers:
                 issue_manager.find_issues(img, image_name, **issue_kwargs)
+            count+=1
 
 
 
-        # for image_name in tqdm(self.image_files):
-        #     img = Image.open(os.path.join(self.path, image_name))
-        #     img.thumbnail(self.thumbnail_size)
-        #     for c in issue_types:  # run each check for each image
-        #         if c in DATASET_WIDE_ISSUES:
-        #             if c in kwargs:
-        #                 issue_manager.find_issues(img, image_name, count, self.issue_info, self.misc_info, **kwargs[c])
-        #                 # (self.issue_info, self.misc_info) = POSSIBLE_ISSUES[c](
-        #                 #     img, image_name, count, self.issue_info, self.misc_info, **kwargs[c]
-        #                 # )
-        #             else:
-        #                 issue_manager.find_issues(img, image_name, count, self.issue_info, self.misc_info)
-        #                 # (self.issue_info, self.misc_info) = POSSIBLE_ISSUES[c](
-        #                 #     img, image_name, count, self.issue_info, self.misc_info
-        #                 # )
-        #         else:
-        #             issue_scores.setdefault(c, []).append(POSSIBLE_ISSUES[c](img))
-        #     count += 1
 
-        # if verbose:
-        #     for c in DATASET_WIDE_ISSUES:
-        #         print(self.issue_info)
-        #         if c in issue_types:
-        #             if len(self.issue_info[c]) > 0:
-        #                 print("These images have", c, "issue")
-        #             else:
-        #                 continue
-        #             for x in display_images(self.issue_info[c], num_preview):  # show the first num_preview duplicate images (if exists)
-        #                 try:
-        #                     img = Image.open(
-        #                         os.path.join(self.path, self.image_files[x])
-        #                     )
-        #                     img.show()
-        #                 except:
-        #                     break
 
     def aggregate(self, thresholds):
-        # Make this seperate function aggregate(issue_types) is issue_types=None being all types
-        # for image_name in tqdm(self.image_files):
-        #     img = Image.open(os.path.join(self.path, image_name))
-        #     img.thumbnail(self.thumbnail_size)
-        #     for issue_manager in self.issue_managers:
-        #         issue_manager.find_issues(img, image_name, count, **issue_kwargs)
         self.thresholds = thresholds
         if len(self.issue_scores) == 0 or self.results is None:
             print('Call find_issues() first.')
@@ -287,50 +246,34 @@ class Imagelab:
         for issue_manager in self.issue_managers:
             issue_manager.aggregate()
 
-    def summary(self):
+    def summary(self, num_preview=10):
         if self.results is None or self.results.shape[0] == 1:
             print('Call find_issues() then aggregate() to get summary')
             return
 
-        if self.verbose:
-            print('verbose')
+        if num_preview > 0:
+            for issue_manager in self.issue_managers:
+                issue_manager.visualize(num_preview)
 
         return self.results
 
-        issue_data = {}
-        issue_data["Names"] = self.image_files
-        for c1 in self.issue_types.keys():
-            if c1 not in DATASET_WIDE_ISSUES:
-                analysis = analyze_scores(self.issue_scores[c1], threshold)
-                issue_indices = analysis[0]
-                boolean = list(analysis[1].values())
-                self.issue_info[c1] = issue_indices
-                issue_data[c1 + " issue"] = boolean
-                issue_data[c1 + " score"] = self.issue_scores[c1]
-                self.misc_info[c1 + " sorted z-scores"] = analysis[2]
-                if self.verbose:
-                    if len(issue_indices) > 0:
-                        print("These images have", c1, "issue")
-                        for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
-                            try:
-                                img = Image.open(os.path.join(self.path, self.image_files[ind]))
-                                img.show()
-                            except:
-                                break
-        overall_scores = (
-            []
-        )  # compute overall score with element-wise multiplication of all nonbinary scores
-        for c1 in self.issue_types.keys():
-            if c1 not in DATASET_WIDE_ISSUES:
-                if overall_scores == []:
-                    overall_scores = np.array(self.issue_scores[c1])
-                else:
-                    overall_scores *= np.array(self.issue_scores[c1])
-        issue_data["Overall Score"] = list(overall_scores)
-        issue_df = pd.DataFrame(issue_data)
-        self.issue_df = issue_df
-
-        return (self.issue_info, issue_df)
+    def get_overall_scores(self):
+        print('TODO: get_overall_scores()')
+        return
+        # overall_scores = (
+        #     []
+        # )  # compute overall score with element-wise multiplication of all nonbinary scores
+        # for c1 in self.issue_types.keys():
+        #     if c1 not in DATASET_WIDE_ISSUES:
+        #         if overall_scores == []:
+        #             overall_scores = np.array(self.issue_scores[c1])
+        #         else:
+        #             overall_scores *= np.array(self.issue_scores[c1])
+        # issue_data["Overall Score"] = list(overall_scores)
+        # issue_df = pd.DataFrame(issue_data)
+        # self.issue_df = issue_df
+        #
+        # return (self.issue_info, issue_df)
 
 class IssueManager(ABC):
     """Base class for managing issues in Imagelab."""
@@ -361,6 +304,10 @@ class IssueManager(ABC):
         """Aggregates total scores the info attribute of this Lab."""
         raise NotImplementedError
 
+    @abstractmethod
+    def visualize(self, /, *args, **kwargs) -> None:
+        raise NotImplementedError
+
 # THIS IS A DATASET WIDE ISSUE TEMPLATE
 # testing for check_duplicated
 class DatasetWideIssueManager(IssueManager):
@@ -372,16 +319,30 @@ class DatasetWideIssueManager(IssueManager):
         self.issue_name = 'Duplicated'
 
     def find_issues(self, img, image_name, count, **kwargs) -> float:
-        self.imagelab.issue_info, self.imagelab.misc_info = check_duplicated(img, image_name, count, self.imagelab.issue_info, self.imagelab.misc_info)
-        self.update_info(image_name, self.imagelab.issue_info, self.imagelab.misc_info)
+        issue_info, misc_info = check_duplicated(img, image_name, count, self.imagelab.issue_info, self.imagelab.misc_info)
+        self.update_info(image_name, issue_info, misc_info)
         return self.imagelab.issue_info, self.imagelab.misc_info
 
     def update_info(self, image_name, issue_info, misc_info, **kwargs) -> None:
-        print(f'Update info called for {image_name} check_duplicated')
+        self.imagelab.issue_info = issue_info
+        self.imagelab.misc_info = misc_info
 
     def aggregate(self):
         scores = self.imagelab.issue_scores[self.issue_name]
+        if self.imagelab.verbose:
+            print(f"Issue {self.issue_name} has {len(self.imagelab.issue_info[self.issue_name])} issues")
         return scores
+
+    def visualize(self, num_preview):
+        image_ids = display_images(self.imagelab.issue_info[self.issue_name], num_preview)
+        for x in image_ids:  # show the first num_preview duplicate images (if exists)
+            try:
+                img = Image.open(
+                    os.path.join(self.imagelab.path, self.imagelab.image_files[x])
+                )
+                img.show()
+            except:
+                break
 
 # THIS IS A DATASET WIDE ISSUE
 # testing for check_duplicated
@@ -394,16 +355,30 @@ class CheckNearDuplicatesIssueManager(IssueManager):
         self.issue_name = 'Near Duplicates'
 
     def find_issues(self, img, image_name, count, **kwargs) -> float:
-        self.imagelab.issue_info, self.imagelab.misc_info = check_near_duplicates(img, image_name, count, self.imagelab.issue_info, self.imagelab.misc_info)
-        self.update_info(image_name, self.imagelab.issue_info, self.imagelab.misc_info)
+        issue_info, misc_info = check_near_duplicates(img, image_name, count, self.imagelab.issue_info, self.imagelab.misc_info)
+        self.update_info(image_name, issue_info, misc_info)
         return self.imagelab.issue_info, self.imagelab.misc_info
 
     def update_info(self, image_name, issue_info, misc_info, **kwargs) -> None:
-        print(f'Update info called for {image_name} check_duplicated')
+        self.imagelab.issue_info = issue_info
+        self.imagelab.misc_info = misc_info
 
     def aggregate(self):
         scores = self.imagelab.issue_scores[self.issue_name]
+        if self.imagelab.verbose:
+            print(f"Issue {self.issue_name} has {len(self.imagelab.issue_info[self.issue_name])} issues")
         return scores
+
+    def visualize(self, num_preview):
+        image_ids = display_images(self.imagelab.issue_info[self.issue_name],num_preview)
+        for x in image_ids:  # show the first num_preview duplicate images (if exists)
+            try:
+                img = Image.open(
+                    os.path.join(self.imagelab.path, self.imagelab.image_files[x])
+                )
+                img.show()
+            except:
+                break
 
 
 # THIS IS NOT A DATASET WIDE ISSUE
@@ -422,7 +397,6 @@ class DatasetSkinnyIssueManager(IssueManager):
         return score
 
     def update_info(self, image_name, score, **kwargs) -> None:
-        print(f'Update info called for {image_name} {self.issue_name}')
         self.imagelab.issue_scores[self.issue_name][image_name] = score
 
     def aggregate(self):
@@ -431,6 +405,20 @@ class DatasetSkinnyIssueManager(IssueManager):
         self.imagelab.results[f'{self.issue_name} raw_score'] = self.imagelab.results['image_name'].map(scores)
         self.imagelab.results[f'{self.issue_name} zscore'] = get_zscores(self.imagelab.results[f'{self.issue_name} raw_score'].tolist())
         self.imagelab.results[f'{self.issue_name} bool'] = get_is_issue(self.imagelab.results[f'{self.issue_name} zscore'].tolist(), self.imagelab.thresholds)
+
+        if self.imagelab.verbose:
+            print(f"Issue {self.issue_name} has {np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())} issues")
+
+    def visualize(self, num_preview=10):
+        results_col = self.imagelab.results[f'{self.issue_name} bool']
+        issue_indices = self.imagelab.results.index[results_col].tolist()
+
+        for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+            try:
+                img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+                img.show()
+            except:
+                break
 
 class EntropyIssueManager(IssueManager):
 
