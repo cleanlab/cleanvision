@@ -12,7 +12,7 @@ if __name__ == "__main__":
     imagelab = Imagelab(path_to_images, thumbnail_size=(128, 128))
     print(f"Number of images: {str(len(imagelab.image_files))}")
 
-    issue_types = ["Entropy"]
+    issue_types = ["Brightness"]
 
     issues = imagelab.find_issues(issue_types)
     imagelab.aggregate(thresholds=5)
