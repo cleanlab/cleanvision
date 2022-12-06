@@ -3,12 +3,12 @@
 """ 
 
 import time, os, sys
-from image_data_quality.image_dataset import ImageDataset
+from image_data_quality.image_dataset import Imagelab
 
 start = time.time()
 
-path_to_images = "image_files/"  # folder where your image files live
-imagelab = ImageDataset(path_to_images, thumbnail_size = (128,128))
+path_to_images = "../image_files/"  # folder where your image files live
+imagelab = Imagelab(path_to_images, thumbnail_size = (128,128))
 print("The path is:", imagelab.path)
 print("There are ", str(len(imagelab.image_files)), "images in the dataset")
 
@@ -36,7 +36,7 @@ print("\n"+ str(total_time))
 print(imagelab)
 
 print(imagelab.issue_info)
-
-print(imagelab.misc_info['Near Duplicate Image Groups'])
+#
+# print(imagelab.misc_info['Near Duplicate Image Groups'])
 
 print(imagelab.misc_info)
