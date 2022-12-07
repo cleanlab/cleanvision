@@ -160,35 +160,11 @@ def get_image_hash(img):
 
     """
 
-
-    # get image hash
-    # check if hash exists in the hash set
-    # if not move on
-    # else add image to the image list corresponding to the hash
-    # return the hash to image dict
-
     img_hash = hashlib.md5(img.tobytes()).hexdigest()
     return img_hash
 
-    # if "Duplicated" not in issue_info:
-    #     issue_info["Duplicated"] = []
-    #     misc_info["Image Hashes"] = set()
-    #     misc_info["Hash to Image"] = {}
-    #     misc_info["Duplicate Image Groups"] = {}
-    # cur_hash = hashlib.md5(img.tobytes()).hexdigest()
-    # if cur_hash in misc_info["Image Hashes"]:
-    #     issue_info["Duplicated"].append(count)
-    #     misc_info["Hash to Image"][cur_hash].append(image_name)
-    #     imgs_with_cur_hash = misc_info["Hash to Image"][cur_hash]
-    #     if len(imgs_with_cur_hash) >= 2:  # found a duplicate pair
-    #         misc_info["Duplicate Image Groups"][cur_hash] = imgs_with_cur_hash
-    # else:
-    #     misc_info["Image Hashes"].add(cur_hash)
-    #     misc_info["Hash to Image"][cur_hash] = [image_name]
-    # return (issue_info, misc_info)
 
-
-def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwargs):
+def get_near_duplicate_hash(img, **kwargs):
     """
     Updates hash information for the set of images to find duplicates
 
@@ -228,35 +204,37 @@ def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwarg
     a tuple of the dictionaries updated with new information given by img
 
     """
-    HASHTYPES = {"whash": imagehash.whash}
-    DEFAULT_HASHTYPE = "whash"
-    DEFAULT_HASHSIZE = 8
-    hash_size = kwargs.get("hash_size", DEFAULT_HASHSIZE)
-    if not (isinstance(hash_size, int) and hash_size > 0):
-        raise ValueError("Invalid `hash_size` specified in kwargs, must be positive integer.")
-    hash_type = kwargs.get("hash_type", DEFAULT_HASHTYPE)  # [TODO] kwargs not handled correctly
-    if hash_type in HASHTYPES:
-        hash_function = HASHTYPES[hash_type]
-    else:
-        raise ValueError(f"Invalid `hash_type` specificed in kwargs, must be one of: {HASHTYPES.keys()}")
-
-    if "Near Duplicates" not in issue_info:
-        issue_info["Near Duplicates"] = []
-        misc_info["Near Duplicate Imagehashes"] = set()
-        misc_info["Imagehash to Image"] = {}
-        misc_info["Near Duplicate Image Groups"] = {}
-
-    cur_hash = hash_function(img, hash_size=hash_size)
-    if cur_hash in misc_info["Near Duplicate Imagehashes"]:
-        misc_info["Imagehash to Image"][cur_hash].append(count)
-        imgs_with_cur_hash = misc_info["Imagehash to Image"][cur_hash]
-        if len(imgs_with_cur_hash) >= 2:  # a near-duplicate group
-            misc_info["Near Duplicate Image Groups"][cur_hash] = imgs_with_cur_hash
-    else:
-        misc_info["Near Duplicate Imagehashes"].add(cur_hash)
-        misc_info["Imagehash to Image"][cur_hash] = [count]
-    issue_info["Near Duplicates"] = list(misc_info["Near Duplicate Image Groups"].values())
-    return (issue_info, misc_info)
+    img_hash = imagehash.whash(img, hash_size=8)
+    return img_hash
+    # HASHTYPES = {"whash": imagehash.whash}
+    # DEFAULT_HASHTYPE = "whash"
+    # DEFAULT_HASHSIZE = 8
+    # hash_size = kwargs.get("hash_size", DEFAULT_HASHSIZE)
+    # if not (isinstance(hash_size, int) and hash_size > 0):
+    #     raise ValueError("Invalid `hash_size` specified in kwargs, must be positive integer.")
+    # hash_type = kwargs.get("hash_type", DEFAULT_HASHTYPE)  # [TODO] kwargs not handled correctly
+    # if hash_type in HASHTYPES:
+    #     hash_function = HASHTYPES[hash_type]
+    # else:
+    #     raise ValueError(f"Invalid `hash_type` specificed in kwargs, must be one of: {HASHTYPES.keys()}")
+    #
+    # if "Near Duplicates" not in issue_info:
+    #     issue_info["Near Duplicates"] = []
+    #     misc_info["Near Duplicate Imagehashes"] = set()
+    #     misc_info["Imagehash to Image"] = {}
+    #     misc_info["Near Duplicate Image Groups"] = {}
+    #
+    # cur_hash = hash_function(img, hash_size=hash_size)
+    # if cur_hash in misc_info["Near Duplicate Imagehashes"]:
+    #     misc_info["Imagehash to Image"][cur_hash].append(count)
+    #     imgs_with_cur_hash = misc_info["Imagehash to Image"][cur_hash]
+    #     if len(imgs_with_cur_hash) >= 2:  # a near-duplicate group
+    #         misc_info["Near Duplicate Image Groups"][cur_hash] = imgs_with_cur_hash
+    # else:
+    #     misc_info["Near Duplicate Imagehashes"].add(cur_hash)
+    #     misc_info["Imagehash to Image"][cur_hash] = [count]
+    # issue_info["Near Duplicates"] = list(misc_info["Near Duplicate Image Groups"].values())
+    # return (issue_info, misc_info)
 
 
 def check_grayscale(im):  # return 1 if grayscale else 0
