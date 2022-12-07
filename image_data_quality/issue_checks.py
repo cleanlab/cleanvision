@@ -75,10 +75,10 @@ def check_entropy(img):
     -------
     entropy_score: float
     a float between 0 and 1 representing the entropy of an image
-    a lower number means potential occlusion
+    a lower number means potentifal occlusion
     """
-    entropy_score = img.entropy() / 10
-    return entropy_score
+    entropy = img.entropy()
+    return entropy
 
 def check_static(img):
     """
