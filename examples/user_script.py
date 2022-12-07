@@ -12,11 +12,12 @@ if __name__ == "__main__":
     imagelab = Imagelab(path_to_images, thumbnail_size=(128, 128))
     print(f"Number of images: {str(len(imagelab.image_files))}")
 
-    issue_types = ["LightImages"]
+    issue_types = ["HotPixels"]
 
     issues = imagelab.evaluate(issue_types)
     imagelab.aggregate(thresholds=5)
     imagelab.summary()
+    imagelab.visualize(5)
 
     """
     # Here's how to instead check for one particular issue, with some optional configurations overriden from their defaults):
