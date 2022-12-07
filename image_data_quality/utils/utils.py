@@ -17,7 +17,8 @@ TYPES = [
 
 
 def get_sorted_images(
-        path,
+    path,
+    verbose=True,
 ):
     """
     Used in initialization of ImageDataset Class
