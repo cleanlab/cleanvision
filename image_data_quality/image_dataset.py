@@ -96,6 +96,7 @@ class Imagelab:
         self.thresholds = 5  # TODO Ulya double check
         self.hash_image_map = {}
         self.near_hash_image_map = {}
+        self.color_channels = {}
 
     def __repr__(self):
         """What is displayed in console if user executes: >>> imagelab"""
@@ -203,7 +204,7 @@ class Imagelab:
                 if c not in POSSIBLE_ISSUES:
                     raise ValueError("Not a valid issue check!")
             self.issue_types = dict(zip(issue_types, [True] * len(issue_types)))
-        print(f"Checking for {self.issue_types}")
+        print(f"Checking for {', '.join(self.issue_types.keys())}")
         # Instantiating issue managers
         self.issue_managers = [
             factory(imagelab=self)
@@ -230,7 +231,9 @@ class Imagelab:
         count = 0
         for image_name in tqdm(self.image_files):
             img = Image.open(os.path.join(self.path, image_name))
-            # img.thumbnail(self.thumbnail_size)
+            if img.mode is not None:
+                self.color_channels[img.mode] = self.color_channels.get(img.mode, 0) + 1
+                # img.thumbnail(self.thumbnail_size)
             for issue_manager in self.issue_managers:
                 issue_manager.find_issues(img, image_name, **issue_kwargs)
             count += 1
@@ -253,7 +256,8 @@ class Imagelab:
         bool_df = self.results[bool_columns]
         summary_results = pd.DataFrame({True: bool_df.sum(), False: self.results.shape[0] - bool_df.sum()})
         summary_results = summary_results.rename(columns={True: "Issues", False: "Non-Issues"})
-        print(summary_results)
+        print(f"Color spaces in the  dataset\n========================\n{self.color_channels}\n")
+        print(f"Issue Summary\n========================\n{summary_results}\n")
         return summary_results, self.results
 
     def visualize(self, num_preview=10, verbose=True):
@@ -264,15 +268,15 @@ class Imagelab:
         # TODO: num issues can be a variable in each
         if num_preview > 0:
             for issue_manager in self.issue_managers:
-                if verbose:
-                    print(f"Found {issue_manager.num_issues} images with the issue {issue_manager.issue_name}")
+                # if verbose:
+                #     print(f"Found {issue_manager.num_issues} images with the issue {issue_manager.issue_name}")
                 if issue_manager.num_issues > 0:
                     issue_manager.visualize(num_preview)
 
         return self.results
 
     def get_overall_scores(self):
-        print('TODO: get_overall_scores()')
+        # print('TODO: get_overall_scores()')
         return
         # overall_scores = (
         #     []
@@ -713,7 +717,6 @@ class GrayscaleIssueManager(IssueManager):
     def visualize(self, num_preview=10):
         results_col = self.imagelab.results[f'{self.issue_name} bool']
         issue_indices = self.imagelab.results.index[results_col == 1].tolist()
-        print(issue_indices)
         for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
