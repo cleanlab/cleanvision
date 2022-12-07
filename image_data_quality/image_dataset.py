@@ -244,7 +244,7 @@ class Imagelab:
         for issue_manager in self.issue_managers:
             issue_manager.aggregate()
 
-    def summary(self, num_preview=10):
+    def summary(self):
         if self.results is None or self.results.shape[0] == 1:
             print('Call find_issues() then aggregate() to get summary().')
             return
@@ -252,7 +252,7 @@ class Imagelab:
         bool_columns = [col for col in self.results if col.endswith('bool')]
         bool_df = self.results[bool_columns]
         summary_results = pd.DataFrame({True: bool_df.sum(), False: self.results.shape[0] - bool_df.sum()})
-
+        print(summary_results)
         return summary_results, self.results
 
     def visualize(self, num_preview=10, verbose=True):
