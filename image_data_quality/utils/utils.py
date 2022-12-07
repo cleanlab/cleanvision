@@ -12,6 +12,7 @@ TYPES = [
     "*.WebP",
     "*.PNG",
     "*.JPEG",
+    "*.png",
 ]  # filetypes supported by PIL
 
 
