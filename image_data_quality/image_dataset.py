@@ -504,12 +504,12 @@ class BlurredIssueManager(IssueManager):
 
     # TODO: Add `results_key = "label"` to this class
     # TODO: Add `info_keys = ["label"]` to this class
-    # todo: remove imagelab as a parameter to make it lightweight
+
     def __init__(self, imagelab: Imagelab):
         super().__init__(imagelab)
         self.issue_name = 'Blurred'
 
-    def find_issues(self, img, image_name, count, **kwargs) -> pd.DataFrame:
+    def find_issues(self, img, image_name, **kwargs) -> pd.DataFrame:
         score = check_blurriness(img)
         self.update_info(image_name, score)
         return score
@@ -519,13 +519,21 @@ class BlurredIssueManager(IssueManager):
         self.imagelab.issue_scores[self.issue_name][image_name] = score
 
     def aggregate(self):
-        scores = self.imagelab.issue_scores[self.issue_name]
+        raw_scores = self.imagelab.issue_scores[self.issue_name].values()
+        zscores = get_zscores(raw_scores)
+        self.imagelab.results[f'{self.issue_name} zscore'] = zscores
+        self.imagelab.results[f'{self.issue_name} bool'] = get_is_issue(zscores, self.imagelab.thresholds)
 
-        self.imagelab.results[f'{self.issue_name} raw_score'] = self.imagelab.results['image_name'].map(scores)
-        self.imagelab.results[f'{self.issue_name} zscore'] = get_zscores(
-            self.imagelab.results[f'{self.issue_name} raw_score'].tolist())
-        self.imagelab.results[f'{self.issue_name} bool'] = get_is_issue(
-            self.imagelab.results[f'{self.issue_name} zscore'].tolist(), self.imagelab.thresholds)
+    def visualize(self, num_preview=10):
+        results_col = self.imagelab.results[f'{self.issue_name} bool']
+        issue_indices = self.imagelab.results.index[results_col].tolist()
+
+        for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+            try:
+                img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+                img.show()
+            except:
+                break
 
 
 # Construct concrete issue manager with a from_str method
