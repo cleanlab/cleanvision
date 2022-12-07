@@ -32,14 +32,14 @@ if __name__ == "__main__":
     issues = imagelab.find_issues(threshold = None, issues_checked=None, verbose=False, num_preview=0)
     """
 
-    print(issues)
-
-    print(imagelab)
-
-    print(imagelab.issue_info)
+    # print(issues)
+    #
+    # print(imagelab)
+    #
+    # print(imagelab.issue_info)
     #
     # print(imagelab.misc_info['Near Duplicate Image Groups'])
 
-    print(imagelab.misc_info)
-
-    print('FINAL ISSUE SCORES', imagelab.issue_scores)
+    # print(imagelab.misc_info)
+    #
+    # print('FINAL ISSUE SCORES', imagelab.issue_scores)
