@@ -4,7 +4,7 @@ import numpy as np
 from scipy.ndimage import median_filter
 
 
-def check_brightness(img):
+def get_brightness_score(img):
     """
     Scores the overall brightness for a given image to find ones that are too bright and too dark
 
@@ -34,8 +34,9 @@ def check_brightness(img):
     cur_bright = (
                      math.sqrt(0.241 * (r ** 2) + 0.691 * (g ** 2) + 0.068 * (b ** 2))
                  ) / 255
-    bright_score = min(cur_bright, 1 - cur_bright)  # too bright or too dark
-    return bright_score
+    return cur_bright
+    # bright_score = min(cur_bright, 1 - cur_bright)  # too bright or too dark
+    # return bright_score
 
 
 def check_odd_size(img):
