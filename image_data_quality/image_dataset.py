@@ -8,19 +8,20 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
-from image_data_quality.issue_checks import check_odd_size, check_duplicated, check_near_duplicates, check_brightness, \
-    check_entropy, check_blurriness, check_grayscale
+from image_data_quality.issue_checks import check_odd_size, get_image_hash, check_near_duplicates, check_brightness, \
+    check_entropy, check_blurriness, check_grayscale, find_hot_pixels
 from image_data_quality.utils.utils import get_sorted_images, display_images, get_zscores, \
     get_is_issue
 
 POSSIBLE_ISSUES = {
-    "Duplicated": check_duplicated,
+    "Duplicated": get_image_hash,
     "Brightness": check_brightness,  # Done
     "AspectRatio": check_odd_size,
     "Blurred": check_blurriness,  # Done
     "Entropy": check_entropy,  # Done
     "Near Duplicates": check_near_duplicates,
     "Grayscale": check_grayscale,
+    "HotPixels": find_hot_pixels,
 }
 
 DATASET_WIDE_ISSUES = {
@@ -77,6 +78,7 @@ class Imagelab:
             self.path = path
         if image_files is None:
             self.image_files = get_sorted_images(self.path)
+            self.image_indices = {self.image_files[i]: i for i in range(len(self.image_files))}
         else:
             self.image_files = sorted(image_files)
         if thumbnail_size is None:
@@ -90,6 +92,7 @@ class Imagelab:
         self.issue_scores = None
         self.results = None
         self.thresholds = 5  # TODO Ulya double check
+        self.hash_image_map = {}
 
     def __repr__(self):
         """What is displayed in console if user executes: >>> imagelab"""
@@ -303,7 +306,7 @@ class IssueManager(ABC):
 
 # THIS IS A DATASET WIDE ISSUE TEMPLATE
 # testing for check_duplicated
-class DatasetWideIssueManager(IssueManager):
+class DuplicatedIssueManager(IssueManager):
 
     # TODO: Add `results_key = "label"` to this class
     # TODO: Add `info_keys = ["label"]` to this class
@@ -311,32 +314,49 @@ class DatasetWideIssueManager(IssueManager):
         super().__init__(imagelab)
         self.issue_name = 'Duplicated'
 
-    def find_issues(self, img, image_name, count, **kwargs) -> float:
-        issue_info, misc_info = check_duplicated(img, image_name, count, self.imagelab.issue_info,
-                                                 self.imagelab.misc_info)
-        self.update_info(image_name, issue_info, misc_info)
+    def find_issues(self, img, image_name, **kwargs) -> float:
+        img_hash = get_image_hash(img)
+        self.update_info(image_name, img_hash)
         return self.imagelab.issue_info, self.imagelab.misc_info
 
-    def update_info(self, image_name, issue_info, misc_info, **kwargs) -> None:
-        self.imagelab.issue_info = issue_info
-        self.imagelab.misc_info = misc_info
+    def update_info(self, image_name, img_hash, **kwargs) -> None:
+        if img_hash in self.imagelab.hash_image_map:
+            self.imagelab.hash_image_map[img_hash].append(image_name)
+        else:
+            self.imagelab.hash_image_map[img_hash] = [image_name]
 
     def aggregate(self):
-        scores = self.imagelab.issue_scores[self.issue_name]
-        if self.imagelab.verbose:
-            print(f"Issue {self.issue_name} has {len(self.imagelab.issue_info[self.issue_name])} issues")
-        return scores
+        duplicated_images = set()
+        for hash, img_list in self.imagelab.hash_image_map.items():
+            if len(img_list) > 1:
+                duplicated_images.update(img_list)
+        for img_name in self.imagelab.issue_scores[self.issue_name].keys():
+            self.imagelab.issue_scores[self.issue_name][img_name] = 0 if img_name in duplicated_images else 1
+
+        raw_scores = list(self.imagelab.issue_scores[self.issue_name].values())
+        self.imagelab.results[f'{self.issue_name} zscore'] = raw_scores
+        self.imagelab.results[f'{self.issue_name} bool'] = (1 - np.array(raw_scores)).astype('bool')
 
     def visualize(self, num_preview):
-        image_ids = display_images(self.imagelab.issue_info[self.issue_name], num_preview)
-        for x in image_ids:  # show the first num_preview duplicate images (if exists)
-            try:
-                img = Image.open(
-                    os.path.join(self.imagelab.path, self.imagelab.image_files[x])
-                )
-                img.show()
-            except:
-                break
+        count = 0
+        for hash, img_list in self.imagelab.hash_image_map.items():
+            if len(img_list) > 1:
+                for img_name in img_list:
+                    ind = self.imagelab.image_indices[img_name]
+                    img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+                    img.show()
+                count += 1
+                if count == num_preview:
+                    break
+
+    def get_duplicated_sets(self, n=5):
+        duplicated_sets = []
+        for hash, img_list in self.imagelab.hash_image_map.items():
+            if len(img_list) > 1:
+                duplicated_sets.append(img_list)
+                if len(duplicated_sets) == n:
+                    break
+        return duplicated_sets
 
 
 # THIS IS A DATASET WIDE ISSUE
@@ -558,6 +578,44 @@ class AspectRatioIssueManager(IssueManager):
                 break
 
 
+class HotPixelsIssueManager(IssueManager):
+
+    # TODO: Add `results_key = "label"` to this class
+    # TODO: Add `info_keys = ["label"]` to this class
+
+    def __init__(self, imagelab: Imagelab):
+        super().__init__(imagelab)
+        self.issue_name = 'HotPixels'
+
+    def find_issues(self, img, image_name, **kwargs) -> pd.DataFrame:
+        score = find_hot_pixels(img)
+        self.update_info(image_name, score)
+        return score
+
+    def update_info(self, image_name, score, **kwargs) -> None:
+        self.imagelab.issue_scores[self.issue_name][image_name] = score
+
+    def aggregate(self):
+        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
+        if raw_scores.sum() > 0:
+            zscores = get_zscores(raw_scores)
+            self.imagelab.results[f'{self.issue_name} zscore'] = 1 - np.array(zscores)
+        else:
+            zscores = raw_scores
+        self.imagelab.results[f'{self.issue_name} bool'] = get_is_issue(zscores, self.imagelab.thresholds)
+
+    def visualize(self, num_preview=10):
+        results_col = self.imagelab.results[f'{self.issue_name} bool']
+        issue_indices = self.imagelab.results.index[results_col].tolist()
+
+        for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+            try:
+                img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+                img.show()
+            except:
+                break
+
+
 class GrayscaleIssueManager(IssueManager):
 
     # TODO: Add `results_key = "label"` to this class
@@ -597,14 +655,14 @@ class _IssueManagerFactory:
     """Factory class for constructing concrete issue managers."""
     # todo: convert these strings to constants
     types = {
-        "Duplicated": DatasetWideIssueManager,
+        "Duplicated": DuplicatedIssueManager,
         "AspectRatio": AspectRatioIssueManager,
         "Brightness": BrightnessIssueManager,
         "Blurred": BlurredIssueManager,
-        "Potential Occlusion": DatasetSkinnyIssueManager,
         "Entropy": EntropyIssueManager,
         "Near Duplicates": CheckNearDuplicatesIssueManager,
-        "Grayscale": GrayscaleIssueManager
+        "Grayscale": GrayscaleIssueManager,
+        "HotPixels": HotPixelsIssueManager
     }
 
     @classmethod
