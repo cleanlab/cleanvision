@@ -1,6 +1,7 @@
 import math, hashlib, imagehash, copy
 from PIL import ImageStat, ImageFilter
 import numpy as np
+from scipy.ndimage import median_filter
 
 
 def check_brightness(img):
@@ -129,7 +130,7 @@ def check_blurriness(img):
         return 1
 
 
-def check_duplicated(img, image_name, count, issue_info, misc_info):
+def get_image_hash(img):
     """
     Updates hash information for the set of images to find duplicates
 
@@ -158,22 +159,33 @@ def check_duplicated(img, image_name, count, issue_info, misc_info):
     a tuple of the dictionaries updated with new information given by img
 
     """
-    if "Duplicated" not in issue_info:
-        issue_info["Duplicated"] = []
-        misc_info["Image Hashes"] = set()
-        misc_info["Hash to Image"] = {}
-        misc_info["Duplicate Image Groups"] = {}
-    cur_hash = hashlib.md5(img.tobytes()).hexdigest()
-    if cur_hash in misc_info["Image Hashes"]:
-        issue_info["Duplicated"].append(count)
-        misc_info["Hash to Image"][cur_hash].append(image_name)
-        imgs_with_cur_hash = misc_info["Hash to Image"][cur_hash]
-        if len(imgs_with_cur_hash) >= 2:  # found a duplicate pair
-            misc_info["Duplicate Image Groups"][cur_hash] = imgs_with_cur_hash
-    else:
-        misc_info["Image Hashes"].add(cur_hash)
-        misc_info["Hash to Image"][cur_hash] = [image_name]
-    return (issue_info, misc_info)
+
+
+    # get image hash
+    # check if hash exists in the hash set
+    # if not move on
+    # else add image to the image list corresponding to the hash
+    # return the hash to image dict
+
+    img_hash = hashlib.md5(img.tobytes()).hexdigest()
+    return img_hash
+
+    # if "Duplicated" not in issue_info:
+    #     issue_info["Duplicated"] = []
+    #     misc_info["Image Hashes"] = set()
+    #     misc_info["Hash to Image"] = {}
+    #     misc_info["Duplicate Image Groups"] = {}
+    # cur_hash = hashlib.md5(img.tobytes()).hexdigest()
+    # if cur_hash in misc_info["Image Hashes"]:
+    #     issue_info["Duplicated"].append(count)
+    #     misc_info["Hash to Image"][cur_hash].append(image_name)
+    #     imgs_with_cur_hash = misc_info["Hash to Image"][cur_hash]
+    #     if len(imgs_with_cur_hash) >= 2:  # found a duplicate pair
+    #         misc_info["Duplicate Image Groups"][cur_hash] = imgs_with_cur_hash
+    # else:
+    #     misc_info["Image Hashes"].add(cur_hash)
+    #     misc_info["Hash to Image"][cur_hash] = [image_name]
+    # return (issue_info, misc_info)
 
 
 def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwargs):
@@ -256,3 +268,12 @@ def check_grayscale(im):  # return 1 if grayscale else 0
         return 1 if (np.diff(rgb_channels, axis=0) == 0).all() else 0
     else:
         raise ValueError("Cannot check images other than grayscale or RGB")
+
+
+def find_hot_pixels(im):
+    imarr = np.asarray(im.convert('L'))
+    blurred = median_filter(imarr, size=2, mode='nearest')
+    diff = imarr - blurred
+    threshold = 10 * np.std(diff)
+    num_hot_pixels = (np.abs(diff[1:-1, 1:-1]) > threshold).sum()
+    return num_hot_pixels
