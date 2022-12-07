@@ -1,19 +1,20 @@
 """ Example use of this library to check a collection of (unlabeled) images for various issues. 
 	First make sure you have placed your images in the path: image_files/
-""" 
+"""
+import sys
 
-import time, os, sys
 from image_data_quality.image_dataset import Imagelab
 
 if __name__ == "__main__":
-    start = time.time()
+    path_to_images = sys.argv[1]  # folder where your image files live
 
-    path_to_images = "../image_files/"  # folder where your image files live
-    imagelab = Imagelab(path_to_images, thumbnail_size = (128,128))
-    print("The path is:", imagelab.path)
-    print("There are ", str(len(imagelab.image_files)), "images in the dataset")
+    print(f"Loading images from {path_to_images}")
+    imagelab = Imagelab(path_to_images, thumbnail_size=(128, 128))
+    print(f"Number of images: {str(len(imagelab.image_files))}")
 
-    issues = imagelab.find_issues()
+    issue_types = ["Brightness"]
+
+    issues = imagelab.find_issues(issue_types)
     imagelab.aggregate(thresholds=5)
     imagelab.summary()
 
@@ -31,10 +32,6 @@ if __name__ == "__main__":
     """
 
     print(issues)
-
-    end = time.time()
-    total_time = end - start
-    print("\n"+ str(total_time))
 
     print(imagelab)
 
