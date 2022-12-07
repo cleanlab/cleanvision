@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     issue_types = ["LightImages"]
 
-    issues = imagelab.find_issues(issue_types)
+    issues = imagelab.evaluate(issue_types)
     imagelab.aggregate(thresholds=5)
     imagelab.summary()
 
