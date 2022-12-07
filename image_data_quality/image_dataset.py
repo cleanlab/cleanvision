@@ -135,7 +135,7 @@ class Imagelab:
     #             f"issue_name {issue_name} not found in self.info. These have not been computed yet."
     #         )
 
-    def find_issues(self, issue_types: list = None, verbose=True, **kwargs):
+    def evaluate(self, issue_types: list = None, verbose=True, **kwargs):
         """
         Audits self.image_files
         For issue checks performed on each image (i.e. brightness, odd size, potential occlusion)
