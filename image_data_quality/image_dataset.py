@@ -1,34 +1,26 @@
 import os
-from ctypes import Union
+from abc import ABC, abstractmethod
+from collections import OrderedDict
 from typing import List, Type, Any
 
 import numpy as np
 import pandas as pd
-from abc import ABC, abstractmethod
-from collections import OrderedDict
-
 from PIL import Image
 from tqdm import tqdm
-from image_data_quality.issue_checks import (
-    check_brightness,
-    check_odd_size,
-    check_entropy,
-    check_static,
-    check_blurriness,
-    check_duplicated,
-    check_near_duplicates,
-)
-from image_data_quality.utils.utils import analyze_scores_old, get_sorted_images, display_images, get_zscores, \
+
+from image_data_quality.issue_checks import check_odd_size, check_duplicated, check_near_duplicates, check_brightness, \
+    check_entropy, check_blurriness, check_grayscale
+from image_data_quality.utils.utils import get_sorted_images, display_images, get_zscores, \
     get_is_issue
-from .issue_checks import check_odd_size, check_duplicated, check_near_duplicates
 
 POSSIBLE_ISSUES = {
     "Duplicated": check_duplicated,
-    "Brightness": check_brightness, #Done
+    "Brightness": check_brightness,  # Done
     "AspectRatio": check_odd_size,
-    "Blurred": check_blurriness, #Done
-    "Entropy": check_entropy, # Done
+    "Blurred": check_blurriness,  # Done
+    "Entropy": check_entropy,  # Done
     "Near Duplicates": check_near_duplicates,
+    "Grayscale": check_grayscale,
 }
 
 DATASET_WIDE_ISSUES = {
@@ -158,14 +150,14 @@ class Imagelab:
         Set `num_preview` = 0 to not show any image previews.
 
         threshold: int, Default = 5
-        An integer representing the percentile threshold for issue scores below which an 
+        An integer representing the percentile threshold for issue scores below which an
         image is considered as suffering from that issue.
         A larger threshold values will lead to more images being flagged with issues.
 
         issue_types: list[str], optional
         A list of strings indicating names of checks bring run.
-        Defaults to all issue checks is none specified. 
-         
+        Defaults to all issue checks is none specified.
+
 
         Returns
         -------
@@ -530,6 +522,7 @@ class BlurredIssueManager(IssueManager):
             except:
                 break
 
+
 class AspectRatioIssueManager(IssueManager):
 
     # TODO: Add `results_key = "label"` to this class
@@ -565,6 +558,40 @@ class AspectRatioIssueManager(IssueManager):
                 break
 
 
+class GrayscaleIssueManager(IssueManager):
+
+    # TODO: Add `results_key = "label"` to this class
+    # TODO: Add `info_keys = ["label"]` to this class
+
+    def __init__(self, imagelab: Imagelab):
+        super().__init__(imagelab)
+        self.issue_name = 'Grayscale'
+
+    def find_issues(self, img, image_name, **kwargs) -> pd.DataFrame:
+        score = check_grayscale(img)
+        self.update_info(image_name, score)
+        return score
+
+    def update_info(self, image_name, score, **kwargs) -> None:
+        self.imagelab.issue_scores[self.issue_name][image_name] = score
+
+    def aggregate(self):
+        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
+        self.imagelab.results[f'{self.issue_name} zscore'] = 1 - raw_scores
+        self.imagelab.results[f'{self.issue_name} bool'] = np.array(raw_scores, dtype='bool')
+
+    def visualize(self, num_preview=10):
+        results_col = self.imagelab.results[f'{self.issue_name} bool']
+        issue_indices = self.imagelab.results.index[results_col == 1].tolist()
+        print(issue_indices)
+        for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+            try:
+                img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+                img.show()
+            except:
+                break
+
+
 # Construct concrete issue manager with a from_str method
 class _IssueManagerFactory:
     """Factory class for constructing concrete issue managers."""
@@ -577,6 +604,7 @@ class _IssueManagerFactory:
         "Potential Occlusion": DatasetSkinnyIssueManager,
         "Entropy": EntropyIssueManager,
         "Near Duplicates": CheckNearDuplicatesIssueManager,
+        "Grayscale": GrayscaleIssueManager
     }
 
     @classmethod
