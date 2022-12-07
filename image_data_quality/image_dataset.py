@@ -442,7 +442,6 @@ class EntropyIssueManager(IssueManager):
         return score
 
     def update_info(self, image_name, score, **kwargs) -> None:
-        print(f'Update info called for {image_name} {self.issue_name}')
         self.imagelab.issue_scores[self.issue_name][image_name] = score
 
     def aggregate(self):
@@ -477,7 +476,6 @@ class BrightnessIssueManager(IssueManager):
         return score
 
     def update_info(self, image_name, score, **kwargs) -> None:
-        print(f'Update info called for {image_name} {self.issue_name}')
         self.imagelab.issue_scores[self.issue_name][image_name] = score
 
     def aggregate(self):
@@ -513,7 +511,6 @@ class BlurredIssueManager(IssueManager):
         return score
 
     def update_info(self, image_name, score, **kwargs) -> None:
-        print(f'Update info called for {image_name} {self.issue_name}')
         self.imagelab.issue_scores[self.issue_name][image_name] = score
 
     def aggregate(self):
@@ -548,7 +545,6 @@ class AspectRatioIssueManager(IssueManager):
         return score
 
     def update_info(self, image_name, score, **kwargs) -> None:
-        print(f'Update info called for {image_name} {self.issue_name}')
         self.imagelab.issue_scores[self.issue_name][image_name] = score
 
     def aggregate(self):
