@@ -3,7 +3,6 @@ from PIL import ImageStat, ImageFilter
 import numpy as np
 
 
-
 def check_brightness(img):
     """
     Scores the overall brightness for a given image to find ones that are too bright and too dark
@@ -32,8 +31,8 @@ def check_brightness(img):
         )  # deals with black and white images
         print(f"WARNING: {img} does not have just r, g, b values")
     cur_bright = (
-        math.sqrt(0.241 * (r**2) + 0.691 * (g**2) + 0.068 * (b**2))
-    ) / 255
+                     math.sqrt(0.241 * (r ** 2) + 0.691 * (g ** 2) + 0.068 * (b ** 2))
+                 ) / 255
     bright_score = min(cur_bright, 1 - cur_bright)  # too bright or too dark
     return bright_score
 
@@ -80,6 +79,7 @@ def check_entropy(img):
     entropy = img.entropy()
     return entropy
 
+
 def check_static(img):
     """
     Calls check_entropy to get images that may be static images
@@ -97,7 +97,8 @@ def check_static(img):
     a float between 0 and 1 representing the 1-entropy of an image
     a lower number means potential static image
     """
-    return 1-check_entropy(img)
+    return 1 - check_entropy(img)
+
 
 def check_blurriness(img):
     """
@@ -116,15 +117,15 @@ def check_blurriness(img):
     an integer score where 0 means image is blurry, 1 otherwise
     """
     threshold = 260
-    img = img.convert("L") #Convert image to grayscale
-  
+    img = img.convert("L")  # Convert image to grayscale
+
     # Calculating Edges using the Laplacian Kernel
     final = img.filter(ImageFilter.Kernel((3, 3), (-1, -1, -1, -1, 8,
-                                            -1, -1, -1, -1), 1, 0))
+                                                   -1, -1, -1, -1), 1, 0))
     out = ImageStat.Stat(final).var[0]
-    if out < threshold: 
+    if out < threshold:
         return 0
-    else: 
+    else:
         return 1
 
 
@@ -174,6 +175,7 @@ def check_duplicated(img, image_name, count, issue_info, misc_info):
         misc_info["Hash to Image"][cur_hash] = [image_name]
     return (issue_info, misc_info)
 
+
 def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwargs):
     """
     Updates hash information for the set of images to find duplicates
@@ -220,12 +222,12 @@ def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwarg
     hash_size = kwargs.get("hash_size", DEFAULT_HASHSIZE)
     if not (isinstance(hash_size, int) and hash_size > 0):
         raise ValueError("Invalid `hash_size` specified in kwargs, must be positive integer.")
-    hash_type = kwargs.get("hash_type", DEFAULT_HASHTYPE) # [TODO] kwargs not handled correctly
+    hash_type = kwargs.get("hash_type", DEFAULT_HASHTYPE)  # [TODO] kwargs not handled correctly
     if hash_type in HASHTYPES:
         hash_function = HASHTYPES[hash_type]
     else:
         raise ValueError(f"Invalid `hash_type` specificed in kwargs, must be one of: {HASHTYPES.keys()}")
-    
+
     if "Near Duplicates" not in issue_info:
         issue_info["Near Duplicates"] = []
         misc_info["Near Duplicate Imagehashes"] = set()
@@ -243,3 +245,14 @@ def check_near_duplicates(img, image_name, count, issue_info, misc_info, **kwarg
         misc_info["Imagehash to Image"][cur_hash] = [count]
     issue_info["Near Duplicates"] = list(misc_info["Near Duplicate Image Groups"].values())
     return (issue_info, misc_info)
+
+
+def check_grayscale(im):  # return 1 if grayscale else 0
+    imarr = np.asarray(im)
+    if len(imarr.shape) == 2 or im.mode == 'L':
+        return 1
+    elif len(imarr.shape) == 3 or im.mode == 'RGB':
+        rgb_channels = imarr.reshape(-1, 3).T
+        return 1 if (np.diff(rgb_channels, axis=0) == 0).all() else 0
+    else:
+        raise ValueError("Cannot check images other than grayscale or RGB")
