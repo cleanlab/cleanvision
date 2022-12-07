@@ -8,14 +8,16 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
-from image_data_quality.issue_checks import check_odd_size, get_image_hash, get_near_duplicate_hash, check_brightness, \
+from image_data_quality.issue_checks import check_odd_size, get_image_hash, get_near_duplicate_hash, \
+    get_brightness_score, \
     check_entropy, check_blurriness, check_grayscale, find_hot_pixels
 from image_data_quality.utils.utils import get_sorted_images, display_images, get_zscores, \
     get_is_issue
 
 POSSIBLE_ISSUES = {
     "Duplicated": get_image_hash,
-    "Brightness": check_brightness,  # Done
+    "DarkImages": get_brightness_score,  # Done
+    "LightImages": get_brightness_score,  # Done
     "AspectRatio": check_odd_size,
     "Blurred": check_blurriness,  # Done
     "Entropy": check_entropy,  # Done
@@ -333,9 +335,9 @@ class DuplicatedIssueManager(IssueManager):
         for img_name in self.imagelab.issue_scores[self.issue_name].keys():
             self.imagelab.issue_scores[self.issue_name][img_name] = 0 if img_name in duplicated_images else 1
 
-        raw_scores = list(self.imagelab.issue_scores[self.issue_name].values())
+        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
         self.imagelab.results[f'{self.issue_name} zscore'] = raw_scores
-        self.imagelab.results[f'{self.issue_name} bool'] = (1 - np.array(raw_scores)).astype('bool')
+        self.imagelab.results[f'{self.issue_name} bool'] = (1 - raw_scores).astype('bool')
 
     def visualize(self, num_preview):
         count = 0
@@ -387,9 +389,9 @@ class CheckNearDuplicatesIssueManager(IssueManager):
         for img_name in self.imagelab.issue_scores[self.issue_name].keys():
             self.imagelab.issue_scores[self.issue_name][img_name] = 0 if img_name in duplicated_images else 1
 
-        raw_scores = list(self.imagelab.issue_scores[self.issue_name].values())
+        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
         self.imagelab.results[f'{self.issue_name} zscore'] = raw_scores
-        self.imagelab.results[f'{self.issue_name} bool'] = (1 - np.array(raw_scores)).astype('bool')
+        self.imagelab.results[f'{self.issue_name} bool'] = (1 - raw_scores).astype('bool')
 
     def visualize(self, num_preview):
         count = 0
@@ -415,45 +417,45 @@ class CheckNearDuplicatesIssueManager(IssueManager):
 
 # THIS IS NOT A DATASET WIDE ISSUE
 # testing for check_odd_size
-class DatasetSkinnyIssueManager(IssueManager):
-
-    # TODO: Add `results_key = "label"` to this class
-    # TODO: Add `info_keys = ["label"]` to this class
-    def __init__(self, imagelab: Imagelab):
-        super().__init__(imagelab)
-        self.issue_name = 'AspectRatio'
-
-    def find_issues(self, img, image_name, count, **kwargs) -> pd.DataFrame:
-        score = check_odd_size(img)
-        self.update_info(image_name, score)
-        return score
-
-    def update_info(self, image_name, score, **kwargs) -> None:
-        self.imagelab.issue_scores[self.issue_name][image_name] = score
-
-    def aggregate(self):
-        scores = self.imagelab.issue_scores[self.issue_name]
-
-        self.imagelab.results[f'{self.issue_name} raw_score'] = self.imagelab.results['image_name'].map(scores)
-        self.imagelab.results[f'{self.issue_name} zscore'] = get_zscores(
-            self.imagelab.results[f'{self.issue_name} raw_score'].tolist())
-        self.imagelab.results[f'{self.issue_name} bool'] = get_is_issue(
-            self.imagelab.results[f'{self.issue_name} zscore'].tolist(), self.imagelab.thresholds)
-
-        if self.imagelab.verbose:
-            print(
-                f"Issue {self.issue_name} has {np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())} issues")
-
-    def visualize(self, num_preview=10):
-        results_col = self.imagelab.results[f'{self.issue_name} bool']
-        issue_indices = self.imagelab.results.index[results_col].tolist()
-
-        for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
-            try:
-                img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
-                img.show()
-            except:
-                break
+# class DatasetSkinnyIssueManager(IssueManager):
+#
+#     # TODO: Add `results_key = "label"` to this class
+#     # TODO: Add `info_keys = ["label"]` to this class
+#     def __init__(self, imagelab: Imagelab):
+#         super().__init__(imagelab)
+#         self.issue_name = 'AspectRatio'
+#
+#     def find_issues(self, img, image_name, count, **kwargs) -> pd.DataFrame:
+#         score = check_odd_size(img)
+#         self.update_info(image_name, score)
+#         return score
+#
+#     def update_info(self, image_name, score, **kwargs) -> None:
+#         self.imagelab.issue_scores[self.issue_name][image_name] = score
+#
+#     def aggregate(self):
+#         scores = self.imagelab.issue_scores[self.issue_name]
+#
+#         self.imagelab.results[f'{self.issue_name} raw_score'] = self.imagelab.results['image_name'].map(scores)
+#         self.imagelab.results[f'{self.issue_name} zscore'] = get_zscores(
+#             self.imagelab.results[f'{self.issue_name} raw_score'].tolist())
+#         self.imagelab.results[f'{self.issue_name} bool'] = get_is_issue(
+#             self.imagelab.results[f'{self.issue_name} zscore'].tolist(), self.imagelab.thresholds)
+#
+#         if self.imagelab.verbose:
+#             print(
+#                 f"Issue {self.issue_name} has {np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())} issues")
+#
+#     def visualize(self, num_preview=10):
+#         results_col = self.imagelab.results[f'{self.issue_name} bool']
+#         issue_indices = self.imagelab.results.index[results_col].tolist()
+#
+#         for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+#             try:
+#                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+#                 img.show()
+#             except:
+#                 break
 
 
 class EntropyIssueManager(IssueManager):
@@ -473,7 +475,7 @@ class EntropyIssueManager(IssueManager):
         self.imagelab.issue_scores[self.issue_name][image_name] = score
 
     def aggregate(self):
-        raw_scores = self.imagelab.issue_scores[self.issue_name].values()
+        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
         zscores = get_zscores(raw_scores)
         self.imagelab.results[f'{self.issue_name} zscore'] = zscores
         self.imagelab.results[f'{self.issue_name} bool'] = get_is_issue(zscores, self.imagelab.thresholds)
@@ -490,16 +492,16 @@ class EntropyIssueManager(IssueManager):
                 break
 
 
-class BrightnessIssueManager(IssueManager):
+class DarkImagesIssueManager(IssueManager):
 
     # TODO: Add `results_key = "label"` to this class
     # TODO: Add `info_keys = ["label"]` to this class
     def __init__(self, imagelab: Imagelab):
         super().__init__(imagelab)
-        self.issue_name = 'Brightness'
+        self.issue_name = 'DarkImages'
 
     def find_issues(self, img, image_name, **kwargs) -> pd.DataFrame:
-        score = check_brightness(img)
+        score = get_brightness_score(img)
         self.update_info(image_name, score)
         return score
 
@@ -507,8 +509,42 @@ class BrightnessIssueManager(IssueManager):
         self.imagelab.issue_scores[self.issue_name][image_name] = score
 
     def aggregate(self):
-        raw_scores = self.imagelab.issue_scores[self.issue_name].values()
+        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
         zscores = get_zscores(raw_scores)
+        self.imagelab.results[f'{self.issue_name} zscore'] = zscores
+        self.imagelab.results[f'{self.issue_name} bool'] = get_is_issue(zscores, self.imagelab.thresholds)
+
+    def visualize(self, num_preview=10):
+        results_col = self.imagelab.results[f'{self.issue_name} bool']
+        issue_indices = self.imagelab.results.index[results_col].tolist()
+
+        for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+            try:
+                img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+                img.show()
+            except:
+                break
+
+
+class LightImagesIssueManager(IssueManager):
+
+    # TODO: Add `results_key = "label"` to this class
+    # TODO: Add `info_keys = ["label"]` to this class
+    def __init__(self, imagelab: Imagelab):
+        super().__init__(imagelab)
+        self.issue_name = 'LightImages'
+
+    def find_issues(self, img, image_name, **kwargs) -> pd.DataFrame:
+        score = get_brightness_score(img)
+        self.update_info(image_name, score)
+        return score
+
+    def update_info(self, image_name, score, **kwargs) -> None:
+        self.imagelab.issue_scores[self.issue_name][image_name] = score
+
+    def aggregate(self):
+        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
+        zscores = 1 - get_zscores(raw_scores)
         self.imagelab.results[f'{self.issue_name} zscore'] = zscores
         self.imagelab.results[f'{self.issue_name} bool'] = get_is_issue(zscores, self.imagelab.thresholds)
 
@@ -542,7 +578,7 @@ class BlurredIssueManager(IssueManager):
         self.imagelab.issue_scores[self.issue_name][image_name] = score
 
     def aggregate(self):
-        raw_scores = self.imagelab.issue_scores[self.issue_name].values()
+        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
         zscores = get_zscores(raw_scores)
         self.imagelab.results[f'{self.issue_name} zscore'] = zscores
         self.imagelab.results[f'{self.issue_name} bool'] = get_is_issue(zscores, self.imagelab.thresholds)
@@ -577,7 +613,7 @@ class AspectRatioIssueManager(IssueManager):
         self.imagelab.issue_scores[self.issue_name][image_name] = score
 
     def aggregate(self):
-        raw_scores = self.imagelab.issue_scores[self.issue_name].values()
+        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
         zscores = get_zscores(raw_scores)
         self.imagelab.results[f'{self.issue_name} zscore'] = zscores
         self.imagelab.results[f'{self.issue_name} bool'] = get_is_issue(zscores, self.imagelab.thresholds)
@@ -652,7 +688,7 @@ class GrayscaleIssueManager(IssueManager):
     def aggregate(self):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
         self.imagelab.results[f'{self.issue_name} zscore'] = 1 - raw_scores
-        self.imagelab.results[f'{self.issue_name} bool'] = np.array(raw_scores, dtype='bool')
+        self.imagelab.results[f'{self.issue_name} bool'] = raw_scores.astype('bool')
 
     def visualize(self, num_preview=10):
         results_col = self.imagelab.results[f'{self.issue_name} bool']
@@ -673,7 +709,8 @@ class _IssueManagerFactory:
     types = {
         "Duplicated": DuplicatedIssueManager,
         "AspectRatio": AspectRatioIssueManager,
-        "Brightness": BrightnessIssueManager,
+        "DarkImages": DarkImagesIssueManager,
+        "LightImages": LightImagesIssueManager,
         "Blurred": BlurredIssueManager,
         "Entropy": EntropyIssueManager,
         "NearDuplicates": CheckNearDuplicatesIssueManager,

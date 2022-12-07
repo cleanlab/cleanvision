@@ -17,8 +17,8 @@ TYPES = [
 
 
 def get_sorted_images(
-    path,
-):  
+        path,
+):
     """
     Used in initialization of ImageDataset Class
     Obtains image files of supported types and 
@@ -51,9 +51,9 @@ def get_sorted_images(
 
 
 def get_zscores(scores):
-    mean = statistics.mean(scores)
-    stdev = statistics.stdev(scores)
-    zscores = [(x - mean) / stdev for x in scores]
+    mean = np.mean(scores)
+    stdev = np.std(scores)
+    zscores = (scores - mean) / stdev
     return zscores
 
 
@@ -110,16 +110,17 @@ def analyze_scores_old(scores, threshold):
         if v1 < threshold_score:
             issue_indices.append(k1)
     for (
-        k2,
-        v2,
+            k2,
+            v2,
     ) in (
-        scores_dict.items()
+            scores_dict.items()
     ):  # ascending indices order for images, label if an image suffers from an issue
         if v2 < threshold_score:
             issue_bool[k2] = 1
         else:
             issue_bool[k2] = 0
     return (issue_indices, issue_bool, sorted_zscores)
+
 
 def display_images(indices, num_preview):
     '''
@@ -141,10 +142,10 @@ def display_images(indices, num_preview):
     A flat list with length num_preview, containing indices of images displayed to user
     '''
     outlen = min(num_preview, len(indices))
-    if type(indices[0])==int:
+    if type(indices[0]) == int:
         return indices[:outlen]
     else:
         out = []
         for i in range(outlen):
-            out+=indices[i]
+            out += indices[i]
         return out
