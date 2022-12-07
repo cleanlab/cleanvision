@@ -8,7 +8,7 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
-from image_data_quality.issue_checks import check_odd_size, get_image_hash, check_near_duplicates, check_brightness, \
+from image_data_quality.issue_checks import check_odd_size, get_image_hash, get_near_duplicate_hash, check_brightness, \
     check_entropy, check_blurriness, check_grayscale, find_hot_pixels
 from image_data_quality.utils.utils import get_sorted_images, display_images, get_zscores, \
     get_is_issue
@@ -19,7 +19,7 @@ POSSIBLE_ISSUES = {
     "AspectRatio": check_odd_size,
     "Blurred": check_blurriness,  # Done
     "Entropy": check_entropy,  # Done
-    "Near Duplicates": check_near_duplicates,
+    "NearDuplicates": get_near_duplicate_hash,
     "Grayscale": check_grayscale,
     "HotPixels": find_hot_pixels,
 }
@@ -93,6 +93,7 @@ class Imagelab:
         self.results = None
         self.thresholds = 5  # TODO Ulya double check
         self.hash_image_map = {}
+        self.near_hash_image_map = {}
 
     def __repr__(self):
         """What is displayed in console if user executes: >>> imagelab"""
@@ -317,7 +318,6 @@ class DuplicatedIssueManager(IssueManager):
     def find_issues(self, img, image_name, **kwargs) -> float:
         img_hash = get_image_hash(img)
         self.update_info(image_name, img_hash)
-        return self.imagelab.issue_info, self.imagelab.misc_info
 
     def update_info(self, image_name, img_hash, **kwargs) -> None:
         if img_hash in self.imagelab.hash_image_map:
@@ -367,34 +367,50 @@ class CheckNearDuplicatesIssueManager(IssueManager):
     # TODO: Add `info_keys = ["label"]` to this class
     def __init__(self, imagelab: Imagelab):
         super().__init__(imagelab)
-        self.issue_name = 'Near Duplicates'
+        self.issue_name = 'NearDuplicates'
 
-    def find_issues(self, img, image_name, count, **kwargs) -> float:
-        issue_info, misc_info = check_near_duplicates(img, image_name, count, self.imagelab.issue_info,
-                                                      self.imagelab.misc_info)
-        self.update_info(image_name, issue_info, misc_info)
-        return self.imagelab.issue_info, self.imagelab.misc_info
+    def find_issues(self, img, image_name, **kwargs) -> float:
+        near_hash = get_near_duplicate_hash(img)
+        self.update_info(image_name, near_hash)
 
-    def update_info(self, image_name, issue_info, misc_info, **kwargs) -> None:
-        self.imagelab.issue_info = issue_info
-        self.imagelab.misc_info = misc_info
+    def update_info(self, image_name, near_hash, **kwargs) -> None:
+        if near_hash in self.imagelab.near_hash_image_map:
+            self.imagelab.near_hash_image_map[near_hash].append(image_name)
+        else:
+            self.imagelab.near_hash_image_map[near_hash] = [image_name]
 
     def aggregate(self):
-        scores = self.imagelab.issue_scores[self.issue_name]
-        if self.imagelab.verbose:
-            print(f"Issue {self.issue_name} has {len(self.imagelab.issue_info[self.issue_name])} issues")
-        return scores
+        duplicated_images = set()
+        for hash, img_list in self.imagelab.near_hash_image_map.items():
+            if len(img_list) > 1:
+                duplicated_images.update(img_list)
+        for img_name in self.imagelab.issue_scores[self.issue_name].keys():
+            self.imagelab.issue_scores[self.issue_name][img_name] = 0 if img_name in duplicated_images else 1
+
+        raw_scores = list(self.imagelab.issue_scores[self.issue_name].values())
+        self.imagelab.results[f'{self.issue_name} zscore'] = raw_scores
+        self.imagelab.results[f'{self.issue_name} bool'] = (1 - np.array(raw_scores)).astype('bool')
 
     def visualize(self, num_preview):
-        image_ids = display_images(self.imagelab.issue_info[self.issue_name], num_preview)
-        for x in image_ids:  # show the first num_preview duplicate images (if exists)
-            try:
-                img = Image.open(
-                    os.path.join(self.imagelab.path, self.imagelab.image_files[x])
-                )
-                img.show()
-            except:
-                break
+        count = 0
+        for hash, img_list in self.imagelab.near_hash_image_map.items():
+            if len(img_list) > 1:
+                for img_name in img_list:
+                    ind = self.imagelab.image_indices[img_name]
+                    img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+                    img.show()
+                count += 1
+                if count == num_preview:
+                    break
+
+    def get_duplicated_sets(self, n=5):
+        duplicated_sets = []
+        for hash, img_list in self.imagelab.near_hash_image_map.items():
+            if len(img_list) > 1:
+                duplicated_sets.append(img_list)
+                if len(duplicated_sets) == n:
+                    break
+        return duplicated_sets
 
 
 # THIS IS NOT A DATASET WIDE ISSUE
@@ -660,7 +676,7 @@ class _IssueManagerFactory:
         "Brightness": BrightnessIssueManager,
         "Blurred": BlurredIssueManager,
         "Entropy": EntropyIssueManager,
-        "Near Duplicates": CheckNearDuplicatesIssueManager,
+        "NearDuplicates": CheckNearDuplicatesIssueManager,
         "Grayscale": GrayscaleIssueManager,
         "HotPixels": HotPixelsIssueManager
     }
