@@ -26,7 +26,7 @@ if __name__ == "__main__":
     #     "HotPixels": threshold,
     # }
 
-    issues = imagelab.evaluate(issue_types=["NearDuplicates"])
+    issues = imagelab.evaluate(issue_types=["Grayscale"])
     imagelab.aggregate()
     imagelab.summary()
     imagelab.visualize(5)
