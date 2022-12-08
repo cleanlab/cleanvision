@@ -10,7 +10,6 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
-
 from image_data_quality.issue_checks import check_odd_size, get_image_hash, get_near_duplicate_hash, \
     get_brightness_score, \
     check_entropy, check_blurriness, check_grayscale, find_hot_pixels
@@ -191,7 +190,7 @@ class Imagelab:
             "todo_fake_arg": 777,
         }
 
-        self.verbose = verbose # TODO: fix verbose
+        self.verbose = verbose  # TODO: fix verbose
 
         # Issues to be detected
         if issue_types is None:  # defaults to run all checks
@@ -239,7 +238,7 @@ class Imagelab:
             t.start()
 
         for i in tqdm(range(len(self.image_files))):
-            img,image_name = loaded_images.get()
+            img, image_name = loaded_images.get()
             if img.mode is not None:
                 self.color_channels[img.mode] = self.color_channels.get(img.mode, 0) + 1
             for issue_manager in self.issue_managers:
@@ -402,7 +401,8 @@ class DuplicatedIssueManager(IssueManager):
             if len(img_list) > 1:
                 for img_name in img_list:
                     ind = self.imagelab.image_indices[img_name]
-                    issue_score = self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[0]
+                    issue_score = self.imagelab.results[self.imagelab.results['image_name'] == img_name][
+                        f'{self.issue_name} score'].tolist()[0]
                     title = f'{self.issue_name} [{issue_score}] {img_name}'
                     img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
                     print(title)
@@ -466,7 +466,8 @@ class CheckNearDuplicatesIssueManager(IssueManager):
             if len(img_list) > 1:
                 for img_name in img_list:
                     ind = self.imagelab.image_indices[img_name]
-                    issue_score = self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[0]
+                    issue_score = self.imagelab.results[self.imagelab.results['image_name'] == img_name][
+                        f'{self.issue_name} score'].tolist()[0]
                     title = f'{self.issue_name} [{issue_score}] {img_name}'
                     img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
                     img.show(title=title)
@@ -520,14 +521,15 @@ class EntropyIssueManager(IssueManager):
         true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
         issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
 
-        if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
+        if num_preview is None:  # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
         for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
             img_name = self.imagelab.image_files[ind]
             issue_score = \
-            self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
-                0]
+                self.imagelab.results[self.imagelab.results['image_name'] == img_name][
+                    f'{self.issue_name} score'].tolist()[
+                    0]
             title = f'{self.issue_name} [{issue_score}] {img_name}'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
@@ -560,7 +562,8 @@ class DarkImagesIssueManager(IssueManager):
 
     def aggregate(self):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
-        scores: np.ndarray = np.exp(-1 * raw_scores * self.t)
+        scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)
+        # scores = raw_scores
         self.imagelab.results[f'{self.issue_name} score'] = scores
         self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
@@ -569,17 +572,18 @@ class DarkImagesIssueManager(IssueManager):
         results_col = self.imagelab.results[f'{self.issue_name} bool']
         scores_col = self.imagelab.results[f'{self.issue_name} score']
         issue_scores = scores_col.to_numpy()
-        issue_indices = np.argsort(issue_scores)
+        issue_indices = np.argsort(issue_scores)[::-1]
         true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
         issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
 
-        if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
+        if num_preview is None:  # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
         for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
             img_name = self.imagelab.image_files[ind]
             issue_score = \
-            self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
-                0]
+                self.imagelab.results[self.imagelab.results['image_name'] == img_name][
+                    f'{self.issue_name} score'].tolist()[
+                    0]
             title = f'{self.issue_name} [{issue_score}] {img_name}'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
@@ -608,12 +612,11 @@ class LightImagesIssueManager(IssueManager):
         self.imagelab.issue_scores[self.issue_name][image_name] = score
 
     def mark_bool_issues(self, raw_scores):
-        threshold_score = np.percentile(raw_scores, 100 - self.imagelab.thresholds)
-        return raw_scores > threshold_score
+        return get_is_issue(raw_scores, self.imagelab.thresholds)
 
     def aggregate(self):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
-        scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)
+        scores: np.ndarray = np.exp(-1 * raw_scores * self.t)
         self.imagelab.results[f'{self.issue_name} score'] = scores
         self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
@@ -626,14 +629,15 @@ class LightImagesIssueManager(IssueManager):
         true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
         issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
 
-        if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
+        if num_preview is None:  # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
         for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
             img_name = self.imagelab.image_files[ind]
             issue_score = \
-            self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
-                0]
+                self.imagelab.results[self.imagelab.results['image_name'] == img_name][
+                    f'{self.issue_name} score'].tolist()[
+                    0]
             title = f'{self.issue_name} [{issue_score}] {img_name}'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
@@ -680,14 +684,15 @@ class BlurredIssueManager(IssueManager):
         true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
         issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
 
-        if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
+        if num_preview is None:  # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
         for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
             img_name = self.imagelab.image_files[ind]
             issue_score = \
-            self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
-                0]
+                self.imagelab.results[self.imagelab.results['image_name'] == img_name][
+                    f'{self.issue_name} score'].tolist()[
+                    0]
             title = f'{self.issue_name} [{issue_score}] {img_name}'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
@@ -734,14 +739,15 @@ class AspectRatioIssueManager(IssueManager):
         true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
         issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
 
-        if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
+        if num_preview is None:  # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
         for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
             img_name = self.imagelab.image_files[ind]
             issue_score = \
-            self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
-                0]
+                self.imagelab.results[self.imagelab.results['image_name'] == img_name][
+                    f'{self.issue_name} score'].tolist()[
+                    0]
             title = f'{self.issue_name} [{issue_score}] {img_name}'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
@@ -788,14 +794,15 @@ class HotPixelsIssueManager(IssueManager):
         true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
         issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
 
-        if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
+        if num_preview is None:  # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
         for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
             img_name = self.imagelab.image_files[ind]
             issue_score = \
-            self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
-                0]
+                self.imagelab.results[self.imagelab.results['image_name'] == img_name][
+                    f'{self.issue_name} score'].tolist()[
+                    0]
             title = f'{self.issue_name} [{issue_score}] {img_name}'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
@@ -841,14 +848,15 @@ class GrayscaleIssueManager(IssueManager):
         true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
         issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
 
-        if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
+        if num_preview is None:  # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
         for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
             img_name = self.imagelab.image_files[ind]
             issue_score = \
-            self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
-                0]
+                self.imagelab.results[self.imagelab.results['image_name'] == img_name][
+                    f'{self.issue_name} score'].tolist()[
+                    0]
             title = f'{self.issue_name} [{issue_score}] {img_name}'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
