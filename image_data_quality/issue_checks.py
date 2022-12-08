@@ -30,7 +30,7 @@ def get_brightness_score(img):
             stat.mean[0],
             stat.mean[0],
         )  # deals with black and white images
-        print(f"WARNING: {img} does not have just r, g, b values")
+        # print(f"WARNING: {img} does not have just r, g, b values")
     cur_bright = (
                      math.sqrt(0.241 * (r ** 2) + 0.691 * (g ** 2) + 0.068 * (b ** 2))
                  ) / 255
@@ -118,17 +118,13 @@ def check_blurriness(img):
     blur_score: int
     an integer score where 0 means image is blurry, 1 otherwise
     """
-    threshold = 260
     img = img.convert("L")  # Convert image to grayscale
 
     # Calculating Edges using the Laplacian Kernel
     final = img.filter(ImageFilter.Kernel((3, 3), (-1, -1, -1, -1, 8,
                                                    -1, -1, -1, -1), 1, 0))
     out = ImageStat.Stat(final).var[0]
-    if out < threshold:
-        return 0
-    else:
-        return 1
+    return out
 
 
 def get_image_hash(img):
