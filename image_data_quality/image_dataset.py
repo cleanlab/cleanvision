@@ -493,7 +493,7 @@ class EntropyIssueManager(IssueManager):
         super().__init__(imagelab)
         self.issue_name = 'Entropy'
         self.threshold = 1
-        self.t = 1
+        self.t = 0.5
 
     def find_issues(self, img, image_name, **kwargs) -> pd.DataFrame:
         score = check_entropy(img)
@@ -504,11 +504,13 @@ class EntropyIssueManager(IssueManager):
         self.imagelab.issue_scores[self.issue_name][image_name] = score
 
     def mark_bool_issues(self, raw_scores):
-        return get_is_issue(raw_scores, self.imagelab.thresholds)
+        return np.array(raw_scores) < 0.3
 
     def aggregate(self):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
-        scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)
+        # scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)
+        scores: np.ndarray = 0.1 * raw_scores
+        scores = [score if score < 1 else 1 for score in scores]
         self.imagelab.results[f'{self.issue_name} score'] = scores
         self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
