@@ -1,19 +1,20 @@
 import os
+import threading
 from abc import ABC, abstractmethod
 from collections import OrderedDict
-from typing import List, Type, Any
+from queue import Queue
+from typing import List, Type
 
 import numpy as np
 import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
-import multiprocessing as mp
 
 from image_data_quality.issue_checks import check_odd_size, get_image_hash, get_near_duplicate_hash, \
     get_brightness_score, \
     check_entropy, check_blurriness, check_grayscale, find_hot_pixels
-from image_data_quality.utils.utils import get_sorted_images, display_images, get_zscores, \
+from image_data_quality.utils.utils import get_sorted_images, display_images, \
     get_is_issue
 
 POSSIBLE_ISSUES = {
@@ -207,6 +208,7 @@ class Imagelab:
                     raise ValueError("Not a valid issue check!")
             self.issue_types = dict(zip(issue_types, [True] * len(issue_types)))
         print(f"Checking for {', '.join(self.issue_types.keys())}")
+
         # Instantiating issue managers
         self.issue_managers = [
             factory(imagelab=self)
@@ -225,29 +227,28 @@ class Imagelab:
         for issue_type in self.issue_types.keys():
             self.issue_scores[issue_type] = OrderedDict([(image_file, None) for image_file in self.image_files])
 
-        # self.issue_scores = dict(zip(self.issue_types.keys(), [{}] * len(self.issue_types.keys())))  # dict where keys are string names of issues, values are list in image order of scores between 0 and 1
-        # print('ISSUE SCORES!', self.issue_scores)
         self.results = pd.DataFrame(self.image_files, columns=['image_name'])
 
-        # populates self.issue_scores{} and self.issue_info{}
-        # with mp.Pool(2) as p:
-        #     list(tqdm(p.imap(self._find_issues, self.image_files), total=len(self.image_files)))
+        num_cpus = os.cpu_count()
+        loaded_images = Queue(maxsize=num_cpus)
+        worker_images = self.image_files.copy()
 
-        for image_name in tqdm(self.image_files):
-            img = Image.open(os.path.join(self.path, image_name))
+        def worker():
+            while worker_images:
+                name = worker_images.pop()
+                im = Image.open(os.path.join(self.path, name))
+                loaded_images.put((im, name))
+
+        for _ in range(num_cpus):
+            t = threading.Thread(target=worker, daemon=True)
+            t.start()
+
+        for i in tqdm(range(len(self.image_files))):
+            img,image_name = loaded_images.get()
             if img.mode is not None:
                 self.color_channels[img.mode] = self.color_channels.get(img.mode, 0) + 1
-                # img.thumbnail(self.thumbnail_size)
             for issue_manager in self.issue_managers:
                 issue_manager.find_issues(img, image_name, **issue_kwargs)
-
-    def _find_issues(self, image_name, **issue_kwargs):
-        img = Image.open(os.path.join(self.path, image_name))
-        if img.mode is not None:
-            self.color_channels[img.mode] = self.color_channels.get(img.mode, 0) + 1
-            # img.thumbnail(self.thumbnail_size)
-        for issue_manager in self.issue_managers:
-            issue_manager.find_issues(img, image_name, **issue_kwargs)
 
     def aggregate(self, thresholds):
         self.thresholds = thresholds
@@ -281,7 +282,7 @@ class Imagelab:
         summary_results = pd.DataFrame(
             {"Issues": bool_df.sum(), "Percent of Data": bool_df.sum() / self.results.shape[0],
              "Issue Intensity": issue_score_sum / total_sum})
-        
+
         summary_results = summary_results.sort_values(by=['Issue Intensity'], ascending=False)
         print(f"Color spaces in the  dataset\n========================\n{self.color_channels}\n")
         print(f"Issue Summary\n========================\n{summary_results}\n")
