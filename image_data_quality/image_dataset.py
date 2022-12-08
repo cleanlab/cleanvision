@@ -101,7 +101,7 @@ class Imagelab:
             "LightImages": 0.05,
             "AspectRatio": 0.5,
             "Blurred": 0.3,
-            "Entropy": 0.5,
+            "Entropy": 0.3,
             "NearDuplicates": 0.5,
             "Grayscale": 0.5,
             "HotPixels": 0.5,
@@ -514,16 +514,16 @@ class EntropyIssueManager(IssueManager):
     def update_info(self, image_name, score, **kwargs) -> None:
         self.imagelab.issue_scores[self.issue_name][image_name] = score
 
-    def mark_bool_issues(self, raw_scores):
-        return np.array(raw_scores) < 0.3
+    # def mark_bool_issues(self, raw_scores):
+    #     return np.array(raw_scores) < 0.3
 
     def aggregate(self, threshold):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
         # scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)
         scores: np.ndarray = 0.1 * raw_scores
-        scores = [score if score < 1 else 1 for score in scores]
+        scores[scores > 1] = 1
         self.imagelab.results[f'{self.issue_name} score'] = scores
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores)
+        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores, threshold)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
 
     def visualize(self, num_preview=10):
@@ -569,9 +569,6 @@ class DarkImagesIssueManager(IssueManager):
 
     def update_info(self, image_name, score, **kwargs) -> None:
         self.imagelab.issue_scores[self.issue_name][image_name] = score
-
-    # def mark_bool_issues(self, raw_scores):
-    #     return get_is_issue(raw_scores, self.imagelab.thresholds)
 
     def aggregate(self, threshold):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
@@ -848,14 +845,14 @@ class GrayscaleIssueManager(IssueManager):
     def update_info(self, image_name, score, **kwargs) -> None:
         self.imagelab.issue_scores[self.issue_name][image_name] = score
 
-    def mark_bool_issues(self, raw_scores):
-        return raw_scores.astype('bool')
+    # def mark_bool_issues(self, raw_scores):
+    #     return raw_scores.astype('bool')
 
     def aggregate(self, threshold):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
         # todo this zscore does not make sense, this value can just be used as a score since this is a binary variable
         self.imagelab.results[f'{self.issue_name} score'] = 1 - raw_scores
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(raw_scores)
+        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(1-raw_scores, threshold)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
 
     def visualize(self, num_preview=10):
