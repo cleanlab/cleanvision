@@ -25,7 +25,7 @@ POSSIBLE_ISSUES = set([
     "Entropy",
     "NearDuplicates",
     "Grayscale",
-    "HotPixels",
+    # "HotPixels",
 ])
 
 DATASET_WIDE_ISSUES = {
@@ -684,7 +684,7 @@ class BlurredIssueManager(IssueManager):
 
     def aggregate(self, threshold):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
-        self.imagelab.results[f'{self.issue_name} raw_score'] = raw_scores
+        # self.imagelab.results[f'{self.issue_name} raw_score'] = raw_scores
         scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)
         self.imagelab.results[f'{self.issue_name} score'] = scores
         self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores, threshold)
@@ -741,7 +741,7 @@ class AspectRatioIssueManager(IssueManager):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
         scores = raw_scores
         # scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)
-        self.imagelab.results[f'{self.issue_name} raw_score'] = raw_scores
+        # self.imagelab.results[f'{self.issue_name} raw_score'] = raw_scores
         self.imagelab.results[f'{self.issue_name} score'] = scores
         self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores, threshold)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
@@ -791,14 +791,14 @@ class HotPixelsIssueManager(IssueManager):
     def update_info(self, image_name, score, **kwargs) -> None:
         self.imagelab.issue_scores[self.issue_name][image_name] = score
 
-    def mark_bool_issues(self, raw_scores):
+    def mark_bool_issues(self, raw_scores, threshold):
         return get_is_issue(raw_scores, self.imagelab.thresholds)
 
     def aggregate(self, threshold):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
         scores: np.ndarray = np.exp(-1 * raw_scores * self.t)
         self.imagelab.results[f'{self.issue_name} score'] = scores
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores)
+        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores, threshold)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
 
     def visualize(self, num_preview=10):
@@ -852,7 +852,7 @@ class GrayscaleIssueManager(IssueManager):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
         # todo this zscore does not make sense, this value can just be used as a score since this is a binary variable
         self.imagelab.results[f'{self.issue_name} score'] = 1 - raw_scores
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(1-raw_scores, threshold)
+        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(1 - raw_scores, threshold)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
 
     def visualize(self, num_preview=10):
