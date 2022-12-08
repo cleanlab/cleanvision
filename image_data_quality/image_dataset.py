@@ -191,12 +191,7 @@ class Imagelab:
             "todo_fake_arg": 777,
         }
 
-        self.verbose = verbose
-
-        num_preview = 10  # TODO: remove num_preview from this method
-
-        if num_preview <= 0:
-            verbose = False
+        self.verbose = verbose # TODO: fix verbose
 
         # Issues to be detected
         if issue_types is None:  # defaults to run all checks
@@ -294,7 +289,7 @@ class Imagelab:
             return
 
         # TODO: num issues can be a variable in each
-        if num_preview > 0:
+        if num_preview > 0 or num_preview is None:
             for issue_manager in self.issue_managers:
                 # if verbose:
                 #     print(f"Found {issue_manager.num_issues} images with the issue {issue_manager.issue_name}")
@@ -400,12 +395,18 @@ class DuplicatedIssueManager(IssueManager):
 
     def visualize(self, num_preview):
         count = 0
+        if num_preview is None:
+            num_preview = len(self.imagelab.hash_image_map.items())
+
         for hash, img_list in self.imagelab.hash_image_map.items():
             if len(img_list) > 1:
                 for img_name in img_list:
                     ind = self.imagelab.image_indices[img_name]
+                    issue_score = self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[0]
+                    title = f'{self.issue_name} [{issue_score}]'
                     img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
-                    img.show()
+                    print(title)
+                    img.show(title=title)
                 count += 1
                 if count == num_preview:
                     break
@@ -458,12 +459,17 @@ class CheckNearDuplicatesIssueManager(IssueManager):
 
     def visualize(self, num_preview):
         count = 0
+        if num_preview is None:
+            num_preview = len(self.imagelab.hash_image_map.items())
+
         for hash, img_list in self.imagelab.near_hash_image_map.items():
             if len(img_list) > 1:
                 for img_name in img_list:
                     ind = self.imagelab.image_indices[img_name]
+                    issue_score = self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[0]
+                    title = f'{self.issue_name} [{issue_score}]'
                     img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
-                    img.show()
+                    img.show(title=title)
                 count += 1
                 if count == num_preview:
                     break
@@ -509,11 +515,19 @@ class EntropyIssueManager(IssueManager):
     def visualize(self, num_preview=10):
         results_col = self.imagelab.results[f'{self.issue_name} bool']
         issue_indices = self.imagelab.results.index[results_col].tolist()
+        if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
+            num_preview = len(issue_indices)
 
         for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+            img_name = self.imagelab.image_files[ind]
+            issue_score = \
+            self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
+                0]
+            title = f'{self.issue_name} [{issue_score}]'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
-                img.show()
+                print(title)
+                img.show(title=title)
             except:
                 break
 
@@ -549,11 +563,19 @@ class DarkImagesIssueManager(IssueManager):
     def visualize(self, num_preview=10):
         results_col = self.imagelab.results[f'{self.issue_name} bool']
         issue_indices = self.imagelab.results.index[results_col].tolist()
+        if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
+            num_preview = len(issue_indices)
 
         for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+            img_name = self.imagelab.image_files[ind]
+            issue_score = \
+            self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
+                0]
+            title = f'{self.issue_name} [{issue_score}]'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
-                img.show()
+                print(title)
+                img.show(title=title)
             except:
                 break
 
@@ -590,11 +612,19 @@ class LightImagesIssueManager(IssueManager):
     def visualize(self, num_preview=10):
         results_col = self.imagelab.results[f'{self.issue_name} bool']
         issue_indices = self.imagelab.results.index[results_col].tolist()
+        if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
+            num_preview = len(issue_indices)
 
         for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+            img_name = self.imagelab.image_files[ind]
+            issue_score = \
+            self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
+                0]
+            title = f'{self.issue_name} [{issue_score}]'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
-                img.show()
+                print(title)
+                img.show(title=title)
             except:
                 break
 
@@ -631,11 +661,19 @@ class BlurredIssueManager(IssueManager):
     def visualize(self, num_preview=10):
         results_col = self.imagelab.results[f'{self.issue_name} bool']
         issue_indices = self.imagelab.results.index[results_col].tolist()
+        if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
+            num_preview = len(issue_indices)
 
         for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+            img_name = self.imagelab.image_files[ind]
+            issue_score = \
+            self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
+                0]
+            title = f'{self.issue_name} [{issue_score}]'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
-                img.show()
+                print(title)
+                img.show(title=title)
             except:
                 break
 
@@ -672,11 +710,19 @@ class AspectRatioIssueManager(IssueManager):
     def visualize(self, num_preview=10):
         results_col = self.imagelab.results[f'{self.issue_name} bool']
         issue_indices = self.imagelab.results.index[results_col].tolist()
+        if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
+            num_preview = len(issue_indices)
 
         for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+            img_name = self.imagelab.image_files[ind]
+            issue_score = \
+            self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
+                0]
+            title = f'{self.issue_name} [{issue_score}]'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
-                img.show()
+                print(title)
+                img.show(title=title)
             except:
                 break
 
@@ -713,11 +759,19 @@ class HotPixelsIssueManager(IssueManager):
     def visualize(self, num_preview=10):
         results_col = self.imagelab.results[f'{self.issue_name} bool']
         issue_indices = self.imagelab.results.index[results_col].tolist()
+        if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
+            num_preview = len(issue_indices)
 
         for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+            img_name = self.imagelab.image_files[ind]
+            issue_score = \
+            self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
+                0]
+            title = f'{self.issue_name} [{issue_score}]'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
-                img.show()
+                print(title)
+                img.show(title=title)
             except:
                 break
 
@@ -753,10 +807,19 @@ class GrayscaleIssueManager(IssueManager):
     def visualize(self, num_preview=10):
         results_col = self.imagelab.results[f'{self.issue_name} bool']
         issue_indices = self.imagelab.results.index[results_col == 1].tolist()
+        if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
+            num_preview = len(issue_indices)
+
         for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+            img_name = self.imagelab.image_files[ind]
+            issue_score = \
+            self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
+                0]
+            title = f'{self.issue_name} [{issue_score}]'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
-                img.show()
+                print(title)
+                img.show(title=title)
             except:
                 break
 
