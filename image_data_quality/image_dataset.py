@@ -289,7 +289,7 @@ class Imagelab:
             return
 
         # TODO: num issues can be a variable in each
-        if num_preview > 0 or num_preview is None:
+        if num_preview is None or num_preview > 0:
             for issue_manager in self.issue_managers:
                 # if verbose:
                 #     print(f"Found {issue_manager.num_issues} images with the issue {issue_manager.issue_name}")
@@ -403,7 +403,7 @@ class DuplicatedIssueManager(IssueManager):
                 for img_name in img_list:
                     ind = self.imagelab.image_indices[img_name]
                     issue_score = self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[0]
-                    title = f'{self.issue_name} [{issue_score}]'
+                    title = f'{self.issue_name} [{issue_score}] {img_name}'
                     img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
                     print(title)
                     img.show(title=title)
@@ -467,7 +467,7 @@ class CheckNearDuplicatesIssueManager(IssueManager):
                 for img_name in img_list:
                     ind = self.imagelab.image_indices[img_name]
                     issue_score = self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[0]
-                    title = f'{self.issue_name} [{issue_score}]'
+                    title = f'{self.issue_name} [{issue_score}] {img_name}'
                     img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
                     img.show(title=title)
                 count += 1
@@ -514,7 +514,12 @@ class EntropyIssueManager(IssueManager):
 
     def visualize(self, num_preview=10):
         results_col = self.imagelab.results[f'{self.issue_name} bool']
-        issue_indices = self.imagelab.results.index[results_col].tolist()
+        scores_col = self.imagelab.results[f'{self.issue_name} score']
+        issue_scores = scores_col.to_numpy()
+        issue_indices = np.argsort(issue_scores)
+        true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
+        issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
+
         if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
@@ -523,7 +528,7 @@ class EntropyIssueManager(IssueManager):
             issue_score = \
             self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
                 0]
-            title = f'{self.issue_name} [{issue_score}]'
+            title = f'{self.issue_name} [{issue_score}] {img_name}'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
                 print(title)
@@ -562,16 +567,20 @@ class DarkImagesIssueManager(IssueManager):
 
     def visualize(self, num_preview=10):
         results_col = self.imagelab.results[f'{self.issue_name} bool']
-        issue_indices = self.imagelab.results.index[results_col].tolist()
+        scores_col = self.imagelab.results[f'{self.issue_name} score']
+        issue_scores = scores_col.to_numpy()
+        issue_indices = np.argsort(issue_scores)
+        true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
+        issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
+
         if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
-
         for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
             img_name = self.imagelab.image_files[ind]
             issue_score = \
             self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
                 0]
-            title = f'{self.issue_name} [{issue_score}]'
+            title = f'{self.issue_name} [{issue_score}] {img_name}'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
                 print(title)
@@ -611,7 +620,12 @@ class LightImagesIssueManager(IssueManager):
 
     def visualize(self, num_preview=10):
         results_col = self.imagelab.results[f'{self.issue_name} bool']
-        issue_indices = self.imagelab.results.index[results_col].tolist()
+        scores_col = self.imagelab.results[f'{self.issue_name} score']
+        issue_scores = scores_col.to_numpy()
+        issue_indices = np.argsort(issue_scores)
+        true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
+        issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
+
         if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
@@ -620,7 +634,7 @@ class LightImagesIssueManager(IssueManager):
             issue_score = \
             self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
                 0]
-            title = f'{self.issue_name} [{issue_score}]'
+            title = f'{self.issue_name} [{issue_score}] {img_name}'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
                 print(title)
@@ -660,7 +674,12 @@ class BlurredIssueManager(IssueManager):
 
     def visualize(self, num_preview=10):
         results_col = self.imagelab.results[f'{self.issue_name} bool']
-        issue_indices = self.imagelab.results.index[results_col].tolist()
+        scores_col = self.imagelab.results[f'{self.issue_name} score']
+        issue_scores = scores_col.to_numpy()
+        issue_indices = np.argsort(issue_scores)
+        true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
+        issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
+
         if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
@@ -669,7 +688,7 @@ class BlurredIssueManager(IssueManager):
             issue_score = \
             self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
                 0]
-            title = f'{self.issue_name} [{issue_score}]'
+            title = f'{self.issue_name} [{issue_score}] {img_name}'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
                 print(title)
@@ -709,7 +728,12 @@ class AspectRatioIssueManager(IssueManager):
 
     def visualize(self, num_preview=10):
         results_col = self.imagelab.results[f'{self.issue_name} bool']
-        issue_indices = self.imagelab.results.index[results_col].tolist()
+        scores_col = self.imagelab.results[f'{self.issue_name} score']
+        issue_scores = scores_col.to_numpy()
+        issue_indices = np.argsort(issue_scores)
+        true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
+        issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
+
         if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
@@ -718,7 +742,7 @@ class AspectRatioIssueManager(IssueManager):
             issue_score = \
             self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
                 0]
-            title = f'{self.issue_name} [{issue_score}]'
+            title = f'{self.issue_name} [{issue_score}] {img_name}'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
                 print(title)
@@ -758,7 +782,12 @@ class HotPixelsIssueManager(IssueManager):
 
     def visualize(self, num_preview=10):
         results_col = self.imagelab.results[f'{self.issue_name} bool']
-        issue_indices = self.imagelab.results.index[results_col].tolist()
+        scores_col = self.imagelab.results[f'{self.issue_name} score']
+        issue_scores = scores_col.to_numpy()
+        issue_indices = np.argsort(issue_scores)
+        true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
+        issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
+
         if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
@@ -767,7 +796,7 @@ class HotPixelsIssueManager(IssueManager):
             issue_score = \
             self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
                 0]
-            title = f'{self.issue_name} [{issue_score}]'
+            title = f'{self.issue_name} [{issue_score}] {img_name}'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
                 print(title)
@@ -806,7 +835,12 @@ class GrayscaleIssueManager(IssueManager):
 
     def visualize(self, num_preview=10):
         results_col = self.imagelab.results[f'{self.issue_name} bool']
-        issue_indices = self.imagelab.results.index[results_col == 1].tolist()
+        scores_col = self.imagelab.results[f'{self.issue_name} score']
+        issue_scores = scores_col.to_numpy()
+        issue_indices = np.argsort(issue_scores)
+        true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
+        issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
+
         if num_preview is None: # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
@@ -815,7 +849,7 @@ class GrayscaleIssueManager(IssueManager):
             issue_score = \
             self.imagelab.results[self.imagelab.results['image_name'] == img_name][f'{self.issue_name} score'].tolist()[
                 0]
-            title = f'{self.issue_name} [{issue_score}]'
+            title = f'{self.issue_name} [{issue_score}] {img_name}'
             try:
                 img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
                 print(title)

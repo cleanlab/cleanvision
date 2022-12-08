@@ -143,10 +143,11 @@ def display_images(indices, num_preview):
     A flat list with length num_preview, containing indices of images displayed to user
     '''
     outlen = min(num_preview, len(indices))
-    if type(indices[0]) == int:
-        return indices[:outlen]
-    else:
+    print('outlen', outlen)
+    if type(indices[0]) == list:
         out = []
         for i in range(outlen):
             out += indices[i]
         return out
+    else:
+        return indices[:outlen]
