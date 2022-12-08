@@ -8,6 +8,8 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
+import multiprocessing as mp
+
 from image_data_quality.issue_checks import check_odd_size, get_image_hash, get_near_duplicate_hash, \
     get_brightness_score, \
     check_entropy, check_blurriness, check_grayscale, find_hot_pixels
@@ -228,7 +230,9 @@ class Imagelab:
         self.results = pd.DataFrame(self.image_files, columns=['image_name'])
 
         # populates self.issue_scores{} and self.issue_info{}
-        count = 0
+        # with mp.Pool(2) as p:
+        #     list(tqdm(p.imap(self._find_issues, self.image_files), total=len(self.image_files)))
+
         for image_name in tqdm(self.image_files):
             img = Image.open(os.path.join(self.path, image_name))
             if img.mode is not None:
@@ -236,7 +240,14 @@ class Imagelab:
                 # img.thumbnail(self.thumbnail_size)
             for issue_manager in self.issue_managers:
                 issue_manager.find_issues(img, image_name, **issue_kwargs)
-            count += 1
+
+    def _find_issues(self, image_name, **issue_kwargs):
+        img = Image.open(os.path.join(self.path, image_name))
+        if img.mode is not None:
+            self.color_channels[img.mode] = self.color_channels.get(img.mode, 0) + 1
+            # img.thumbnail(self.thumbnail_size)
+        for issue_manager in self.issue_managers:
+            issue_manager.find_issues(img, image_name, **issue_kwargs)
 
     def aggregate(self, thresholds):
         self.thresholds = thresholds
@@ -262,10 +273,15 @@ class Imagelab:
         col_rename = [col[:-6] for col in score_columns]
         score_df = score_df.rename(
             columns=dict(zip(score_columns, col_rename)))  # remove "zscore" out of column names
+        issue_score_sum = len(self.image_files) - score_df.sum()
+        total_sum = issue_score_sum.sum()
+
+        score_df = (score_df.shape[0] - score_df).sum() / score_df.mean()
 
         summary_results = pd.DataFrame(
-            {"Issues": bool_df.sum(), "Non-Issues": self.results.shape[0] - bool_df.sum(),
-             "Issue Intensity": (score_df.shape[0] - score_df.sum()) / score_df.shape[0]})
+            {"Issues": bool_df.sum(), "Percent of Data": bool_df.sum() / self.results.shape[0],
+             "Issue Intensity": issue_score_sum / total_sum})
+        
         summary_results = summary_results.sort_values(by=['Issue Intensity'], ascending=False)
         print(f"Color spaces in the  dataset\n========================\n{self.color_channels}\n")
         print(f"Issue Summary\n========================\n{summary_results}\n")
@@ -377,7 +393,7 @@ class DuplicatedIssueManager(IssueManager):
             self.imagelab.issue_scores[self.issue_name][img_name] = 0 if img_name in duplicated_images else 1
 
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
-        self.imagelab.results[f'{self.issue_name} score'] = raw_scores # 0: is duplicated 1 is not
+        self.imagelab.results[f'{self.issue_name} score'] = raw_scores  # 0: is duplicated 1 is not
         self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(raw_scores)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
 
@@ -435,7 +451,7 @@ class CheckNearDuplicatesIssueManager(IssueManager):
             self.imagelab.issue_scores[self.issue_name][img_name] = 0 if img_name in duplicated_images else 1
 
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
-        self.imagelab.results[f'{self.issue_name} score'] = raw_scores # 0 is duplicated
+        self.imagelab.results[f'{self.issue_name} score'] = raw_scores  # 0 is duplicated
         self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(raw_scores)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
 
@@ -486,7 +502,7 @@ class EntropyIssueManager(IssueManager):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
         scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)
         self.imagelab.results[f'{self.issue_name} score'] = scores
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(raw_scores)
+        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
 
     def visualize(self, num_preview=10):
@@ -526,7 +542,7 @@ class DarkImagesIssueManager(IssueManager):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
         scores: np.ndarray = np.exp(-1 * raw_scores * self.t)
         self.imagelab.results[f'{self.issue_name} score'] = scores
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(raw_scores)
+        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
 
     def visualize(self, num_preview=10):
@@ -567,7 +583,7 @@ class LightImagesIssueManager(IssueManager):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
         scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)
         self.imagelab.results[f'{self.issue_name} score'] = scores
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(raw_scores)
+        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
 
     def visualize(self, num_preview=10):
@@ -649,7 +665,7 @@ class AspectRatioIssueManager(IssueManager):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
         scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)
         self.imagelab.results[f'{self.issue_name} score'] = scores
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(raw_scores)
+        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
 
     def visualize(self, num_preview=10):
@@ -690,7 +706,7 @@ class HotPixelsIssueManager(IssueManager):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
         scores: np.ndarray = np.exp(-1 * raw_scores * self.t)
         self.imagelab.results[f'{self.issue_name} score'] = scores
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(raw_scores)
+        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
 
     def visualize(self, num_preview=10):
