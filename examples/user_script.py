@@ -10,12 +10,24 @@ if __name__ == "__main__":
 
     print(f"Loading images from {path_to_images}")
     imagelab = Imagelab(path_to_images, thumbnail_size=(128, 128))
-    print(f"Number of images: {str(len(imagelab.image_files))}")
+    print(f"Number of images: {str(len(imagelab.image_files))}") #todo implement get_num_images
 
-    issue_types = ["HotPixels"]
+    issue_types = ["Blurred"]
+    threshold = 0.5
+    # issue_specific_thresholds = {
+    #     "Duplicated": threshold,
+    #     "DarkImages": 0.08,
+    #     "LightImages": 0.05,
+    #     "AspectRatio": 0.45,
+    #     "Blurred": 0.16,
+    #     "Entropy": threshold,
+    #     "NearDuplicates": threshold,
+    #     "Grayscale": threshold,
+    #     "HotPixels": threshold,
+    # }
 
-    issues = imagelab.evaluate(issue_types)
-    imagelab.aggregate(thresholds=5)
+    issues = imagelab.evaluate(issue_types=["NearDuplicates"])
+    imagelab.aggregate()
     imagelab.summary()
     imagelab.visualize(5)
 

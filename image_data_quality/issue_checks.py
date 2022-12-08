@@ -118,6 +118,7 @@ def check_blurriness(img):
     blur_score: int
     an integer score where 0 means image is blurry, 1 otherwise
     """
+    # todo improve this 
     img = img.convert("L")  # Convert image to grayscale
 
     # Calculating Edges using the Laplacian Kernel
