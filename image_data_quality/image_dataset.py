@@ -484,7 +484,7 @@ class EntropyIssueManager(IssueManager):
 
     def aggregate(self):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
-        scores: np.ndarray = np.exp(raw_scores * self.t)
+        scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)
         self.imagelab.results[f'{self.issue_name} score'] = scores
         self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(raw_scores)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
@@ -565,7 +565,7 @@ class LightImagesIssueManager(IssueManager):
 
     def aggregate(self):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
-        scores: np.ndarray = np.exp(raw_scores * self.t)
+        scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)
         self.imagelab.results[f'{self.issue_name} score'] = scores
         self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(raw_scores)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
@@ -606,7 +606,7 @@ class BlurredIssueManager(IssueManager):
 
     def aggregate(self):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
-        scores: np.ndarray = np.exp(raw_scores * self.t)
+        scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)
         self.imagelab.results[f'{self.issue_name} score'] = scores
         self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(raw_scores)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
@@ -647,7 +647,7 @@ class AspectRatioIssueManager(IssueManager):
 
     def aggregate(self):
         raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
-        scores: np.ndarray = np.exp(raw_scores * self.t)
+        scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)
         self.imagelab.results[f'{self.issue_name} score'] = scores
         self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(raw_scores)
         self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
