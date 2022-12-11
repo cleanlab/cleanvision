@@ -240,7 +240,7 @@ class Imagelab:
         def worker():
             while worker_images:
                 name = worker_images.pop()
-                im = Image.open(os.path.join(self.path, name))
+                im = Image.open(os.path.join(name))
                 loaded_images.put((im, name))
 
         for _ in range(num_cpus):
@@ -289,8 +289,8 @@ class Imagelab:
         score_df = (score_df.shape[0] - score_df).sum() / score_df.mean()
 
         summary_results = pd.DataFrame(
-            {"Issues": bool_df.sum(), "Percent of Data": bool_df.sum() / self.results.shape[0],
-             "Issue Intensity": issue_score_sum / total_sum})
+            {"Issues": bool_df.sum(), "Percent of Data": round(bool_df.sum() / self.results.shape[0] * 100, 2),
+             "Issue Intensity": bool_df.sum() / bool_df.sum().sum()})
 
         summary_results = summary_results.sort_values(by=['Issue Intensity'], ascending=False)
         print(f"Color spaces in the  dataset\n========================\n{self.color_channels}\n")
@@ -709,7 +709,7 @@ class BlurredIssueManager(IssueManager):
                     0]
             title = f'{self.issue_name} [{issue_score}] {img_name}'
             try:
-                img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+                img = Image.open(os.path.join(self.imagelab.image_files[ind]))
                 print(title)
                 img.show(title=title)
             except:
