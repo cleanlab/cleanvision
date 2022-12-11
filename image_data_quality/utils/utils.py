@@ -37,18 +37,18 @@ def get_sorted_images(
     sorted_names: list[str]
     a list of image filenames sorted numerically and alphabetically
     """
-    if not os.path.isdir(path):  # check if specified path is an existing directory
-        raise Exception(f"The current path {path} is not valid.")
+    # if not os.path.isdir(path):  # check if specified path is an existing directory
+    #     raise Exception(f"The current path {path} is not valid.")
     image_file_names = []
     for type in TYPES:
-        filetype_images = glob.glob(os.path.join(path, type))
+        filetype_images = glob.glob(os.path.join(path, type), recursive=True)
         if filetype_images == []:
             continue
         image_file_names += filetype_images
-    base_image_names = []
-    for r in image_file_names:
-        base_image_names.append(os.path.basename(r))  # extract image name
-    return sorted(base_image_names)  # sort image names alphabetically and numerically
+    # base_image_names = []
+    # for r in image_file_names:
+    #     base_image_names.append(os.path.basename(r))  # extract image name
+    return sorted(image_file_names)  # sort image names alphabetically and numerically
 
 
 def get_zscores(scores):
