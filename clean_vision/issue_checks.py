@@ -32,8 +32,8 @@ def get_brightness_score(img):
         )  # deals with black and white images
         # print(f"WARNING: {img} does not have just r, g, b values")
     cur_bright = (
-                     math.sqrt(0.241 * (r ** 2) + 0.691 * (g ** 2) + 0.068 * (b ** 2))
-                 ) / 255
+        math.sqrt(0.241 * (r**2) + 0.691 * (g**2) + 0.068 * (b**2))
+    ) / 255
     return cur_bright
     # bright_score = min(cur_bright, 1 - cur_bright)  # too bright or too dark
     # return bright_score
@@ -63,7 +63,7 @@ def check_odd_size(img):
 
 def check_entropy(img):
     """
-    Scores the entropy for a given image to find ones that are potentially occluded. 
+    Scores the entropy for a given image to find ones that are potentially occluded.
 
 
     Parameters
@@ -118,12 +118,13 @@ def check_blurriness(img):
     blur_score: int
     an integer score where 0 means image is blurry, 1 otherwise
     """
-    # todo improve this 
+    # todo improve this
     img = img.convert("L")  # Convert image to grayscale
 
     # Calculating Edges using the Laplacian Kernel
-    final = img.filter(ImageFilter.Kernel((3, 3), (-1, -1, -1, -1, 8,
-                                                   -1, -1, -1, -1), 1, 0))
+    final = img.filter(
+        ImageFilter.Kernel((3, 3), (-1, -1, -1, -1, 8, -1, -1, -1, -1), 1, 0)
+    )
     out = ImageStat.Stat(final).var[0]
     return out
 
@@ -190,7 +191,7 @@ def get_near_duplicate_hash(img, **kwargs):
         what type of image hash to compare between images in order to decide near-duplicates,
         and other configuration-settings of this hash function (eg. the size of the output hash)
 
-        Possible kwargs include: 
+        Possible kwargs include:
             `hash_type`: (str) type of hash to use.
             `hash_size`: (int) size of hash to use.
             TODO:list possibilities or point to link with them.
@@ -237,9 +238,9 @@ def get_near_duplicate_hash(img, **kwargs):
 
 def check_grayscale(im):  # return 1 if grayscale else 0
     imarr = np.asarray(im)
-    if len(imarr.shape) == 2 or im.mode == 'L':
+    if len(imarr.shape) == 2 or im.mode == "L":
         return 1
-    elif len(imarr.shape) == 3 or im.mode == 'RGB':
+    elif len(imarr.shape) == 3 or im.mode == "RGB":
         rgb_channels = imarr.reshape(-1, 3).T
         return 1 if (np.diff(rgb_channels, axis=0) == 0).all() else 0
     else:
@@ -247,8 +248,8 @@ def check_grayscale(im):  # return 1 if grayscale else 0
 
 
 def find_hot_pixels(im):
-    imarr = np.asarray(im.convert('L'))
-    blurred = median_filter(imarr, size=2, mode='nearest')
+    imarr = np.asarray(im.convert("L"))
+    blurred = median_filter(imarr, size=2, mode="nearest")
     diff = imarr - blurred
     threshold = 10 * np.std(diff)
     num_hot_pixels = (np.abs(diff[1:-1, 1:-1]) > threshold).sum()

@@ -10,23 +10,35 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
-from image_data_quality.issue_checks import check_odd_size, get_image_hash, get_near_duplicate_hash, \
-    get_brightness_score, \
-    check_entropy, check_blurriness, check_grayscale, find_hot_pixels
-from image_data_quality.utils.utils import get_sorted_images, display_images, \
-    get_is_issue
+from image_data_quality.issue_checks import (
+    check_odd_size,
+    get_image_hash,
+    get_near_duplicate_hash,
+    get_brightness_score,
+    check_entropy,
+    check_blurriness,
+    check_grayscale,
+    find_hot_pixels,
+)
+from image_data_quality.utils.utils import (
+    get_sorted_images,
+    display_images,
+    get_is_issue,
+)
 
-POSSIBLE_ISSUES = set([
-    "Duplicated",
-    "DarkImages",
-    "LightImages",
-    "AspectRatio",
-    "Blurred",
-    "Entropy",
-    "NearDuplicates",
-    "Grayscale",
-    # "HotPixels",
-])
+POSSIBLE_ISSUES = set(
+    [
+        "Duplicated",
+        "DarkImages",
+        "LightImages",
+        "AspectRatio",
+        "Blurred",
+        "Entropy",
+        "NearDuplicates",
+        "Grayscale",
+        # "HotPixels",
+    ]
+)
 
 DATASET_WIDE_ISSUES = {
     "Duplicated",
@@ -40,6 +52,7 @@ ISSUES_FILENAME = "issues.csv"
 
 # RESULTS_FILENAME = "results.pkl"
 # INFO_FILENAME = "info.pkl"
+
 
 class Imagelab:
     """
@@ -64,6 +77,7 @@ class Imagelab:
       A tuple specifying the size of the thumbnail in which image analysis is based on.
       If not provided with the 2-tuple, default set to (128, 128).
     """
+
     issue_scores = {}
     issue_info = {}
     """key: issue name string, value: list of indices of images with this issue (dict)"""
@@ -71,10 +85,7 @@ class Imagelab:
     """key: miscellanous info name string, value: intuitive data structure containing that info (dict)"""
 
     def __init__(
-            self,
-            path: str = None,
-            image_files: list = None,
-            thumbnail_size: tuple = None
+        self, path: str = None, image_files: list = None, thumbnail_size: tuple = None
     ) -> None:
         if path is None:
             self.path = os.getcwd()
@@ -82,7 +93,9 @@ class Imagelab:
             self.path = path
         if image_files is None:
             self.image_files = get_sorted_images(self.path)
-            self.image_indices = {self.image_files[i]: i for i in range(len(self.image_files))}
+            self.image_indices = {
+                self.image_files[i]: i for i in range(len(self.image_files))
+            }
         else:
             self.image_files = sorted(image_files)
         if thumbnail_size is None:
@@ -124,15 +137,23 @@ class Imagelab:
                     num_issues += len(flat_issue)
                 else:
                     num_issues += len(check)
-        display_str = "ImageDataset(num_images = " + str(len(self.image_files)) + ", path = " + str(
-            self.path) + ", num_images_with_issue = " + str(num_issues) + ")"
+        display_str = (
+            "ImageDataset(num_images = "
+            + str(len(self.image_files))
+            + ", path = "
+            + str(self.path)
+            + ", num_images_with_issue = "
+            + str(num_issues)
+            + ")"
+        )
         # Useful info could be: num_images, path, number of images with issues identified so far (numeric or None if issue-finding not run yet).
         return display_str
 
     def __str__(self):
         """What is displayed if user executes: print(imagelab)"""
         return self.__repr__()[
-               13:-1]  # display_info could be same information as above in display_str without the ImageDataset(...) wrapper text.
+            13:-1
+        ]  # display_info could be same information as above in display_str without the ImageDataset(...) wrapper text.
 
     # DEPRECATE FOR NOW
     # def get_info(self, issue_name) -> Any:
@@ -205,7 +226,9 @@ class Imagelab:
         # Issues to be detected
         if issue_types is None:  # defaults to run all checks
             all_issues = list(POSSIBLE_ISSUES)
-            self.issue_types = dict(zip(all_issues, [True] * len(all_issues)))  # todo: check why we need this
+            self.issue_types = dict(
+                zip(all_issues, [True] * len(all_issues))
+            )  # todo: check why we need this
         else:
             for c in issue_types:
                 if c not in POSSIBLE_ISSUES:
@@ -229,9 +252,11 @@ class Imagelab:
         """
         self.issue_scores = {}
         for issue_type in self.issue_types.keys():
-            self.issue_scores[issue_type] = OrderedDict([(image_file, None) for image_file in self.image_files])
+            self.issue_scores[issue_type] = OrderedDict(
+                [(image_file, None) for image_file in self.image_files]
+            )
 
-        self.results = pd.DataFrame(self.image_files, columns=['image_name'])
+        self.results = pd.DataFrame(self.image_files, columns=["image_name"])
 
         num_cpus = os.cpu_count()
         loaded_images = Queue(maxsize=num_cpus)
@@ -259,7 +284,7 @@ class Imagelab:
             for issue_name, t in thresholds.items():
                 self.thresholds[issue_name] = t
         if len(self.issue_scores) == 0 or self.results is None:
-            print('Call find_issues() first.')
+            print("Call find_issues() first.")
             return
 
         for issue_manager in self.issue_managers:
@@ -270,36 +295,49 @@ class Imagelab:
 
     def summary(self):
         if self.results is None or self.results.shape[0] == 1:
-            print('Call find_issues() then aggregate() to get summary().')
+            print("Call find_issues() then aggregate() to get summary().")
             return
 
-        bool_columns = [col for col in self.results if col.endswith('bool')]
+        bool_columns = [col for col in self.results if col.endswith("bool")]
         bool_df = self.results[bool_columns].copy()
         col_rename = [col[:-5] for col in bool_columns]
-        bool_df = bool_df.rename(columns=dict(zip(bool_columns, col_rename)))  # remove "bool" out of column names
+        bool_df = bool_df.rename(
+            columns=dict(zip(bool_columns, col_rename))
+        )  # remove "bool" out of column names
 
-        score_columns = [col for col in self.results if col.endswith('score')]
+        score_columns = [col for col in self.results if col.endswith("score")]
         score_df = self.results[score_columns].copy()
         col_rename = [col[:-6] for col in score_columns]
         score_df = score_df.rename(
-            columns=dict(zip(score_columns, col_rename)))  # remove "zscore" out of column names
+            columns=dict(zip(score_columns, col_rename))
+        )  # remove "zscore" out of column names
         issue_score_sum = len(self.image_files) - score_df.sum()
         total_sum = issue_score_sum.sum()
 
         score_df = (score_df.shape[0] - score_df).sum() / score_df.mean()
 
         summary_results = pd.DataFrame(
-            {"Issues": bool_df.sum(), "Percent of Data": round(bool_df.sum() / self.results.shape[0] * 100, 2),
-             "Issue Intensity": bool_df.sum() / bool_df.sum().sum()})
+            {
+                "Issues": bool_df.sum(),
+                "Percent of Data": round(
+                    bool_df.sum() / self.results.shape[0] * 100, 2
+                ),
+                "Issue Intensity": bool_df.sum() / bool_df.sum().sum(),
+            }
+        )
 
-        summary_results = summary_results.sort_values(by=['Issue Intensity'], ascending=False)
-        print(f"Color spaces in the  dataset\n========================\n{self.color_channels}\n")
+        summary_results = summary_results.sort_values(
+            by=["Issue Intensity"], ascending=False
+        )
+        print(
+            f"Color spaces in the  dataset\n========================\n{self.color_channels}\n"
+        )
         print(f"Issue Summary\n========================\n{summary_results}\n")
         return summary_results, self.results
 
     def visualize(self, num_preview=10, verbose=True):
         if self.results is None or self.results.shape[0] == 1:
-            print('Call find_issues() then aggregate() before visualize().')
+            print("Call find_issues() then aggregate() before visualize().")
             return
 
         # TODO: num issues can be a variable in each
@@ -378,7 +416,7 @@ class DuplicatedIssueManager(IssueManager):
     # TODO: Add `info_keys = ["label"]` to this class
     def __init__(self, imagelab: Imagelab):
         super().__init__(imagelab)
-        self.issue_name = 'Duplicated'
+        self.issue_name = "Duplicated"
 
     def find_issues(self, img, image_name, **kwargs) -> float:
         img_hash = get_image_hash(img)
@@ -396,12 +434,22 @@ class DuplicatedIssueManager(IssueManager):
             if len(img_list) > 1:
                 duplicated_images.update(img_list)
         for img_name in self.imagelab.issue_scores[self.issue_name].keys():
-            self.imagelab.issue_scores[self.issue_name][img_name] = 0 if img_name in duplicated_images else 1
+            self.imagelab.issue_scores[self.issue_name][img_name] = (
+                0 if img_name in duplicated_images else 1
+            )
 
-        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
-        self.imagelab.results[f'{self.issue_name} score'] = raw_scores  # 0: is duplicated 1 is not
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(raw_scores, threshold)
-        self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
+        raw_scores = np.array(
+            list(self.imagelab.issue_scores[self.issue_name].values())
+        )
+        self.imagelab.results[
+            f"{self.issue_name} score"
+        ] = raw_scores  # 0: is duplicated 1 is not
+        self.imagelab.results[f"{self.issue_name} bool"] = self.mark_bool_issues(
+            raw_scores, threshold
+        )
+        self.num_issues = np.sum(
+            self.imagelab.results[f"{self.issue_name} bool"].tolist()
+        )
 
     def visualize(self, num_preview):
         count = 0
@@ -412,10 +460,13 @@ class DuplicatedIssueManager(IssueManager):
             if len(img_list) > 1:
                 for img_name in img_list:
                     ind = self.imagelab.image_indices[img_name]
-                    issue_score = self.imagelab.results[self.imagelab.results['image_name'] == img_name][
-                        f'{self.issue_name} score'].tolist()[0]
-                    title = f'{self.issue_name} [{issue_score}] {img_name}'
-                    img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+                    issue_score = self.imagelab.results[
+                        self.imagelab.results["image_name"] == img_name
+                    ][f"{self.issue_name} score"].tolist()[0]
+                    title = f"{self.issue_name} [{issue_score}] {img_name}"
+                    img = Image.open(
+                        os.path.join(self.imagelab.path, self.imagelab.image_files[ind])
+                    )
                     print(title)
                     img.show(title=title)
                 count += 1
@@ -440,7 +491,7 @@ class CheckNearDuplicatesIssueManager(IssueManager):
     # TODO: Add `info_keys = ["label"]` to this class
     def __init__(self, imagelab: Imagelab):
         super().__init__(imagelab)
-        self.issue_name = 'NearDuplicates'
+        self.issue_name = "NearDuplicates"
 
     def find_issues(self, img, image_name, **kwargs) -> float:
         near_hash = get_near_duplicate_hash(img)
@@ -461,12 +512,22 @@ class CheckNearDuplicatesIssueManager(IssueManager):
             if len(img_list) > 1:
                 duplicated_images.update(img_list)
         for img_name in self.imagelab.issue_scores[self.issue_name].keys():
-            self.imagelab.issue_scores[self.issue_name][img_name] = 0 if img_name in duplicated_images else 1
+            self.imagelab.issue_scores[self.issue_name][img_name] = (
+                0 if img_name in duplicated_images else 1
+            )
 
-        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
-        self.imagelab.results[f'{self.issue_name} score'] = raw_scores  # 0 is duplicated
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(raw_scores, threshold)
-        self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
+        raw_scores = np.array(
+            list(self.imagelab.issue_scores[self.issue_name].values())
+        )
+        self.imagelab.results[
+            f"{self.issue_name} score"
+        ] = raw_scores  # 0 is duplicated
+        self.imagelab.results[f"{self.issue_name} bool"] = self.mark_bool_issues(
+            raw_scores, threshold
+        )
+        self.num_issues = np.sum(
+            self.imagelab.results[f"{self.issue_name} bool"].tolist()
+        )
 
     def visualize(self, num_preview):
         count = 0
@@ -477,10 +538,13 @@ class CheckNearDuplicatesIssueManager(IssueManager):
             if len(img_list) > 1:
                 for img_name in img_list:
                     ind = self.imagelab.image_indices[img_name]
-                    issue_score = self.imagelab.results[self.imagelab.results['image_name'] == img_name][
-                        f'{self.issue_name} score'].tolist()[0]
-                    title = f'{self.issue_name} [{issue_score}] {img_name}'
-                    img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+                    issue_score = self.imagelab.results[
+                        self.imagelab.results["image_name"] == img_name
+                    ][f"{self.issue_name} score"].tolist()[0]
+                    title = f"{self.issue_name} [{issue_score}] {img_name}"
+                    img = Image.open(
+                        os.path.join(self.imagelab.path, self.imagelab.image_files[ind])
+                    )
                     img.show(title=title)
                 count += 1
                 if count == num_preview:
@@ -502,7 +566,7 @@ class EntropyIssueManager(IssueManager):
     # TODO: Add `info_keys = ["label"]` to this class
     def __init__(self, imagelab: Imagelab):
         super().__init__(imagelab)
-        self.issue_name = 'Entropy'
+        self.issue_name = "Entropy"
         self.threshold = 1
         self.t = 0.5
 
@@ -518,34 +582,45 @@ class EntropyIssueManager(IssueManager):
     #     return np.array(raw_scores) < 0.3
 
     def aggregate(self, threshold):
-        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
+        raw_scores = np.array(
+            list(self.imagelab.issue_scores[self.issue_name].values())
+        )
         # scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)
         scores: np.ndarray = 0.1 * raw_scores
         scores[scores > 1] = 1
-        self.imagelab.results[f'{self.issue_name} score'] = scores
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores, threshold)
-        self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
+        self.imagelab.results[f"{self.issue_name} score"] = scores
+        self.imagelab.results[f"{self.issue_name} bool"] = self.mark_bool_issues(
+            scores, threshold
+        )
+        self.num_issues = np.sum(
+            self.imagelab.results[f"{self.issue_name} bool"].tolist()
+        )
 
     def visualize(self, num_preview=10):
-        results_col = self.imagelab.results[f'{self.issue_name} bool']
-        scores_col = self.imagelab.results[f'{self.issue_name} score']
+        results_col = self.imagelab.results[f"{self.issue_name} bool"]
+        scores_col = self.imagelab.results[f"{self.issue_name} score"]
         issue_scores = scores_col.to_numpy()
         issue_indices = np.argsort(issue_scores)
         true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
         issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
 
-        if num_preview is None:  # TODO: kind of strange I think display_images should be rewritten
+        if (
+            num_preview is None
+        ):  # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
-        for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+        for ind in display_images(
+            issue_indices, num_preview
+        ):  # show the top 10 issue images (if exists)
             img_name = self.imagelab.image_files[ind]
-            issue_score = \
-                self.imagelab.results[self.imagelab.results['image_name'] == img_name][
-                    f'{self.issue_name} score'].tolist()[
-                    0]
-            title = f'{self.issue_name} [{issue_score}] {img_name}'
+            issue_score = self.imagelab.results[
+                self.imagelab.results["image_name"] == img_name
+            ][f"{self.issue_name} score"].tolist()[0]
+            title = f"{self.issue_name} [{issue_score}] {img_name}"
             try:
-                img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+                img = Image.open(
+                    os.path.join(self.imagelab.path, self.imagelab.image_files[ind])
+                )
                 print(title)
                 img.show(title=title)
             except:
@@ -558,7 +633,7 @@ class DarkImagesIssueManager(IssueManager):
     # TODO: Add `info_keys = ["label"]` to this class
     def __init__(self, imagelab: Imagelab):
         super().__init__(imagelab)
-        self.issue_name = 'DarkImages'
+        self.issue_name = "DarkImages"
         self.threshold = 1
         self.t = 1
 
@@ -571,34 +646,45 @@ class DarkImagesIssueManager(IssueManager):
         self.imagelab.issue_scores[self.issue_name][image_name] = score
 
     def aggregate(self, threshold):
-        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
+        raw_scores = np.array(
+            list(self.imagelab.issue_scores[self.issue_name].values())
+        )
         raw_scores[raw_scores > 1] = 1
         scores = raw_scores
         # scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)color='r'
-        self.imagelab.results[f'{self.issue_name} raw_scores'] = raw_scores
-        self.imagelab.results[f'{self.issue_name} score'] = scores
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores, threshold)
-        self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
+        self.imagelab.results[f"{self.issue_name} raw_scores"] = raw_scores
+        self.imagelab.results[f"{self.issue_name} score"] = scores
+        self.imagelab.results[f"{self.issue_name} bool"] = self.mark_bool_issues(
+            scores, threshold
+        )
+        self.num_issues = np.sum(
+            self.imagelab.results[f"{self.issue_name} bool"].tolist()
+        )
 
     def visualize(self, num_preview=10):
-        results_col = self.imagelab.results[f'{self.issue_name} bool']
-        scores_col = self.imagelab.results[f'{self.issue_name} score']
+        results_col = self.imagelab.results[f"{self.issue_name} bool"]
+        scores_col = self.imagelab.results[f"{self.issue_name} score"]
         issue_scores = scores_col.to_numpy()
         issue_indices = np.argsort(issue_scores)
         true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
         issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
 
-        if num_preview is None:  # TODO: kind of strange I think display_images should be rewritten
+        if (
+            num_preview is None
+        ):  # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
-        for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+        for ind in display_images(
+            issue_indices, num_preview
+        ):  # show the top 10 issue images (if exists)
             img_name = self.imagelab.image_files[ind]
-            issue_score = \
-                self.imagelab.results[self.imagelab.results['image_name'] == img_name][
-                    f'{self.issue_name} score'].tolist()[
-                    0]
-            title = f'{self.issue_name} [{issue_score}] {img_name}'
+            issue_score = self.imagelab.results[
+                self.imagelab.results["image_name"] == img_name
+            ][f"{self.issue_name} score"].tolist()[0]
+            title = f"{self.issue_name} [{issue_score}] {img_name}"
             try:
-                img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+                img = Image.open(
+                    os.path.join(self.imagelab.path, self.imagelab.image_files[ind])
+                )
                 print(title)
                 img.show(title=title)
             except:
@@ -611,7 +697,7 @@ class LightImagesIssueManager(IssueManager):
     # TODO: Add `info_keys = ["label"]` to this class
     def __init__(self, imagelab: Imagelab):
         super().__init__(imagelab)
-        self.issue_name = 'LightImages'
+        self.issue_name = "LightImages"
         self.threshold = 1
         self.t = 1
 
@@ -627,34 +713,45 @@ class LightImagesIssueManager(IssueManager):
     #     return get_is_issue(raw_scores, self.imagelab.thresholds)
 
     def aggregate(self, threshold):
-        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
+        raw_scores = np.array(
+            list(self.imagelab.issue_scores[self.issue_name].values())
+        )
         raw_scores[raw_scores > 1] = 1
         scores = 1 - raw_scores
         # scores: np.ndarray = np.exp(-1 * raw_scores * self.t)
-        self.imagelab.results[f'{self.issue_name} score'] = scores
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores, threshold)
-        self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
+        self.imagelab.results[f"{self.issue_name} score"] = scores
+        self.imagelab.results[f"{self.issue_name} bool"] = self.mark_bool_issues(
+            scores, threshold
+        )
+        self.num_issues = np.sum(
+            self.imagelab.results[f"{self.issue_name} bool"].tolist()
+        )
 
     def visualize(self, num_preview=10):
-        results_col = self.imagelab.results[f'{self.issue_name} bool']
-        scores_col = self.imagelab.results[f'{self.issue_name} score']
+        results_col = self.imagelab.results[f"{self.issue_name} bool"]
+        scores_col = self.imagelab.results[f"{self.issue_name} score"]
         issue_scores = scores_col.to_numpy()
         issue_indices = np.argsort(issue_scores)
         true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
         issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
 
-        if num_preview is None:  # TODO: kind of strange I think display_images should be rewritten
+        if (
+            num_preview is None
+        ):  # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
-        for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+        for ind in display_images(
+            issue_indices, num_preview
+        ):  # show the top 10 issue images (if exists)
             img_name = self.imagelab.image_files[ind]
-            issue_score = \
-                self.imagelab.results[self.imagelab.results['image_name'] == img_name][
-                    f'{self.issue_name} score'].tolist()[
-                    0]
-            title = f'{self.issue_name} [{issue_score}] {img_name}'
+            issue_score = self.imagelab.results[
+                self.imagelab.results["image_name"] == img_name
+            ][f"{self.issue_name} score"].tolist()[0]
+            title = f"{self.issue_name} [{issue_score}] {img_name}"
             try:
-                img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+                img = Image.open(
+                    os.path.join(self.imagelab.path, self.imagelab.image_files[ind])
+                )
                 print(title)
                 img.show(title=title)
             except:
@@ -668,7 +765,7 @@ class BlurredIssueManager(IssueManager):
 
     def __init__(self, imagelab: Imagelab):
         super().__init__(imagelab)
-        self.issue_name = 'Blurred'
+        self.issue_name = "Blurred"
         self.t = 0.001
 
     def find_issues(self, img, image_name, **kwargs) -> pd.DataFrame:
@@ -683,31 +780,40 @@ class BlurredIssueManager(IssueManager):
     #     return scores < threshold
 
     def aggregate(self, threshold):
-        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
+        raw_scores = np.array(
+            list(self.imagelab.issue_scores[self.issue_name].values())
+        )
         # self.imagelab.results[f'{self.issue_name} raw_score'] = raw_scores
         scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)
-        self.imagelab.results[f'{self.issue_name} score'] = scores
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores, threshold)
-        self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
+        self.imagelab.results[f"{self.issue_name} score"] = scores
+        self.imagelab.results[f"{self.issue_name} bool"] = self.mark_bool_issues(
+            scores, threshold
+        )
+        self.num_issues = np.sum(
+            self.imagelab.results[f"{self.issue_name} bool"].tolist()
+        )
 
     def visualize(self, num_preview=10):
-        results_col = self.imagelab.results[f'{self.issue_name} bool']
-        scores_col = self.imagelab.results[f'{self.issue_name} score']
+        results_col = self.imagelab.results[f"{self.issue_name} bool"]
+        scores_col = self.imagelab.results[f"{self.issue_name} score"]
         issue_scores = scores_col.to_numpy()
         issue_indices = np.argsort(issue_scores)
         true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
         issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
 
-        if num_preview is None:  # TODO: kind of strange I think display_images should be rewritten
+        if (
+            num_preview is None
+        ):  # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
-        for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+        for ind in display_images(
+            issue_indices, num_preview
+        ):  # show the top 10 issue images (if exists)
             img_name = self.imagelab.image_files[ind]
-            issue_score = \
-                self.imagelab.results[self.imagelab.results['image_name'] == img_name][
-                    f'{self.issue_name} score'].tolist()[
-                    0]
-            title = f'{self.issue_name} [{issue_score}] {img_name}'
+            issue_score = self.imagelab.results[
+                self.imagelab.results["image_name"] == img_name
+            ][f"{self.issue_name} score"].tolist()[0]
+            title = f"{self.issue_name} [{issue_score}] {img_name}"
             try:
                 img = Image.open(os.path.join(self.imagelab.image_files[ind]))
                 print(title)
@@ -723,7 +829,7 @@ class AspectRatioIssueManager(IssueManager):
 
     def __init__(self, imagelab: Imagelab):
         super().__init__(imagelab)
-        self.issue_name = 'AspectRatio'
+        self.issue_name = "AspectRatio"
         self.t = 1
 
     def find_issues(self, img, image_name, **kwargs) -> pd.DataFrame:
@@ -738,34 +844,45 @@ class AspectRatioIssueManager(IssueManager):
     #     return get_is_issue(raw_scores, self.imagelab.thresholds)
 
     def aggregate(self, threshold):
-        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
+        raw_scores = np.array(
+            list(self.imagelab.issue_scores[self.issue_name].values())
+        )
         scores = raw_scores
         # scores: np.ndarray = 1 - np.exp(-1 * raw_scores * self.t)
         # self.imagelab.results[f'{self.issue_name} raw_score'] = raw_scores
-        self.imagelab.results[f'{self.issue_name} score'] = scores
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores, threshold)
-        self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
+        self.imagelab.results[f"{self.issue_name} score"] = scores
+        self.imagelab.results[f"{self.issue_name} bool"] = self.mark_bool_issues(
+            scores, threshold
+        )
+        self.num_issues = np.sum(
+            self.imagelab.results[f"{self.issue_name} bool"].tolist()
+        )
 
     def visualize(self, num_preview=10):
-        results_col = self.imagelab.results[f'{self.issue_name} bool']
-        scores_col = self.imagelab.results[f'{self.issue_name} score']
+        results_col = self.imagelab.results[f"{self.issue_name} bool"]
+        scores_col = self.imagelab.results[f"{self.issue_name} score"]
         issue_scores = scores_col.to_numpy()
         issue_indices = np.argsort(issue_scores)
         true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
         issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
 
-        if num_preview is None:  # TODO: kind of strange I think display_images should be rewritten
+        if (
+            num_preview is None
+        ):  # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
-        for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+        for ind in display_images(
+            issue_indices, num_preview
+        ):  # show the top 10 issue images (if exists)
             img_name = self.imagelab.image_files[ind]
-            issue_score = \
-                self.imagelab.results[self.imagelab.results['image_name'] == img_name][
-                    f'{self.issue_name} score'].tolist()[
-                    0]
-            title = f'{self.issue_name} [{issue_score}] {img_name}'
+            issue_score = self.imagelab.results[
+                self.imagelab.results["image_name"] == img_name
+            ][f"{self.issue_name} score"].tolist()[0]
+            title = f"{self.issue_name} [{issue_score}] {img_name}"
             try:
-                img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+                img = Image.open(
+                    os.path.join(self.imagelab.path, self.imagelab.image_files[ind])
+                )
                 print(title)
                 img.show(title=title)
             except:
@@ -779,7 +896,7 @@ class HotPixelsIssueManager(IssueManager):
 
     def __init__(self, imagelab: Imagelab):
         super().__init__(imagelab)
-        self.issue_name = 'HotPixels'
+        self.issue_name = "HotPixels"
         self.threshold = 1
         self.t = 1
 
@@ -795,32 +912,43 @@ class HotPixelsIssueManager(IssueManager):
         return get_is_issue(raw_scores, self.imagelab.thresholds)
 
     def aggregate(self, threshold):
-        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
+        raw_scores = np.array(
+            list(self.imagelab.issue_scores[self.issue_name].values())
+        )
         scores: np.ndarray = np.exp(-1 * raw_scores * self.t)
-        self.imagelab.results[f'{self.issue_name} score'] = scores
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(scores, threshold)
-        self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
+        self.imagelab.results[f"{self.issue_name} score"] = scores
+        self.imagelab.results[f"{self.issue_name} bool"] = self.mark_bool_issues(
+            scores, threshold
+        )
+        self.num_issues = np.sum(
+            self.imagelab.results[f"{self.issue_name} bool"].tolist()
+        )
 
     def visualize(self, num_preview=10):
-        results_col = self.imagelab.results[f'{self.issue_name} bool']
-        scores_col = self.imagelab.results[f'{self.issue_name} score']
+        results_col = self.imagelab.results[f"{self.issue_name} bool"]
+        scores_col = self.imagelab.results[f"{self.issue_name} score"]
         issue_scores = scores_col.to_numpy()
         issue_indices = np.argsort(issue_scores)
         true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
         issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
 
-        if num_preview is None:  # TODO: kind of strange I think display_images should be rewritten
+        if (
+            num_preview is None
+        ):  # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
-        for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+        for ind in display_images(
+            issue_indices, num_preview
+        ):  # show the top 10 issue images (if exists)
             img_name = self.imagelab.image_files[ind]
-            issue_score = \
-                self.imagelab.results[self.imagelab.results['image_name'] == img_name][
-                    f'{self.issue_name} score'].tolist()[
-                    0]
-            title = f'{self.issue_name} [{issue_score}] {img_name}'
+            issue_score = self.imagelab.results[
+                self.imagelab.results["image_name"] == img_name
+            ][f"{self.issue_name} score"].tolist()[0]
+            title = f"{self.issue_name} [{issue_score}] {img_name}"
             try:
-                img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+                img = Image.open(
+                    os.path.join(self.imagelab.path, self.imagelab.image_files[ind])
+                )
                 print(title)
                 img.show(title=title)
             except:
@@ -834,7 +962,7 @@ class GrayscaleIssueManager(IssueManager):
 
     def __init__(self, imagelab: Imagelab):
         super().__init__(imagelab)
-        self.issue_name = 'Grayscale'
+        self.issue_name = "Grayscale"
         self.threshold = 1
 
     def find_issues(self, img, image_name, **kwargs) -> pd.DataFrame:
@@ -849,32 +977,43 @@ class GrayscaleIssueManager(IssueManager):
     #     return raw_scores.astype('bool')
 
     def aggregate(self, threshold):
-        raw_scores = np.array(list(self.imagelab.issue_scores[self.issue_name].values()))
+        raw_scores = np.array(
+            list(self.imagelab.issue_scores[self.issue_name].values())
+        )
         # todo this zscore does not make sense, this value can just be used as a score since this is a binary variable
-        self.imagelab.results[f'{self.issue_name} score'] = 1 - raw_scores
-        self.imagelab.results[f'{self.issue_name} bool'] = self.mark_bool_issues(1 - raw_scores, threshold)
-        self.num_issues = np.sum(self.imagelab.results[f'{self.issue_name} bool'].tolist())
+        self.imagelab.results[f"{self.issue_name} score"] = 1 - raw_scores
+        self.imagelab.results[f"{self.issue_name} bool"] = self.mark_bool_issues(
+            1 - raw_scores, threshold
+        )
+        self.num_issues = np.sum(
+            self.imagelab.results[f"{self.issue_name} bool"].tolist()
+        )
 
     def visualize(self, num_preview=10):
-        results_col = self.imagelab.results[f'{self.issue_name} bool']
-        scores_col = self.imagelab.results[f'{self.issue_name} score']
+        results_col = self.imagelab.results[f"{self.issue_name} bool"]
+        scores_col = self.imagelab.results[f"{self.issue_name} score"]
         issue_scores = scores_col.to_numpy()
         issue_indices = np.argsort(issue_scores)
         true_issue_indices = set(self.imagelab.results.index[results_col].tolist())
         issue_indices = [idx for idx in issue_indices if idx in true_issue_indices]
 
-        if num_preview is None:  # TODO: kind of strange I think display_images should be rewritten
+        if (
+            num_preview is None
+        ):  # TODO: kind of strange I think display_images should be rewritten
             num_preview = len(issue_indices)
 
-        for ind in display_images(issue_indices, num_preview):  # show the top 10 issue images (if exists)
+        for ind in display_images(
+            issue_indices, num_preview
+        ):  # show the top 10 issue images (if exists)
             img_name = self.imagelab.image_files[ind]
-            issue_score = \
-                self.imagelab.results[self.imagelab.results['image_name'] == img_name][
-                    f'{self.issue_name} score'].tolist()[
-                    0]
-            title = f'{self.issue_name} [{issue_score}] {img_name}'
+            issue_score = self.imagelab.results[
+                self.imagelab.results["image_name"] == img_name
+            ][f"{self.issue_name} score"].tolist()[0]
+            title = f"{self.issue_name} [{issue_score}] {img_name}"
             try:
-                img = Image.open(os.path.join(self.imagelab.path, self.imagelab.image_files[ind]))
+                img = Image.open(
+                    os.path.join(self.imagelab.path, self.imagelab.image_files[ind])
+                )
                 print(title)
                 img.show(title=title)
             except:
@@ -884,6 +1023,7 @@ class GrayscaleIssueManager(IssueManager):
 # Construct concrete issue manager with a from_str method
 class _IssueManagerFactory:
     """Factory class for constructing concrete issue managers."""
+
     # todo: convert these strings to constants
     types = {
         "Duplicated": DuplicatedIssueManager,
@@ -894,7 +1034,7 @@ class _IssueManagerFactory:
         "Entropy": EntropyIssueManager,
         "NearDuplicates": CheckNearDuplicatesIssueManager,
         "Grayscale": GrayscaleIssueManager,
-        "HotPixels": HotPixelsIssueManager
+        "HotPixels": HotPixelsIssueManager,
     }
 
     @classmethod

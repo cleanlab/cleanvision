@@ -22,7 +22,7 @@ def get_sorted_images(
 ):
     """
     Used in initialization of ImageDataset Class
-    Obtains image files of supported types and 
+    Obtains image files of supported types and
     sorts them based on filenames numerically and alphabetically
 
 
@@ -111,10 +111,10 @@ def analyze_scores_old(scores, threshold):
         if v1 < threshold_score:
             issue_indices.append(k1)
     for (
-            k2,
-            v2,
+        k2,
+        v2,
     ) in (
-            scores_dict.items()
+        scores_dict.items()
     ):  # ascending indices order for images, label if an image suffers from an issue
         if v2 < threshold_score:
             issue_bool[k2] = 1
@@ -124,7 +124,7 @@ def analyze_scores_old(scores, threshold):
 
 
 def display_images(indices, num_preview):
-    '''
+    """
     Used in initialization of ImageDataset Class
     Sorts image files based on image filenames numerically and alphabetically
 
@@ -141,9 +141,9 @@ def display_images(indices, num_preview):
     Returns
     -------
     A flat list with length num_preview, containing indices of images displayed to user
-    '''
+    """
     outlen = min(num_preview, len(indices))
-    print('outlen', outlen)
+    print("outlen", outlen)
     if type(indices[0]) == list:
         out = []
         for i in range(outlen):
