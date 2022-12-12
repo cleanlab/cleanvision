@@ -132,8 +132,8 @@ class Imagelab:
             for check in self.issue_info.values():
                 if type(check[0]) == list:
                     flat_issue = []
-                    for l in check:
-                        flat_issue += l
+                    for lst in check:
+                        flat_issue += lst
                     num_issues += len(flat_issue)
                 else:
                     num_issues += len(check)
@@ -312,9 +312,9 @@ class Imagelab:
             columns=dict(zip(score_columns, col_rename))
         )  # remove "zscore" out of column names
         issue_score_sum = len(self.image_files) - score_df.sum()
-        total_sum = issue_score_sum.sum()
 
-        score_df = (score_df.shape[0] - score_df).sum() / score_df.mean()
+        # total_sum = issue_score_sum.sum()
+        # score_df = (score_df.shape[0] - score_df).sum() / score_df.mean()
 
         summary_results = pd.DataFrame(
             {

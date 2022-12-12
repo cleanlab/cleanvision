@@ -1,4 +1,4 @@
-import math, hashlib, imagehash, copy
+import math, hashlib, imagehash
 from PIL import ImageStat, ImageFilter
 import numpy as np
 from scipy.ndimage import median_filter
