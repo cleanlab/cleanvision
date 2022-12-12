@@ -311,8 +311,8 @@ class Imagelab:
         score_df = score_df.rename(
             columns=dict(zip(score_columns, col_rename))
         )  # remove "zscore" out of column names
-        issue_score_sum = len(self.image_files) - score_df.sum()
 
+        # issue_score_sum = len(self.image_files) - score_df.sum()
         # total_sum = issue_score_sum.sum()
         # score_df = (score_df.shape[0] - score_df).sum() / score_df.mean()
 
