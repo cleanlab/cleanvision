@@ -49,5 +49,7 @@ setup(
         "pandas>=1.0.0",
         "imagehash>=4.2.0",
         "tqdm>=4.53.0",
+        "imagehash",
+        "scipy"
     ],
 )

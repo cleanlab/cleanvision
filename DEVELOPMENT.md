@@ -53,7 +53,7 @@ $ pytest --verbose
 **Run with code coverage:**
 
 ```
-$ pytest --cov=cleanlab/ --cov-config .coveragerc --cov-report=html
+$ pytest --cov=clean_vision/ --cov-config .coveragerc --cov-report=html
 ```
 
 The coverage report will be available in `coverage_html_report/index.html`,

@@ -2,8 +2,6 @@
 # https://coverage.readthedocs.io/en/latest/config.html
 [run]
 branch = True
-omit =
-    cleanlab/experimental/*
 
 [report]
 # Regexes for lines to exclude from consideration
@@ -20,14 +18,14 @@ exclude_lines =
     except
     assert
     warnings.warn
-    
+
     # Use print(f"...") for printing out non-pure strings:
     print\(\"
-    
+
     # Don't complain if non-runnable code isn't run:
     if 0:
     if __name__ == .__main__.:
-    
+
     # Can't unit test big datasets:
     if big_dataset
 
