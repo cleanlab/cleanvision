@@ -50,6 +50,6 @@ setup(
         "imagehash>=4.2.0",
         "tqdm>=4.53.0",
         "imagehash",
-        "scipy"
+        "scipy",
     ],
 )
