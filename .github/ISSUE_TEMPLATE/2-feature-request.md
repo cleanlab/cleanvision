@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Use this template to ask for new functionality in cleanlab.
+about: Use this template to ask for new functionality in clean-vision.
 title: "[Short summary of the feature]"
 labels: "needs triage"
 ---
@@ -14,7 +14,7 @@ Describe your proposed feature in more detail. Answer any of the following
 questions that you can:
   * What is the problem you're trying to solve?
   * What tasks or workflows would be enabled by having support for your
-    proposed feature in cleanlab?
+    proposed feature in clean-vision?
   * Can you share code snippets or pseudocode describing uses of your feature?
   * Can you share any datasets that can help us assess the usefulness of the
     proposed feature?
