@@ -25,7 +25,7 @@ jobs:
       - name: Install development dependencies
         run: pip install -r requirements-dev.txt
       - name: Test with coverage
-        run: pytest --verbose --cov=cleanlab/ --cov-config .coveragerc --cov-report=xml
+        run: pytest --verbose --cov=clean_vision/ --cov-config .coveragerc --cov-report=xml
       - uses: codecov/codecov-action@v2
   typecheck:
     name: Type check
