@@ -50,26 +50,50 @@ $ pytest -k <filename or filter expression>
 $ pytest --verbose
 ```
 
+**Run with code coverage:**
+
+```
+$ pytest --cov=cleanlab/ --cov-config .coveragerc --cov-report=html
+```
+
+The coverage report will be available in `coverage_html_report/index.html`,
+which you can open with your web browser.
+
+## Type checking
+
+clean-vision uses [mypy](https://mypy.readthedocs.io/en/stable/) typing. Type checking happens automatically during CI but can be run locally.
+
+**Check typing in all files:**
+
+```
+$ mypy clean_vision
+```
+
+Note our CI adds a few additional flags to the `mypy` command it uses in the file:
+**.github/workflows/ci.yml**.
+If you want to exactly match the `mypy` command that is executed in CI, copy these flags, and also ensure your version of `mypy` and related packages like `pandas-stubs` match the latest released versions (used in our CI).
+
 ## How to style new code contributions
 
 clean-vision follows the [Black](https://black.readthedocs.io/) code style. This is
 enforced by CI, so please format your code by invoking `black` before submitting a pull request.
 
-Generally aim to follow the [PEP-8 coding style](https://peps.python.org/pep-0008/). 
+Generally aim to follow the [PEP-8 coding style](https://peps.python.org/pep-0008/).
 Please do not use wildcard `import *` in any files, instead you should always import the specific functions that you need from a module.
 
+### Pre-commit hook
 
-## Initial Dev notes [no longer strongly applicable]
-Please ask questions about this library and debugging to any of: 
-Jonas, Yiming Chen (in Slack or via email at: <yimingc@mit.edu> <yiming.chen699@gmail.com>)
+This repo uses the [pre-commit framework](https://pre-commit.com/) to easily
+set up code style checks that run automatically whenever you make a commit.
+You can install the git hook scripts with:
 
-Library has rough edges since its development was abruptly halted.
+```console
+$ pre-commit install
+```
 
-Initial development should first focus on getting the library in a good state again and addressing basic code quality issues.
+### EditorConfig
 
-
-Two older versions of the library that may work better are:
-
-1. the `august` branch of this repo (do not delete this branch for posterity).
-2. the code in Google Drive (newer than august branch, this was final code Yiming ever touched, newer than august branch version):
-https://drive.google.com/drive/folders/16wJPl8W643w7Tp2J05v3OMu8EpECkXpD?usp=share_link
+This repo uses [EditorConfig](https://editorconfig.org/) to keep code style
+consistent across editors and IDEs. You can install a plugin for your editor,
+and then your editor will automatically ensure that indentation and line
+endings match the project style.

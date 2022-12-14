@@ -1,4 +1,3 @@
-
 # clean-vision
 Tools for identifying issues in image datasets.
 
@@ -10,16 +9,11 @@ clean-vision is free software: you can redistribute it and/or modify it under th
 
 clean-vision is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See [GNU Affero General Public LICENSE](https://github.com/cleanlab/cleanlab/blob/master/LICENSE) for details.
+See [GNU Affero General Public LICENSE](https://github.com/cleanlab/clean-vision/blob/main/LICENSE) for details.
 
-### [old readme] Library for auditing dataset of images for potential issues
+## Quickstart
 
-
-Example collection of images you can run this library on is located here: 
+Example collection of images you can run this library on is located here:
 https://drive.google.com/drive/folders/16wJPl8W643w7Tp2J05v3OMu8EpECkXpD?usp=share_link
 
 After downloading these files, get started by trying to run: `examples/user_script.py`
-
-Currently may encounter some bugs / rough edges in the library, please fix any you easily can!
-
-Doc for working on this project: https://www.notion.so/cleanlab/Image-Data-Issues-301e83318a614be4b34dc48e7ff2a689
