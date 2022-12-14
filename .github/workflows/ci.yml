@@ -3,7 +3,7 @@ on:
   push:
   pull_request:
   schedule:
-    - cron: '0 8 * * 6'
+    - cron: '0 12 * * 1'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,15 +21,30 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest
       - name: Install development dependencies
-        run: pip install -r requires.txt
-      - name: Test with pytest
+        run: pip install -r requirements-dev.txt
+      - name: Test with coverage
+        run: pytest --verbose --cov=cleanlab/ --cov-config .coveragerc --cov-report=xml
+      - uses: codecov/codecov-action@v2
+  typecheck:
+    name: Type check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
         run: |
-          pytest
+          python -m pip install --upgrade pip
+          pip install .  # install dependencies
+          pip install -r requirements-dev.txt  # install development dependencies and type stubs
+      - name: Type check
+        run: mypy --install-types --non-interactive cleanlab
   fmt:
     name: Black format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: psf/black@stable
   pylint:
     name: Lint with flake8 for syntax+other error codes
