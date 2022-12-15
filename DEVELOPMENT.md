@@ -66,12 +66,8 @@ clean-vision uses [mypy](https://mypy.readthedocs.io/en/stable/) typing. Type ch
 **Check typing in all files:**
 
 ```
-$ mypy clean_vision
+$ mypy --strict --install-types --non-interactive clean_vision
 ```
-
-Note our CI adds a few additional flags to the `mypy` command it uses in the file:
-**.github/workflows/ci.yml**.
-If you want to exactly match the `mypy` command that is executed in CI, copy these flags, and also ensure your version of `mypy` and related packages like `pandas-stubs` match the latest released versions (used in our CI).
 
 ## How to style new code contributions
 

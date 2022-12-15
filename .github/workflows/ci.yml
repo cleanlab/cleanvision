@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.7", "3.8", "3.9", "3.10" ]
+        python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -41,7 +41,7 @@ jobs:
           pip install .  # install dependencies
           pip install -r requirements-dev.txt  # install development dependencies and type stubs
       - name: Type check
-        run: mypy --install-types --non-interactive clean_vision
+        run: mypy --strict --install-types --non-interactive clean_vision
   fmt:
     name: Black format
     runs-on: ubuntu-latest

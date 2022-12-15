@@ -32,7 +32,7 @@ setup(
     license="AGPLv3+",
     python_requires=">=3.7",
     # What does your project relate to?
-    keywords="image_data issue_detection machine_learning data_cleaning",
+    keywords="computer_vision cv image_data issue_detection data_quality image_quality machine_learning data_cleaning image_deduplication",
     packages=find_packages("src"),
     package_data={
         "": ["LICENSE"],
@@ -49,7 +49,6 @@ setup(
         "pandas>=1.0.0",
         "imagehash>=4.2.0",
         "tqdm>=4.53.0",
-        "imagehash",
         "scipy",
     ],
 )
