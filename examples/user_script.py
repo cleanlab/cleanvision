@@ -10,7 +10,9 @@ if __name__ == "__main__":
 
     print(f"Loading images from {path_to_images}")
     imagelab = Imagelab(path_to_images, thumbnail_size=(128, 128))
-    print(f"Number of images: {str(len(imagelab.image_files))}") #todo implement get_num_images
+    print(
+        f"Number of images: {str(len(imagelab.image_files))}"
+    )  # todo implement get_num_images
 
     issue_types = ["Blurred"]
     threshold = 0.5
