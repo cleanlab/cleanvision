@@ -1,6 +1,6 @@
 # Development
 
-This document explains how to set up a development environment for contributing to clean-vision.
+This document explains how to set up a development environment for [contributing](CONTRIBUTING.md) to clean-vision.
 
 ## Setting up a virtual environment
 
