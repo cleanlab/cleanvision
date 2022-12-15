@@ -1,7 +1,6 @@
 import math, hashlib, imagehash
 from PIL import ImageStat, ImageFilter
 import numpy as np
-from scipy.ndimage import median_filter
 
 
 def get_brightness_score(img):
@@ -249,7 +248,8 @@ def check_grayscale(im):  # return 1 if grayscale else 0
 
 def find_hot_pixels(im):
     imarr = np.asarray(im.convert("L"))
-    blurred = median_filter(imarr, size=2, mode="nearest")
+    blurred = imarr.filter(ImageFilter.MedianFilter(size=2))
+
     diff = imarr - blurred
     threshold = 10 * np.std(diff)
     num_hot_pixels = (np.abs(diff[1:-1, 1:-1]) > threshold).sum()
