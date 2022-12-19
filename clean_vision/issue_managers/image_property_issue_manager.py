@@ -8,26 +8,23 @@ from clean_vision.issue_types import IssueType
 
 
 class ImagePropertyIssueManager(IssueManager):
-
     def __init__(self, issue_types):
         super().__init__()
         self.issue_types = issue_types
-        self.issue_helpers = {
-            IssueType.DARK_IMAGES: DarkImagesHelper()
-        }
+        self.issue_helpers = {IssueType.DARK_IMAGES: DarkImagesHelper()}
 
     def find_issues(self, filepaths, imagelab_info):
         self.issues = pd.DataFrame(filepaths, columns=["image_path"])
 
-        raw_scores = {
-            issue_type: [] for issue_type in self.issue_types
-        }
+        raw_scores = {issue_type: [] for issue_type in self.issue_types}
 
         # calculate raw scores for each issue_type
         for path in tqdm(filepaths):
             image = Image.open(path)
             for issue_type in self.issue_types:
-                raw_scores[issue_type].append(self.issue_helpers[issue_type].calculate(image))
+                raw_scores[issue_type].append(
+                    self.issue_helpers[issue_type].calculate(image)
+                )
 
         for issue_type in self.issue_types:
             if issue_type.property not in self.info:
@@ -35,11 +32,15 @@ class ImagePropertyIssueManager(IssueManager):
 
             scores = self.issue_helpers[issue_type].normalize(raw_scores[issue_type])
             self.issues[f"{issue_type}_score"] = scores
-            self.issues[f"{issue_type}_bool"] = self.issue_helpers[issue_type].mark_issue(scores,
-                                                                                          issue_type.threshold)
+            self.issues[f"{issue_type}_bool"] = self.issue_helpers[
+                issue_type
+            ].mark_issue(scores, issue_type.threshold)
 
             summary = self._compute_summary(self.issues[f"{issue_type}_bool"])
-            summary = pd.DataFrame([[issue_type.value, summary['num_images']]], columns=self.summary.columns)
+            summary = pd.DataFrame(
+                [[issue_type.value, summary["num_images"]]],
+                columns=self.summary.columns,
+            )
             self.summary = pd.concat([self.summary, summary], ignore_index=True)
 
         return
