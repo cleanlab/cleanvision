@@ -16,7 +16,7 @@ TYPES = [
 
 
 def get_filepaths(
-        dir_path,
+    dir_path,
 ):
     """
     Used in initialization of ImageDataset Class

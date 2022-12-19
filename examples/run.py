@@ -6,11 +6,8 @@ if __name__ == "__main__":
     dataset_path = "../../image_files"
 
     imagelab = Imagelab(dataset_path)
-    issue_types = {
-        "Dark": None,
-        "White": None
-    }
+    issue_types = {"Dark": None, "White": None}
 
     imagelab.find_issues()
-    
+
     imagelab.report()

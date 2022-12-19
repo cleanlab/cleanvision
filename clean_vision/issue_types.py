@@ -2,7 +2,6 @@ from enum import Enum
 
 
 class IssueType(Enum):
-
     def __new__(cls, value, property, threshold):
         obj = object.__new__(cls)
         obj._value_ = value
@@ -28,4 +27,3 @@ class IssueType(Enum):
 
     def __str__(self):
         return self.value
-

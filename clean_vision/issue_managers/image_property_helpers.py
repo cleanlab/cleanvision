@@ -40,8 +40,8 @@ class BrightnessHelper(ImagePropertyHelper):
             )  # deals with black and white images
             # print(f"WARNING: {img} does not have just r, g, b values")
         cur_bright = (
-                         math.sqrt(0.241 * (r ** 2) + 0.691 * (g ** 2) + 0.068 * (b ** 2))
-                     ) / 255
+            math.sqrt(0.241 * (r**2) + 0.691 * (g**2) + 0.068 * (b**2))
+        ) / 255
         return cur_bright
 
     def normalize(self, raw_scores):

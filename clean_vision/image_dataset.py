@@ -108,7 +108,7 @@ class Imagelab:
         self.issue_df = None
         self.issue_scores = None
         self.results = None
-        self.thresholds = { # todo info
+        self.thresholds = {  # todo info
             "Duplicated": 0.5,
             "DarkImages": 0.22,
             "LightImages": 0.05,
