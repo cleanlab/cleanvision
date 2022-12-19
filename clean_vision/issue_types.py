@@ -1,9 +1,10 @@
-from enum import StrEnum
+from enum import Enum
 
 
-class IssueType(StrEnum):
+class IssueType(Enum):
+
     def __new__(cls, value, property, threshold):
-        obj = str.__new__(cls)
+        obj = object.__new__(cls)
         obj._value_ = value
         obj.property = property
         obj._threshold = threshold
@@ -23,6 +24,8 @@ class IssueType(StrEnum):
                 raise ValueError("Threshold must lie between 0 and 1")
 
     DARK_IMAGES = ("Dark", "Brightness", 0.22)
+    WHITE_IMAGES = ("White", "Brightness", 0.05)
 
     def __str__(self):
         return self.value
+

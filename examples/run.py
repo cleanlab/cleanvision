@@ -1,3 +1,5 @@
+import time
+
 from clean_vision.imagelab import Imagelab
 
 if __name__ == "__main__":
@@ -5,8 +7,10 @@ if __name__ == "__main__":
 
     imagelab = Imagelab(dataset_path)
     issue_types = {
-        "Dark": None
+        "Dark": None,
+        "White": None
     }
 
     imagelab.find_issues()
+    
     imagelab.report()

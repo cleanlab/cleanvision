@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from PIL import Image
 
-from clean_vision.utils.issue_manager_factory import _IssueManagerFactory
 from clean_vision.issue_types import IssueType
+from clean_vision.utils.issue_manager_factory import _IssueManagerFactory
 from clean_vision.utils.utils import get_filepaths
 
 
@@ -37,6 +37,7 @@ class Imagelab:
             self.issue_summary = pd.concat([self.issue_summary, issue_manager.summary])
             self.info = {**self.info, **issue_manager.info}
 
+        self.issue_summary = self.issue_summary.sort_values(by=["num_images"], ascending=False)
         return
 
     def _set_issue_managers(self):
@@ -51,19 +52,19 @@ class Imagelab:
 
     def report(self, verbose=False):
         topk = 5
-        sorted_df = self.issue_summary.sort_values(by=["num_images"])
+
         if verbose:
             print("Issues in the dataset sorted by prevalence")
-            print(sorted_df.to_markdown())
+            print(self.issue_summary.to_markdown())
         else:
 
             print(f"Top {topk} issues in the dataset\n")
-            print(sorted_df.head(topk).to_markdown())
+            print(self.issue_summary.head(topk).to_markdown())
         self._visualize()
 
     def _visualize(self, topk=5):
-        sorted_df = self.issue_summary.sort_values(by=["num_images"])
-        topk_issues = sorted_df['issue_type'].tolist()[:topk]
+
+        topk_issues = self.issue_summary['issue_type'].tolist()[:topk]
         image_paths = []
         num_images_per_issue = 4
         for issue_type in topk_issues:

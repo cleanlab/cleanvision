@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 import numpy as np
 from PIL import ImageStat
 
+from issue_types import IssueType
+
 
 class ImagePropertyHelper(ABC):
     def __init__(self):
@@ -22,9 +24,9 @@ class ImagePropertyHelper(ABC):
         return scores < threshold
 
 
-class DarkImagesHelper(ImagePropertyHelper):
-    def __init__(self):
-        pass
+class BrightnessHelper(ImagePropertyHelper):
+    def __init__(self, issue_type):
+        self.issue_type = issue_type
 
     def calculate(self, image):
         stat = ImageStat.Stat(image)
@@ -45,4 +47,6 @@ class DarkImagesHelper(ImagePropertyHelper):
     def normalize(self, raw_scores):
         scores = np.array(raw_scores)
         scores[scores > 1] = 1
+        if self.issue_type.name == IssueType.WHITE_IMAGES.name:
+            scores = 1 - scores
         return scores
