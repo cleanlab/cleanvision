@@ -8,9 +8,6 @@ from issue_types import IssueType
 
 
 class ImagePropertyHelper(ABC):
-    def __init__(self):
-        pass
-
     @abstractmethod
     def calculate(self, image):
         raise NotImplementedError
