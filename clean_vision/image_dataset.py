@@ -108,7 +108,7 @@ class Imagelab:
         self.issue_df = None
         self.issue_scores = None
         self.results = None
-        self.thresholds = {
+        self.thresholds = {  # todo info
             "Duplicated": 0.5,
             "DarkImages": 0.22,
             "LightImages": 0.05,
@@ -1026,6 +1026,7 @@ class _IssueManagerFactory:
 
     # todo: convert these strings to constants
     types = {
+        # todo assign a score to duplicate
         "Duplicated": DuplicatedIssueManager,
         "AspectRatio": AspectRatioIssueManager,
         "DarkImages": DarkImagesIssueManager,
