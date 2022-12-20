@@ -29,13 +29,13 @@ class BrightnessHelper(ImagePropertyHelper):
         stat = ImageStat.Stat(image)
         try:
             red, green, blue = stat.mean
-        except:
+        except IndexError:
             red, green, blue = (
                 stat.mean[0],
                 stat.mean[0],
                 stat.mean[0],
             )  # deals with black and white images
-            # print(f"WARNING: {img} does not have just red, green, blue values")
+            # print(f"WARNING: {img} does not have just r, g, b values")
         cur_bright = calculate_brightness(red, green, blue)
         return cur_bright
 

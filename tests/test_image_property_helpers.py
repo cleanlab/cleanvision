@@ -53,28 +53,32 @@ class TestBrightnessHelper:
                 return mock_mean
 
         monkeypatch.setattr(ImageStat, "Stat", MockStat)
-        
+
         cur_bright = helper.calculate("my_image")
         assert cur_bright == pytest.approx(expected=expected_output, abs=1e-5)
 
     def test_normalize(self, helper, monkeypatch):
         raw_scores = [0.5, 0.3, 1.0, 1.2, 0.9, 0.1, 0.2]
-        expected_output_for_dark_images = np.array([0.5, 0.3, 1.0, 1.0, 0.9, 0.1, 0.2])
+        expected_output = np.array([0.5, 0.3, 1.0, 1.0, 0.9, 0.1, 0.2])
 
         with monkeypatch.context() as m:
             m.setattr(helper, "issue_type", IssueType.DARK_IMAGES)
             normalized_scores = helper.normalize(raw_scores)
-            assert all(normalized_scores == expected_output_for_dark_images)
+            assert all(normalized_scores == expected_output)
 
         normalized_scores = helper.normalize(raw_scores)
-        assert all(normalized_scores == 1 - expected_output_for_dark_images)
+        assert all(normalized_scores == 1 - expected_output)
 
     @pytest.mark.parametrize(
         "scores,threshold,expected_mark",
         [
             [0.23, 0.4, [True]],
             [0.6, 0.5, [False]],
-            [np.array([0.1, 0.2, 0.3, 0.4]), 0.3, np.array([True, True, False, False])],
+            [
+                np.array([0.1, 0.2, 0.3, 0.4]),
+                0.3,
+                np.array([True, True, False, False]),
+            ],
         ],
     )
     def test_mark_issue(self, helper, scores, threshold, expected_mark):
