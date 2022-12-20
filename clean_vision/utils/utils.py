@@ -15,9 +15,8 @@ TYPES = [
 ]  # filetypes supported by PIL
 
 
-def get_sorted_images(
-    path,
-    verbose=True,
+def get_filepaths(
+    dir_path,
 ):
     """
     Used in initialization of ImageDataset Class
@@ -27,7 +26,7 @@ def get_sorted_images(
 
     Parameters
     ----------
-    path: str (an attribute of ImageDataset Class)
+    dir_path: str (an attribute of ImageDataset Class)
     a string represening the current working directory
 
 
@@ -38,16 +37,13 @@ def get_sorted_images(
     """
     # if not os.path.isdir(path):  # check if specified path is an existing directory
     #     raise Exception(f"The current path {path} is not valid.")
-    image_file_names = []
+    filepaths = []
     for type in TYPES:
-        filetype_images = glob.glob(os.path.join(path, type), recursive=True)
-        if filetype_images == []:
+        filetype_images = glob.glob(os.path.join(dir_path, type), recursive=True)
+        if len(filetype_images) == 0:
             continue
-        image_file_names += filetype_images
-    # base_image_names = []
-    # for r in image_file_names:
-    #     base_image_names.append(os.path.basename(r))  # extract image name
-    return sorted(image_file_names)  # sort image names alphabetically and numerically
+        filepaths += filetype_images
+    return sorted(filepaths)  # sort image names alphabetically and numerically
 
 
 def get_zscores(scores):
