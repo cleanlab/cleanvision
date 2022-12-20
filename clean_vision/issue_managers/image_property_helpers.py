@@ -29,7 +29,7 @@ class BrightnessHelper(ImagePropertyHelper):
         stat = ImageStat.Stat(image)
         try:
             red, green, blue = stat.mean
-        except IndexError:
+        except ValueError:
             red, green, blue = (
                 stat.mean[0],
                 stat.mean[0],
