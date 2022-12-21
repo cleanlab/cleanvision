@@ -16,7 +16,8 @@ imagelab.find_issues()  # add argument `issue_types` here to search for specific
 imagelab.report()
 ```
 
-At the moment this package a work in progress and supports the following checks below:
+At the moment this package is a work in progress (expect sharp edges!) and supports the following checks:
+
 |     | Issue Check                                              | Description                                                                                                                                                                                                                                                                  |
 | --- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   | Light Images                                                                                        | Images that are too bright/washed out in the dataset                                   |
