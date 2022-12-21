@@ -6,12 +6,13 @@ Adding clean-vision into your pipeline is as simple as running the code below:
 
 from clean_vision.imagelab import Imagelab
 
-imagelab = Imagelab(dataset_path)
+# Specify path to folder containing the image files in your dataset
+imagelab = Imagelab(path)
 
-# clean-vision identifies all issues within your dataset, or ones speficied with the "issue_types=" param
-imagelab.find_issues()
+# Automatically check for a predefined list of issues within your dataset 
+imagelab.find_issues()  # add argument `issue_types` here to search for specific issues
 
-# clean-vision provides a neat report of the found issues
+# Produce a neat report of the issues found in your dataset
 imagelab.report()
 ```
 
