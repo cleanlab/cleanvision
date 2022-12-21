@@ -1,5 +1,5 @@
 # clean-vision
-clean-vision automatically identifies issues in image datasets. This Data Centric AI package is designed as a first step for any image project to find strage occurences such as duplicate images, overexposed pictures and hot pixels in your data that could negatively impact model performance.
+clean-vision automatically identifies various issues in image datasets. This Data Centric AI package is designed as a quick first step for any computer vision project to find problems in your dataset (such as images which are: (near) duplicates, blurry, over/under-exposed, etc), which you may want to address before applying machine learning. 
 
 Adding clean-vision into your pipeline is as simple as running the code below:
 ```python
