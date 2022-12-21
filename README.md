@@ -31,6 +31,20 @@ https://drive.google.com/drive/folders/16wJPl8W643w7Tp2J05v3OMu8EpECkXpD?usp=sha
 
 After downloading these files, get started by trying to run: `examples/run.py`
 
+
+## Join our community
+
+* The best place to learn is [our Slack community](https://cleanlab.ai/slack).  Join the discussion there to see how folks are using this library, discuss upcoming features, or ask for private support.
+
+* Interested in contributing? See the [contributing guide](CONTRIBUTING.md). An easy starting point is to consider [issues](https://github.com/cleanlab/clean-vision/labels/good%20first%20issue) marked `good first issue` or simply reach out in [Slack](https://cleanlab.ai/slack). We welcome your help building a standard open-source library for data-centric computer vision!
+
+* Ready to start adding your own code? See the [development guide](DEVELOPMENT.md).
+
+* Have an issue? [Search existing issues](https://github.com/cleanlab/clean-vision/issues?q=is%3Aissue) or [submit a new issue](https://github.com/cleanlab/clean-vision/issues/new/choose).
+
+* Have ideas for the future of data-centric computer vision? Check out [our active/planned Projects and what we could use your help with](https://github.com/cleanlab/clean-vision/projects).
+
+
 ## License
 
 clean-vision is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
