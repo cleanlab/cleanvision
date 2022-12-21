@@ -31,7 +31,7 @@ Feel free to submit any found bugs or desired future checks as an [issue][issue]
 Example collection of images you can run this library on is located here:
 https://drive.google.com/drive/folders/16wJPl8W643w7Tp2J05v3OMu8EpECkXpD?usp=share_link
 
-After downloading these files, get started by trying to run: `examples/run.py`
+After downloading these files, get started by running: `python3 examples/run.py`
 
 
 ## Join our community
