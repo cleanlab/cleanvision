@@ -1,4 +1,5 @@
-# clean-vision
+![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanlab/cleanvision_logo_open_source_transparent.png)
+
 clean-vision automatically identifies various issues in image datasets. This Data Centric AI package is designed as a quick first step for any computer vision project to find problems in your dataset (such as images which are: (near) duplicates, blurry, over/under-exposed, etc), which you may want to address before applying machine learning.
 
 Adding clean-vision into your pipeline is as simple as running the code below:
