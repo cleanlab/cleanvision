@@ -1,5 +1,5 @@
 # clean-vision
-clean-vision automatically identifies various issues in image datasets. This Data Centric AI package is designed as a quick first step for any computer vision project to find problems in your dataset (such as images which are: (near) duplicates, blurry, over/under-exposed, etc), which you may want to address before applying machine learning. 
+clean-vision automatically identifies various issues in image datasets. This Data Centric AI package is designed as a quick first step for any computer vision project to find problems in your dataset (such as images which are: (near) duplicates, blurry, over/under-exposed, etc), which you may want to address before applying machine learning.
 
 Adding clean-vision into your pipeline is as simple as running the code below:
 ```python
@@ -9,7 +9,7 @@ from clean_vision.imagelab import Imagelab
 # Specify path to folder containing the image files in your dataset
 imagelab = Imagelab(path)
 
-# Automatically check for a predefined list of issues within your dataset 
+# Automatically check for a predefined list of issues within your dataset
 imagelab.find_issues()  # add argument `issue_types` here to search for specific issues
 
 # Produce a neat report of the issues found in your dataset
@@ -28,9 +28,10 @@ Feel free to submit any found bugs or desired future checks as an [issue][issue]
 
 ## Quickstart
 
-Example collection of images you can run this library on is located here:
-https://drive.google.com/drive/folders/16wJPl8W643w7Tp2J05v3OMu8EpECkXpD?usp=share_link
-
+Example collection of images you can run this library on can be downloaded using:
+```python
+wget -nc 'https://cleanlab-public.s3.amazonaws.com/CleanVision/image_files.zip'
+```
 After downloading these files, get started by running: `python3 examples/run.py`
 
 
