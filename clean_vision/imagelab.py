@@ -15,27 +15,34 @@ class Imagelab:
         self.info = {}
         self.issue_summary = pd.DataFrame()
         self.issues = pd.DataFrame(self.filepaths, columns=["image_path"])
-        self.issue_types = list(IssueType)
-        self.issue_managers = []
+        self.issue_types = []
+        self.issue_managers = {}
         # can be loaded from a file later
         self.config = {"viz_num_images_per_row": 4}
 
-    def find_issues(self, issue_types=None):
-        if issue_types is not None and len(issue_types) > 0:
-            self.issue_types = []
+    def _get_issues_to_compute(self, issue_types):
+        if issue_types is None or len(issue_types) == 0:
+            all_issues = list(IssueType)
+        else:
+            all_issues = []
             for issue_type_str, threshold in issue_types.items():
                 issue_type = IssueType(issue_type_str)
                 issue_type.threshold = threshold
-                self.issue_types.append(issue_type)
+                all_issues.append(issue_type)
+        to_compute_issues = list(set(all_issues) - set(self.issue_types))
+        return to_compute_issues
 
+    def find_issues(self, issue_types=None):
+        to_compute_issues = self._get_issues_to_compute(issue_types)
+        self.issue_types.extend(to_compute_issues)
         print(
-            f"Checking for {', '.join([issue_type.value for issue_type in self.issue_types])} images ..."
+            f"Checking for {', '.join([issue_type.value for issue_type in to_compute_issues])} images ..."
         )
 
         # create issue managers
-        self._set_issue_managers()
+        self._set_issue_managers(to_compute_issues)
 
-        for issue_manager in self.issue_managers:
+        for issue_type, issue_manager in self.issue_managers.items():
             issue_manager.find_issues(self.filepaths, self.info)
 
             # update issues, issue_summary and info
@@ -50,22 +57,25 @@ class Imagelab:
 
         return
 
-    def _set_issue_managers(self):
+    def _set_issue_managers(self, issue_types):
         image_property_issues = []
         for issue_type in self.issue_types:
             if issue_type.property:
                 image_property_issues.append(issue_type)
             else:
-                self.issue_managers.append(
-                    _IssueManagerFactory.from_str(issue_type.value)
+                self.issue_managers[issue_type] = _IssueManagerFactory.from_str(
+                    issue_type.value
                 )
+
         if len(image_property_issues) > 0:
-            self.issue_managers.append(
-                _IssueManagerFactory.from_str("ImageProperty")(image_property_issues)
-            )
+            if "ImageProperty" in self.issue_managers:
+                self.issue_managers["ImageProperty"].add_issues(image_property_issues)
+            else:
+                self.issue_managers["ImageProperty"] = _IssueManagerFactory.from_str(
+                    "ImageProperty"
+                )(image_property_issues)
 
     def _get_topk_issues(self, topk, max_prevalence):
-
         topk_issues = []
         for idx, row in self.issue_summary.iterrows():
             if row["num_images"] / self.num_images * 100 < max_prevalence:

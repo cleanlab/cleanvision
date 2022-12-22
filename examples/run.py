@@ -4,13 +4,18 @@ if __name__ == "__main__":
     dataset_path = "../../image_files"
 
     # Run Imagelab with default settings
-    imagelab = Imagelab(dataset_path)
-    imagelab.find_issues()
-    imagelab.report()
+    # imagelab = Imagelab(dataset_path)
+    # imagelab.find_issues()
+    # imagelab.report()
 
-    # Run Imagelab for specified checks
+    # Run Imagelab for specific checks
     imagelab = Imagelab(dataset_path)
     issue_types = {"Dark": None}
+    imagelab.find_issues(issue_types)
+    imagelab.report()
+
+    # Add checks to imagelab instance
+    issue_types = {"Light": None}
     imagelab.find_issues(issue_types)
     imagelab.report()
 
