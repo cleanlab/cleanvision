@@ -86,19 +86,24 @@ class Imagelab:
         topk_issues = self.issue_summary["issue_type"].tolist()[:topk]
         self.visualize(topk_issues)
 
-    def _visualize(self, issue_type, num_images_per_issue):
+    def _visualize(self, issue_type, num_images_per_issue, figsize):
         if issue_type in [IssueType.DARK_IMAGES.value, IssueType.LIGHT_IMAGES.value]:
             sorted_df = self.issues.sort_values(by=[f"{issue_type}_score"])
+            sorted_df = sorted_df[sorted_df[f"{issue_type}_bool"] == 1]
             sorted_filepaths = (
                 sorted_df["image_path"].head(num_images_per_issue).tolist()
             )
             VizManager.property_based(
-                sorted_filepaths,
-                math.ceil(num_images_per_issue / self.config["viz_num_images_per_row"]),
-                self.config["viz_num_images_per_row"],
+                filepaths=sorted_filepaths,
+                nrows=math.ceil(
+                    min(num_images_per_issue, len(sorted_filepaths))
+                    / self.config["viz_num_images_per_row"]
+                ),
+                ncols=self.config["viz_num_images_per_row"],
+                figsize=figsize,
             )
 
-    def visualize(self, issue_types, num_images_per_issue=4):
+    def visualize(self, issue_types, num_images_per_issue=4, figsize=(8, 8)):
         for issue_type in issue_types:
             print(f"\nTop {num_images_per_issue} images with {issue_type} issue")
-            self._visualize(issue_type, num_images_per_issue)
+            self._visualize(issue_type, num_images_per_issue, figsize)

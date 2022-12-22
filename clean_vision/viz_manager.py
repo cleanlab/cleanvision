@@ -8,10 +8,12 @@ class VizManager:
         pass
 
     @staticmethod
-    def property_based(filepaths, nrows, ncols):
-        fig = plt.figure(figsize=(8, 8))
+    def property_based(filepaths, nrows, ncols, figsize):
+        fig = plt.figure(figsize=figsize)
 
-        grid = ImageGrid(fig, 111, nrows_ncols=(nrows, ncols), axes_pad=0.1)
+        grid = ImageGrid(
+            fig, 111, nrows_ncols=(nrows, ncols), axes_pad=0.2, share_all=True
+        )
 
         for ax, path in zip(grid, filepaths):
             # Iterating over the grid returns the Axes.
