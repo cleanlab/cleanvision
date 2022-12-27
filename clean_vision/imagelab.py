@@ -49,7 +49,9 @@ class Imagelab:
             self.issues = self.issues.merge(
                 issue_manager.issues, how="left", on="image_path"
             )
-            self.issue_summary = pd.concat([self.issue_summary, issue_manager.summary])
+            self.issue_summary = pd.concat(
+                [self.issue_summary, issue_manager.summary], axis=0, ignore_index=True
+            )
             self.info = {**self.info, **issue_manager.info}
         self.issue_summary = self.issue_summary.sort_values(
             by=["num_images"], ascending=False
