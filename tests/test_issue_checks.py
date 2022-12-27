@@ -1,5 +1,5 @@
 from PIL import Image
-from clean_vision.issue_checks import check_grayscale
+from cleanvision.issue_checks import check_grayscale
 
 
 def test_grayscale():

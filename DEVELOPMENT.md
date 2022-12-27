@@ -53,7 +53,7 @@ $ pytest --verbose
 **Run with code coverage:**
 
 ```
-$ pytest --cov=clean_vision/ --cov-config .coveragerc --cov-report=html
+$ pytest --cov=cleanvision/ --cov-config .coveragerc --cov-report=html
 ```
 
 The coverage report will be available in `coverage_html_report/index.html`,
@@ -66,7 +66,7 @@ clean-vision uses [mypy](https://mypy.readthedocs.io/en/stable/) typing. Type ch
 **Check typing in all files:**
 
 ```
-$ mypy --strict --install-types --non-interactive clean_vision
+$ mypy --strict --install-types --non-interactive cleanvision
 ```
 
 ## How to style new code contributions

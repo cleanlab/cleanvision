@@ -1,4 +1,4 @@
-from clean_vision.imagelab import Imagelab
+from cleanvision.imagelab import Imagelab
 
 if __name__ == "__main__":
     dataset_path = "../../image_files"
