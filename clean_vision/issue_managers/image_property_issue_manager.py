@@ -63,7 +63,7 @@ class ImagePropertyIssueManager(IssueManager):
                         )
 
         # Init issues, summary, info
-        self.issues = pd.DataFrame({"image_path": filepaths})
+        self.issues = pd.DataFrame(index=filepaths)
         summary_dict = {}
         self.info = {}
 

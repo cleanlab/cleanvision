@@ -14,7 +14,8 @@ class Imagelab:
         self.num_images = len(self.filepaths)
         self.info = {}
         self.issue_summary = pd.DataFrame()
-        self.issues = pd.DataFrame(self.filepaths, columns=["image_path"])
+        # self.issues = pd.DataFrame(self.filepaths, columns=["image_path"])
+        self.issues = pd.DataFrame(index=self.filepaths)
         self.issue_types = []
         self.issue_managers = {}
         # can be loaded from a file later
@@ -46,9 +47,7 @@ class Imagelab:
             issue_manager.find_issues(self.filepaths, self.info)
 
             # update issues, issue_summary and info
-            self.issues = self.issues.merge(
-                issue_manager.issues, how="left", on="image_path"
-            )
+            self.issues = self.issues.join(issue_manager.issues, how="left")
             self.issue_summary = pd.concat(
                 [self.issue_summary, issue_manager.summary], axis=0, ignore_index=True
             )
@@ -102,9 +101,7 @@ class Imagelab:
         if issue_type in [IssueType.DARK_IMAGES.value, IssueType.LIGHT_IMAGES.value]:
             sorted_df = self.issues.sort_values(by=[f"{issue_type}_score"])
             sorted_df = sorted_df[sorted_df[f"{issue_type}_bool"] == 1]
-            sorted_filepaths = (
-                sorted_df["image_path"].head(num_images_per_issue).tolist()
-            )
+            sorted_filepaths = sorted_df.index[:num_images_per_issue].tolist()
             VizManager.property_based(
                 filepaths=sorted_filepaths,
                 nrows=math.ceil(
