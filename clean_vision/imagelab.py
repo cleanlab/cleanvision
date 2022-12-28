@@ -20,7 +20,10 @@ class Imagelab:
         self.issue_types = []
         self.issue_managers = {}
         # can be loaded from a file later
-        self.config = {"viz_num_images_per_row": 4}
+        self.config = self._set_default_config()
+
+    def _set_default_config(self):
+        return {"visualize_num_images_per_row": 4}
 
     def _get_issues_to_compute(self, issue_types):
         if issue_types is None or len(issue_types) == 0:
@@ -115,9 +118,9 @@ class Imagelab:
                 filepaths=sorted_filepaths,
                 nrows=math.ceil(
                     min(examples_per_issue, len(sorted_filepaths))
-                    / self.config["viz_num_images_per_row"]
+                    / self.config["visualize_num_images_per_row"]
                 ),
-                ncols=self.config["viz_num_images_per_row"],
+                ncols=self.config["visualize_num_images_per_row"],
                 figsize=figsize,
             )
 
