@@ -14,7 +14,7 @@ if __name__ == "__main__":
     imagelab.find_issues(issue_types)
     imagelab.report()
 
-    # Add checks to imagelab instance
+    # Check for additional types of issues using existing Imagelab
     issue_types = {"Light": None}
     imagelab.find_issues(issue_types)
     imagelab.report()
