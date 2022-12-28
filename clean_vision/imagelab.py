@@ -27,9 +27,9 @@ class Imagelab:
             all_issues = list(IssueType)
         else:
             all_issues = []
-            for issue_type_str, threshold in issue_types.items():
+            for issue_type_str, hyperparameters in issue_types.items():
                 issue_type = IssueType(issue_type_str)
-                issue_type.threshold = threshold
+                issue_type.set_hyperparameters(hyperparameters)
                 all_issues.append(issue_type)
         to_compute_issues = list(set(all_issues) - set(self.issue_types))
         return to_compute_issues
@@ -79,15 +79,21 @@ class Imagelab:
                     IMAGE_PROPERTY
                 )(image_property_issues)
 
-    def _get_topk_issues(self, topk, max_prevalence):
+    def _get_topk_issues(self, num_top_issues, max_prevalence):
         topk_issues = []
         for idx, row in self.issue_summary.iterrows():
-            if row["num_images"] / self.num_images * 100 < max_prevalence:
+            if row["num_images"] / self.num_images < max_prevalence:
                 topk_issues.append(row["issue_type"])
-        return topk_issues[:topk]
+        return topk_issues[:num_top_issues]
 
-    def report(self, topk=5, max_prevalence=50, verbose=False):
-        topk_issues = self._get_topk_issues(topk, max_prevalence)
+    def report(
+        self,
+        num_top_issues=5,
+        max_prevalence=0.5,
+        examples_per_issue=4,
+        verbose=False,
+    ):
+        topk_issues = self._get_topk_issues(num_top_issues, max_prevalence)
         topk_issue_summary = self.issue_summary[
             self.issue_summary["issue_type"].isin(topk_issues)
         ]
@@ -97,25 +103,25 @@ class Imagelab:
         else:
             print(f"Top issues in the dataset\n")
             print(topk_issue_summary.to_markdown(), "\n")
-        topk_issues = self.issue_summary["issue_type"].tolist()[:topk]
-        self.visualize(topk_issues)
 
-    def _visualize(self, issue_type, num_images_per_issue, figsize):
+        self.visualize(topk_issues, examples_per_issue)
+
+    def _visualize(self, issue_type, examples_per_issue, figsize):
         if issue_type in [IssueType.DARK_IMAGES.value, IssueType.LIGHT_IMAGES.value]:
             sorted_df = self.issues.sort_values(by=[f"{issue_type}_score"])
             sorted_df = sorted_df[sorted_df[f"{issue_type}_bool"] == 1]
-            sorted_filepaths = sorted_df.index[:num_images_per_issue].tolist()
+            sorted_filepaths = sorted_df.index[:examples_per_issue].tolist()
             VizManager.property_based(
                 filepaths=sorted_filepaths,
                 nrows=math.ceil(
-                    min(num_images_per_issue, len(sorted_filepaths))
+                    min(examples_per_issue, len(sorted_filepaths))
                     / self.config["viz_num_images_per_row"]
                 ),
                 ncols=self.config["viz_num_images_per_row"],
                 figsize=figsize,
             )
 
-    def visualize(self, issue_types, num_images_per_issue=4, figsize=(8, 8)):
+    def visualize(self, issue_types, examples_per_issue=4, figsize=(8, 8)):
         for issue_type in issue_types:
-            print(f"\nTop {num_images_per_issue} images with {issue_type} issue")
-            self._visualize(issue_type, num_images_per_issue, figsize)
+            print(f"\nTop {examples_per_issue} images with {issue_type} issue")
+            self._visualize(issue_type, examples_per_issue, figsize)

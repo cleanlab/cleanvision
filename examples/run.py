@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     # Run Imagelab for custom thresholds
     imagelab = Imagelab(dataset_path)
-    issue_types = {"Dark": 0.2}
+    issue_types = {"Dark": {"threshold": 0.2}}
     imagelab.find_issues(issue_types)
     imagelab.report()
 
@@ -30,9 +30,9 @@ if __name__ == "__main__":
     imagelab = Imagelab(dataset_path)
     imagelab.find_issues()
     # Find top examples suffering from issues that are not present in more than 1% of the dataset
-    imagelab.report(topk=1, max_prevalence=1)
+    imagelab.report(top_k_issues=1, max_prevalence=0.01)
 
     # Visualize
     imagelab = Imagelab(dataset_path)
     imagelab.find_issues()
-    imagelab.visualize(["Light"], num_images_per_issue=8, figsize=(9, 9))
+    imagelab.visualize(["Light"], examples_per_issue=8, figsize=(9, 9))
