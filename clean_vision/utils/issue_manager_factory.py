@@ -1,5 +1,6 @@
 from typing import List, Type
 
+from clean_vision.constants import IMAGE_PROPERTY
 from clean_vision.issue_managers.base import IssueManager
 from clean_vision.issue_managers.image_property_issue_manager import (
     ImagePropertyIssueManager,
@@ -10,7 +11,7 @@ class _IssueManagerFactory:
     """Factory class for constructing concrete issue managers."""
 
     # todo: convert these strings to constants
-    types = {"ImageProperty": ImagePropertyIssueManager}
+    types = {IMAGE_PROPERTY: ImagePropertyIssueManager}
 
     @classmethod
     def from_str(cls, issue_type: str) -> Type[IssueManager]:

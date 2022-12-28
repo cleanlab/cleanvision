@@ -2,6 +2,7 @@ import math
 
 import pandas as pd
 
+from clean_vision.constants import IMAGE_PROPERTY
 from clean_vision.issue_types import IssueType
 from clean_vision.utils.issue_manager_factory import _IssueManagerFactory
 from clean_vision.utils.utils import get_filepaths
@@ -69,11 +70,11 @@ class Imagelab:
                 )
 
         if len(image_property_issues) > 0:
-            if "ImageProperty" in self.issue_managers:
-                self.issue_managers["ImageProperty"].add_issues(image_property_issues)
+            if IMAGE_PROPERTY in self.issue_managers:
+                self.issue_managers[IMAGE_PROPERTY].add_issues(image_property_issues)
             else:
-                self.issue_managers["ImageProperty"] = _IssueManagerFactory.from_str(
-                    "ImageProperty"
+                self.issue_managers[IMAGE_PROPERTY] = _IssueManagerFactory.from_str(
+                    IMAGE_PROPERTY
                 )(image_property_issues)
 
     def _get_topk_issues(self, topk, max_prevalence):
