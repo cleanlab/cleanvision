@@ -71,7 +71,9 @@ class Imagelab:
 
         if len(image_property_issues) > 0:
             if IMAGE_PROPERTY in self.issue_managers:
-                self.issue_managers[IMAGE_PROPERTY].add_issues(image_property_issues)
+                self.issue_managers[IMAGE_PROPERTY].add_issue_types(
+                    image_property_issues
+                )
             else:
                 self.issue_managers[IMAGE_PROPERTY] = _IssueManagerFactory.from_str(
                     IMAGE_PROPERTY

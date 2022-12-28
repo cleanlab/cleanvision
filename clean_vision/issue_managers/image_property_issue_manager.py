@@ -11,10 +11,13 @@ from clean_vision.issue_types import IssueType
 class ImagePropertyIssueManager(IssueManager):
     def __init__(self, issue_types):
         super().__init__()
-        self.issue_types = {
+        self.issue_types_computed = {
             issue_type: False for issue_type in issue_types
         }  # Flag for computed issues, False if not computed
-        self.issue_helpers = {
+        self.issue_helpers = self._get_default_issue_helpers()
+
+    def _get_default_issue_helpers(self):
+        return {
             IssueType.DARK_IMAGES: BrightnessHelper(IssueType.DARK_IMAGES),
             IssueType.LIGHT_IMAGES: BrightnessHelper(IssueType.LIGHT_IMAGES),
         }
@@ -26,20 +29,20 @@ class ImagePropertyIssueManager(IssueManager):
                 # add light images to skip set if dark images already computed
                 # or dark images is also present in to_be_computed set
                 if (
-                    self.issue_types.get(IssueType.DARK_IMAGES, False)
+                    self.issue_types_computed.get(IssueType.DARK_IMAGES, False)
                     or IssueType.DARK_IMAGES in to_be_computed
                 ):
                     skip_set.add(issue_type)
             elif issue_type.name == IssueType.DARK_IMAGES.name:
                 # add dark images to skip set if light images already computed
-                if self.issue_types.get(IssueType.LIGHT_IMAGES, False):
+                if self.issue_types_computed.get(IssueType.LIGHT_IMAGES, False):
                     skip_set.add(issue_type)
         return skip_set
 
     def _get_to_be_computed_issue_types(self):
         to_be_computed = [
             issue_type
-            for issue_type, computed in self.issue_types.items()
+            for issue_type, computed in self.issue_types_computed.items()
             if not computed
         ]
         return to_be_computed
@@ -102,9 +105,9 @@ class ImagePropertyIssueManager(IssueManager):
 
     def _mark_computed(self, issue_types):
         for issue_type in issue_types:
-            self.issue_types[issue_type] = True
+            self.issue_types_computed[issue_type] = True
 
-    def add_issues(self, issue_types):
+    def add_issue_types(self, issue_types):
         for issue_type in issue_types:
-            if issue_type not in self.issue_types:
-                self.issue_types[issue_type] = False
+            if issue_type not in self.issue_types_computed:
+                self.issue_types_computed[issue_type] = False

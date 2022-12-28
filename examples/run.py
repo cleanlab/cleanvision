@@ -29,7 +29,7 @@ if __name__ == "__main__":
     # topk and verbose are conflicting arguments right now
     imagelab = Imagelab(dataset_path)
     imagelab.find_issues()
-    # Find topk issues which aer not present in more than 1% of the dataset
+    # Find top examples suffering from issues that are not present in more than 1% of the dataset
     imagelab.report(topk=1, max_prevalence=1)
 
     # Visualize
