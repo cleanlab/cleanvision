@@ -19,7 +19,7 @@ class ImagePropertyIssueManager(IssueManager):
             IssueType.LIGHT_IMAGES: BrightnessHelper(IssueType.LIGHT_IMAGES),
         }
 
-    def _get_skip_set(self, to_be_computed):
+    def _get_defer_set(self, to_be_computed):
         skip_set = set()
         for issue_type in to_be_computed:
             if issue_type.name == IssueType.LIGHT_IMAGES.name:
@@ -47,17 +47,17 @@ class ImagePropertyIssueManager(IssueManager):
     def find_issues(self, filepaths, imagelab_info):
 
         to_be_computed = self._get_to_be_computed_issue_types()
-        skip_set = self._get_skip_set(to_be_computed)
+        defer_set = self._get_defer_set(to_be_computed)
 
         # Calculate raw scores for each issue, re-use previously computed properties
         raw_scores = {issue_type.property: [] for issue_type in to_be_computed}
 
-        if len(set(to_be_computed).difference(skip_set)) > 0:
+        if len(set(to_be_computed).difference(defer_set)) > 0:
             # todo test this bit
             for path in tqdm(filepaths):
                 image = Image.open(path)
                 for issue_type in to_be_computed:
-                    if issue_type not in skip_set:
+                    if issue_type not in defer_set:
                         raw_scores[issue_type.property].append(
                             self.issue_helpers[issue_type].calculate(image)
                         )
