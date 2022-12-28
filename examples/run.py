@@ -10,12 +10,12 @@ if __name__ == "__main__":
 
     # Run Imagelab for specific checks
     imagelab = Imagelab(dataset_path)
-    issue_types = {"Dark": None}
+    issue_types = {"Dark": {}}
     imagelab.find_issues(issue_types)
     imagelab.report()
 
     # Check for additional types of issues using existing Imagelab
-    issue_types = {"Light": None}
+    issue_types = {"Light": {}}
     imagelab.find_issues(issue_types)
     imagelab.report()
 
@@ -30,9 +30,7 @@ if __name__ == "__main__":
     imagelab = Imagelab(dataset_path)
     imagelab.find_issues()
     # Find top examples suffering from issues that are not present in more than 1% of the dataset
-    imagelab.report(top_k_issues=1, max_prevalence=0.01)
+    imagelab.report(num_top_issues=1, max_prevalence=0.01)
 
     # Visualize
-    imagelab = Imagelab(dataset_path)
-    imagelab.find_issues()
     imagelab.visualize(["Light"], examples_per_issue=8, figsize=(9, 9))
