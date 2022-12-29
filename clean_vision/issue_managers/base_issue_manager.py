@@ -8,6 +8,7 @@ class IssueManager(ABC):
 
     def __init__(self):
         self.info = {}
+        self.issue_name = None
         self.issues = pd.DataFrame(columns=["image_path"])
         self.summary = pd.DataFrame(columns=["issue_type", "num_images"])
 

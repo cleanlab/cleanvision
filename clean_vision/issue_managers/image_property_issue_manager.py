@@ -2,8 +2,9 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
-from clean_vision.issue_managers.base import IssueManager
+from clean_vision.issue_managers.base_issue_manager import IssueManager
 from clean_vision.issue_managers.image_property_helpers import BrightnessHelper
+from clean_vision.utils.constants import IMAGE_PROPERTY
 from clean_vision.utils.issue_types import IssueType
 
 
@@ -11,6 +12,7 @@ from clean_vision.utils.issue_types import IssueType
 class ImagePropertyIssueManager(IssueManager):
     def __init__(self, issue_types):
         super().__init__()
+        self.issue_name = IMAGE_PROPERTY
         self.issue_types_computed = {
             issue_type: False for issue_type in issue_types
         }  # Flag for computed issues, False if not computed

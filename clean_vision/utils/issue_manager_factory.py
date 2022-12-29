@@ -1,7 +1,7 @@
 from typing import List, Type
 
 from clean_vision.utils.constants import IMAGE_PROPERTY
-from clean_vision.issue_managers.base import IssueManager
+from clean_vision.issue_managers.base_issue_manager import IssueManager
 from clean_vision.issue_managers.image_property_issue_manager import (
     ImagePropertyIssueManager,
 )
