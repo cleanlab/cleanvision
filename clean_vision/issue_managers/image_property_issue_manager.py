@@ -4,7 +4,7 @@ from tqdm import tqdm
 
 from clean_vision.issue_managers.base import IssueManager
 from clean_vision.issue_managers.image_property_helpers import BrightnessHelper
-from clean_vision.issue_types import IssueType
+from clean_vision.utils.issue_types import IssueType
 
 
 # Combined all issues which are to be detected using image properties under one class to save time on loading image

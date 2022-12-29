@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from PIL import ImageStat
 
-from clean_vision.issue_types import IssueType
+from clean_vision.utils.issue_types import IssueType
 
 
 class ImagePropertyHelper(ABC):
