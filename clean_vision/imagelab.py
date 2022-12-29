@@ -3,8 +3,8 @@ import math
 import pandas as pd
 
 from clean_vision.utils.constants import IMAGE_PROPERTY
-from clean_vision.utils.issue_types import IssueType
 from clean_vision.utils.issue_manager_factory import _IssueManagerFactory
+from clean_vision.utils.issue_types import IssueType
 from clean_vision.utils.utils import get_filepaths
 from clean_vision.utils.viz_manager import VizManager
 
@@ -23,7 +23,12 @@ class Imagelab:
         self.config = self._set_default_config()
 
     def _set_default_config(self):
-        return {"visualize_num_images_per_row": 4}
+        return {
+            "visualize_num_images_per_row": 4,
+            "report_num_top_issues_values": [3, 5, 10, len(self.issue_types)],
+            "report_examples_per_issue_values": [4, 8, 16, 32],
+            "report_max_prevalence": 0.5,
+        }
 
     def _get_issues_to_compute(self, issue_types):
         if issue_types is None or len(issue_types) == 0:
@@ -45,7 +50,9 @@ class Imagelab:
         )
 
         # create issue managers
-        self._set_issue_managers(to_compute_issues)
+        self._set_issue_managers(
+            to_compute_issues,
+        )
 
         for issue_type, issue_manager in self.issue_managers.items():
             issue_manager.find_issues(self.filepaths, self.info)
@@ -89,30 +96,59 @@ class Imagelab:
                 topk_issues.append(row["issue_type"])
         return topk_issues[:num_top_issues]
 
+    def _get_report_args(self, verbosity, user_supplied_args):
+        report_args = {
+            "num_top_issues": self.config["report_num_top_issues_values"][
+                verbosity - 1
+            ],
+            "max_prevalence": self.config["report_max_prevalence"],
+            "examples_per_issue": self.config["report_examples_per_issue_values"][
+                verbosity - 1
+            ],
+        }
+
+        non_none_args = {
+            arg: value for arg, value in user_supplied_args.items() if value is not None
+        }
+
+        return {**report_args, **non_none_args}
+
     def report(
         self,
-        num_top_issues=5,
-        max_prevalence=0.5,
-        examples_per_issue=4,
-        verbose=False,
+        num_top_issues=None,
+        max_prevalence=None,
+        examples_per_issue=None,
+        verbosity=1,
     ):
-        topk_issues = self._get_topk_issues(num_top_issues, max_prevalence)
-        topk_issue_summary = self.issue_summary[
-            self.issue_summary["issue_type"].isin(topk_issues)
+        assert isinstance(verbosity, int) and 0 < verbosity < 5
+        user_supplied_args = locals()
+        report_args = self._get_report_args(verbosity, user_supplied_args)
+
+        top_issues = self._get_topk_issues(
+            report_args["num_top_issues"], report_args["max_prevalence"]
+        )
+        top_issue_summary = self.issue_summary[
+            self.issue_summary["issue_type"].isin(top_issues)
         ]
-        if verbose:
-            print("Issues in the dataset sorted by prevalence")
-            print(self.issue_summary.to_markdown())
-        else:
-            print(f"Top issues in the dataset\n")
-            print(topk_issue_summary.to_markdown(), "\n")
 
-        self.visualize(topk_issues, examples_per_issue)
+        print(f"Top issues in the dataset\n")
+        print(top_issue_summary.to_markdown(), "\n")
 
-    def _visualize(self, issue_type, examples_per_issue, figsize):
-        if issue_type in [IssueType.DARK_IMAGES.value, IssueType.LIGHT_IMAGES.value]:
-            sorted_df = self.issues.sort_values(by=[f"{issue_type}_score"])
-            sorted_df = sorted_df[sorted_df[f"{issue_type}_bool"] == 1]
+        self.visualize(top_issues, report_args["examples_per_issue"])
+
+    def _visualize(self, issue_type_str, examples_per_issue, figsize):
+        if issue_type_str in [
+            IssueType.DARK_IMAGES.value,
+            IssueType.LIGHT_IMAGES.value,
+        ]:
+            sorted_df = self.issues.sort_values(by=[f"{issue_type_str}_score"])
+            sorted_df = sorted_df[sorted_df[f"{issue_type_str}_bool"] == 1]
+            if len(sorted_df) < examples_per_issue:
+                print(
+                    f"Found only {len(sorted_df)} examples of {issue_type_str} issue in the dataset."
+                )
+            else:
+                print(f"\nTop {examples_per_issue} images with {issue_type_str} issue")
             sorted_filepaths = sorted_df.index[:examples_per_issue].tolist()
             VizManager.property_based(
                 filepaths=sorted_filepaths,
@@ -126,5 +162,4 @@ class Imagelab:
 
     def visualize(self, issue_types, examples_per_issue=4, figsize=(8, 8)):
         for issue_type in issue_types:
-            print(f"\nTop {examples_per_issue} images with {issue_type} issue")
             self._visualize(issue_type, examples_per_issue, figsize)
