@@ -12,11 +12,15 @@ from clean_vision.utils.issue_types import IssueType
 class ImagePropertyIssueManager(IssueManager):
     def __init__(self, issue_types):
         super().__init__()
-        self.issue_name = IMAGE_PROPERTY
         self.issue_types_computed = {
             issue_type: False for issue_type in issue_types
         }  # Flag for computed issues, False if not computed
         self.issue_helpers = self._get_default_issue_helpers()
+
+    @classmethod
+    @property
+    def issue_name(cls):
+        return IMAGE_PROPERTY
 
     def _get_default_issue_helpers(self):
         return {

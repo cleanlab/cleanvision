@@ -26,6 +26,11 @@ if __name__ == "__main__":
     imagelab.report()
 
     # Customize report
+    # Change verbosity
+    imagelab = Imagelab(dataset_path)
+    imagelab.find_issues()
+    imagelab.report(verbosity=3)
+
     # topk and verbose are conflicting arguments right now
     imagelab = Imagelab(dataset_path)
     imagelab.find_issues()
