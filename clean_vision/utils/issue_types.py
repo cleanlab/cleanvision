@@ -21,6 +21,7 @@ class IssueType(Enum):
 
     DARK_IMAGES = ("Dark", "Brightness", 0.22)
     LIGHT_IMAGES = ("Light", "Brightness", 0.05)
+    CUSTOM_IMAGES = ("Custom", None, 0.4)
 
     def __str__(self):
         return self.value

@@ -71,13 +71,13 @@ class Imagelab:
 
     def _set_issue_managers(self, issue_types):
         image_property_issues = []
-        for issue_type in self.issue_types:
+        for issue_type in issue_types:
             if issue_type.property:
                 image_property_issues.append(issue_type)
             else:
                 self.issue_managers[issue_type] = _IssueManagerFactory.from_str(
                     issue_type.value
-                )
+                )()
 
         if len(image_property_issues) > 0:
             if IMAGE_PROPERTY in self.issue_managers:
@@ -140,6 +140,7 @@ class Imagelab:
         if issue_type_str in [
             IssueType.DARK_IMAGES.value,
             IssueType.LIGHT_IMAGES.value,
+            IssueType.CUSTOM_IMAGES.value,
         ]:
             sorted_df = self.issues.sort_values(by=[f"{issue_type_str}_score"])
             sorted_df = sorted_df[sorted_df[f"{issue_type_str}_bool"] == 1]
