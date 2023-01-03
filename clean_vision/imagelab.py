@@ -20,19 +20,26 @@ class Imagelab:
         self.issue_types = []
         self.issue_managers = {}
         # can be loaded from a file later
-        self.config = self._set_default_config()
+        self._set_default_config()
+
+    def list_default_issue_types(self):
+        print(*self.config["default_issue_types"], sep="\n")
+
+    def list_possible_issue_types(self):
+        print(*_IssueManagerFactory.types.keys(), sep="\n")
 
     def _set_default_config(self):
-        return {
+        self.config = {
             "visualize_num_images_per_row": 4,
             "report_num_top_issues_values": [3, 5, 10, len(self.issue_types)],
             "report_examples_per_issue_values": [4, 8, 16, 32],
             "report_max_prevalence": 0.5,
+            "default_issue_types": [IssueType.DARK_IMAGES, IssueType.LIGHT_IMAGES],
         }
 
     def _get_issues_to_compute(self, issue_types):
         if issue_types is None or len(issue_types) == 0:
-            all_issues = list(IssueType)
+            all_issues = self.config["default_issue_types"]
         else:
             all_issues = []
             for issue_type_str, hyperparameters in issue_types.items():
@@ -94,6 +101,10 @@ class Imagelab:
         for idx, row in self.issue_summary.iterrows():
             if row["num_images"] / self.num_images < max_prevalence:
                 topk_issues.append(row["issue_type"])
+            else:
+                print(
+                    f"Dropping {row['issue_type']} as a possible issue since it's present in more than {max_prevalence * 100} percent of the images"
+                )
         return topk_issues[:num_top_issues]
 
     def _get_report_args(self, verbosity, user_supplied_args):
@@ -164,3 +175,7 @@ class Imagelab:
     def visualize(self, issue_types, examples_per_issue=4, figsize=(8, 8)):
         for issue_type in issue_types:
             self._visualize(issue_type, examples_per_issue, figsize)
+
+
+# registration method for issues
+# print statement for max_prevalence
