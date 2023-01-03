@@ -15,7 +15,6 @@ class Imagelab:
         self.num_images = len(self.filepaths)
         self.info = {}
         self.issue_summary = pd.DataFrame()
-        # self.issues = pd.DataFrame(self.filepaths, columns=["image_path"])
         self.issues = pd.DataFrame(index=self.filepaths)
         self.issue_types = []
         self.issue_managers = {}
