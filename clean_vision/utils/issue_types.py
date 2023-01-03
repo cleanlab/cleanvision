@@ -13,8 +13,8 @@ class IssueType(Enum):
         threshold = hyperparams.get("threshold", None)
         if threshold is None:
             return
-        if not (0 < threshold < 1):
-            raise ValueError("Threshold must lie between 0 and 1")            
+        if not 0 < threshold < 1:
+            raise ValueError("Threshold must lie between 0 and 1")
         print(f"Setting threshold for {self.value} images issue to {threshold}")
         self.threshold = threshold
 
