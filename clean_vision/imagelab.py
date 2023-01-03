@@ -49,11 +49,9 @@ class Imagelab:
         )
 
         # create issue managers
-        self._set_issue_managers(
-            to_compute_issues,
-        )
+        self._set_issue_managers()
 
-        for issue_type, issue_manager in self.issue_managers.items():
+        for issue_manager in self.issue_managers.values():
             issue_manager.find_issues(self.filepaths, self.info)
 
             # update issues, issue_summary and info
@@ -68,7 +66,7 @@ class Imagelab:
 
         return
 
-    def _set_issue_managers(self, issue_types):
+    def _set_issue_managers(self):
         image_property_issues = []
         for issue_type in self.issue_types:
             if issue_type.property:
@@ -78,7 +76,7 @@ class Imagelab:
                     issue_type.value
                 )
 
-        if len(image_property_issues) > 0:
+        if image_property_issues:
             if IMAGE_PROPERTY in self.issue_managers:
                 self.issue_managers[IMAGE_PROPERTY].add_issue_types(
                     image_property_issues
