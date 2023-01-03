@@ -88,9 +88,9 @@ class Imagelab:
 
     def _get_topk_issues(self, num_top_issues, max_prevalence):
         topk_issues = []
-        for idx, row in self.issue_summary.iterrows():
-            if row["num_images"] / self.num_images < max_prevalence:
-                topk_issues.append(row["issue_type"])
+        for row in self.issue_summary.itertuples(index=False):
+            if getattr(row, "num_images") / self.num_images < max_prevalence:
+                topk_issues.append(getattr(row, "issue_type"))
         return topk_issues[:num_top_issues]
 
     def _get_report_args(self, verbosity, user_supplied_args):
