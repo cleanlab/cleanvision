@@ -9,15 +9,14 @@ class IssueType(Enum):
         obj.threshold = threshold
         return obj
 
-    def set_hyperparameters(self, hyperparams):
-        if "threshold" in hyperparams:
-            if 0 < hyperparams["threshold"] < 1:
-                print(
-                    f"Setting threshold for {self.value} images issue to {hyperparams['threshold']}"
-                )
-                self.threshold = hyperparams["threshold"]
-            else:
-                raise ValueError("Threshold must lie between 0 and 1")
+    def set_hyperparameters(self, hyperparams) -> None:
+        threshold = hyperparams.get("threshold", None)
+        if threshold is None:
+            return
+        if not (0 < threshold < 1):
+            raise ValueError("Threshold must lie between 0 and 1")            
+        print(f"Setting threshold for {self.value} images issue to {threshold}")
+        self.threshold = threshold
 
     DARK_IMAGES = ("Dark", "Brightness", 0.22)
     LIGHT_IMAGES = ("Light", "Brightness", 0.05)
