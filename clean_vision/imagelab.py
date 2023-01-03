@@ -128,7 +128,7 @@ class Imagelab:
             self.issue_summary["issue_type"].isin(top_issues)
         ]
 
-        print(f"Top issues in the dataset\n")
+        print("Top issues in the dataset\n")
         print(top_issue_summary.to_markdown(), "\n")
 
         self.visualize(top_issues, report_args["examples_per_issue"])
