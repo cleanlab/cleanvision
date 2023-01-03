@@ -8,8 +8,15 @@ class IssueManager(ABC):
 
     def __init__(self):
         self.info = {}
-        self.issues = pd.DataFrame()
+        self.params = {}
+        self.issues = pd.DataFrame(columns=["image_path"])
         self.summary = pd.DataFrame(columns=["issue_type", "num_images"])
+
+    @property
+    @abstractmethod
+    def issue_name(self) -> str:
+        """Returns a name that identifies the type of issue that the manager handles."""
+        raise NotImplementedError
 
     def __repr__(self):
         class_name = self.__class__.__name__
