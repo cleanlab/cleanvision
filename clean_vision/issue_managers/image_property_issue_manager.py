@@ -102,8 +102,8 @@ class ImagePropertyIssueManager(IssueManager):
         self._mark_computed(to_be_computed)
         return
 
-    def update_summary(self, summary):
-        summary_df = pd.DataFrame.from_dict(summary, orient="index")
+    def update_summary(self, summary_dict: dict):
+        summary_df = pd.DataFrame.from_dict(summary_dict, orient="index")
         self.summary = summary_df.reset_index(names="issue_type")
 
     def _mark_computed(self, issue_types):
