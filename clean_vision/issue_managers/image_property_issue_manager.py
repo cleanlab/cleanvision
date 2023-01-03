@@ -10,17 +10,14 @@ from clean_vision.utils.issue_types import IssueType
 
 # Combined all issues which are to be detected using image properties under one class to save time on loading image
 class ImagePropertyIssueManager(IssueManager):
+    issue_name = IMAGE_PROPERTY
+    
     def __init__(self, issue_types):
         super().__init__()
         self.issue_types_computed = {
             issue_type: False for issue_type in issue_types
         }  # Flag for computed issues, False if not computed
         self.issue_helpers = self._get_default_issue_helpers()
-
-    @classmethod
-    @property
-    def issue_name(cls):
-        return IMAGE_PROPERTY
 
     def _get_default_issue_helpers(self):
         return {
