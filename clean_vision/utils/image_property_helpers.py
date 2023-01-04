@@ -3,8 +3,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 from PIL import ImageStat
-
-from clean_vision.utils.issue_types import IssueType
+from clean_vision.issue_managers import IssueType
 
 
 class ImagePropertyHelper(ABC):
@@ -48,6 +47,6 @@ class BrightnessHelper(ImagePropertyHelper):
         scores = np.array(raw_scores)
         scores[scores > 1] = 1
         # reverse the brightness scores to catch images which are too bright
-        if self.issue_type.name == IssueType.LIGHT_IMAGES.name:
+        if self.issue_type.value == IssueType.LIGHT:
             scores = 1 - scores
         return scores

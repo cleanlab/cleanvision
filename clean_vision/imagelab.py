@@ -2,9 +2,8 @@ import math
 
 import pandas as pd
 
-from clean_vision.utils.constants import IMAGE_PROPERTY
-from clean_vision.utils.issue_manager_factory import _IssueManagerFactory
-from clean_vision.utils.issue_types import IssueType
+from clean_vision.issue_managers import IssueManagerFactory, IssueType
+from clean_vision.utils.constants import IMAGE_PROPERTY, IMAGE_PROPERTY_ISSUE_TYPES_LIST
 from clean_vision.utils.utils import get_filepaths
 from clean_vision.utils.viz_manager import VizManager
 
@@ -26,7 +25,7 @@ class Imagelab:
         print(*self.config["default_issue_types"], sep="\n")
 
     def list_possible_issue_types(self):
-        print(*_IssueManagerFactory.types.keys(), sep="\n")
+        print(*list(IssueType), sep="\n")
 
     def _set_default_config(self):
         self.config = {
@@ -34,7 +33,7 @@ class Imagelab:
             "report_num_top_issues_values": [3, 5, 10, len(self.issue_types)],
             "report_examples_per_issue_values": [4, 8, 16, 32],
             "report_max_prevalence": 0.5,
-            "default_issue_types": [IssueType.DARK_IMAGES, IssueType.LIGHT_IMAGES],
+            "default_issue_types": [IssueType.DARK, IssueType.LIGHT],
         }
 
     def _get_issues_to_compute(self, issue_types):
@@ -77,24 +76,24 @@ class Imagelab:
         return
 
     def _set_issue_managers(self, issue_types):
-        image_property_issues = []
+        image_property_issues_types = []
         for issue_type in issue_types:
-            if issue_type.property:
-                image_property_issues.append(issue_type)
+            if issue_type.value in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
+                image_property_issues_types.append(issue_type)
             else:
-                self.issue_managers[issue_type] = _IssueManagerFactory.from_str(
+                self.issue_managers[issue_type] = IssueManagerFactory.from_str(
                     issue_type.value
                 )()
 
-        if len(image_property_issues) > 0:
+        if len(image_property_issues_types) > 0:
             if IMAGE_PROPERTY in self.issue_managers:
                 self.issue_managers[IMAGE_PROPERTY].add_issue_types(
-                    image_property_issues
+                    image_property_issues_types
                 )
             else:
-                self.issue_managers[IMAGE_PROPERTY] = _IssueManagerFactory.from_str(
+                self.issue_managers[IMAGE_PROPERTY] = IssueManagerFactory.from_str(
                     IMAGE_PROPERTY
-                )(image_property_issues)
+                )(image_property_issues_types)
 
     def _get_topk_issues(self, num_top_issues, max_prevalence):
         topk_issues = []

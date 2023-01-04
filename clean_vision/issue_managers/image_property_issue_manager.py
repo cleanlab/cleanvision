@@ -2,13 +2,14 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
-from clean_vision.issue_managers.base_issue_manager import IssueManager
-from clean_vision.issue_managers.image_property_helpers import BrightnessHelper
+from clean_vision.issue_managers import register_issue_manager, IssueType
+from clean_vision.utils.base_issue_manager import IssueManager
 from clean_vision.utils.constants import IMAGE_PROPERTY
-from clean_vision.utils.issue_types import IssueType
+from clean_vision.utils.image_property_helpers import BrightnessHelper
 
 
 # Combined all issues which are to be detected using image properties under one class to save time on loading image
+@register_issue_manager(IMAGE_PROPERTY)
 class ImagePropertyIssueManager(IssueManager):
     def __init__(self, issue_types):
         super().__init__()
@@ -24,24 +25,24 @@ class ImagePropertyIssueManager(IssueManager):
 
     def _get_default_issue_helpers(self):
         return {
-            IssueType.DARK_IMAGES: BrightnessHelper(IssueType.DARK_IMAGES),
-            IssueType.LIGHT_IMAGES: BrightnessHelper(IssueType.LIGHT_IMAGES),
+            IssueType.DARK: BrightnessHelper(IssueType.DARK),
+            IssueType.LIGHT: BrightnessHelper(IssueType.LIGHT),
         }
 
     def _get_defer_set(self, to_be_computed):
         skip_set = set()
         for issue_type in to_be_computed:
-            if issue_type.name == IssueType.LIGHT_IMAGES.name:
+            if issue_type.name == IssueType.LIGHT.name:
                 # add light images to skip set if dark images already computed
                 # or dark images is also present in to_be_computed set
                 if (
-                    self.issue_types_computed.get(IssueType.DARK_IMAGES, False)
-                    or IssueType.DARK_IMAGES in to_be_computed
+                    self.issue_types_computed.get(IssueType.DARK, False)
+                    or IssueType.DARK in to_be_computed
                 ):
                     skip_set.add(issue_type)
-            elif issue_type.name == IssueType.DARK_IMAGES.name:
+            elif issue_type.name == IssueType.DARK.name:
                 # add dark images to skip set if light images already computed
-                if self.issue_types_computed.get(IssueType.LIGHT_IMAGES, False):
+                if self.issue_types_computed.get(IssueType.LIGHT, False):
                     skip_set.add(issue_type)
         return skip_set
 
