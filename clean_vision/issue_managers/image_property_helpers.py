@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from PIL import ImageStat
 
-from clean_vision.issue_types import IssueType
+from clean_vision.utils.issue_types import IssueType
 
 
 class ImagePropertyHelper(ABC):
@@ -35,13 +35,15 @@ class BrightnessHelper(ImagePropertyHelper):
                 stat.mean[0],
                 stat.mean[0],
             )  # deals with black and white images
-            # print(f"WARNING: {img} does not have just r, g, b values")
+
         cur_bright = calculate_brightness(red, green, blue)
+
         return cur_bright
 
     def normalize(self, raw_scores):
         scores = np.array(raw_scores)
         scores[scores > 1] = 1
+        # reverse the brightness scores to catch images which are too bright
         if self.issue_type.name == IssueType.WHITE_IMAGES.name:
             scores = 1 - scores
         return scores
