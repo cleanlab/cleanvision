@@ -11,7 +11,7 @@ labels: "needs triage"
 
 <!-- If applicable, please include a full stack trace here. If you need to omit
 the bottom of the stack trace (e.g. it includes stack frames from your private
-code), that is okay. Try to include all clean-vision stack frames. -->
+code), that is okay. Try to include all CleanVision stack frames. -->
 
 # Steps to reproduce
 
