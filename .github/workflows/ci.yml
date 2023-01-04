@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install clean-vision
+      - name: Install CleanVision
         run: pip install -e .
       - name: Install base dependencies
         run: |
