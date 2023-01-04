@@ -23,7 +23,7 @@ class IssueType(Enum):
                 raise ValueError("Threshold must lie between 0 and 1")
 
     DARK_IMAGES = ("Dark", "Brightness", 0.22)
-    WHITE_IMAGES = ("White", "Brightness", 0.05)
+    LIGHT_IMAGES = ("Light", "Brightness", 0.05)
 
     def __str__(self):
         return self.value

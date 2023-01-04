@@ -27,7 +27,7 @@ def test_calculate_brightness(rgb, expected_brightness):
 class TestBrightnessHelper:
     @pytest.fixture
     def helper(self):
-        return BrightnessHelper(IssueType.WHITE_IMAGES)
+        return BrightnessHelper(IssueType.LIGHT_IMAGES)
 
     def test_init(self, helper):
         assert isinstance(helper, BrightnessHelper)
