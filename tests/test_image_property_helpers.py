@@ -5,7 +5,7 @@ from clean_vision.issue_managers.image_property_helpers import (
     BrightnessHelper,
     calculate_brightness,
 )
-from clean_vision.issue_types import IssueType
+from clean_vision.utils.issue_types import IssueType
 
 
 @pytest.mark.parametrize(
