@@ -8,9 +8,6 @@ from clean_vision.utils.issue_types import IssueType
 
 
 class ImagePropertyHelper(ABC):
-    def __init__(self):
-        pass
-
     @abstractmethod
     def calculate(self, image):
         raise NotImplementedError
@@ -31,17 +28,16 @@ class BrightnessHelper(ImagePropertyHelper):
     def calculate(self, image):
         stat = ImageStat.Stat(image)
         try:
-            r, g, b = stat.mean
-        except:
-            r, g, b = (
+            red, green, blue = stat.mean
+        except ValueError:
+            red, green, blue = (
                 stat.mean[0],
                 stat.mean[0],
                 stat.mean[0],
             )  # deals with black and white images
 
-        cur_bright = (
-            math.sqrt(0.241 * (r**2) + 0.691 * (g**2) + 0.068 * (b**2))
-        ) / 255
+        cur_bright = calculate_brightness(red, green, blue)
+
         return cur_bright
 
     def normalize(self, raw_scores):
@@ -51,3 +47,12 @@ class BrightnessHelper(ImagePropertyHelper):
         if self.issue_type.name == IssueType.LIGHT_IMAGES.name:
             scores = 1 - scores
         return scores
+
+
+def calculate_brightness(red, green, blue):
+
+    cur_bright = (
+        math.sqrt(0.241 * (red**2) + 0.691 * (green**2) + 0.068 * (blue**2))
+    ) / 255
+
+    return cur_bright
