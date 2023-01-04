@@ -23,7 +23,7 @@ quickly we can help you and fix the bug. -->
 
 # Additional information
 
-- **clean-vision version**: <!-- `clean_vision.__version__`, or the git commit hash if you're using an unreleased version -->
+- **CleanVision version**: <!-- `cleanvision.__version__`, or the git commit hash if you're using an unreleased version -->
 - **Operating system**: <!-- e.g. macOS 12.1, Ubuntu 20.04, Windows 10 -->
 - **Python version**: <!-- you can find this with `python --version` -->
 

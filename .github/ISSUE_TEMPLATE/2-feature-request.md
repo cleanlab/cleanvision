@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Use this template to ask for new functionality in clean-vision.
+about: Use this template to ask for new functionality in CleanVision.
 title: "[Short summary of the feature]"
 labels: "needs triage"
 ---
