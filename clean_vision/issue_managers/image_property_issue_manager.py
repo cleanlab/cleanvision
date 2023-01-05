@@ -2,15 +2,17 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
-from clean_vision.issue_managers import register_issue_manager, IssueType
-from clean_vision.utils.base_issue_manager import IssueManager
+from clean_vision.issue_managers.base_issue_manager import IssueManager
+from clean_vision.issue_managers.image_property_helpers import BrightnessHelper
 from clean_vision.utils.constants import IMAGE_PROPERTY
-from clean_vision.utils.image_property_helpers import BrightnessHelper
+from clean_vision.utils.issue_types import IssueType
 
 
 # Combined all issues which are to be detected using image properties under one class to save time on loading image
 @register_issue_manager(IMAGE_PROPERTY)
 class ImagePropertyIssueManager(IssueManager):
+    issue_name = IMAGE_PROPERTY
+
     def __init__(self, issue_types, params_dict):  # todo
         super().__init__()
         self.issue_types_computed = {
@@ -19,31 +21,26 @@ class ImagePropertyIssueManager(IssueManager):
         self.issue_helpers = self._get_default_issue_helpers()
         # todo: set config using params_dict
 
-    @classmethod
-    @property
-    def issue_name(cls):
-        return IMAGE_PROPERTY
-
     def _get_default_issue_helpers(self):
         return {
-            IssueType.DARK: BrightnessHelper(IssueType.DARK),
-            IssueType.LIGHT: BrightnessHelper(IssueType.LIGHT),
+            IssueType.DARK_IMAGES: BrightnessHelper(IssueType.DARK_IMAGES),
+            IssueType.LIGHT_IMAGES: BrightnessHelper(IssueType.LIGHT_IMAGES),
         }
 
     def _get_defer_set(self, to_be_computed):
         skip_set = set()
         for issue_type in to_be_computed:
-            if issue_type.name == IssueType.LIGHT.name:
+            if issue_type.name == IssueType.LIGHT_IMAGES.name:
                 # add light images to skip set if dark images already computed
                 # or dark images is also present in to_be_computed set
                 if (
-                    self.issue_types_computed.get(IssueType.DARK, False)
-                    or IssueType.DARK in to_be_computed
+                    self.issue_types_computed.get(IssueType.DARK_IMAGES, False)
+                    or IssueType.DARK_IMAGES in to_be_computed
                 ):
                     skip_set.add(issue_type)
-            elif issue_type.name == IssueType.DARK.name:
+            elif issue_type.name == IssueType.DARK_IMAGES.name:
                 # add dark images to skip set if light images already computed
-                if self.issue_types_computed.get(IssueType.LIGHT, False):
+                if self.issue_types_computed.get(IssueType.LIGHT_IMAGES, False):
                     skip_set.add(issue_type)
         return skip_set
 
@@ -65,7 +62,6 @@ class ImagePropertyIssueManager(IssueManager):
         # todo: update info
         # todo: calculate raw_scores for these issues
         # todo: updates scores of remaining issues
-
         raw_scores = {issue_type.property: [] for issue_type in to_be_computed}
 
         if len(set(to_be_computed).difference(defer_set)) > 0:
@@ -112,8 +108,8 @@ class ImagePropertyIssueManager(IssueManager):
         self._mark_computed(to_be_computed)
         return
 
-    def update_summary(self, summary):
-        summary_df = pd.DataFrame.from_dict(summary, orient="index")
+    def update_summary(self, summary_dict: dict):
+        summary_df = pd.DataFrame.from_dict(summary_dict, orient="index")
         self.summary = summary_df.reset_index(names="issue_type")
 
     def _mark_computed(self, issue_types):

@@ -2,8 +2,9 @@ import math
 
 import pandas as pd
 
-from clean_vision.issue_managers import IssueManagerFactory, IssueType
-from clean_vision.utils.constants import IMAGE_PROPERTY, IMAGE_PROPERTY_ISSUE_TYPES_LIST
+from clean_vision.utils.constants import IMAGE_PROPERTY
+from clean_vision.utils.issue_manager_factory import _IssueManagerFactory
+from clean_vision.utils.issue_types import IssueType
 from clean_vision.utils.utils import get_filepaths
 from clean_vision.utils.viz_manager import VizManager
 
@@ -14,31 +15,23 @@ class Imagelab:
         self.num_images = len(self.filepaths)
         self.info = {}  # todo initialize with stats
         self.issue_summary = pd.DataFrame()
-        # self.issues = pd.DataFrame(self.filepaths, columns=["image_path"])
         self.issues = pd.DataFrame(index=self.filepaths)
         self.issue_types = []
         self.issue_managers = {}
         # can be loaded from a file later
-        self._set_default_config()
-
-    def list_default_issue_types(self):
-        print(*self.config["default_issue_types"], sep="\n")
-
-    def list_possible_issue_types(self):
-        print(*list(IssueType), sep="\n")
+        self.config = self._set_default_config()
 
     def _set_default_config(self):
-        self.config = {
+        return {
             "visualize_num_images_per_row": 4,
             "report_num_top_issues_values": [3, 5, 10, len(self.issue_types)],
             "report_examples_per_issue_values": [4, 8, 16, 32],
             "report_max_prevalence": 0.5,
-            "default_issue_types": [IssueType.DARK, IssueType.LIGHT],
         }
 
     def _get_issues_to_compute(self, issue_types):
         if issue_types is None or len(issue_types) == 0:
-            all_issues = self.config["default_issue_types"]
+            all_issues = list(IssueType)
         else:
             all_issues = []
             for issue_type_str, hyperparameters in issue_types.items():
@@ -60,7 +53,7 @@ class Imagelab:
             to_compute_issues,
         )
 
-        for issue_type, issue_manager in self.issue_managers.items():
+        for issue_manager in self.issue_managers.values():
             issue_manager.find_issues(self.filepaths, self.info)
 
             # update issues, issue_summary and info
@@ -81,30 +74,26 @@ class Imagelab:
             if issue_type.value in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
                 image_property_issues_types.append(issue_type)
             else:
-                self.issue_managers[issue_type] = IssueManagerFactory.from_str(
+                self.issue_managers[issue_type] = _IssueManagerFactory.from_str(
                     issue_type.value
                 )()
 
-        if len(image_property_issues_types) > 0:
+        if image_property_issues:
             if IMAGE_PROPERTY in self.issue_managers:
                 # todo: do not re-use the same object, create a new issue_manager
                 self.issue_managers[IMAGE_PROPERTY].add_issue_types(
-                    image_property_issues_types
+                    image_property_issues
                 )
             else:
-                self.issue_managers[IMAGE_PROPERTY] = IssueManagerFactory.from_str(
+                self.issue_managers[IMAGE_PROPERTY] = _IssueManagerFactory.from_str(
                     IMAGE_PROPERTY
-                )(image_property_issues_types)
+                )(image_property_issues)
 
     def _get_topk_issues(self, num_top_issues, max_prevalence):
         topk_issues = []
-        for idx, row in self.issue_summary.iterrows():
-            if row["num_images"] / self.num_images < max_prevalence:
-                topk_issues.append(row["issue_type"])
-            else:
-                print(
-                    f"Dropping {row['issue_type']} as a possible issue since it's present in more than {max_prevalence * 100} percent of the images"
-                )
+        for row in self.issue_summary.itertuples(index=False):
+            if getattr(row, "num_images") / self.num_images < max_prevalence:
+                topk_issues.append(getattr(row, "issue_type"))
         return topk_issues[:num_top_issues]
 
     def _get_report_args(self, verbosity, user_supplied_args):
@@ -142,7 +131,7 @@ class Imagelab:
             self.issue_summary["issue_type"].isin(top_issues)
         ]
 
-        print(f"Top issues in the dataset\n")
+        print("Top issues in the dataset\n")
         print(top_issue_summary.to_markdown(), "\n")
 
         self.visualize(top_issues, report_args["examples_per_issue"])
@@ -151,7 +140,6 @@ class Imagelab:
         if issue_type_str in [
             IssueType.DARK_IMAGES.value,
             IssueType.LIGHT_IMAGES.value,
-            IssueType.CUSTOM_IMAGES.value,
         ]:
             sorted_df = self.issues.sort_values(by=[f"{issue_type_str}_score"])
             sorted_df = sorted_df[sorted_df[f"{issue_type_str}_bool"] == 1]
@@ -175,7 +163,3 @@ class Imagelab:
     def visualize(self, issue_types, examples_per_issue=4, figsize=(8, 8)):
         for issue_type in issue_types:
             self._visualize(issue_type, examples_per_issue, figsize)
-
-
-# registration method for issues
-# print statement for max_prevalence
