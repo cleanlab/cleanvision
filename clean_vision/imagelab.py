@@ -5,7 +5,7 @@ import pandas as pd
 from clean_vision.issue_managers import IssueType, IssueManagerFactory
 from clean_vision.utils.constants import IMAGE_PROPERTY, IMAGE_PROPERTY_ISSUE_TYPES_LIST
 from clean_vision.utils.utils import get_filepaths
-from clean_vision.utils.viz_manager import VizManager
+from clean_vision.utils.viz_manager import VIZ_REGISTRY
 
 
 class Imagelab:
@@ -68,34 +68,42 @@ class Imagelab:
             issue_manager.find_issues(self.filepaths, self.info)
 
             # update issues, issue_summary and info
-            columns_to_update = list(
-                set(issue_manager.issues.columns).intersection(set(self.issues.columns))
-            )
-            if len(columns_to_update) > 0:
-                for column_name in columns_to_update:
-                    self.issues[column_name] = issue_manager.issues[column_name]
-            else:
-                self.issues = self.issues.join(issue_manager.issues, how="left")
+            self._update_issues(issue_manager.issues)
+            self._update_issue_summary(issue_manager.summary)
+            self._update_info(issue_manager.info)
 
-            self.issue_summary = self.issue_summary[
-                ~self.issue_summary["issue_type"].isin(
-                    issue_manager.summary["issue_type"]
-                )
-            ]
-            self.issue_summary = pd.concat(
-                [self.issue_summary, issue_manager.summary], axis=0, ignore_index=True
-            )
-
-            self.info = {**self.info, **issue_manager.info}
-            self.info["statistics"] = {
-                **self.info["statistics"],
-                **issue_manager.info["statistics"],
-            }
         self.issue_summary = self.issue_summary.sort_values(
             by=["num_images"], ascending=False
         )
-
+        self.issue_summary = self.issue_summary.reset_index(drop=True)
         return
+
+    def _update_info(self, issue_manager_info):
+        self.info["statistics"] = {
+            **self.info["statistics"],
+            **issue_manager_info["statistics"],
+        }
+        for k, v in issue_manager_info.items():
+            if k != "statistics":
+                self.info[k] = v
+
+    def _update_issue_summary(self, issue_manager_summary):
+        self.issue_summary = self.issue_summary[
+            ~self.issue_summary["issue_type"].isin(issue_manager_summary["issue_type"])
+        ]
+        self.issue_summary = pd.concat(
+            [self.issue_summary, issue_manager_summary], axis=0, ignore_index=True
+        )
+
+    def _update_issues(self, issue_manager_issues):
+        columns_to_update = list(
+            set(issue_manager_issues.columns).intersection(set(self.issues.columns))
+        )
+        if len(columns_to_update) > 0:
+            for column_name in columns_to_update:
+                self.issues[column_name] = issue_manager_issues[column_name]
+        else:
+            self.issues = self.issues.join(issue_manager_issues, how="left")
 
     def _get_image_property_issues(self, issue_types_with_params):
         image_property_issues = {}
@@ -119,6 +127,7 @@ class Imagelab:
 
     def _get_topk_issues(self, num_top_issues, max_prevalence):
         topk_issues = []
+        # Assumes issue_summary is sorted in descending order
         for row in self.issue_summary.itertuples(index=False):
             if getattr(row, "num_images") / self.num_images < max_prevalence:
                 topk_issues.append(getattr(row, "issue_type"))
@@ -164,11 +173,18 @@ class Imagelab:
 
         self.visualize(top_issues, report_args["examples_per_issue"])
 
+    def _get_viz_name(self, issue_type_str):
+        if issue_type_str in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
+            viz_name = self.issue_managers[IMAGE_PROPERTY].visualization
+        else:
+            viz_name = self.issue_managers[issue_type_str].visualization
+        return viz_name
+
     def _visualize(self, issue_type_str, examples_per_issue, figsize):
-        if issue_type_str in [
-            IssueType.DARK.value,
-            IssueType.LIGHT.value,
-        ]:
+        viz_name = self._get_viz_name(issue_type_str)
+
+        if viz_name == "property_based":
+            viz_method = VIZ_REGISTRY[viz_name]
             sorted_df = self.issues.sort_values(by=[f"{issue_type_str}_score"])
             sorted_df = sorted_df[sorted_df[f"{issue_type_str}_bool"] == 1]
             if len(sorted_df) < examples_per_issue:
@@ -178,7 +194,7 @@ class Imagelab:
             else:
                 print(f"\nTop {examples_per_issue} images with {issue_type_str} issue")
             sorted_filepaths = sorted_df.index[:examples_per_issue].tolist()
-            VizManager.property_based(
+            viz_method(
                 filepaths=sorted_filepaths,
                 nrows=math.ceil(
                     min(examples_per_issue, len(sorted_filepaths))

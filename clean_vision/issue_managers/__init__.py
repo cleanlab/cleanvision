@@ -10,6 +10,7 @@ from clean_vision.utils.constants import IMAGE_PROPERTY
 class IssueType(Enum):
     DARK = "Dark"
     LIGHT = "Light"
+    CUSTOM = "Custom"
 
 
 ISSUE_MANAGER_REGISTRY = {}

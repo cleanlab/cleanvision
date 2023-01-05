@@ -3,18 +3,21 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
+from clean_vision.issue_managers import register_issue_manager
 from clean_vision.utils.base_issue_manager import IssueManager
-from clean_vision.issue_managers import IssueType
 
 
+@register_issue_manager("Custom")
 class CustomIssueManager(IssueManager):
-    def __init__(self):
-        super().__init__()
+    issue_name = "Custom"
+    visualization = "property_based"
 
-    @classmethod
-    @property
-    def issue_name(cls):
-        return IssueType.CUSTOM_IMAGES
+    def __init__(self, params):
+        self.threshold = 0.4
+        super().__init__(params)
+
+    def initialize_params(self, params):
+        self.threshold = params.get("threshold", self.threshold)
 
     @staticmethod
     def calculate_mean_pixel_value(image):
@@ -29,7 +32,7 @@ class CustomIssueManager(IssueManager):
         return scores < threshold
 
     def update_summary(self, summary_dict):
-        self.summary = pd.DataFrame({"issue_type": [self.issue_name.value]})
+        self.summary = pd.DataFrame({"issue_type": [self.issue_name]})
         for column_name, value in summary_dict.items():
             self.summary[column_name] = [value]
 
@@ -42,9 +45,7 @@ class CustomIssueManager(IssueManager):
         self.issues = pd.DataFrame(index=filepaths)
         scores = self.get_scores(raw_scores)
         self.issues[f"{self.issue_name}_score"] = scores
-        self.issues[f"{self.issue_name}_bool"] = self.mark_issue(
-            scores, self.issue_name.threshold
-        )
+        self.issues[f"{self.issue_name}_bool"] = self.mark_issue(scores, self.threshold)
         self.info["PixelValue"] = raw_scores
         summary_dict = self._compute_summary(self.issues[f"{self.issue_name}_bool"])
 

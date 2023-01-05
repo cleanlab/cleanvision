@@ -25,3 +25,6 @@ class VizManager:
             ax.imshow(Image.open(path))
 
         plt.show()
+
+
+VIZ_REGISTRY = {"property_based": VizManager.property_based}

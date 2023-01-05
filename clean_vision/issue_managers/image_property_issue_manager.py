@@ -6,18 +6,19 @@ from clean_vision.issue_managers import register_issue_manager, IssueType
 from clean_vision.issue_managers.image_property_helpers import BrightnessHelper
 from clean_vision.utils.base_issue_manager import IssueManager
 from clean_vision.utils.constants import IMAGE_PROPERTY
+from clean_vision.utils.viz_manager import VizManager
 
 
 # Combined all issues which are to be detected using image properties under one class to save time on loading image
 @register_issue_manager(IMAGE_PROPERTY)
 class ImagePropertyIssueManager(IssueManager):
     issue_name = IMAGE_PROPERTY
+    visualization = "property_based"
 
     def __init__(self, params):
         self.thresholds = {}
         super().__init__(params)
         self.issue_helpers = self._get_default_issue_helpers()
-        # todo: set config using params_dict
 
     def _get_default_thresholds(self):
         return {IssueType.DARK: 0.22, IssueType.LIGHT: 0.05}
@@ -119,12 +120,3 @@ class ImagePropertyIssueManager(IssueManager):
     def update_summary(self, summary_dict: dict):
         summary_df = pd.DataFrame.from_dict(summary_dict, orient="index")
         self.summary = summary_df.reset_index(names="issue_type")
-
-    # def _mark_computed(self, issue_types):
-    #     for issue_type in issue_types:
-    #         self.issue_types_computed[issue_type] = True
-
-    # def add_issue_types(self, issue_types):
-    #     for issue_type in issue_types:
-    #         if issue_type not in self.issue_types_computed:
-    #             self.issue_types_computed[issue_type] = False
