@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 from PIL import ImageStat
+
 from clean_vision.issue_managers import IssueType
 
 
@@ -24,6 +25,8 @@ class ImagePropertyHelper(ABC):
 
 
 class BrightnessHelper(ImagePropertyHelper):
+    image_property = "Brightness"
+
     def __init__(self, issue_type):
         self.issue_type = issue_type
 

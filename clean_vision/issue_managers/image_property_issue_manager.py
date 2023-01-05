@@ -11,12 +11,13 @@ from clean_vision.utils.image_property_helpers import BrightnessHelper
 # Combined all issues which are to be detected using image properties under one class to save time on loading image
 @register_issue_manager(IMAGE_PROPERTY)
 class ImagePropertyIssueManager(IssueManager):
-    def __init__(self, issue_types):
+    def __init__(self, issue_types, params_dict):  # todo
         super().__init__()
         self.issue_types_computed = {
             issue_type: False for issue_type in issue_types
         }  # Flag for computed issues, False if not computed
         self.issue_helpers = self._get_default_issue_helpers()
+        # todo: set config using params_dict
 
     @classmethod
     @property
@@ -60,6 +61,11 @@ class ImagePropertyIssueManager(IssueManager):
         defer_set = self._get_defer_set(to_be_computed)
 
         # Calculate raw scores for each issue, re-use previously computed properties
+        # todo: find issues for which raw_score calculation is required, exclude deferred, reuse issues
+        # todo: update info
+        # todo: calculate raw_scores for these issues
+        # todo: updates scores of remaining issues
+
         raw_scores = {issue_type.property: [] for issue_type in to_be_computed}
 
         if len(set(to_be_computed).difference(defer_set)) > 0:

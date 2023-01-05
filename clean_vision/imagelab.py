@@ -12,7 +12,7 @@ class Imagelab:
     def __init__(self, data_path):
         self.filepaths = get_filepaths(data_path)
         self.num_images = len(self.filepaths)
-        self.info = {}
+        self.info = {}  # todo initialize with stats
         self.issue_summary = pd.DataFrame()
         # self.issues = pd.DataFrame(self.filepaths, columns=["image_path"])
         self.issues = pd.DataFrame(index=self.filepaths)
@@ -87,6 +87,7 @@ class Imagelab:
 
         if len(image_property_issues_types) > 0:
             if IMAGE_PROPERTY in self.issue_managers:
+                # todo: do not re-use the same object, create a new issue_manager
                 self.issue_managers[IMAGE_PROPERTY].add_issue_types(
                     image_property_issues_types
                 )
