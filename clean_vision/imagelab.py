@@ -13,7 +13,7 @@ class Imagelab:
         self.filepaths = get_filepaths(data_path)
         self.num_images = len(self.filepaths)
         self.info = {"statistics": {}}
-        self.issue_summary = pd.DataFrame()
+        self.issue_summary = pd.DataFrame(columns=["issue_type"])
         self.issues = pd.DataFrame(index=self.filepaths)
         self.issue_types = []
         self.issue_managers = {}
@@ -64,15 +64,33 @@ class Imagelab:
         )
 
         # find issues
-        for issue_manager in self.issue_managers.values():
+        for issue_type_str, issue_manager in self.issue_managers.items():
             issue_manager.find_issues(self.filepaths, self.info)
 
             # update issues, issue_summary and info
-            self.issues = self.issues.join(issue_manager.issues, how="left")
+            columns_to_update = list(
+                set(issue_manager.issues.columns).intersection(set(self.issues.columns))
+            )
+            if len(columns_to_update) > 0:
+                for column_name in columns_to_update:
+                    self.issues[column_name] = issue_manager.issues[column_name]
+            else:
+                self.issues = self.issues.join(issue_manager.issues, how="left")
+
+            self.issue_summary = self.issue_summary[
+                ~self.issue_summary["issue_type"].isin(
+                    issue_manager.summary["issue_type"]
+                )
+            ]
             self.issue_summary = pd.concat(
                 [self.issue_summary, issue_manager.summary], axis=0, ignore_index=True
             )
+
             self.info = {**self.info, **issue_manager.info}
+            self.info["statistics"] = {
+                **self.info["statistics"],
+                **issue_manager.info["statistics"],
+            }
         self.issue_summary = self.issue_summary.sort_values(
             by=["num_images"], ascending=False
         )
@@ -95,7 +113,7 @@ class Imagelab:
         )(image_property_issue_types)
         for issue_type, params in issue_types_with_params.items():
             if issue_type not in image_property_issue_types:
-                self.issue_managers[issue_type] = IssueManagerFactory.from_str(
+                self.issue_managers[issue_type.value] = IssueManagerFactory.from_str(
                     issue_type.value
                 )(params)
 

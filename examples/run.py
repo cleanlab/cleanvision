@@ -20,7 +20,6 @@ if __name__ == "__main__":
     imagelab.report()
 
     # Run Imagelab for custom thresholds
-    imagelab = Imagelab(dataset_path)
     issue_types = {"Dark": {"threshold": 0.2}}
     imagelab.find_issues(issue_types)
     imagelab.report()
