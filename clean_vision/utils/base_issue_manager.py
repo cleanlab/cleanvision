@@ -12,16 +12,9 @@ class IssueManager(ABC):
         self.issues = pd.DataFrame(columns=["image_path"])
         self.summary = pd.DataFrame(columns=["issue_type", "num_images"])
 
-<<<<<<<< HEAD:clean_vision/utils/base_issue_manager.py
-    @classmethod
-    @property
-    @abstractmethod
-    def issue_name(cls) -> str:
-========
     @property
     @abstractmethod
     def issue_name(self) -> str:
->>>>>>>> main:clean_vision/issue_managers/base_issue_manager.py
         """Returns a name that identifies the type of issue that the manager handles."""
         raise NotImplementedError
 

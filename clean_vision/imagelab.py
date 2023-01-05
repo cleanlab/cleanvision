@@ -2,9 +2,8 @@ import math
 
 import pandas as pd
 
-from clean_vision.utils.constants import IMAGE_PROPERTY
-from clean_vision.utils.issue_manager_factory import _IssueManagerFactory
-from clean_vision.utils.issue_types import IssueType
+from clean_vision.issue_managers import IssueType, IssueManagerFactory
+from clean_vision.utils.constants import IMAGE_PROPERTY, IMAGE_PROPERTY_ISSUE_TYPES_LIST
 from clean_vision.utils.utils import get_filepaths
 from clean_vision.utils.viz_manager import VizManager
 
@@ -27,32 +26,41 @@ class Imagelab:
             "report_num_top_issues_values": [3, 5, 10, len(self.issue_types)],
             "report_examples_per_issue_values": [4, 8, 16, 32],
             "report_max_prevalence": 0.5,
+            "default_issue_types": [IssueType.DARK, IssueType.LIGHT],
         }
 
-    def _get_issues_to_compute(self, issue_types):
-        if issue_types is None or len(issue_types) == 0:
-            all_issues = list(IssueType)
+    def list_default_issue_types(self):
+        print(*self.config["default_issue_types"], sep="\n")
+
+    def list_possible_issue_types(self):
+        print(*list(IssueType), sep="\n")
+
+    def _get_issues_to_compute(self, issue_types_with_params):
+        if issue_types_with_params is None or len(issue_types_with_params) == 0:
+            to_compute_issues_with_params = {
+                issue_type: {} for issue_type in self.config["default_issue_types"]
+            }
         else:
-            all_issues = []
-            for issue_type_str, hyperparameters in issue_types.items():
-                issue_type = IssueType(issue_type_str)
-                issue_type.set_hyperparameters(hyperparameters)
-                all_issues.append(issue_type)
-        to_compute_issues = list(set(all_issues) - set(self.issue_types))
-        return to_compute_issues
+            to_compute_issues_with_params = issue_types_with_params
+        return to_compute_issues_with_params
 
     def find_issues(self, issue_types=None):
-        to_compute_issues = self._get_issues_to_compute(issue_types)
-        self.issue_types.extend(to_compute_issues)
+        to_compute_issues_with_params = self._get_issues_to_compute(issue_types)
         print(
-            f"Checking for {', '.join([issue_type.value for issue_type in to_compute_issues])} images ..."
+            f"Checking for {', '.join([issue_type for issue_type in to_compute_issues_with_params.keys()])} images ..."
+        )
+
+        # update issue_types
+        self.issue_types = list(
+            set(self.issue_types).union(set(to_compute_issues_with_params.keys()))
         )
 
         # create issue managers
         self._set_issue_managers(
-            to_compute_issues,
+            to_compute_issues_with_params,
         )
 
+        # find issues
         for issue_manager in self.issue_managers.values():
             issue_manager.find_issues(self.filepaths, self.info)
 
@@ -68,26 +76,25 @@ class Imagelab:
 
         return
 
-    def _set_issue_managers(self, issue_types):
-        image_property_issues_types = []
-        for issue_type in issue_types:
+    def _get_image_property_issues(self, issue_types_with_params):
+        image_property_issues = {}
+        for issue_type, params in issue_types_with_params.items():
             if issue_type.value in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
-                image_property_issues_types.append(issue_type)
-            else:
-                self.issue_managers[issue_type] = _IssueManagerFactory.from_str(
-                    issue_type.value
-                )()
+                image_property_issues[issue_type] = params
+        return image_property_issues
 
-        if image_property_issues:
-            if IMAGE_PROPERTY in self.issue_managers:
-                # todo: do not re-use the same object, create a new issue_manager
-                self.issue_managers[IMAGE_PROPERTY].add_issue_types(
-                    image_property_issues
-                )
-            else:
-                self.issue_managers[IMAGE_PROPERTY] = _IssueManagerFactory.from_str(
-                    IMAGE_PROPERTY
-                )(image_property_issues)
+    def _set_issue_managers(self, issue_types_with_params):
+        image_property_issue_types = self._get_image_property_issues(
+            issue_types_with_params
+        )
+        self.issue_managers[IMAGE_PROPERTY] = IssueManagerFactory.from_str(
+            IMAGE_PROPERTY
+        )(image_property_issue_types)
+        for issue_type, params in issue_types_with_params:
+            if issue_type not in image_property_issue_types:
+                self.issue_managers[issue_type] = IssueManagerFactory.from_str(
+                    issue_type.value
+                )(params)
 
     def _get_topk_issues(self, num_top_issues, max_prevalence):
         topk_issues = []
