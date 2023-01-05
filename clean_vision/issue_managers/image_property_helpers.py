@@ -46,7 +46,7 @@ class BrightnessHelper(ImagePropertyHelper):
         scores = np.array(raw_scores)
         scores[scores > 1] = 1
         # reverse the brightness scores to catch images which are too bright
-        if self.issue_type.name == IssueType.LIGHT_IMAGES.name:
+        if self.issue_type.name == IssueType.LIGHT.name:
             scores = 1 - scores
         return scores
 

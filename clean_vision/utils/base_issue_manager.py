@@ -6,11 +6,11 @@ import pandas as pd
 class IssueManager(ABC):
     """Base class for managing data issues of a particular type in Imagelab."""
 
-    def __init__(self):
-        self.info = {}
-        self.params = {}
+    def __init__(self, params):
+        self.info = {"statistics": {}}
         self.issues = pd.DataFrame(columns=["image_path"])
         self.summary = pd.DataFrame(columns=["issue_type", "num_images"])
+        self.initialize_params(params)
 
     @property
     @abstractmethod
@@ -29,6 +29,10 @@ class IssueManager(ABC):
     @abstractmethod
     def find_issues(self, /, *args, **kwargs):
         """Finds occurrences of this particular issue in the dataset."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def initialize_params(self, params):
         raise NotImplementedError
 
     @staticmethod

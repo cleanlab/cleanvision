@@ -12,7 +12,7 @@ class Imagelab:
     def __init__(self, data_path):
         self.filepaths = get_filepaths(data_path)
         self.num_images = len(self.filepaths)
-        self.info = {}  # todo initialize with stats
+        self.info = {"statistics": {}}
         self.issue_summary = pd.DataFrame()
         self.issues = pd.DataFrame(index=self.filepaths)
         self.issue_types = []
@@ -41,13 +41,16 @@ class Imagelab:
                 issue_type: {} for issue_type in self.config["default_issue_types"]
             }
         else:
-            to_compute_issues_with_params = issue_types_with_params
+            to_compute_issues_with_params = {
+                IssueType(issue_type_str): params
+                for issue_type_str, params in issue_types_with_params.items()
+            }
         return to_compute_issues_with_params
 
     def find_issues(self, issue_types=None):
         to_compute_issues_with_params = self._get_issues_to_compute(issue_types)
         print(
-            f"Checking for {', '.join([issue_type for issue_type in to_compute_issues_with_params.keys()])} images ..."
+            f"Checking for {', '.join([issue_type.value for issue_type in to_compute_issues_with_params.keys()])} images ..."
         )
 
         # update issue_types
@@ -90,7 +93,7 @@ class Imagelab:
         self.issue_managers[IMAGE_PROPERTY] = IssueManagerFactory.from_str(
             IMAGE_PROPERTY
         )(image_property_issue_types)
-        for issue_type, params in issue_types_with_params:
+        for issue_type, params in issue_types_with_params.items():
             if issue_type not in image_property_issue_types:
                 self.issue_managers[issue_type] = IssueManagerFactory.from_str(
                     issue_type.value
@@ -145,8 +148,8 @@ class Imagelab:
 
     def _visualize(self, issue_type_str, examples_per_issue, figsize):
         if issue_type_str in [
-            IssueType.DARK_IMAGES.value,
-            IssueType.LIGHT_IMAGES.value,
+            IssueType.DARK.value,
+            IssueType.LIGHT.value,
         ]:
             sorted_df = self.issues.sort_values(by=[f"{issue_type_str}_score"])
             sorted_df = sorted_df[sorted_df[f"{issue_type_str}_bool"] == 1]
