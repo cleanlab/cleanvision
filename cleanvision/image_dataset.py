@@ -10,7 +10,7 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
-from clean_vision.issue_checks import (
+from cleanvision.issue_checks import (
     check_odd_size,
     get_image_hash,
     get_near_duplicate_hash,
@@ -20,7 +20,7 @@ from clean_vision.issue_checks import (
     check_grayscale,
     find_hot_pixels,
 )
-from clean_vision.utils.utils import (
+from cleanvision.utils.utils import (
     get_sorted_images,
     display_images,
     get_is_issue,
