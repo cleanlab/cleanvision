@@ -1,11 +1,11 @@
 import numpy as np
 import pytest
 
-from clean_vision.issue_managers.image_property_helpers import (
+from cleanvision.issue_managers.image_property_helpers import (
     BrightnessHelper,
     calculate_brightness,
 )
-from clean_vision.utils.issue_types import IssueType
+from cleanvision.utils.issue_types import IssueType
 
 
 @pytest.mark.parametrize(
