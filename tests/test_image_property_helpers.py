@@ -1,11 +1,11 @@
 import numpy as np
 import pytest
 
-from clean_vision.issue_managers.image_property_helpers import (
+from cleanvision.issue_managers import IssueType
+from cleanvision.issue_managers.image_property_helpers import (
     BrightnessHelper,
     calculate_brightness,
 )
-from clean_vision.utils.issue_types import IssueType
 
 
 @pytest.mark.parametrize(
@@ -27,7 +27,7 @@ def test_calculate_brightness(rgb, expected_brightness):
 class TestBrightnessHelper:
     @pytest.fixture
     def helper(self):
-        return BrightnessHelper(IssueType.LIGHT_IMAGES)
+        return BrightnessHelper(IssueType.LIGHT)
 
     def test_init(self, helper):
         assert isinstance(helper, BrightnessHelper)
@@ -62,7 +62,7 @@ class TestBrightnessHelper:
         expected_output = np.array([0.5, 0.3, 1.0, 1.0, 0.9, 0.1, 0.2])
 
         with monkeypatch.context() as m:
-            m.setattr(helper, "issue_type", IssueType.DARK_IMAGES)
+            m.setattr(helper, "issue_type", IssueType.DARK)
             normalized_scores = helper.normalize(raw_scores)
             assert all(normalized_scores == expected_output)
 

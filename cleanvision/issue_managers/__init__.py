@@ -3,8 +3,8 @@ import os
 from enum import Enum
 from typing import List, Type
 
-from clean_vision.utils.base_issue_manager import IssueManager
-from clean_vision.utils.constants import IMAGE_PROPERTY
+from cleanvision.utils.base_issue_manager import IssueManager
+from cleanvision.utils.constants import IMAGE_PROPERTY
 
 
 class IssueType(Enum):
@@ -58,7 +58,7 @@ for file in os.listdir(os.path.dirname(__file__)):
     ):
         module_name = file[: file.find(".py")]
         module = importlib.import_module(
-            "clean_vision.issue_managers" + "." + module_name
+            "cleanvision.issue_managers" + "." + module_name
         )
 
 # IssueType = Enum(

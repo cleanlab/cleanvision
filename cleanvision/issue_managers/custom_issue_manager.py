@@ -3,8 +3,8 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
-from clean_vision.issue_managers import register_issue_manager
-from clean_vision.utils.base_issue_manager import IssueManager
+from cleanvision.issue_managers import register_issue_manager
+from cleanvision.utils.base_issue_manager import IssueManager
 
 
 @register_issue_manager("Custom")

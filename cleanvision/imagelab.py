@@ -2,10 +2,10 @@ import math
 
 import pandas as pd
 
-from clean_vision.issue_managers import IssueType, IssueManagerFactory
-from clean_vision.utils.constants import IMAGE_PROPERTY, IMAGE_PROPERTY_ISSUE_TYPES_LIST
-from clean_vision.utils.utils import get_filepaths
-from clean_vision.utils.viz_manager import VIZ_REGISTRY
+from cleanvision.issue_managers import IssueType, IssueManagerFactory
+from cleanvision.utils.constants import IMAGE_PROPERTY, IMAGE_PROPERTY_ISSUE_TYPES_LIST
+from cleanvision.utils.utils import get_filepaths
+from cleanvision.utils.viz_manager import VIZ_REGISTRY
 
 
 class Imagelab:

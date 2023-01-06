@@ -1,6 +1,6 @@
 # Development
 
-This document explains how to set up a development environment for [contributing](CONTRIBUTING.md) to clean-vision.
+This document explains how to set up a development environment for [contributing](CONTRIBUTING.md) to CleanVision.
 
 ## Setting up a virtual environment
 
@@ -22,13 +22,13 @@ activate it every time you start a new shell. Once the virtual environment is
 activated, the `pip install` commands below will install dependencies into the
 virtual environment rather than your system Python installation.
 
-## Installing dependencies and clean-vision
+## Installing dependencies and CleanVision
 
 Run the following commands in the repository's root directory.
 
 1. Install development requirements with `pip install -r requires.txt`
 
-2. Install clean-vision as an editable package with `pip install -e .`
+2. Install CleanVision as an editable package with `pip install -e .`
 
 ## Testing
 
@@ -53,7 +53,7 @@ $ pytest --verbose
 **Run with code coverage:**
 
 ```
-$ pytest --cov=clean_vision/ --cov-config .coveragerc --cov-report=html
+$ pytest --cov=cleanvision/ --cov-config .coveragerc --cov-report=html
 ```
 
 The coverage report will be available in `coverage_html_report/index.html`,
@@ -61,17 +61,17 @@ which you can open with your web browser.
 
 ## Type checking
 
-clean-vision uses [mypy](https://mypy.readthedocs.io/en/stable/) typing. Type checking happens automatically during CI but can be run locally.
+CleanVision uses [mypy](https://mypy.readthedocs.io/en/stable/) typing. Type checking happens automatically during CI but can be run locally.
 
 **Check typing in all files:**
 
 ```
-$ mypy --strict --install-types --non-interactive clean_vision
+$ mypy --strict --install-types --non-interactive cleanvision
 ```
 
 ## How to style new code contributions
 
-clean-vision follows the [Black](https://black.readthedocs.io/) code style. This is
+CleanVision follows the [Black](https://black.readthedocs.io/) code style. This is
 enforced by CI, so please format your code by invoking `black` before submitting a pull request.
 
 Generally aim to follow the [PEP-8 coding style](https://peps.python.org/pep-0008/).
