@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install clean-vision
+      - name: Install CleanVision
         run: pip install -e .
       - name: Install base dependencies
         run: |
@@ -25,7 +25,7 @@ jobs:
       - name: Install development dependencies
         run: pip install -r requirements-dev.txt
       - name: Test with coverage
-        run: pytest --verbose --cov=clean_vision/ --cov-config .coveragerc --cov-report=xml
+        run: pytest --verbose --cov=cleanvision/ --cov-config .coveragerc --cov-report=xml
       - uses: codecov/codecov-action@v2
   typecheck:
     name: Type check
@@ -41,7 +41,7 @@ jobs:
           pip install .  # install dependencies
           pip install -r requirements-dev.txt  # install development dependencies and type stubs
       - name: Type check
-        run: mypy --strict --install-types --non-interactive clean_vision
+        run: mypy --strict --install-types --non-interactive cleanvision
   fmt:
     name: Black format
     runs-on: ubuntu-latest
@@ -59,4 +59,4 @@ jobs:
       - name: Install flake8
         run: pip install flake8
       - name: Lint with flake8
-        run: flake8 --ignore=E501,E722,E401,W503 clean_vision tests --count --show-source --statistics
+        run: flake8 --ignore=E501,E722,E401,W503 cleanvision tests --count --show-source --statistics

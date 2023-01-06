@@ -27,7 +27,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 
 
 setup(
-    name="clean_vision",
+    name="cleanvision",
     version="0.0.0",
     license="AGPLv3+",
     python_requires=">=3.7",
