@@ -15,13 +15,13 @@ if __name__ == "__main__":
     imagelab.find_issues(issue_types)
     imagelab.report()
 
-    # Check for additional types of issues using existing Imagelab
-    issue_types = {"Light": {}}
+    # Check for an issue with a different threshold
+    issue_types = {"Dark": {"threshold": 0.2}}
     imagelab.find_issues(issue_types)
     imagelab.report()
 
-    # Check for an issue with a different threshold
-    issue_types = {"Dark": {"threshold": 0.2}}
+    # Check for additional types of issues using existing Imagelab
+    issue_types = {"Light": {}}
     imagelab.find_issues(issue_types)
     imagelab.report()
 
