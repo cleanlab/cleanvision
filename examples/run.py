@@ -36,6 +36,10 @@ if __name__ == "__main__":
     # Visualize
     imagelab.visualize(["Light"], examples_per_issue=8, figsize=(9, 9))
 
+    # Get stats
+    stats = imagelab.info["statistics"]
+    print(stats.keys())
+
     # Run imagelab on custom issue
     imagelab.list_possible_issue_types()
     issue_types = {"Custom": {}}
