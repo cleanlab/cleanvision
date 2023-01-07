@@ -5,6 +5,7 @@ if __name__ == "__main__":
 
     # Run Imagelab with default settings
     imagelab = Imagelab(dataset_path)
+    imagelab.list_default_issue_types()
     imagelab.find_issues()
     imagelab.report()
 
@@ -36,6 +37,7 @@ if __name__ == "__main__":
     imagelab.visualize(["Light"], examples_per_issue=8, figsize=(9, 9))
 
     # Run imagelab on custom issue
+    imagelab.list_possible_issue_types()
     issue_types = {"Custom": {}}
     imagelab.find_issues(issue_types)
     imagelab.report()

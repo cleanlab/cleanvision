@@ -30,9 +30,11 @@ class Imagelab:
         }
 
     def list_default_issue_types(self):
+        print("Default issue type checked by Imagelab")
         print(*self.config["default_issue_types"], sep="\n")
 
     def list_possible_issue_types(self):
+        print("All possible issues checked by Imagelab")
         print(*list(IssueType), sep="\n")
 
     def _get_issues_to_compute(self, issue_types_with_params):

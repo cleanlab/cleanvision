@@ -8,8 +8,8 @@ class IssueManager(ABC):
 
     def __init__(self, params):
         self.info = {"statistics": {}}
-        self.issues = pd.DataFrame(columns=["image_path"])
-        self.summary = pd.DataFrame(columns=["issue_type", "num_images"])
+        self.issues = pd.DataFrame()
+        self.summary = pd.DataFrame(columns=["issue_type"])
         self.initialize_params(params)
 
     @property

@@ -80,10 +80,11 @@ class ImagePropertyIssueManager(IssueManager):
                         self.issue_helpers[issue_type].calculate(image)
                     )
 
+        # update info
         self.update_info(raw_scores)
 
-        # Init issues, summary, info
-        self.issues = pd.DataFrame(index=filepaths)  # todo move this to ABC init
+        # Init issues, summary
+        self.issues = pd.DataFrame(index=filepaths)
         summary_dict = {}
 
         for issue_type in self.issue_types:
