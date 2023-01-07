@@ -184,9 +184,9 @@ class Imagelab:
 
     def _visualize(self, issue_type_str, examples_per_issue, figsize):
         viz_name = self._get_viz_name(issue_type_str)
+        viz_method = VIZ_REGISTRY[viz_name]
 
         if viz_name == "property_based":
-            viz_method = VIZ_REGISTRY[viz_name]
             sorted_df = self.issues.sort_values(by=[f"{issue_type_str}_score"])
             sorted_df = sorted_df[sorted_df[f"{issue_type_str}_bool"] == 1]
             if len(sorted_df) < examples_per_issue:
