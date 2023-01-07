@@ -27,7 +27,7 @@ class IssueManager(ABC):
         return class_name
 
     @abstractmethod
-    def find_issues(self, /, *args, **kwargs):
+    def find_issues(self, *args, **kwargs):
         """Finds occurrences of this particular issue in the dataset."""
         raise NotImplementedError
 
