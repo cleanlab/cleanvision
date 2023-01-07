@@ -14,7 +14,6 @@ class IssueType(Enum):
 
 
 ISSUE_MANAGER_REGISTRY = {}
-ISSUE_TYPES_REGISTRY = [issue_type.value for issue_type in list(IssueType)]
 
 
 class IssueManagerFactory:
@@ -43,8 +42,6 @@ def register_issue_manager(name):
             raise ValueError("{} must extend IssueManager".format(cls.__name__))
 
         ISSUE_MANAGER_REGISTRY[name] = cls
-        if name != IMAGE_PROPERTY:
-            ISSUE_TYPES_REGISTRY.append(name)
         return cls
 
     return register_issue_manager_cls
