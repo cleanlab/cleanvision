@@ -16,7 +16,7 @@ class CustomIssueManager(IssueManager):
         self.threshold = 0.4
         super().__init__(params)
 
-    def initialize_params(self, params):
+    def set_params(self, params):
         self.threshold = params.get("threshold", self.threshold)
 
     @staticmethod

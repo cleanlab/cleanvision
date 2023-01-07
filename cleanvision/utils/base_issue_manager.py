@@ -10,7 +10,7 @@ class IssueManager(ABC):
         self.info = {"statistics": {}}
         self.issues = pd.DataFrame()
         self.summary = pd.DataFrame(columns=["issue_type"])
-        self.initialize_params(params)
+        self.set_params(params)
 
     @property
     @abstractmethod
@@ -32,7 +32,7 @@ class IssueManager(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def initialize_params(self, params):
+    def set_params(self, params):
         raise NotImplementedError
 
     @staticmethod

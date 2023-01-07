@@ -23,7 +23,7 @@ class ImagePropertyIssueManager(IssueManager):
     def _get_default_thresholds(self):
         return {IssueType.DARK: 0.22, IssueType.LIGHT: 0.05}
 
-    def initialize_params(self, image_property_params):
+    def set_params(self, image_property_params):
         # set issue_types
         self.issue_types = list(image_property_params.keys())
 
