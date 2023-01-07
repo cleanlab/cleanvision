@@ -29,8 +29,9 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - name: Install dependencies
-        run: .github/scripts/setup_python_env.sh
+      - name: Setup python environment
+        run: ./.github/scripts/setup_python_env.sh
+        shell: bash
       - name: Type check
         run: mypy --strict --install-types --non-interactive cleanvision
   fmt:
