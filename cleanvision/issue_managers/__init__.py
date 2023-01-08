@@ -4,7 +4,6 @@ from enum import Enum
 from typing import List, Type
 
 from cleanvision.utils.base_issue_manager import IssueManager
-from cleanvision.utils.constants import IMAGE_PROPERTY
 
 
 class IssueType(Enum):
