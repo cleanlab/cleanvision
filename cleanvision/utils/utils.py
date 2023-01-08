@@ -1,5 +1,8 @@
-import statistics, os, glob
+import glob
+import os
+import statistics
 from collections import OrderedDict
+
 import numpy as np
 
 TYPES = [
