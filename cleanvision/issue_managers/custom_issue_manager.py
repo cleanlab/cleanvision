@@ -9,6 +9,11 @@ from cleanvision.utils.base_issue_manager import IssueManager
 
 @register_issue_manager("Custom")
 class CustomIssueManager(IssueManager):
+    """
+    Example class showing how you can self-define a custom type of issue that
+    CleanVision can simultaneously check your data for alongside its built-in issue types.
+    """
+
     issue_name = "Custom"
     visualization = "property_based"
 
