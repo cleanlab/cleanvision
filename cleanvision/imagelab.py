@@ -38,7 +38,7 @@ class Imagelab:
         print(*list(IssueType), sep="\n")
 
     def _get_issues_to_compute(self, issue_types_with_params):
-        if issue_types_with_params is None or len(issue_types_with_params) == 0:
+        if not issue_types_with_params:
             to_compute_issues_with_params = {
                 issue_type: {} for issue_type in self.config["default_issue_types"]
             }
