@@ -13,7 +13,7 @@ class ImagePropertyHelper(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def normalize(self, raw_scores):
+    def get_scores(self, *args, **kwargs):
         raise NotImplementedError
 
     @staticmethod
@@ -42,7 +42,7 @@ class BrightnessHelper(ImagePropertyHelper):
 
         return cur_bright
 
-    def normalize(self, raw_scores):
+    def get_scores(self, raw_scores, **_):
         scores = np.array(raw_scores)
         scores[scores > 1] = 1
         # reverse the brightness scores to catch images which are too bright
@@ -59,8 +59,22 @@ class AspectRatioHelper(ImagePropertyHelper):
         size_score = min(width / height, height / width)  # consider extreme shapes
         return size_score
 
-    def normalize(self, raw_scores):
+    def get_scores(self, raw_scores, **_):
         scores = np.array(raw_scores)
+        return scores
+
+
+class EntropyHelper(ImagePropertyHelper):
+    image_property = "Entropy"
+
+    def calculate(self, image):
+        entropy = image.entropy()
+        return entropy
+
+    def get_scores(self, raw_scores, normalizing_factor, **_):
+        scores = np.array(raw_scores)
+        scores = normalizing_factor * scores
+        scores[scores > 1] = 1
         return scores
 
 

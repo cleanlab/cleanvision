@@ -10,6 +10,7 @@ class IssueType(Enum):
     DARK = "Dark"
     LIGHT = "Light"
     EXTREME_ASPECT_RATIO = "ExtremeAspectRatio"
+    LOW_COMPLEXITY = "LowComplexity"
     CUSTOM = "Custom"
 
 

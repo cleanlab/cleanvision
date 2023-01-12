@@ -63,10 +63,10 @@ class TestBrightnessHelper:
 
         with monkeypatch.context() as m:
             m.setattr(helper, "issue_type", IssueType.DARK)
-            normalized_scores = helper.normalize(raw_scores)
+            normalized_scores = helper.get_scores(raw_scores)
             assert all(normalized_scores == expected_output)
 
-        normalized_scores = helper.normalize(raw_scores)
+        normalized_scores = helper.get_scores(raw_scores)
         assert all(normalized_scores == 1 - expected_output)
 
     @pytest.mark.parametrize(
