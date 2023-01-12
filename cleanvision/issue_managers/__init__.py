@@ -57,7 +57,3 @@ for file in os.listdir(os.path.dirname(__file__)):
             "cleanvision.issue_managers" + "." + module_name
         )
 
-# IssueType = Enum(
-#     "IssueType",
-#     [(issue_type.upper(), issue_type) for issue_type in ISSUE_TYPES_REGISTRY],
-# )
