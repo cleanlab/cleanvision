@@ -86,9 +86,7 @@ class Imagelab:
             # good: keeps useful existing keys
             # bad: has the potential to keep outdated values with new ones
             self.info[k] = {**self.info.get(k, {}), **info_dict}
-            else:
-                self.info[k] = issue_manager_info[k]
-
+            
     def _update_issue_summary(self, issue_manager_summary):
         self.issue_summary = self.issue_summary[
             ~self.issue_summary["issue_type"].isin(issue_manager_summary["issue_type"])
