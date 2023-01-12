@@ -71,7 +71,7 @@ class ImagePropertyIssueManager(IssueManager):
 
         to_be_computed = list(set(self.issue_types).difference(defer_set))
         raw_scores = {issue_type: [] for issue_type in to_be_computed}
-        if len(to_be_computed) > 0:
+        if to_be_computed:
             for path in tqdm(filepaths):
                 image = Image.open(path)
                 for issue_type in to_be_computed:
