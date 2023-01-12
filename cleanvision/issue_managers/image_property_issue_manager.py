@@ -30,11 +30,7 @@ class ImagePropertyIssueManager(IssueManager):
         default_thresholds = self._get_default_thresholds()
 
         for issue_type, issue_params in image_property_params.items():
-            self.thresholds[issue_type] = (
-                issue_params["threshold"]
-                if issue_params.get("threshold", None) is not None
-                else default_thresholds[issue_type]
-            )
+            self.thresholds[issue_type] = issue_params.get("threshold", default_thresholds[issue_type])
 
     def _get_default_issue_helpers(self):
         return {
