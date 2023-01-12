@@ -82,11 +82,10 @@ class Imagelab:
 
     def _update_info(self, issue_manager_info):
 
-        for k in issue_manager_info.keys():
-            if k in self.info:
-                # good: keeps useful existing keys
-                # bad: has the potential to keep outdated values with new ones
-                self.info[k] = {**self.info[k], **issue_manager_info[k]}
+        for k, info_dict in issue_manager_info.items():
+            # good: keeps useful existing keys
+            # bad: has the potential to keep outdated values with new ones
+            self.info[k] = {**self.info.get(k, {}), **info_dict}
             else:
                 self.info[k] = issue_manager_info[k]
 
