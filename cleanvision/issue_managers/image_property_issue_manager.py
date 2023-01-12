@@ -19,7 +19,6 @@ class ImagePropertyIssueManager(IssueManager):
     visualization = "property_based"
 
     def __init__(self, params):
-        self.thresholds = {}
         super().__init__(params)
         self.issue_helpers = self._get_default_issue_helpers()
 
@@ -36,7 +35,7 @@ class ImagePropertyIssueManager(IssueManager):
         # set issue_types
         self.issue_types = list(image_property_params.keys())
 
-        # set thresholds
+        # set defaults
         self.params = self._get_default_params()
 
         for issue_type, issue_params in image_property_params.items():
