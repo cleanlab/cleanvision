@@ -9,6 +9,7 @@ from cleanvision.utils.base_issue_manager import IssueManager
 class IssueType(Enum):
     DARK = "Dark"
     LIGHT = "Light"
+    EXTREME_ASPECT_RATIO = "ExtremeAspectRatio"
     CUSTOM = "Custom"
 
 
@@ -56,8 +57,3 @@ for file in os.listdir(os.path.dirname(__file__)):
         module = importlib.import_module(
             "cleanvision.issue_managers" + "." + module_name
         )
-
-# IssueType = Enum(
-#     "IssueType",
-#     [(issue_type.upper(), issue_type) for issue_type in ISSUE_TYPES_REGISTRY],
-# )

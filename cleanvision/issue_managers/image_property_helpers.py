@@ -51,8 +51,20 @@ class BrightnessHelper(ImagePropertyHelper):
         return scores
 
 
-def calculate_brightness(red, green, blue):
+class AspectRatioHelper(ImagePropertyHelper):
+    image_property = "AspectRatio"
 
+    def calculate(self, image):
+        width, height = image.size
+        size_score = min(width / height, height / width)  # consider extreme shapes
+        return size_score
+
+    def normalize(self, raw_scores):
+        scores = np.array(raw_scores)
+        return scores
+
+
+def calculate_brightness(red, green, blue):
     cur_bright = (
         math.sqrt(0.241 * (red**2) + 0.691 * (green**2) + 0.068 * (blue**2))
     ) / 255

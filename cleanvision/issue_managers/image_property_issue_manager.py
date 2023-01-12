@@ -3,7 +3,10 @@ from PIL import Image
 from tqdm import tqdm
 
 from cleanvision.issue_managers import register_issue_manager, IssueType
-from cleanvision.issue_managers.image_property_helpers import BrightnessHelper
+from cleanvision.issue_managers.image_property_helpers import (
+    BrightnessHelper,
+    AspectRatioHelper,
+)
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import IMAGE_PROPERTY
 
@@ -20,7 +23,11 @@ class ImagePropertyIssueManager(IssueManager):
         self.issue_helpers = self._get_default_issue_helpers()
 
     def _get_default_thresholds(self):
-        return {IssueType.DARK: 0.22, IssueType.LIGHT: 0.05}
+        return {
+            IssueType.DARK: 0.22,
+            IssueType.LIGHT: 0.05,
+            IssueType.EXTREME_ASPECT_RATIO: 0.5,
+        }
 
     def set_params(self, image_property_params):
         # set issue_types
@@ -40,6 +47,7 @@ class ImagePropertyIssueManager(IssueManager):
         return {
             IssueType.DARK: BrightnessHelper(IssueType.DARK),
             IssueType.LIGHT: BrightnessHelper(IssueType.LIGHT),
+            IssueType.EXTREME_ASPECT_RATIO: AspectRatioHelper(),
         }
 
     def _get_defer_set(self, imagelab_info):

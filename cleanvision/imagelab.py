@@ -26,7 +26,11 @@ class Imagelab:
             "report_num_top_issues_values": [3, 5, 10, len(self.issue_types)],
             "report_examples_per_issue_values": [4, 8, 16, 32],
             "report_max_prevalence": 0.5,
-            "default_issue_types": [IssueType.DARK, IssueType.LIGHT],
+            "default_issue_types": [
+                IssueType.DARK,
+                IssueType.LIGHT,
+                IssueType.EXTREME_ASPECT_RATIO,
+            ],
         }
 
     def list_default_issue_types(self):
