@@ -7,7 +7,7 @@ from PIL import ImageStat
 from cleanvision.issue_managers import IssueType
 
 
-class ImagePropertyHelper(ABC):
+class ImageProperty(ABC):
     @abstractmethod
     def calculate(self, image):
         raise NotImplementedError
@@ -21,8 +21,8 @@ class ImagePropertyHelper(ABC):
         return scores < threshold
 
 
-class BrightnessHelper(ImagePropertyHelper):
-    image_property = "Brightness"
+class BrightnessProperty(ImageProperty):
+    name = "Brightness"
 
     def __init__(self, issue_type):
         self.issue_type = issue_type
@@ -51,8 +51,8 @@ class BrightnessHelper(ImagePropertyHelper):
         return scores
 
 
-class AspectRatioHelper(ImagePropertyHelper):
-    image_property = "AspectRatio"
+class AspectRatioProperty(ImageProperty):
+    name = "AspectRatio"
 
     def calculate(self, image):
         width, height = image.size
