@@ -30,16 +30,20 @@ class Imagelab:
                 IssueType.DARK,
                 IssueType.LIGHT,
                 IssueType.EXTREME_ASPECT_RATIO,
+                IssueType.LOW_INFORMATION,
             ],
         }
 
     def list_default_issue_types(self):
-        print("Default issue type checked by Imagelab")
-        print(*self.config["default_issue_types"], sep="\n")
+        print("Default issue type checked by Imagelab:\n")
+        print(
+            *[issue_type.value for issue_type in self.config["default_issue_types"]],
+            sep="\n",
+        )
 
     def list_possible_issue_types(self):
-        print("All possible issues checked by Imagelab")
-        print(*list(IssueType), sep="\n")
+        print("All possible issues checked by Imagelab:\n")
+        print(*[issue_type.value for issue_type in list(IssueType)], sep="\n")
 
     def _get_issues_to_compute(self, issue_types_with_params):
         if issue_types_with_params is None or len(issue_types_with_params) == 0:

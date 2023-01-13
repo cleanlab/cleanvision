@@ -6,6 +6,7 @@ from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
     AspectRatioProperty,
+    EntropyProperty,
 )
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import IMAGE_PROPERTY
@@ -18,36 +19,35 @@ class ImagePropertyIssueManager(IssueManager):
     visualization = "property_based"
 
     def __init__(self, params):
-        self.thresholds = {}
         super().__init__(params)
         self.image_property = self._get_default_image_property()
 
-    def _get_default_thresholds(self):
+    def _get_default_params(self):
         return {
-            IssueType.DARK: 0.22,
-            IssueType.LIGHT: 0.05,
-            IssueType.EXTREME_ASPECT_RATIO: 0.5,
+            IssueType.DARK: {"threshold": 0.22},
+            IssueType.LIGHT: {"threshold": 0.05},
+            IssueType.EXTREME_ASPECT_RATIO: {"threshold": 0.5},
+            # todo: check low complexity params on a different dataset
+            IssueType.LOW_INFORMATION: {"threshold": 0.3, "normalizing_factor": 0.1},
         }
 
     def set_params(self, image_property_params):
         # set issue_types
         self.issue_types = list(image_property_params.keys())
 
-        # set thresholds
-        default_thresholds = self._get_default_thresholds()
+        # set defaults
+        self.params = self._get_default_params()
 
         for issue_type, issue_params in image_property_params.items():
-            self.thresholds[issue_type] = (
-                issue_params["threshold"]
-                if issue_params.get("threshold", None) is not None
-                else default_thresholds[issue_type]
-            )
+            non_none_params = {k: v for k, v in issue_params.items() if v is not None}
+            self.params[issue_type] = {**self.params[issue_type], **non_none_params}
 
     def _get_default_image_property(self):
         return {
             IssueType.DARK: BrightnessProperty(IssueType.DARK),
             IssueType.LIGHT: BrightnessProperty(IssueType.LIGHT),
             IssueType.EXTREME_ASPECT_RATIO: AspectRatioProperty(),
+            IssueType.LOW_INFORMATION: EntropyProperty(),
         }
 
     def _get_defer_set(self, imagelab_info):
@@ -101,13 +101,15 @@ class ImagePropertyIssueManager(IssueManager):
             else:
                 property_values = self.info["statistics"][image_property]
 
-            scores = self.image_property[issue_type].normalize(property_values)
+            scores = self.image_property[issue_type].get_scores(
+                property_values, **self.params[issue_type]
+            )
 
             # Update issues
             self.issues[f"{issue_type.value}_score"] = scores
             self.issues[f"{issue_type.value}_bool"] = self.image_property[
                 issue_type
-            ].mark_issue(scores, self.thresholds[issue_type])
+            ].mark_issue(scores, self.params[issue_type]["threshold"])
 
             summary_dict[issue_type.value] = self._compute_summary(
                 self.issues[f"{issue_type.value}_bool"]
