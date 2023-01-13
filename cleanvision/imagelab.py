@@ -35,7 +35,7 @@ class Imagelab:
         }
 
     def list_default_issue_types(self):
-        print("Default issue type checked by Imagelab\n")
+        print("Default issue type checked by Imagelab:\n")
         print(
             *[issue_type.value for issue_type in self.config["default_issue_types"]],
             sep="\n",
