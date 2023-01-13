@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from cleanvision.issue_managers import IssueType
-from cleanvision.issue_managers.image_property_helpers import (
+from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
     calculate_brightness,
 )
@@ -26,12 +26,12 @@ def test_calculate_brightness(rgb, expected_brightness):
 
 class TestBrightnessHelper:
     @pytest.fixture
-    def helper(self):
+    def image_property(self):
         return BrightnessProperty(IssueType.LIGHT)
 
-    def test_init(self, helper):
-        assert isinstance(helper, BrightnessProperty)
-        assert hasattr(helper, "issue_type")
+    def test_init(self, image_property):
+        assert isinstance(image_property, BrightnessProperty)
+        assert hasattr(image_property, "issue_type")
 
     @pytest.mark.parametrize(
         "mock_mean,expected_output",
@@ -41,7 +41,7 @@ class TestBrightnessHelper:
         ],
         ids=["gray", "rgb"],
     )
-    def test_calculate(self, helper, monkeypatch, mock_mean, expected_output):
+    def test_calculate(self, image_property, monkeypatch, mock_mean, expected_output):
         from PIL import ImageStat
 
         class MockStat:
@@ -54,19 +54,19 @@ class TestBrightnessHelper:
 
         monkeypatch.setattr(ImageStat, "Stat", MockStat)
 
-        cur_bright = helper.calculate("my_image")
+        cur_bright = image_property.calculate("my_image")
         assert cur_bright == pytest.approx(expected=expected_output, abs=1e-5)
 
-    def test_normalize(self, helper, monkeypatch):
+    def test_normalize(self, image_property, monkeypatch):
         raw_scores = [0.5, 0.3, 1.0, 1.2, 0.9, 0.1, 0.2]
         expected_output = np.array([0.5, 0.3, 1.0, 1.0, 0.9, 0.1, 0.2])
 
         with monkeypatch.context() as m:
-            m.setattr(helper, "issue_type", IssueType.DARK)
-            normalized_scores = helper.get_scores(raw_scores)
+            m.setattr(image_property, "issue_type", IssueType.DARK)
+            normalized_scores = image_property.get_scores(raw_scores)
             assert all(normalized_scores == expected_output)
 
-        normalized_scores = helper.get_scores(raw_scores)
+        normalized_scores = image_property.get_scores(raw_scores)
         assert all(normalized_scores == 1 - expected_output)
 
     @pytest.mark.parametrize(
@@ -81,6 +81,6 @@ class TestBrightnessHelper:
             ],
         ],
     )
-    def test_mark_issue(self, helper, scores, threshold, expected_mark):
-        mark = helper.mark_issue(np.array(scores), threshold)
+    def test_mark_issue(self, image_property, scores, threshold, expected_mark):
+        mark = image_property.mark_issue(np.array(scores), threshold)
         assert all(mark == expected_mark)
