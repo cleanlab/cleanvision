@@ -30,7 +30,7 @@ class Imagelab:
                 IssueType.DARK,
                 IssueType.LIGHT,
                 IssueType.EXTREME_ASPECT_RATIO,
-                IssueType.LOW_COMPLEXITY,
+                IssueType.LOW_INFORMATION,
             ],
         }
 

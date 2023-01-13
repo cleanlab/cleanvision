@@ -28,7 +28,7 @@ class ImagePropertyIssueManager(IssueManager):
             IssueType.LIGHT: {"threshold": 0.05},
             IssueType.EXTREME_ASPECT_RATIO: {"threshold": 0.5},
             # todo: check low complexity params on a different dataset
-            IssueType.LOW_COMPLEXITY: {"threshold": 0.3, "normalizing_factor": 0.1},
+            IssueType.LOW_INFORMATION: {"threshold": 0.3, "normalizing_factor": 0.1},
         }
 
     def set_params(self, image_property_params):
@@ -47,7 +47,7 @@ class ImagePropertyIssueManager(IssueManager):
             IssueType.DARK: BrightnessHelper(IssueType.DARK),
             IssueType.LIGHT: BrightnessHelper(IssueType.LIGHT),
             IssueType.EXTREME_ASPECT_RATIO: AspectRatioHelper(),
-            IssueType.LOW_COMPLEXITY: EntropyHelper(),
+            IssueType.LOW_INFORMATION: EntropyHelper(),
         }
 
     def _get_defer_set(self, imagelab_info):
