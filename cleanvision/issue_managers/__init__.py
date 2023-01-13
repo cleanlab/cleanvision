@@ -9,7 +9,7 @@ from cleanvision.utils.base_issue_manager import IssueManager
 class IssueType(Enum):
     DARK = "Dark"
     LIGHT = "Light"
-    EXTREME_ASPECT_RATIO = "ExtremeAspectRatio"
+    ODD_ASPECT_RATIO = "OddAspectRatio"
     LOW_INFORMATION = "LowInformation"
     CUSTOM = "Custom"
 

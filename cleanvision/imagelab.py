@@ -29,7 +29,7 @@ class Imagelab:
             "default_issue_types": [
                 IssueType.DARK,
                 IssueType.LIGHT,
-                IssueType.EXTREME_ASPECT_RATIO,
+                IssueType.ODD_ASPECT_RATIO,
                 IssueType.LOW_INFORMATION,
             ],
         }

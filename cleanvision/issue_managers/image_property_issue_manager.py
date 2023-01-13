@@ -26,7 +26,7 @@ class ImagePropertyIssueManager(IssueManager):
         return {
             IssueType.DARK: {"threshold": 0.22},
             IssueType.LIGHT: {"threshold": 0.05},
-            IssueType.EXTREME_ASPECT_RATIO: {"threshold": 0.5},
+            IssueType.ODD_ASPECT_RATIO: {"threshold": 0.5},
             # todo: check low complexity params on a different dataset
             IssueType.LOW_INFORMATION: {"threshold": 0.3, "normalizing_factor": 0.1},
         }
@@ -46,7 +46,7 @@ class ImagePropertyIssueManager(IssueManager):
         return {
             IssueType.DARK: BrightnessProperty(IssueType.DARK),
             IssueType.LIGHT: BrightnessProperty(IssueType.LIGHT),
-            IssueType.EXTREME_ASPECT_RATIO: AspectRatioProperty(),
+            IssueType.ODD_ASPECT_RATIO: AspectRatioProperty(),
             IssueType.LOW_INFORMATION: EntropyProperty(),
         }
 
