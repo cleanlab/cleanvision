@@ -3,7 +3,7 @@ import pytest
 
 from cleanvision.issue_managers import IssueType
 from cleanvision.issue_managers.image_property_helpers import (
-    BrightnessHelper,
+    BrightnessProperty,
     calculate_brightness,
 )
 
@@ -27,10 +27,10 @@ def test_calculate_brightness(rgb, expected_brightness):
 class TestBrightnessHelper:
     @pytest.fixture
     def helper(self):
-        return BrightnessHelper(IssueType.LIGHT)
+        return BrightnessProperty(IssueType.LIGHT)
 
     def test_init(self, helper):
-        assert isinstance(helper, BrightnessHelper)
+        assert isinstance(helper, BrightnessProperty)
         assert hasattr(helper, "issue_type")
 
     @pytest.mark.parametrize(

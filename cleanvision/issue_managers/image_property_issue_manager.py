@@ -3,10 +3,10 @@ from PIL import Image
 from tqdm import tqdm
 
 from cleanvision.issue_managers import register_issue_manager, IssueType
-from cleanvision.issue_managers.image_property_helpers import (
-    BrightnessHelper,
-    AspectRatioHelper,
-    EntropyHelper,
+from cleanvision.issue_managers.image_property import (
+    BrightnessProperty,
+    AspectRatioProperty,
+    EntropyProperty,
 )
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import IMAGE_PROPERTY
@@ -20,7 +20,7 @@ class ImagePropertyIssueManager(IssueManager):
 
     def __init__(self, params):
         super().__init__(params)
-        self.issue_helpers = self._get_default_issue_helpers()
+        self.image_property = self._get_default_image_property()
 
     def _get_default_params(self):
         return {
@@ -42,12 +42,12 @@ class ImagePropertyIssueManager(IssueManager):
             non_none_params = {k: v for k, v in issue_params.items() if v is not None}
             self.params[issue_type] = {**self.params[issue_type], **non_none_params}
 
-    def _get_default_issue_helpers(self):
+    def _get_default_image_property(self):
         return {
-            IssueType.DARK: BrightnessHelper(IssueType.DARK),
-            IssueType.LIGHT: BrightnessHelper(IssueType.LIGHT),
-            IssueType.EXTREME_ASPECT_RATIO: AspectRatioHelper(),
-            IssueType.LOW_INFORMATION: EntropyHelper(),
+            IssueType.DARK: BrightnessProperty(IssueType.DARK),
+            IssueType.LIGHT: BrightnessProperty(IssueType.LIGHT),
+            IssueType.EXTREME_ASPECT_RATIO: AspectRatioProperty(),
+            IssueType.LOW_INFORMATION: EntropyProperty(),
         }
 
     def _get_defer_set(self, imagelab_info):
@@ -55,14 +55,14 @@ class ImagePropertyIssueManager(IssueManager):
 
         # Add precomputed issues to defer set
         for issue_type in self.issue_types:
-            image_property = self.issue_helpers[issue_type].image_property
+            image_property = self.image_property[issue_type].name
             if image_property in imagelab_info[
                 "statistics"
             ] or image_property in imagelab_info.get(issue_type.value, {}):
                 defer_set.add(issue_type)
 
         # Add issues using same property
-        if set([IssueType.LIGHT, IssueType.DARK]).issubset(set(self.issue_types)):
+        if {IssueType.LIGHT, IssueType.DARK}.issubset(set(self.issue_types)):
             defer_set.add(IssueType.LIGHT)
         return defer_set
 
@@ -84,7 +84,7 @@ class ImagePropertyIssueManager(IssueManager):
                 image = Image.open(path)
                 for issue_type in to_be_computed:
                     raw_scores[issue_type].append(
-                        self.issue_helpers[issue_type].calculate(image)
+                        self.image_property[issue_type].calculate(image)
                     )
 
         # update info
@@ -95,19 +95,19 @@ class ImagePropertyIssueManager(IssueManager):
         summary_dict = {}
 
         for issue_type in self.issue_types:
-            image_property = self.issue_helpers[issue_type].image_property
+            image_property = self.image_property[issue_type].name
             if image_property in imagelab_info["statistics"]:
                 property_values = imagelab_info["statistics"][image_property]
             else:
                 property_values = self.info["statistics"][image_property]
 
-            scores = self.issue_helpers[issue_type].get_scores(
+            scores = self.image_property[issue_type].get_scores(
                 property_values, **self.params[issue_type]
             )
 
             # Update issues
             self.issues[f"{issue_type.value}_score"] = scores
-            self.issues[f"{issue_type.value}_bool"] = self.issue_helpers[
+            self.issues[f"{issue_type.value}_bool"] = self.image_property[
                 issue_type
             ].mark_issue(scores, self.params[issue_type]["threshold"])
 
@@ -122,10 +122,8 @@ class ImagePropertyIssueManager(IssueManager):
     def update_info(self, raw_scores):
         for issue_type, scores in raw_scores.items():
             # todo: add a way to update info for image properties which are not stats
-            if self.issue_helpers[issue_type].image_property is not None:
-                self.info["statistics"][
-                    self.issue_helpers[issue_type].image_property
-                ] = scores
+            if self.image_property[issue_type].name is not None:
+                self.info["statistics"][self.image_property[issue_type].name] = scores
 
     def update_summary(self, summary_dict: dict):
         summary_df = pd.DataFrame.from_dict(summary_dict, orient="index")
