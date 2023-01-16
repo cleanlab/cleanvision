@@ -41,7 +41,7 @@ class CustomIssueManager(IssueManager):
         for column_name, value in summary_dict.items():
             self.summary[column_name] = [value]
 
-    def find_issues(self, filepaths):
+    def find_issues(self, filepaths, imagelab_info):
         raw_scores = []
         for path in tqdm(filepaths):
             image = Image.open(path)
