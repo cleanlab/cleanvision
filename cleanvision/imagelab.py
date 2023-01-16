@@ -4,7 +4,7 @@ import pandas as pd
 
 from cleanvision.issue_managers import IssueType, IssueManagerFactory
 from cleanvision.utils.constants import IMAGE_PROPERTY, IMAGE_PROPERTY_ISSUE_TYPES_LIST
-from cleanvision.utils.utils import get_filepaths
+from cleanvision.utils.utils import get_filepaths, deep_update_dict
 from cleanvision.utils.viz_manager import VIZ_REGISTRY
 
 
@@ -89,11 +89,7 @@ class Imagelab:
         return
 
     def _update_info(self, issue_manager_info):
-
-        for k, info_dict in issue_manager_info.items():
-            # good: keeps useful existing keys
-            # bad: has the potential to keep outdated values with new ones
-            self.info[k] = {**self.info.get(k, {}), **info_dict}
+        deep_update_dict(self.info, issue_manager_info)
 
     def _update_issue_summary(self, issue_manager_summary):
         self.issue_summary = self.issue_summary[
