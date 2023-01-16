@@ -46,7 +46,7 @@ class Imagelab:
         print(*[issue_type.value for issue_type in list(IssueType)], sep="\n")
 
     def _get_issues_to_compute(self, issue_types_with_params):
-        if issue_types_with_params is None or len(issue_types_with_params) == 0:
+        if not issue_types_with_params:
             to_compute_issues_with_params = {
                 issue_type: {} for issue_type in self.config["default_issue_types"]
             }
@@ -90,13 +90,10 @@ class Imagelab:
 
     def _update_info(self, issue_manager_info):
 
-        for k in issue_manager_info.keys():
-            if k in self.info:
-                # good: keeps useful existing keys
-                # bad: has the potential to keep outdated values with new ones
-                self.info[k] = {**self.info[k], **issue_manager_info[k]}
-            else:
-                self.info[k] = issue_manager_info[k]
+        for k, info_dict in issue_manager_info.items():
+            # good: keeps useful existing keys
+            # bad: has the potential to keep outdated values with new ones
+            self.info[k] = {**self.info.get(k, {}), **info_dict}
 
     def _update_issue_summary(self, issue_manager_summary):
         self.issue_summary = self.issue_summary[
