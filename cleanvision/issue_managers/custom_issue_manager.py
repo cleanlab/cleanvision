@@ -6,15 +6,17 @@ from tqdm import tqdm
 from cleanvision.issue_managers import register_issue_manager
 from cleanvision.utils.base_issue_manager import IssueManager
 
+ISSUE_NAME = "custom"
 
-@register_issue_manager("Custom")
+
+@register_issue_manager(ISSUE_NAME)
 class CustomIssueManager(IssueManager):
     """
     Example class showing how you can self-define a custom type of issue that
     CleanVision can simultaneously check your data for alongside its built-in issue types.
     """
 
-    issue_name = "Custom"
+    issue_name = ISSUE_NAME
     visualization = "property_based"
 
     def __init__(self, params):
