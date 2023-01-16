@@ -18,11 +18,15 @@ class CustomIssueManager(IssueManager):
     visualization = "property_based"
 
     def __init__(self, params):
-        self.threshold = 0.4
         super().__init__(params)
 
+    def get_default_params(self):
+        return {"threshold": 0.4}
+
     def set_params(self, params):
-        self.threshold = params.get("threshold", self.threshold)
+        self.params = self.get_default_params()
+        non_none_params = {k: v for k, v in params.items() if v is not None}
+        self.params = {**self.params, **non_none_params}
 
     @staticmethod
     def calculate_mean_pixel_value(image):
@@ -50,8 +54,10 @@ class CustomIssueManager(IssueManager):
         self.issues = pd.DataFrame(index=filepaths)
         scores = self.get_scores(raw_scores)
         self.issues[f"{self.issue_name}_score"] = scores
-        self.issues[f"{self.issue_name}_bool"] = self.mark_issue(scores, self.threshold)
-        self.info["PixelValue"] = raw_scores
+        self.issues[f"{self.issue_name}_bool"] = self.mark_issue(
+            scores, self.params["threshold"]
+        )
+        self.info[self.issue_name] = {"PixelValue": raw_scores}
         summary_dict = self._compute_summary(self.issues[f"{self.issue_name}_bool"])
 
         self.update_summary(summary_dict)

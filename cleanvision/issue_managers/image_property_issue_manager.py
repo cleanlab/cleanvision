@@ -20,9 +20,10 @@ class ImagePropertyIssueManager(IssueManager):
 
     def __init__(self, params):
         super().__init__(params)
-        self.image_property = self._get_default_image_property()
+        self.issue_types = list(self.params.keys())
+        self.image_properties = self._get_image_properties()
 
-    def _get_default_params(self):
+    def get_default_params(self):
         return {
             IssueType.DARK: {"threshold": 0.22},
             IssueType.LIGHT: {"threshold": 0.05},
@@ -31,18 +32,14 @@ class ImagePropertyIssueManager(IssueManager):
             IssueType.LOW_INFORMATION: {"threshold": 0.3, "normalizing_factor": 0.1},
         }
 
-    def set_params(self, image_property_params):
-        # set issue_types
-        self.issue_types = list(image_property_params.keys())
-
-        # set defaults
-        self.params = self._get_default_params()
-
-        for issue_type, issue_params in image_property_params.items():
+    def set_params(self, params):
+        update_params = {}
+        for issue_type, issue_params in params.items():
             non_none_params = {k: v for k, v in issue_params.items() if v is not None}
-            self.params[issue_type] = {**self.params[issue_type], **non_none_params}
+            update_params[issue_type] = {**self.params[issue_type], **non_none_params}
+        self.params = update_params
 
-    def _get_default_image_property(self):
+    def _get_image_properties(self):
         return {
             IssueType.DARK: BrightnessProperty(IssueType.DARK),
             IssueType.LIGHT: BrightnessProperty(IssueType.LIGHT),
@@ -55,7 +52,7 @@ class ImagePropertyIssueManager(IssueManager):
 
         # Add precomputed issues to defer set
         for issue_type in self.issue_types:
-            image_property = self.image_property[issue_type].name
+            image_property = self.image_properties[issue_type].name
             if image_property in imagelab_info[
                 "statistics"
             ] or image_property in imagelab_info.get(issue_type.value, {}):
@@ -84,7 +81,7 @@ class ImagePropertyIssueManager(IssueManager):
                 image = Image.open(path)
                 for issue_type in to_be_computed:
                     raw_scores[issue_type].append(
-                        self.image_property[issue_type].calculate(image)
+                        self.image_properties[issue_type].calculate(image)
                     )
 
         # update info
@@ -95,19 +92,19 @@ class ImagePropertyIssueManager(IssueManager):
         summary_dict = {}
 
         for issue_type in self.issue_types:
-            image_property = self.image_property[issue_type].name
+            image_property = self.image_properties[issue_type].name
             if image_property in imagelab_info["statistics"]:
                 property_values = imagelab_info["statistics"][image_property]
             else:
                 property_values = self.info["statistics"][image_property]
 
-            scores = self.image_property[issue_type].get_scores(
+            scores = self.image_properties[issue_type].get_scores(
                 property_values, **self.params[issue_type]
             )
 
             # Update issues
             self.issues[f"{issue_type.value}_score"] = scores
-            self.issues[f"{issue_type.value}_bool"] = self.image_property[
+            self.issues[f"{issue_type.value}_bool"] = self.image_properties[
                 issue_type
             ].mark_issue(scores, self.params[issue_type]["threshold"])
 
@@ -122,8 +119,8 @@ class ImagePropertyIssueManager(IssueManager):
     def update_info(self, raw_scores):
         for issue_type, scores in raw_scores.items():
             # todo: add a way to update info for image properties which are not stats
-            if self.image_property[issue_type].name is not None:
-                self.info["statistics"][self.image_property[issue_type].name] = scores
+            if self.image_properties[issue_type].name is not None:
+                self.info["statistics"][self.image_properties[issue_type].name] = scores
 
     def update_summary(self, summary_dict: dict):
         summary_df = pd.DataFrame.from_dict(summary_dict, orient="index")
