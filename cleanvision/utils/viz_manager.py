@@ -10,8 +10,8 @@ class VizManager:
         pass
 
     @staticmethod
-    def individual_images(filepaths, ncols, fig_width):
-        plot_image_grid(filepaths, ncols, fig_width)
+    def individual_images(filepaths, ncols, cell_size):
+        plot_image_grid(filepaths, ncols, cell_size)
 
     @staticmethod
     def image_sets(filepath_sets, ncols, cell_size):

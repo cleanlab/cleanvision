@@ -17,7 +17,7 @@ class DuplicateIssueManager(IssueManager):
 
     def __init__(self, params):
         super().__init__(params)
-        self.issue_types = list(self.params.keys())
+        self.issue_types = list(params.keys())
 
     def get_default_params(self):
         return {
@@ -27,8 +27,10 @@ class DuplicateIssueManager(IssueManager):
 
     def set_params(self, params):
         updated_params = {}
-        for issue_type, issue_params in params.items():
-            non_none_params = {k: v for k, v in issue_params.items() if v is not None}
+        for issue_type in self.params:
+            non_none_params = {
+                k: v for k, v in params.get(issue_type, {}).items() if v is not None
+            }
             updated_params[issue_type] = {**self.params[issue_type], **non_none_params}
         self.params = updated_params
 
@@ -101,8 +103,8 @@ class DuplicateIssueManager(IssueManager):
         }
 
     def _update_issues(self):
-        duplicated_images = []
         for issue_type in self.issue_types:
+            duplicated_images = []
             for s in self.info[issue_type.value][SETS_LITERAL]:
                 duplicated_images.extend(s)
             self.issues[
@@ -112,18 +114,20 @@ class DuplicateIssueManager(IssueManager):
             )
 
     def _update_info(self, issue_type_hash_mapping, imagelab_info):
-        for issue_type in self.issue_types:
+        if IssueType.EXACT_DUPLICATES.value in imagelab_info:
+            self.info[IssueType.EXACT_DUPLICATES.value] = {
+                SETS_LITERAL: imagelab_info[IssueType.EXACT_DUPLICATES.value][
+                    SETS_LITERAL
+                ]
+            }
+
+        for issue_type in [IssueType.EXACT_DUPLICATES, IssueType.NEAR_DUPLICATES]:
             if issue_type in issue_type_hash_mapping:
                 self.info[issue_type.value] = {
                     SETS_LITERAL: self._get_duplicate_sets(
                         issue_type_hash_mapping[issue_type]
                     )
                 }
-            else:
-                self.info[issue_type.value] = imagelab_info[issue_type.value][
-                    SETS_LITERAL
-                ]
-
         self._remove_exact_duplicates_from_near()
 
     def _remove_exact_duplicates_from_near(self):

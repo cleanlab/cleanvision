@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     # Run Imagelab for specific checks
     imagelab = Imagelab(dataset_path)
-    issue_types = {"dark": {}}
+    issue_types = {"near_duplicates": {}}
     imagelab.find_issues(issue_types)
     imagelab.report()
 
@@ -28,7 +28,7 @@ if __name__ == "__main__":
     # Run imagelab for default issue_type, but override parameters for one or more issues
     imagelab = Imagelab(dataset_path)
     imagelab.find_issues()
-    issue_types = {"dark": {"threshold": 0.2}}
+    issue_types = {"near_duplicates": {"hash_type": "phash"}}
     imagelab.find_issues(issue_types)
     imagelab.report()
 
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     imagelab.report(num_top_issues=1, max_prevalence=0.01)
 
     # Visualize
-    imagelab.visualize(["light"], examples_per_issue=8, cell_size=(9, 9))
+    imagelab.visualize(["light"], examples_per_issue=8, cell_size=(3, 3))
 
     # Get stats
     stats = imagelab.info["statistics"]

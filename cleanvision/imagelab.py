@@ -74,13 +74,13 @@ class Imagelab:
             set(self.issue_types).union(set(to_compute_issues_with_params.keys()))
         )
 
-        # create issue managers
-        self._set_issue_managers(
-            to_compute_issues_with_params,
-        )
+        # set issue managers
+        issue_type_groups = self._get_issue_type_groups(to_compute_issues_with_params)
+        self._set_issue_managers(issue_type_groups)
 
         # find issues
-        for issue_type_group, issue_manager in self.issue_managers.items():
+        for issue_type_group in issue_type_groups:
+            issue_manager = self.issue_managers[issue_type_group]
             issue_manager.find_issues(self.filepaths, self.info)
 
             # update issues, issue_summary and info
@@ -117,19 +117,25 @@ class Imagelab:
         self.issues = self.issues.join(issue_manager_issues[new_columns], how="left")
 
     def _get_issue_type_groups(self, issue_types_with_params):
-        issue_type_groups = {IMAGE_PROPERTY_LITERAL: {}, DUPLICATE_LITERAL: {}}
+        issue_type_groups = {}
 
         for issue_type, params in issue_types_with_params.items():
+            group_name = None
             if issue_type.value in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
-                issue_type_groups[IMAGE_PROPERTY_LITERAL][issue_type] = params
+                group_name = IMAGE_PROPERTY_LITERAL
             elif issue_type.value in DUPLICATE_ISSUE_TYPES_LIST:
-                issue_type_groups[DUPLICATE_LITERAL][issue_type] = params
+                group_name = DUPLICATE_LITERAL
             else:
-                issue_type_groups[issue_type] = params
+                issue_type_groups[issue_type.value] = params
+
+            if group_name:
+                if issue_type_groups.get(group_name):
+                    issue_type_groups[group_name][issue_type] = params
+                else:
+                    issue_type_groups[group_name] = {issue_type: params}
         return issue_type_groups
 
-    def _set_issue_managers(self, issue_types_with_params):
-        issue_type_groups = self._get_issue_type_groups(issue_types_with_params)
+    def _set_issue_managers(self, issue_type_groups):
         for issue_type_group, params in issue_type_groups.items():
             self.issue_managers[issue_type_group] = IssueManagerFactory.from_str(
                 issue_type_group
@@ -188,7 +194,7 @@ class Imagelab:
 
         self.visualize(top_issues, report_args["examples_per_issue"])
 
-    def get_issue_manager(self, issue_type_str):
+    def _get_issue_manager(self, issue_type_str):
         if issue_type_str in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
             return self.issue_managers[IMAGE_PROPERTY_LITERAL]
         elif issue_type_str in DUPLICATE_ISSUE_TYPES_LIST:
@@ -197,7 +203,7 @@ class Imagelab:
             return self.issue_managers[issue_type_str]
 
     def _visualize(self, issue_type_str, examples_per_issue, cell_size):
-        issue_manager = self.get_issue_manager(issue_type_str)
+        issue_manager = self._get_issue_manager(issue_type_str)
         viz_name = issue_manager.visualization
 
         if viz_name == "individual_images":
@@ -205,7 +211,7 @@ class Imagelab:
             sorted_df = sorted_df[sorted_df[f"{issue_type_str}_bool"] == 1]
             if len(sorted_df) < examples_per_issue:
                 print(
-                    f"Found only {len(sorted_df)} examples of {issue_type_str} issue in the dataset."
+                    f"Found {len(sorted_df)} examples of {issue_type_str} issue in the dataset."
                 )
             else:
                 print(f"\nTop {examples_per_issue} images with {issue_type_str} issue")
@@ -217,10 +223,15 @@ class Imagelab:
                 cell_size=cell_size,
             )
         elif viz_name == "image_sets":
-            print(
-                f"\nTop {examples_per_issue} sets of images with {issue_type_str} issue"
-            )
             image_sets = self.info[issue_type_str][SETS_LITERAL][:examples_per_issue]
+            if len(image_sets) < examples_per_issue:
+                print(
+                    f"Found {len(image_sets)} sets of images with {issue_type_str} issue in the dataset."
+                )
+            else:
+                print(
+                    f"\nTop {examples_per_issue} sets of images with {issue_type_str} issue"
+                )
             VizManager.image_sets(
                 image_sets,
                 ncols=self.config["visualize_num_images_per_row"],
