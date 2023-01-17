@@ -121,13 +121,12 @@ class DuplicateIssueManager(IssueManager):
                 ]
             }
 
-        for issue_type in [IssueType.EXACT_DUPLICATES, IssueType.NEAR_DUPLICATES]:
-            if issue_type in issue_type_hash_mapping:
-                self.info[issue_type.value] = {
-                    SETS_LITERAL: self._get_duplicate_sets(
-                        issue_type_hash_mapping[issue_type]
-                    )
-                }
+        for issue_type in issue_type_hash_mapping:
+            self.info[issue_type.value] = {
+                SETS_LITERAL: self._get_duplicate_sets(
+                    issue_type_hash_mapping[issue_type]
+                )
+            }
         self._remove_exact_duplicates_from_near()
 
     def _remove_exact_duplicates_from_near(self):
