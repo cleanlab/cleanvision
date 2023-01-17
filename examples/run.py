@@ -41,7 +41,7 @@ if __name__ == "__main__":
     imagelab.report(num_top_issues=1, max_prevalence=0.01)
 
     # Visualize
-    imagelab.visualize(["light"], examples_per_issue=8, figsize=(9, 9))
+    imagelab.visualize(["light"], examples_per_issue=8, cell_size=(9, 9))
 
     # Get stats
     stats = imagelab.info["statistics"]

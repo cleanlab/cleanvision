@@ -11,6 +11,8 @@ class IssueType(Enum):
     LIGHT = "light"
     ODD_ASPECT_RATIO = "odd_aspect_ratio"
     LOW_INFORMATION = "low_information"
+    EXACT_DUPLICATES = "exact_duplicates"
+    NEAR_DUPLICATES = "near_duplicates"
     CUSTOM = "custom"
 
 
