@@ -9,13 +9,13 @@ from cleanvision.issue_managers.image_property import (
     EntropyProperty,
 )
 from cleanvision.utils.base_issue_manager import IssueManager
-from cleanvision.utils.constants import IMAGE_PROPERTY_LITERAL
+from cleanvision.utils.constants import IMAGE_PROPERTY
 
 
 # Combined all issues which are to be detected using image properties under one class to save time on loading image
-@register_issue_manager(IMAGE_PROPERTY_LITERAL)
+@register_issue_manager(IMAGE_PROPERTY)
 class ImagePropertyIssueManager(IssueManager):
-    issue_name = IMAGE_PROPERTY_LITERAL
+    issue_name = IMAGE_PROPERTY
     visualization = "individual_images"
 
     def __init__(self, params):

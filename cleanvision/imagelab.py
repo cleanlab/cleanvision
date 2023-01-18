@@ -2,11 +2,11 @@ import pandas as pd
 
 from cleanvision.issue_managers import IssueType, IssueManagerFactory
 from cleanvision.utils.constants import (
-    IMAGE_PROPERTY_LITERAL,
-    DUPLICATE_LITERAL,
+    IMAGE_PROPERTY,
+    DUPLICATE,
     IMAGE_PROPERTY_ISSUE_TYPES_LIST,
     DUPLICATE_ISSUE_TYPES_LIST,
-    SETS_LITERAL,
+    SETS,
 )
 from cleanvision.utils.utils import get_filepaths, deep_update_dict
 from cleanvision.utils.viz_manager import VizManager
@@ -122,9 +122,9 @@ class Imagelab:
         for issue_type, params in issue_types_with_params.items():
             group_name = None
             if issue_type.value in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
-                group_name = IMAGE_PROPERTY_LITERAL
+                group_name = IMAGE_PROPERTY
             elif issue_type.value in DUPLICATE_ISSUE_TYPES_LIST:
-                group_name = DUPLICATE_LITERAL
+                group_name = DUPLICATE
             else:
                 issue_type_groups[issue_type.value] = params
 
@@ -196,9 +196,9 @@ class Imagelab:
 
     def _get_issue_manager(self, issue_type_str):
         if issue_type_str in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
-            return self.issue_managers[IMAGE_PROPERTY_LITERAL]
+            return self.issue_managers[IMAGE_PROPERTY]
         elif issue_type_str in DUPLICATE_ISSUE_TYPES_LIST:
-            return self.issue_managers[DUPLICATE_LITERAL]
+            return self.issue_managers[DUPLICATE]
         else:
             return self.issue_managers[issue_type_str]
 
@@ -223,7 +223,7 @@ class Imagelab:
                 cell_size=cell_size,
             )
         elif viz_name == "image_sets":
-            image_sets = self.info[issue_type_str][SETS_LITERAL][:examples_per_issue]
+            image_sets = self.info[issue_type_str][SETS][:examples_per_issue]
             if len(image_sets) < examples_per_issue:
                 print(
                     f"Found {len(image_sets)} sets of images with {issue_type_str} issue in the dataset."

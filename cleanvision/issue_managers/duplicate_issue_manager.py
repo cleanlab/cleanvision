@@ -7,12 +7,12 @@ from tqdm import tqdm
 
 from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.utils.base_issue_manager import IssueManager
-from cleanvision.utils.constants import SETS_LITERAL, DUPLICATE_LITERAL
+from cleanvision.utils.constants import SETS, DUPLICATE
 
 
-@register_issue_manager(DUPLICATE_LITERAL)
+@register_issue_manager(DUPLICATE)
 class DuplicateIssueManager(IssueManager):
-    issue_name = DUPLICATE_LITERAL
+    issue_name = DUPLICATE
     visualization = "image_sets"
 
     def __init__(self, params):
@@ -63,7 +63,7 @@ class DuplicateIssueManager(IssueManager):
                      List of issue_types to run computation for
         """
         to_compute = []
-        if SETS_LITERAL not in imagelab_info.get(IssueType.EXACT_DUPLICATES.value, {}):
+        if SETS not in imagelab_info.get(IssueType.EXACT_DUPLICATES.value, {}):
             to_compute.append(IssueType.EXACT_DUPLICATES)
         if IssueType.NEAR_DUPLICATES in self.issue_types:
             to_compute.append(IssueType.NEAR_DUPLICATES)
@@ -99,13 +99,13 @@ class DuplicateIssueManager(IssueManager):
     def _compute_summary(self, issue_type):
         return {
             "num_images": self.issues[f"{issue_type.value}_bool"].sum(),
-            "num_sets": len(self.info[issue_type.value][SETS_LITERAL]),
+            "num_sets": len(self.info[issue_type.value][SETS]),
         }
 
     def _update_issues(self):
         for issue_type in self.issue_types:
             duplicated_images = []
-            for s in self.info[issue_type.value][SETS_LITERAL]:
+            for s in self.info[issue_type.value][SETS]:
                 duplicated_images.extend(s)
             self.issues[
                 f"{issue_type.value}_bool"
@@ -116,25 +116,21 @@ class DuplicateIssueManager(IssueManager):
     def _update_info(self, issue_type_hash_mapping, imagelab_info):
         if IssueType.EXACT_DUPLICATES.value in imagelab_info:
             self.info[IssueType.EXACT_DUPLICATES.value] = {
-                SETS_LITERAL: imagelab_info[IssueType.EXACT_DUPLICATES.value][
-                    SETS_LITERAL
-                ]
+                SETS: imagelab_info[IssueType.EXACT_DUPLICATES.value][SETS]
             }
 
         for issue_type in issue_type_hash_mapping:
             self.info[issue_type.value] = {
-                SETS_LITERAL: self._get_duplicate_sets(
-                    issue_type_hash_mapping[issue_type]
-                )
+                SETS: self._get_duplicate_sets(issue_type_hash_mapping[issue_type])
             }
         self._remove_exact_duplicates_from_near()
 
     def _remove_exact_duplicates_from_near(self):
         updated_sets = []
-        for s in self.info[IssueType.NEAR_DUPLICATES.value][SETS_LITERAL]:
-            if s not in self.info[IssueType.EXACT_DUPLICATES.value][SETS_LITERAL]:
+        for s in self.info[IssueType.NEAR_DUPLICATES.value][SETS]:
+            if s not in self.info[IssueType.EXACT_DUPLICATES.value][SETS]:
                 updated_sets.append(s)
-        self.info[IssueType.NEAR_DUPLICATES.value][SETS_LITERAL] = updated_sets
+        self.info[IssueType.NEAR_DUPLICATES.value][SETS] = updated_sets
 
     @staticmethod
     def _get_duplicate_sets(hash_image_mapping):
