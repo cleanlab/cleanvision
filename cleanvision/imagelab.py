@@ -37,6 +37,7 @@ class Imagelab:
                 IssueType.LOW_INFORMATION,
                 IssueType.EXACT_DUPLICATES,
                 IssueType.NEAR_DUPLICATES,
+                IssueType.BLURRED,
             ],
         }
 
@@ -174,26 +175,30 @@ class Imagelab:
 
     def report(
         self,
+        issue_types=None,
         num_top_issues=None,
         max_prevalence=None,
         examples_per_issue=None,
         verbosity=1,
     ):
         assert isinstance(verbosity, int) and 0 < verbosity < 5
+
         user_supplied_args = locals()
         report_args = self._get_report_args(verbosity, user_supplied_args)
 
-        top_issues = self._get_topk_issues(
-            report_args["num_top_issues"], report_args["max_prevalence"]
-        )
-        top_issue_summary = self.issue_summary[
-            self.issue_summary["issue_type"].isin(top_issues)
+        if issue_types:
+            issue_types = issue_types
+        else:
+            print("Top issues in the dataset\n")
+            issue_types = self._get_topk_issues(
+                report_args["num_top_issues"], report_args["max_prevalence"]
+            )
+        issue_summary = self.issue_summary[
+            self.issue_summary["issue_type"].isin(issue_types)
         ]
+        print(issue_summary.to_markdown(), "\n")
 
-        print("Top issues in the dataset\n")
-        print(top_issue_summary.to_markdown(), "\n")
-
-        self.visualize(top_issues, report_args["examples_per_issue"])
+        self.visualize(issue_types, report_args["examples_per_issue"])
 
     def _get_issue_manager(self, issue_type_str):
         if issue_type_str in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
