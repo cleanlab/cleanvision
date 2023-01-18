@@ -63,3 +63,6 @@ class CustomIssueManager(IssueManager):
         summary_dict = self._compute_summary(self.issues[f"{self.issue_name}_bool"])
 
         self.update_summary(summary_dict)
+
+    def _compute_summary(self, issues_boolean):
+        return {"num_images": issues_boolean.sum()}

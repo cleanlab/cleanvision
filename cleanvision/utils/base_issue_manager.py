@@ -13,12 +13,6 @@ class IssueManager(ABC):
         self.params = self.get_default_params()
         self.set_params(params)
 
-    @property
-    @abstractmethod
-    def issue_name(self) -> str:
-        """Returns a name that identifies the type of issue that the manager handles."""
-        raise NotImplementedError
-
     def __repr__(self):
         class_name = self.__class__.__name__
         return class_name

@@ -16,7 +16,7 @@ from cleanvision.utils.constants import IMAGE_PROPERTY
 @register_issue_manager(IMAGE_PROPERTY)
 class ImagePropertyIssueManager(IssueManager):
     issue_name = IMAGE_PROPERTY
-    visualization = "property_based"
+    visualization = "individual_images"
 
     def __init__(self, params):
         super().__init__(params)

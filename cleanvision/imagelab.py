@@ -1,11 +1,15 @@
-import math
-
 import pandas as pd
 
 from cleanvision.issue_managers import IssueType, IssueManagerFactory
-from cleanvision.utils.constants import IMAGE_PROPERTY, IMAGE_PROPERTY_ISSUE_TYPES_LIST
+from cleanvision.utils.constants import (
+    IMAGE_PROPERTY,
+    DUPLICATE,
+    IMAGE_PROPERTY_ISSUE_TYPES_LIST,
+    DUPLICATE_ISSUE_TYPES_LIST,
+    SETS,
+)
 from cleanvision.utils.utils import get_filepaths, deep_update_dict
-from cleanvision.utils.viz_manager import VIZ_REGISTRY
+from cleanvision.utils.viz_manager import VizManager
 
 
 class Imagelab:
@@ -31,6 +35,8 @@ class Imagelab:
                 IssueType.LIGHT,
                 IssueType.ODD_ASPECT_RATIO,
                 IssueType.LOW_INFORMATION,
+                IssueType.EXACT_DUPLICATES,
+                IssueType.NEAR_DUPLICATES,
             ],
         }
 
@@ -68,13 +74,13 @@ class Imagelab:
             set(self.issue_types).union(set(to_compute_issues_with_params.keys()))
         )
 
-        # create issue managers
-        self._set_issue_managers(
-            to_compute_issues_with_params,
-        )
+        # set issue managers
+        issue_type_groups = self._get_issue_type_groups(to_compute_issues_with_params)
+        self._set_issue_managers(issue_type_groups)
 
         # find issues
-        for issue_type_str, issue_manager in self.issue_managers.items():
+        for issue_type_group in issue_type_groups:
+            issue_manager = self.issue_managers[issue_type_group]
             issue_manager.find_issues(self.filepaths, self.info)
 
             # update issues, issue_summary and info
@@ -110,25 +116,30 @@ class Imagelab:
             self.issues[column_name] = issue_manager_issues[column_name]
         self.issues = self.issues.join(issue_manager_issues[new_columns], how="left")
 
-    def _get_image_property_issues(self, issue_types_with_params):
-        image_property_issues = {}
-        for issue_type, params in issue_types_with_params.items():
-            if issue_type.value in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
-                image_property_issues[issue_type] = params
-        return image_property_issues
+    def _get_issue_type_groups(self, issue_types_with_params):
+        issue_type_groups = {}
 
-    def _set_issue_managers(self, issue_types_with_params):
-        image_property_issue_types = self._get_image_property_issues(
-            issue_types_with_params
-        )
-        self.issue_managers[IMAGE_PROPERTY] = IssueManagerFactory.from_str(
-            IMAGE_PROPERTY
-        )(image_property_issue_types)
         for issue_type, params in issue_types_with_params.items():
-            if issue_type not in image_property_issue_types:
-                self.issue_managers[issue_type.value] = IssueManagerFactory.from_str(
-                    issue_type.value
-                )(params)
+            group_name = None
+            if issue_type.value in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
+                group_name = IMAGE_PROPERTY
+            elif issue_type.value in DUPLICATE_ISSUE_TYPES_LIST:
+                group_name = DUPLICATE
+            else:
+                issue_type_groups[issue_type.value] = params
+
+            if group_name:
+                if issue_type_groups.get(group_name):
+                    issue_type_groups[group_name][issue_type] = params
+                else:
+                    issue_type_groups[group_name] = {issue_type: params}
+        return issue_type_groups
+
+    def _set_issue_managers(self, issue_type_groups):
+        for issue_type_group, params in issue_type_groups.items():
+            self.issue_managers[issue_type_group] = IssueManagerFactory.from_str(
+                issue_type_group
+            )(params)
 
     def _get_topk_issues(self, num_top_issues, max_prevalence):
         topk_issues = []
@@ -183,40 +194,53 @@ class Imagelab:
 
         self.visualize(top_issues, report_args["examples_per_issue"])
 
-    def _get_viz_name(self, issue_type_str):
+    def _get_issue_manager(self, issue_type_str):
         if issue_type_str in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
-            viz_name = self.issue_managers[IMAGE_PROPERTY].visualization
+            return self.issue_managers[IMAGE_PROPERTY]
+        elif issue_type_str in DUPLICATE_ISSUE_TYPES_LIST:
+            return self.issue_managers[DUPLICATE]
         else:
-            viz_name = self.issue_managers[issue_type_str].visualization
-        return viz_name
+            return self.issue_managers[issue_type_str]
 
-    def _visualize(self, issue_type_str, examples_per_issue, figsize):
-        viz_name = self._get_viz_name(issue_type_str)
-        viz_method = VIZ_REGISTRY[viz_name]
+    def _visualize(self, issue_type_str, examples_per_issue, cell_size):
+        issue_manager = self._get_issue_manager(issue_type_str)
+        viz_name = issue_manager.visualization
 
-        if viz_name == "property_based":
+        if viz_name == "individual_images":
             sorted_df = self.issues.sort_values(by=[f"{issue_type_str}_score"])
             sorted_df = sorted_df[sorted_df[f"{issue_type_str}_bool"] == 1]
             if len(sorted_df) < examples_per_issue:
                 print(
-                    f"Found only {len(sorted_df)} examples of {issue_type_str} issue in the dataset."
+                    f"Found {len(sorted_df)} examples of {issue_type_str} issue in the dataset."
                 )
             else:
                 print(f"\nTop {examples_per_issue} images with {issue_type_str} issue")
+
             sorted_filepaths = sorted_df.index[:examples_per_issue].tolist()
-            viz_method(
+            VizManager.individual_images(
                 filepaths=sorted_filepaths,
-                nrows=math.ceil(
-                    min(examples_per_issue, len(sorted_filepaths))
-                    / self.config["visualize_num_images_per_row"]
-                ),
                 ncols=self.config["visualize_num_images_per_row"],
-                figsize=figsize,
+                cell_size=cell_size,
+            )
+        elif viz_name == "image_sets":
+            image_sets = self.info[issue_type_str][SETS][:examples_per_issue]
+            if len(image_sets) < examples_per_issue:
+                print(
+                    f"Found {len(image_sets)} sets of images with {issue_type_str} issue in the dataset."
+                )
+            else:
+                print(
+                    f"\nTop {examples_per_issue} sets of images with {issue_type_str} issue"
+                )
+            VizManager.image_sets(
+                image_sets,
+                ncols=self.config["visualize_num_images_per_row"],
+                cell_size=cell_size,
             )
 
-    def visualize(self, issue_types, examples_per_issue=4, figsize=(8, 8)):
+    def visualize(self, issue_types, examples_per_issue=4, cell_size=(2, 2)):
         for issue_type in issue_types:
-            self._visualize(issue_type, examples_per_issue, figsize)
+            self._visualize(issue_type, examples_per_issue, cell_size)
 
     def get_stats(self):
         return self.info["statistics"]
