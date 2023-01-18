@@ -10,6 +10,7 @@ class IssueManager(ABC):
         self.info = {"statistics": {}}
         self.issues = pd.DataFrame()
         self.summary = pd.DataFrame(columns=["issue_type"])
+        self.params = self.get_default_params()
         self.set_params(params)
 
     @property
@@ -32,7 +33,13 @@ class IssueManager(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def get_default_params(self):
+        """Returns default params to be used by the issue_manager"""
+        raise NotImplementedError
+
+    @abstractmethod
     def set_params(self, params):
+        """Sets params for an issue manager. Default params will be overridden by user provided params"""
         raise NotImplementedError
 
     @staticmethod

@@ -2,6 +2,7 @@ import glob
 import os
 import statistics
 from collections import OrderedDict
+from typing import Dict
 
 import numpy as np
 
@@ -47,6 +48,29 @@ def get_filepaths(
             continue
         filepaths += filetype_images
     return sorted(filepaths)  # sort image names alphabetically and numerically
+
+
+def deep_update_dict(d: Dict, u: Dict) -> Dict:
+    """Updates nested dictionary
+
+    Parameters
+    ----------
+    d : dict
+        dictionary to update
+    u : dict
+        Updates
+
+    Returns
+    -------
+    dict
+        Updated dictionary
+    """
+    for k, v in u.items():
+        if isinstance(v, dict):
+            d[k] = deep_update_dict(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d
 
 
 def get_zscores(scores):

@@ -7,9 +7,11 @@ from cleanvision.utils.base_issue_manager import IssueManager
 
 
 class IssueType(Enum):
-    DARK = "Dark"
-    LIGHT = "Light"
-    CUSTOM = "Custom"
+    DARK = "dark"
+    LIGHT = "light"
+    ODD_ASPECT_RATIO = "odd_aspect_ratio"
+    LOW_INFORMATION = "low_information"
+    CUSTOM = "custom"
 
 
 ISSUE_MANAGER_REGISTRY = {}
@@ -41,6 +43,7 @@ def register_issue_manager(name):
             raise ValueError("{} must extend IssueManager".format(cls.__name__))
 
         ISSUE_MANAGER_REGISTRY[name] = cls
+
         return cls
 
     return register_issue_manager_cls
@@ -56,4 +59,3 @@ for file in os.listdir(os.path.dirname(__file__)):
         module = importlib.import_module(
             "cleanvision.issue_managers" + "." + module_name
         )
-

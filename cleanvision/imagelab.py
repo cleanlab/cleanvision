@@ -4,7 +4,7 @@ import pandas as pd
 
 from cleanvision.issue_managers import IssueType, IssueManagerFactory
 from cleanvision.utils.constants import IMAGE_PROPERTY, IMAGE_PROPERTY_ISSUE_TYPES_LIST
-from cleanvision.utils.utils import get_filepaths
+from cleanvision.utils.utils import get_filepaths, deep_update_dict
 from cleanvision.utils.viz_manager import VIZ_REGISTRY
 
 
@@ -26,16 +26,24 @@ class Imagelab:
             "report_num_top_issues_values": [3, 5, 10, len(self.issue_types)],
             "report_examples_per_issue_values": [4, 8, 16, 32],
             "report_max_prevalence": 0.5,
-            "default_issue_types": [IssueType.DARK, IssueType.LIGHT],
+            "default_issue_types": [
+                IssueType.DARK,
+                IssueType.LIGHT,
+                IssueType.ODD_ASPECT_RATIO,
+                IssueType.LOW_INFORMATION,
+            ],
         }
 
     def list_default_issue_types(self):
-        print("Default issue type checked by Imagelab")
-        print(*self.config["default_issue_types"], sep="\n")
+        print("Default issue type checked by Imagelab:\n")
+        print(
+            *[issue_type.value for issue_type in self.config["default_issue_types"]],
+            sep="\n",
+        )
 
     def list_possible_issue_types(self):
-        print("All possible issues checked by Imagelab")
-        print(*list(IssueType), sep="\n")
+        print("All possible issues checked by Imagelab:\n")
+        print(*[issue_type.value for issue_type in list(IssueType)], sep="\n")
 
     def _get_issues_to_compute(self, issue_types_with_params):
         if not issue_types_with_params:
@@ -81,11 +89,7 @@ class Imagelab:
         return
 
     def _update_info(self, issue_manager_info):
-
-        for k, info_dict in issue_manager_info.items():
-            # good: keeps useful existing keys
-            # bad: has the potential to keep outdated values with new ones
-            self.info[k] = {**self.info.get(k, {}), **info_dict}
+        deep_update_dict(self.info, issue_manager_info)
 
     def _update_issue_summary(self, issue_manager_summary):
         self.issue_summary = self.issue_summary[
