@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     # Run Imagelab for specific checks
     imagelab = Imagelab(dataset_path)
-    issue_types = {"near_duplicates": {}}
+    issue_types = {"blurred": {}}
     imagelab.find_issues(issue_types)
     imagelab.report()
 

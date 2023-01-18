@@ -2,7 +2,7 @@ import math
 from abc import ABC, abstractmethod
 
 import numpy as np
-from PIL import ImageStat
+from PIL import ImageStat, ImageFilter
 
 from cleanvision.issue_managers import IssueType
 
@@ -76,6 +76,26 @@ class EntropyProperty(ImageProperty):
         scores = normalizing_factor * scores
         scores[scores > 1] = 1
         return scores
+
+
+class BlurrinessProperty(ImageProperty):
+    name = "Blurriness"
+
+    def calculate(self, image):
+        edges = get_edges(image)
+        blurriness = ImageStat.Stat(edges).var[0]
+        return blurriness
+
+    def get_scores(self, raw_scores, normalizing_factor, **_):
+        raw_scores = np.array(raw_scores)
+        scores = 1 - np.exp(-1 * raw_scores * normalizing_factor)
+        return scores
+
+
+def get_edges(image):
+    gray_image = image.convert("L")
+    edges = gray_image.filter(ImageFilter.FIND_EDGES)
+    return edges
 
 
 def calculate_brightness(red, green, blue):

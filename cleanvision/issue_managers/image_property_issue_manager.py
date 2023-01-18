@@ -7,6 +7,7 @@ from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
     AspectRatioProperty,
     EntropyProperty,
+    BlurrinessProperty,
 )
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import IMAGE_PROPERTY
@@ -30,6 +31,7 @@ class ImagePropertyIssueManager(IssueManager):
             IssueType.ODD_ASPECT_RATIO: {"threshold": 0.5},
             # todo: check low complexity params on a different dataset
             IssueType.LOW_INFORMATION: {"threshold": 0.3, "normalizing_factor": 0.1},
+            IssueType.BLURRED: {"threshold": 0.3, "normalizing_factor": 0.001},
         }
 
     def set_params(self, params):
@@ -45,6 +47,7 @@ class ImagePropertyIssueManager(IssueManager):
             IssueType.LIGHT: BrightnessProperty(IssueType.LIGHT),
             IssueType.ODD_ASPECT_RATIO: AspectRatioProperty(),
             IssueType.LOW_INFORMATION: EntropyProperty(),
+            IssueType.BLURRED: BlurrinessProperty(),
         }
 
     def _get_defer_set(self, imagelab_info):
