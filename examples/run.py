@@ -48,7 +48,10 @@ if __name__ == "__main__":
     print(stats.keys())
 
     # Run imagelab on custom issue
+    from examples.custom_issue_manager import CustomIssueManager
+
+    issue_name = CustomIssueManager.issue_name
     imagelab.list_possible_issue_types()
-    issue_types = {"custom": {}}
+    issue_types = {issue_name: {}}
     imagelab.find_issues(issue_types)
     imagelab.report()
