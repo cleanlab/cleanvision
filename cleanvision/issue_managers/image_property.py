@@ -4,16 +4,16 @@ from abc import ABC, abstractmethod
 import numpy as np
 from PIL import ImageStat
 
-from cleanvision.utils.issue_types import IssueType
+from cleanvision.issue_managers import IssueType
 
 
-class ImagePropertyHelper(ABC):
+class ImageProperty(ABC):
     @abstractmethod
     def calculate(self, image):
         raise NotImplementedError
 
     @abstractmethod
-    def normalize(self, raw_scores):
+    def get_scores(self, *args, **kwargs):
         raise NotImplementedError
 
     @staticmethod
@@ -21,7 +21,9 @@ class ImagePropertyHelper(ABC):
         return scores < threshold
 
 
-class BrightnessHelper(ImagePropertyHelper):
+class BrightnessProperty(ImageProperty):
+    name = "Brightness"
+
     def __init__(self, issue_type):
         self.issue_type = issue_type
 
@@ -40,17 +42,43 @@ class BrightnessHelper(ImagePropertyHelper):
 
         return cur_bright
 
-    def normalize(self, raw_scores):
+    def get_scores(self, raw_scores, **_):
         scores = np.array(raw_scores)
         scores[scores > 1] = 1
         # reverse the brightness scores to catch images which are too bright
-        if self.issue_type.name == IssueType.LIGHT_IMAGES.name:
+        if self.issue_type.name == IssueType.LIGHT.name:
             scores = 1 - scores
         return scores
 
 
-def calculate_brightness(red, green, blue):
+class AspectRatioProperty(ImageProperty):
+    name = "AspectRatio"
 
+    def calculate(self, image):
+        width, height = image.size
+        size_score = min(width / height, height / width)  # consider extreme shapes
+        return size_score
+
+    def get_scores(self, raw_scores, **_):
+        scores = np.array(raw_scores)
+        return scores
+
+
+class EntropyProperty(ImageProperty):
+    name = "Entropy"
+
+    def calculate(self, image):
+        entropy = image.entropy()
+        return entropy
+
+    def get_scores(self, raw_scores, normalizing_factor, **_):
+        scores = np.array(raw_scores)
+        scores = normalizing_factor * scores
+        scores[scores > 1] = 1
+        return scores
+
+
+def calculate_brightness(red, green, blue):
     cur_bright = (
         math.sqrt(0.241 * (red**2) + 0.691 * (green**2) + 0.068 * (blue**2))
     ) / 255
