@@ -50,6 +50,7 @@ if __name__ == "__main__":
     # Run imagelab on custom issue
     from examples.custom_issue_manager import CustomIssueManager
 
+    imagelab = Imagelab(dataset_path)
     issue_name = CustomIssueManager.issue_name
     imagelab.list_possible_issue_types()
     issue_types = {issue_name: {}}

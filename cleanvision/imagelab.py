@@ -54,11 +54,12 @@ class Imagelab:
     def _get_issues_to_compute(self, issue_types_with_params):
         if not issue_types_with_params:
             to_compute_issues_with_params = {
-                issue_type: {} for issue_type in self.config["default_issue_types"]
+                issue_type.value: {}
+                for issue_type in self.config["default_issue_types"]
             }
         else:
             to_compute_issues_with_params = {
-                IssueType(issue_type_str): params
+                issue_type_str: params
                 for issue_type_str, params in issue_types_with_params.items()
             }
         return to_compute_issues_with_params
@@ -66,7 +67,7 @@ class Imagelab:
     def find_issues(self, issue_types=None):
         to_compute_issues_with_params = self._get_issues_to_compute(issue_types)
         print(
-            f"Checking for {', '.join([issue_type.value for issue_type in to_compute_issues_with_params.keys()])} images ..."
+            f"Checking for {', '.join([issue_type for issue_type in to_compute_issues_with_params.keys()])} images ..."
         )
 
         # update issue_types
@@ -121,12 +122,12 @@ class Imagelab:
 
         for issue_type, params in issue_types_with_params.items():
             group_name = None
-            if issue_type.value in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
+            if issue_type in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
                 group_name = IMAGE_PROPERTY
-            elif issue_type.value in DUPLICATE_ISSUE_TYPES_LIST:
+            elif issue_type in DUPLICATE_ISSUE_TYPES_LIST:
                 group_name = DUPLICATE
             else:
-                issue_type_groups[issue_type.value] = params
+                issue_type_groups[issue_type] = params
 
             if group_name:
                 if issue_type_groups.get(group_name):
