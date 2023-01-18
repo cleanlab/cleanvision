@@ -1,9 +1,9 @@
-from setuptools import setup, find_packages
-from setuptools.command.egg_info import egg_info
-
 # To use a consistent encoding
 from codecs import open
 from os import path
+
+from setuptools import setup, find_packages
+from setuptools.command.egg_info import egg_info
 
 
 class egg_info_ex(egg_info):
@@ -25,7 +25,6 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
-
 setup(
     name="cleanvision",
     version="0.0.0",
@@ -44,10 +43,11 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        "Pillow >= 8.4",
-        "numpy>=1.11.3",
-        "pandas>=1.0.0",
+        "Pillow>=9.3",
+        "numpy>=1.20.0",
+        "pandas>=1.1.5",
         "imagehash>=4.2.0",
         "tqdm>=4.53.0",
+        "matplotlib>=3.4",
     ],
 )
