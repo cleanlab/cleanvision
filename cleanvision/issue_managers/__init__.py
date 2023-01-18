@@ -13,7 +13,7 @@ class IssueType(Enum):
     LOW_INFORMATION = "low_information"
     EXACT_DUPLICATES = "exact_duplicates"
     NEAR_DUPLICATES = "near_duplicates"
-    CUSTOM = "custom"
+    BLURRED = "blurred"
 
 
 ISSUE_MANAGER_REGISTRY = {}
