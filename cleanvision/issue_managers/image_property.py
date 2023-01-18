@@ -22,7 +22,7 @@ class ImageProperty(ABC):
 
 
 class BrightnessProperty(ImageProperty):
-    name = "Brightness"
+    name = "brightness"
 
     def __init__(self, issue_type):
         self.issue_type = issue_type
@@ -52,7 +52,7 @@ class BrightnessProperty(ImageProperty):
 
 
 class AspectRatioProperty(ImageProperty):
-    name = "AspectRatio"
+    name = "aspect_ratio"
 
     def calculate(self, image):
         width, height = image.size
@@ -65,7 +65,7 @@ class AspectRatioProperty(ImageProperty):
 
 
 class EntropyProperty(ImageProperty):
-    name = "Entropy"
+    name = "entropy"
 
     def calculate(self, image):
         entropy = image.entropy()
@@ -79,7 +79,7 @@ class EntropyProperty(ImageProperty):
 
 
 class BlurrinessProperty(ImageProperty):
-    name = "Blurriness"
+    name = "blurriness"
 
     def calculate(self, image):
         edges = get_edges(image)
