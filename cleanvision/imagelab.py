@@ -37,7 +37,7 @@ class Imagelab:
                 IssueType.LOW_INFORMATION,
                 IssueType.EXACT_DUPLICATES,
                 IssueType.NEAR_DUPLICATES,
-                IssueType.BLURRED,
+                IssueType.BLURRY,
                 IssueType.GRAYSCALE,
             ],
         }

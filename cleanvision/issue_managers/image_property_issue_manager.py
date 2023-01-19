@@ -35,7 +35,7 @@ class ImagePropertyIssueManager(IssueManager):
                 "threshold": 0.3,
                 "normalizing_factor": 0.1,
             },
-            IssueType.BLURRED.value: {"threshold": 0.3, "normalizing_factor": 0.001},
+            IssueType.BLURRY.value: {"threshold": 0.3, "normalizing_factor": 0.001},
             IssueType.GRAYSCALE.value: {},
         }
 
@@ -52,7 +52,7 @@ class ImagePropertyIssueManager(IssueManager):
             IssueType.LIGHT.value: BrightnessProperty(IssueType.LIGHT),
             IssueType.ODD_ASPECT_RATIO.value: AspectRatioProperty(),
             IssueType.LOW_INFORMATION.value: EntropyProperty(),
-            IssueType.BLURRED.value: BlurrinessProperty(),
+            IssueType.BLURRY.value: BlurrinessProperty(),
             IssueType.GRAYSCALE.value: ColorSpaceProperty(),
         }
 
