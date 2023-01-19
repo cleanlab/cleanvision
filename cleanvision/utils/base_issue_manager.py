@@ -3,7 +3,9 @@ from typing import Dict, TypeVar, Any, List, Type
 
 import pandas as pd
 
-TIssueManager = TypeVar("TIssueManager", bound="IssueManager")  # self type for the class
+TIssueManager = TypeVar(
+    "TIssueManager", bound="IssueManager"
+)  # self type for the class
 
 
 class IssueManager(ABC):
