@@ -71,7 +71,7 @@ class ImagePropertyIssueManager(IssueManager):
         ]
         return to_be_computed
 
-    def find_issues(self, filepaths, imagelab_info):
+    def find_issues(self, filepaths, imagelab_info) -> None:
         defer_set = self._get_defer_set(imagelab_info)
 
         to_be_computed = list(set(self.issue_types).difference(defer_set))
