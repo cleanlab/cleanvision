@@ -1,8 +1,8 @@
 import math
 
-import matplotlib.pyplot as plt
-from PIL import Image
-from mpl_toolkits.axes_grid1 import ImageGrid
+import matplotlib.pyplot as plt  # type: ignore
+from PIL import Image  # type: ignore
+from mpl_toolkits.axes_grid1 import ImageGrid  # type: ignore
 
 
 class VizManager:
