@@ -7,8 +7,8 @@ from typing import List, Type
 
 import numpy as np
 import pandas as pd
-from PIL import Image
-from tqdm import tqdm
+from PIL import Image  # type: ignore
+from tqdm import tqdm  # type: ignore
 
 from cleanvision.issue_checks import (
     check_odd_size,

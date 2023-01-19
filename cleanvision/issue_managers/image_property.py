@@ -2,7 +2,7 @@ import math
 from abc import ABC, abstractmethod
 
 import numpy as np
-from PIL import ImageStat
+from PIL import ImageStat  # type: ignore
 
 from cleanvision.issue_managers import IssueType
 
