@@ -1,5 +1,5 @@
 import math, hashlib, imagehash
-from PIL import ImageStat, ImageFilter
+from PIL import ImageStat, ImageFilter  # type: ignore
 import numpy as np
 
 

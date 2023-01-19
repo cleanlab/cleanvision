@@ -2,8 +2,8 @@ import hashlib
 
 import imagehash
 import pandas as pd
-from PIL import Image
-from tqdm import tqdm
+from PIL import Image  # type: ignore
+from tqdm import tqdm  # type: ignore
 
 from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.utils.base_issue_manager import IssueManager
