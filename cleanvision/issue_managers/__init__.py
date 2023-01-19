@@ -1,7 +1,7 @@
 import importlib
 import os
 from enum import Enum
-from typing import List, Type
+from typing import List, Type, Dict
 
 from cleanvision.utils.base_issue_manager import IssueManager
 
@@ -16,7 +16,7 @@ class IssueType(Enum):
     CUSTOM = "custom"
 
 
-ISSUE_MANAGER_REGISTRY = {}
+ISSUE_MANAGER_REGISTRY: Dict[str, Type[IssueManager]] = {}
 
 
 class IssueManagerFactory:
