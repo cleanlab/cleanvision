@@ -124,5 +124,5 @@ class ImagePropertyIssueManager(IssueManager):
 
     def update_summary(self, summary_dict: dict):
         summary_df = pd.DataFrame.from_dict(summary_dict, orient="index")
-        summary_df['issue_type'] = summary_df.index
+        summary_df["issue_type"] = summary_df.index
         self.summary = summary_df.reset_index()
