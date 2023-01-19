@@ -1,5 +1,6 @@
 import math
 from abc import ABC, abstractmethod
+from typing import List
 
 import numpy as np
 from PIL import ImageStat, ImageFilter
@@ -104,3 +105,31 @@ def calculate_brightness(red, green, blue):
     ) / 255
 
     return cur_bright
+
+
+class ColorSpaceProperty(ImageProperty):
+    name = "color_space"
+
+    def calculate(self, image):
+        return get_image_mode(image)
+
+    def get_scores(self, raw_scores: List[str], **_):
+        scores = np.array([0 if mode == "L" else 1 for mode in raw_scores])
+        return scores
+
+    def mark_issue(self, scores, *_):
+        return (1 - scores).astype("bool")
+
+
+def get_image_mode(image):
+    if image.mode:
+        return image.mode
+    else:
+        imarr = np.asarray(image)
+        if len(imarr.shape) == 2 or (
+            len(imarr.shape) == 3
+            and (np.diff(imarr.reshape(-1, 3).T, axis=0) == 0).all()
+        ):
+            return "L"
+        else:
+            return "UNK"

@@ -8,6 +8,7 @@ from cleanvision.issue_managers.image_property import (
     AspectRatioProperty,
     EntropyProperty,
     BlurrinessProperty,
+    ColorSpaceProperty,
 )
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import IMAGE_PROPERTY
@@ -35,6 +36,7 @@ class ImagePropertyIssueManager(IssueManager):
                 "normalizing_factor": 0.1,
             },
             IssueType.BLURRED.value: {"threshold": 0.3, "normalizing_factor": 0.001},
+            IssueType.GRAYSCALE.value: {},
         }
 
     def set_params(self, params):
@@ -51,6 +53,7 @@ class ImagePropertyIssueManager(IssueManager):
             IssueType.ODD_ASPECT_RATIO.value: AspectRatioProperty(),
             IssueType.LOW_INFORMATION.value: EntropyProperty(),
             IssueType.BLURRED.value: BlurrinessProperty(),
+            IssueType.GRAYSCALE.value: ColorSpaceProperty(),
         }
 
     def _get_defer_set(self, imagelab_info):
@@ -114,7 +117,7 @@ class ImagePropertyIssueManager(IssueManager):
             self.issues[f"{issue_type}_score"] = scores
             self.issues[f"{issue_type}_bool"] = self.image_properties[
                 issue_type
-            ].mark_issue(scores, self.params[issue_type]["threshold"])
+            ].mark_issue(scores, self.params[issue_type].get("threshold"))
 
             summary_dict[issue_type] = self._compute_summary(
                 self.issues[f"{issue_type}_bool"]
