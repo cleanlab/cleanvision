@@ -22,8 +22,8 @@ from cleanvision.issue_checks import (
 )
 from cleanvision.utils.utils import (
     get_sorted_images,
-    display_images,
-    get_is_issue,
+    # display_images,
+    # get_is_issue,
 )
 
 POSSIBLE_ISSUES = set(
