@@ -14,6 +14,7 @@ class IssueType(Enum):
     EXACT_DUPLICATES = "exact_duplicates"
     NEAR_DUPLICATES = "near_duplicates"
     BLURRED = "blurred"
+    GRAYSCALE = "grayscale"
 
 
 ISSUE_MANAGER_REGISTRY = {}

@@ -38,6 +38,7 @@ class Imagelab:
                 IssueType.EXACT_DUPLICATES,
                 IssueType.NEAR_DUPLICATES,
                 IssueType.BLURRED,
+                IssueType.GRAYSCALE,
             ],
         }
 
@@ -227,6 +228,7 @@ class Imagelab:
                 filepaths=sorted_filepaths,
                 ncols=self.config["visualize_num_images_per_row"],
                 cell_size=cell_size,
+                cmap="gray" if issue_type_str == IssueType.GRAYSCALE.value else None,
             )
         elif viz_name == "image_sets":
             image_sets = self.info[issue_type_str][SETS][:examples_per_issue]
