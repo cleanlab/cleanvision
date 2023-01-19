@@ -2,7 +2,7 @@ import glob
 import os
 import statistics
 from collections import OrderedDict
-from typing import Dict
+from typing import Dict, List
 
 import numpy as np
 
@@ -20,8 +20,8 @@ TYPES = [
 
 
 def get_filepaths(
-    dir_path,
-):
+    dir_path: str,
+) -> List[str]:
     """
     Used in initialization of ImageDataset Class
     Obtains image files of supported types and
