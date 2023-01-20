@@ -1,8 +1,9 @@
 import math
 from abc import ABC, abstractmethod
+from typing import List
 
 import numpy as np
-from PIL import ImageStat
+from PIL import ImageStat, ImageFilter
 
 from cleanvision.issue_managers import IssueType
 
@@ -22,7 +23,7 @@ class ImageProperty(ABC):
 
 
 class BrightnessProperty(ImageProperty):
-    name = "Brightness"
+    name = "brightness"
 
     def __init__(self, issue_type):
         self.issue_type = issue_type
@@ -52,7 +53,7 @@ class BrightnessProperty(ImageProperty):
 
 
 class AspectRatioProperty(ImageProperty):
-    name = "AspectRatio"
+    name = "aspect_ratio"
 
     def calculate(self, image):
         width, height = image.size
@@ -65,7 +66,7 @@ class AspectRatioProperty(ImageProperty):
 
 
 class EntropyProperty(ImageProperty):
-    name = "Entropy"
+    name = "entropy"
 
     def calculate(self, image):
         entropy = image.entropy()
@@ -78,9 +79,57 @@ class EntropyProperty(ImageProperty):
         return scores
 
 
+class BlurrinessProperty(ImageProperty):
+    name = "blurriness"
+
+    def calculate(self, image):
+        edges = get_edges(image)
+        blurriness = ImageStat.Stat(edges).var[0]
+        return blurriness
+
+    def get_scores(self, raw_scores, normalizing_factor, **_):
+        raw_scores = np.array(raw_scores)
+        scores = 1 - np.exp(-1 * raw_scores * normalizing_factor)
+        return scores
+
+
+def get_edges(image):
+    gray_image = image.convert("L")
+    edges = gray_image.filter(ImageFilter.FIND_EDGES)
+    return edges
+
+
 def calculate_brightness(red, green, blue):
     cur_bright = (
         math.sqrt(0.241 * (red**2) + 0.691 * (green**2) + 0.068 * (blue**2))
     ) / 255
 
     return cur_bright
+
+
+class ColorSpaceProperty(ImageProperty):
+    name = "color_space"
+
+    def calculate(self, image):
+        return get_image_mode(image)
+
+    def get_scores(self, raw_scores: List[str], **_):
+        scores = np.array([0 if mode == "L" else 1 for mode in raw_scores])
+        return scores
+
+    def mark_issue(self, scores, *_):
+        return (1 - scores).astype("bool")
+
+
+def get_image_mode(image):
+    if image.mode:
+        return image.mode
+    else:
+        imarr = np.asarray(image)
+        if len(imarr.shape) == 2 or (
+            len(imarr.shape) == 3
+            and (np.diff(imarr.reshape(-1, 3).T, axis=0) == 0).all()
+        ):
+            return "L"
+        else:
+            return "UNK"
