@@ -5,6 +5,8 @@ IMAGE_PROPERTY_ISSUE_TYPES_LIST = [
     "light",
     "odd_aspect_ratio",
     "low_information",
+    "blurry",
+    "grayscale",
 ]
 DUPLICATE_ISSUE_TYPES_LIST = ["exact_duplicates", "near_duplicates"]
 SETS: str = "sets"

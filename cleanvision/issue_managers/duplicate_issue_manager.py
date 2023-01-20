@@ -21,8 +21,8 @@ class DuplicateIssueManager(IssueManager):
 
     def get_default_params(self):
         return {
-            IssueType.EXACT_DUPLICATES: {"hash_type": "md5"},
-            IssueType.NEAR_DUPLICATES: {"hash_type": "whash", "hash_size": 8},
+            IssueType.EXACT_DUPLICATES.value: {"hash_type": "md5"},
+            IssueType.NEAR_DUPLICATES.value: {"hash_type": "whash", "hash_size": 8},
         }
 
     def set_params(self, params):
@@ -64,9 +64,9 @@ class DuplicateIssueManager(IssueManager):
         """
         to_compute = []
         if SETS not in imagelab_info.get(IssueType.EXACT_DUPLICATES.value, {}):
-            to_compute.append(IssueType.EXACT_DUPLICATES)
-        if IssueType.NEAR_DUPLICATES in self.issue_types:
-            to_compute.append(IssueType.NEAR_DUPLICATES)
+            to_compute.append(IssueType.EXACT_DUPLICATES.value)
+        if IssueType.NEAR_DUPLICATES.value in self.issue_types:
+            to_compute.append(IssueType.NEAR_DUPLICATES.value)
         return to_compute
 
     def find_issues(self, filepaths, imagelab_info):
@@ -92,24 +92,22 @@ class DuplicateIssueManager(IssueManager):
     def _update_summary(self):
         summary_dict = {}
         for issue_type in self.issue_types:
-            summary_dict[issue_type.value] = self._compute_summary(issue_type)
+            summary_dict[issue_type] = self._compute_summary(issue_type)
         summary_df = pd.DataFrame.from_dict(summary_dict, orient="index")
         self.summary = summary_df.reset_index(names="issue_type")
 
     def _compute_summary(self, issue_type):
         return {
-            "num_images": self.issues[f"{issue_type.value}_bool"].sum(),
-            "num_sets": len(self.info[issue_type.value][SETS]),
+            "num_images": self.issues[f"{issue_type}_bool"].sum(),
+            "num_sets": len(self.info[issue_type][SETS]),
         }
 
     def _update_issues(self):
         for issue_type in self.issue_types:
             duplicated_images = []
-            for s in self.info[issue_type.value][SETS]:
+            for s in self.info[issue_type][SETS]:
                 duplicated_images.extend(s)
-            self.issues[
-                f"{issue_type.value}_bool"
-            ] = self.issues.index.to_series().apply(
+            self.issues[f"{issue_type}_bool"] = self.issues.index.to_series().apply(
                 lambda x: True if x in duplicated_images else False
             )
 
@@ -120,7 +118,7 @@ class DuplicateIssueManager(IssueManager):
             }
 
         for issue_type in issue_type_hash_mapping:
-            self.info[issue_type.value] = {
+            self.info[issue_type] = {
                 SETS: self._get_duplicate_sets(issue_type_hash_mapping[issue_type])
             }
         self._remove_exact_duplicates_from_near()
