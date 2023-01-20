@@ -37,6 +37,8 @@ class Imagelab:
                 IssueType.LOW_INFORMATION,
                 IssueType.EXACT_DUPLICATES,
                 IssueType.NEAR_DUPLICATES,
+                IssueType.BLURRY,
+                IssueType.GRAYSCALE,
             ],
         }
 
@@ -54,11 +56,12 @@ class Imagelab:
     def _get_issues_to_compute(self, issue_types_with_params):
         if not issue_types_with_params:
             to_compute_issues_with_params = {
-                issue_type: {} for issue_type in self.config["default_issue_types"]
+                issue_type.value: {}
+                for issue_type in self.config["default_issue_types"]
             }
         else:
             to_compute_issues_with_params = {
-                IssueType(issue_type_str): params
+                issue_type_str: params
                 for issue_type_str, params in issue_types_with_params.items()
             }
         return to_compute_issues_with_params
@@ -66,7 +69,7 @@ class Imagelab:
     def find_issues(self, issue_types=None):
         to_compute_issues_with_params = self._get_issues_to_compute(issue_types)
         print(
-            f"Checking for {', '.join([issue_type.value for issue_type in to_compute_issues_with_params.keys()])} images ..."
+            f"Checking for {', '.join([issue_type for issue_type in to_compute_issues_with_params.keys()])} images ..."
         )
 
         # update issue_types
@@ -121,12 +124,12 @@ class Imagelab:
 
         for issue_type, params in issue_types_with_params.items():
             group_name = None
-            if issue_type.value in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
+            if issue_type in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
                 group_name = IMAGE_PROPERTY
-            elif issue_type.value in DUPLICATE_ISSUE_TYPES_LIST:
+            elif issue_type in DUPLICATE_ISSUE_TYPES_LIST:
                 group_name = DUPLICATE
             else:
-                issue_type_groups[issue_type.value] = params
+                issue_type_groups[issue_type] = params
 
             if group_name:
                 if issue_type_groups.get(group_name):
@@ -173,26 +176,30 @@ class Imagelab:
 
     def report(
         self,
+        issue_types=None,
         num_top_issues=None,
         max_prevalence=None,
         examples_per_issue=None,
         verbosity=1,
     ):
         assert isinstance(verbosity, int) and 0 < verbosity < 5
+
         user_supplied_args = locals()
         report_args = self._get_report_args(verbosity, user_supplied_args)
 
-        top_issues = self._get_topk_issues(
-            report_args["num_top_issues"], report_args["max_prevalence"]
-        )
-        top_issue_summary = self.issue_summary[
-            self.issue_summary["issue_type"].isin(top_issues)
+        if issue_types:
+            issue_types = issue_types
+        else:
+            print("Top issues in the dataset\n")
+            issue_types = self._get_topk_issues(
+                report_args["num_top_issues"], report_args["max_prevalence"]
+            )
+        issue_summary = self.issue_summary[
+            self.issue_summary["issue_type"].isin(issue_types)
         ]
+        print(issue_summary.to_markdown(), "\n")
 
-        print("Top issues in the dataset\n")
-        print(top_issue_summary.to_markdown(), "\n")
-
-        self.visualize(top_issues, report_args["examples_per_issue"])
+        self.visualize(issue_types, report_args["examples_per_issue"])
 
     def _get_issue_manager(self, issue_type_str):
         if issue_type_str in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
@@ -221,6 +228,7 @@ class Imagelab:
                 filepaths=sorted_filepaths,
                 ncols=self.config["visualize_num_images_per_row"],
                 cell_size=cell_size,
+                cmap="gray" if issue_type_str == IssueType.GRAYSCALE.value else None,
             )
         elif viz_name == "image_sets":
             image_sets = self.info[issue_type_str][SETS][:examples_per_issue]
