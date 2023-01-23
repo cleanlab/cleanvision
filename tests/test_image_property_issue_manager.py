@@ -63,8 +63,29 @@ class TestImagePropertyIssueManager:
         issue_manager.set_params(params)
         assert issue_manager.params == expected_params
 
-    def test_get_defer_set(self):
-        pass
+    @pytest.mark.parametrize(
+        "issue_types, imagelab_info, expected_defer_set",
+        [
+            ([dark, light, blurry], {"statistics": {}}, {light}),
+            ([dark, light, blurry], {"statistics": {"brightness": []}}, {dark, light}),
+        ],
+    )
+    def test_get_defer_set(
+        self, issue_types, imagelab_info, expected_defer_set, issue_manager
+    ):
+        """Tests image_property_issue_manager._get_defer_set(). Cases covered:
+        1. If two issue types use the same image property, skip one
+        2. If properties issue types use exist in imagelab.info, re-use them
+        Parameters
+        ----------
+        issue_types: Given list of issue types
+        imagelab_info: imagelab info parameter
+        defer_set: expected defer set
+        issue_manager: instance of ImagePropertyIssueManager
 
-    def test_update_summary(self):
-        pass
+        Returns
+        -------
+
+        """
+        defer_set = issue_manager._get_defer_set(issue_types, imagelab_info)
+        assert defer_set == expected_defer_set
