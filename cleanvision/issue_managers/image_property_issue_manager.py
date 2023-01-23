@@ -56,26 +56,26 @@ class ImagePropertyIssueManager(IssueManager):
             IssueType.GRAYSCALE.value: ColorSpaceProperty(),
         }
 
-    def _get_defer_set(self, imagelab_info):
+    def _get_defer_set(self, issue_types, imagelab_info):
         defer_set = set()
 
         # Add precomputed issues to defer set
-        for issue_type in self.issue_types:
+        for issue_type in issue_types:
             image_property = self.image_properties[issue_type].name
             if image_property in imagelab_info[
                 "statistics"
-            ] or image_property in imagelab_info.get(issue_type, {}):
+            ] or image_property in imagelab_info.get(
+                issue_type, {}
+            ):  # todo: check not needed as properties always added in imagelab["statistics"]
                 defer_set.add(issue_type)
 
         # Add issues using same property
-        if {IssueType.LIGHT.value, IssueType.DARK.value}.issubset(
-            set(self.issue_types)
-        ):
+        if {IssueType.LIGHT.value, IssueType.DARK.value}.issubset(set(issue_types)):
             defer_set.add(IssueType.LIGHT.value)
         return defer_set
 
     def find_issues(self, filepaths, imagelab_info):
-        defer_set = self._get_defer_set(imagelab_info)
+        defer_set = self._get_defer_set(self.issue_types, imagelab_info)
 
         to_be_computed = list(set(self.issue_types).difference(defer_set))
         raw_scores = {issue_type: [] for issue_type in to_be_computed}
