@@ -74,14 +74,6 @@ class ImagePropertyIssueManager(IssueManager):
             defer_set.add(IssueType.LIGHT.value)
         return defer_set
 
-    def _get_to_be_computed_issue_types(self):
-        to_be_computed = [
-            issue_type
-            for issue_type, computed in self.issue_types_computed.items()
-            if not computed
-        ]
-        return to_be_computed
-
     def find_issues(self, filepaths, imagelab_info):
         defer_set = self._get_defer_set(imagelab_info)
 

@@ -1,10 +1,12 @@
 import numpy as np
 import pytest
+from PIL import Image
 
 from cleanvision.issue_managers import IssueType
 from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
     calculate_brightness,
+    get_image_mode,
 )
 
 
@@ -22,6 +24,21 @@ from cleanvision.issue_managers.image_property import (
 def test_calculate_brightness(rgb, expected_brightness):
     brightness = calculate_brightness(*rgb)
     assert brightness == pytest.approx(expected=expected_brightness, abs=1e-5)
+
+
+@pytest.mark.parametrize(
+    "image,expected_mode",
+    [
+        [Image.new("RGB", (164, 164), (255, 255, 255)), "RGB"],
+        [Image.new("RGB", (164, 164)), "RGB"],
+        [Image.new("L", (164, 164)), "L"],
+        [Image.new("RGB", (164, 164), (255, 160, 255)), "RGB"],
+    ],
+    ids=["white", "black", "grayscale", "rgb"],
+)
+def test_get_image_mode(image, expected_mode):
+    mode = get_image_mode(image)
+    assert mode == expected_mode
 
 
 class TestBrightnessHelper:
