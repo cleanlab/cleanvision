@@ -7,6 +7,8 @@ from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
     AspectRatioProperty,
     EntropyProperty,
+    BlurrinessProperty,
+    ColorSpaceProperty,
 )
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import IMAGE_PROPERTY
@@ -25,11 +27,16 @@ class ImagePropertyIssueManager(IssueManager):
 
     def get_default_params(self):
         return {
-            IssueType.DARK: {"threshold": 0.22},
-            IssueType.LIGHT: {"threshold": 0.05},
-            IssueType.ODD_ASPECT_RATIO: {"threshold": 0.5},
+            IssueType.DARK.value: {"threshold": 0.22},
+            IssueType.LIGHT.value: {"threshold": 0.05},
+            IssueType.ODD_ASPECT_RATIO.value: {"threshold": 0.5},
             # todo: check low complexity params on a different dataset
-            IssueType.LOW_INFORMATION: {"threshold": 0.3, "normalizing_factor": 0.1},
+            IssueType.LOW_INFORMATION.value: {
+                "threshold": 0.3,
+                "normalizing_factor": 0.1,
+            },
+            IssueType.BLURRY.value: {"threshold": 0.3, "normalizing_factor": 0.001},
+            IssueType.GRAYSCALE.value: {},
         }
 
     def set_params(self, params):
@@ -41,10 +48,12 @@ class ImagePropertyIssueManager(IssueManager):
 
     def _get_image_properties(self):
         return {
-            IssueType.DARK: BrightnessProperty(IssueType.DARK),
-            IssueType.LIGHT: BrightnessProperty(IssueType.LIGHT),
-            IssueType.ODD_ASPECT_RATIO: AspectRatioProperty(),
-            IssueType.LOW_INFORMATION: EntropyProperty(),
+            IssueType.DARK.value: BrightnessProperty(IssueType.DARK),
+            IssueType.LIGHT.value: BrightnessProperty(IssueType.LIGHT),
+            IssueType.ODD_ASPECT_RATIO.value: AspectRatioProperty(),
+            IssueType.LOW_INFORMATION.value: EntropyProperty(),
+            IssueType.BLURRY.value: BlurrinessProperty(),
+            IssueType.GRAYSCALE.value: ColorSpaceProperty(),
         }
 
     def _get_defer_set(self, imagelab_info):
@@ -55,23 +64,17 @@ class ImagePropertyIssueManager(IssueManager):
             image_property = self.image_properties[issue_type].name
             if image_property in imagelab_info[
                 "statistics"
-            ] or image_property in imagelab_info.get(issue_type.value, {}):
+            ] or image_property in imagelab_info.get(issue_type, {}):
                 defer_set.add(issue_type)
 
         # Add issues using same property
-        if {IssueType.LIGHT, IssueType.DARK}.issubset(set(self.issue_types)):
-            defer_set.add(IssueType.LIGHT)
+        if {IssueType.LIGHT.value, IssueType.DARK.value}.issubset(
+            set(self.issue_types)
+        ):
+            defer_set.add(IssueType.LIGHT.value)
         return defer_set
 
-    def _get_to_be_computed_issue_types(self):
-        to_be_computed = [
-            issue_type
-            for issue_type, computed in self.issue_types_computed.items()
-            if not computed
-        ]
-        return to_be_computed
-
-    def find_issues(self, filepaths, imagelab_info) -> None:
+    def find_issues(self, filepaths, imagelab_info):
         defer_set = self._get_defer_set(imagelab_info)
 
         to_be_computed = list(set(self.issue_types).difference(defer_set))
@@ -103,13 +106,13 @@ class ImagePropertyIssueManager(IssueManager):
             )
 
             # Update issues
-            self.issues[f"{issue_type.value}_score"] = scores
-            self.issues[f"{issue_type.value}_bool"] = self.image_properties[
+            self.issues[f"{issue_type}_score"] = scores
+            self.issues[f"{issue_type}_bool"] = self.image_properties[
                 issue_type
-            ].mark_issue(scores, self.params[issue_type]["threshold"])
+            ].mark_issue(scores, self.params[issue_type].get("threshold"))
 
-            summary_dict[issue_type.value] = self._compute_summary(
-                self.issues[f"{issue_type.value}_bool"]
+            summary_dict[issue_type] = self._compute_summary(
+                self.issues[f"{issue_type}_bool"]
             )
 
         # update issues and summary

@@ -7,6 +7,8 @@ IMAGE_PROPERTY_ISSUE_TYPES_LIST: List[str] = [
     "light",
     "odd_aspect_ratio",
     "low_information",
+    "blurry",
+    "grayscale",
 ]
 DUPLICATE_ISSUE_TYPES_LIST: List[str] = ["exact_duplicates", "near_duplicates"]
 SETS: str = "sets"

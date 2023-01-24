@@ -7,13 +7,14 @@ from cleanvision.utils.base_issue_manager import IssueManager
 
 
 class IssueType(Enum):
-    DARK: str = "dark"
-    LIGHT: str = "light"
-    ODD_ASPECT_RATIO: str = "odd_aspect_ratio"
-    LOW_INFORMATION: str = "low_information"
-    EXACT_DUPLICATES: str = "exact_duplicates"
-    NEAR_DUPLICATES: str = "near_duplicates"
-    CUSTOM: str = "custom"
+    DARK = "dark"
+    LIGHT = "light"
+    ODD_ASPECT_RATIO = "odd_aspect_ratio"
+    LOW_INFORMATION = "low_information"
+    EXACT_DUPLICATES = "exact_duplicates"
+    NEAR_DUPLICATES = "near_duplicates"
+    BLURRY = "blurry"
+    GRAYSCALE = "grayscale"
 
 
 ISSUE_MANAGER_REGISTRY: Dict[str, Type[IssueManager]] = {}
