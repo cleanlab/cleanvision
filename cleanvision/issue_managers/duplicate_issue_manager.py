@@ -83,7 +83,7 @@ class DuplicateIssueManager(IssueManager):
                     issue_type_hash_mapping[issue_type][hash] = [path]
 
         self.issues = pd.DataFrame(index=filepaths)
-        self._update_info(issue_type_hash_mapping, imagelab_info)
+        self._update_info(self.issue_types, issue_type_hash_mapping, imagelab_info)
         self._update_issues()
         self._update_summary()
 
@@ -112,21 +112,22 @@ class DuplicateIssueManager(IssueManager):
             )
 
     def _update_info(self, issue_types, issue_type_hash_mapping, imagelab_info):
-        for issue_type in issue_types:
-            if issue_type == IssueType.EXACT_DUPLICATES.value:
-                if issue_type in issue_type_hash_mapping:
-                    self.info[issue_type] = {
-                        SETS: self._get_duplicate_sets(
-                            issue_type_hash_mapping[issue_type]
-                        )
-                    }
-                else:
-                    self.info[issue_type] = {SETS: imagelab_info[issue_type][SETS]}
-            elif issue_type == IssueType.NEAR_DUPLICATES.value:
-                self.info[issue_type] = {
-                    SETS: self._get_duplicate_sets(issue_type_hash_mapping[issue_type])
-                }
+        if IssueType.EXACT_DUPLICATES.value in issue_type_hash_mapping:
+            self.info[IssueType.EXACT_DUPLICATES.value] = {
+                SETS: self._get_duplicate_sets(
+                    issue_type_hash_mapping[IssueType.EXACT_DUPLICATES.value]
+                )
+            }
+        else:
+            self.info[IssueType.EXACT_DUPLICATES.value] = {
+                SETS: imagelab_info[IssueType.EXACT_DUPLICATES.value][SETS]
+            }
         if IssueType.NEAR_DUPLICATES.value in issue_types:
+            self.info[IssueType.NEAR_DUPLICATES.value] = {
+                SETS: self._get_duplicate_sets(
+                    issue_type_hash_mapping[IssueType.NEAR_DUPLICATES.value]
+                )
+            }
             self._remove_exact_duplicates_from_near()
 
     def _remove_exact_duplicates_from_near(self):
