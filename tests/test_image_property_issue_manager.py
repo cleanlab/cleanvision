@@ -11,14 +11,13 @@ light = IssueType.LIGHT.value
 
 
 class TestImagePropertyIssueManager:
-    @pytest.fixture
+    @pytest.fixture()
     def issue_manager(self, monkeypatch):
         def mock_init(*args, **kwargs):
             pass
 
         monkeypatch.setattr(ImagePropertyIssueManager, "__init__", mock_init)
-        issue_manager = ImagePropertyIssueManager(params={})
-        return issue_manager
+        return ImagePropertyIssueManager(params={})
 
     @pytest.fixture
     def set_default_params(self, issue_manager, monkeypatch):
@@ -70,6 +69,24 @@ class TestImagePropertyIssueManager:
         issue_manager.set_params(params)
         assert issue_manager.params == expected_params
 
+    @pytest.fixture
+    def set_image_properties(self, issue_manager, monkeypatch):
+        class MockImageProperty:
+            name = None
+
+            def __init__(self, name):
+                self.name = name
+
+        image_properties = {
+            dark: MockImageProperty("brightness"),
+            light: MockImageProperty("brightness"),
+            blurry: MockImageProperty("blurriness"),
+        }
+        monkeypatch.setattr(
+            issue_manager, "image_properties", image_properties, raising=False
+        )
+
+    @pytest.mark.usefixtures("set_image_properties")
     @pytest.mark.parametrize(
         "issue_types, imagelab_info, expected_defer_set",
         [
