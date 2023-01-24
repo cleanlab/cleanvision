@@ -14,9 +14,9 @@ class VizManager:
 
     @staticmethod
     def individual_images(
-        filepaths: List[str], ncols: int, cell_size: Tuple[int, int]
+        filepaths: List[str], ncols: int, cell_size: Tuple[int, int], cmap=None
     ) -> None:
-        plot_image_grid(filepaths, ncols, cell_size)
+        plot_image_grid(filepaths, ncols, cell_size, cmap)
 
     @staticmethod
     def image_sets(
@@ -27,7 +27,7 @@ class VizManager:
 
 
 def plot_image_grid(
-    filepaths: List[str], ncols: int, cell_size: Tuple[int, int]
+    filepaths: List[str], ncols: int, cell_size: Tuple[int, int], cmap=None
 ) -> None:
     nrows = math.ceil(len(filepaths) / ncols)
     ncols = min(ncols, len(filepaths))
@@ -42,5 +42,5 @@ def plot_image_grid(
         ax.set_yticklabels([])
         ax.set_yticks([])
         ax.set_title(path.split("/")[-1], fontsize=5)
-        ax.imshow(Image.open(path))
+        ax.imshow(Image.open(path), cmap=cmap)
     plt.show()
