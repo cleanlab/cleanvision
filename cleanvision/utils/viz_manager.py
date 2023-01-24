@@ -2,7 +2,7 @@ import math
 from typing import TypeVar, List, Tuple, Set
 
 import matplotlib.pyplot as plt  # type: ignore
-from PIL import Image  # type: ignore
+from PIL import Image
 from mpl_toolkits.axes_grid1 import ImageGrid  # type: ignore
 
 TVizManager = TypeVar("TVizManager", bound="VizManager")  # self type for the class
