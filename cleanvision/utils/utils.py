@@ -80,7 +80,9 @@ def get_zscores(scores: "np.ndarray[np.float]") -> "np.ndarray[np.float]":
     return zscores
 
 
-def get_is_issue(scores: "np.ndarray[np.float]", threshold: float) -> "np.ndarray[np.bool]":
+def get_is_issue(
+    scores: "np.ndarray[np.float]", threshold: float
+) -> "np.ndarray[np.bool]":
     threshold_score = np.percentile(scores, threshold)
     return scores < threshold_score
 
