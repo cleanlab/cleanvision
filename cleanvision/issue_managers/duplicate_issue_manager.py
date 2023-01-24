@@ -94,7 +94,8 @@ class DuplicateIssueManager(IssueManager):
         for issue_type in self.issue_types:
             summary_dict[issue_type] = self._compute_summary(issue_type)
         summary_df = pd.DataFrame.from_dict(summary_dict, orient="index")
-        self.summary = summary_df.reset_index(names="issue_type")
+        summary_df["issue_type"] = summary_df.index
+        self.summary = summary_df.reset_index()
 
     def _compute_summary(self, issue_type):
         return {
