@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import TypeVar, List, Dict, Any, Type, Optional
 
 import numpy as np
-from PIL import ImageStat, Image  # type: ignore
+from PIL import ImageStat, Image
 
 from cleanvision.issue_managers import IssueType
 
@@ -14,17 +14,18 @@ TEntropyProperty = TypeVar("TEntropyProperty", bound="EntropyProperty")
 
 
 class ImageProperty(ABC):
-
     @staticmethod
     def check_params(*args: Any, **kwargs: Any) -> None:
-        allowed_kwargs: Dict[str, Any] = {"image": Image, "scores": 'np.ndarray[Any, Any]', "threshold": float,
-                                          "raw_scores": Dict[Any, Any]}
+        allowed_kwargs: Dict[str, Any] = {
+            "image": Image,
+            "scores": "np.ndarray[Any, Any]",
+            "threshold": float,
+            "raw_scores": Dict[Any, Any],
+        }
 
         for name, value in kwargs.items():
             if name not in allowed_kwargs:
-                raise ValueError(
-                    f"{name} is not a valid keyword argument."
-                )
+                raise ValueError(f"{name} is not a valid keyword argument.")
             if not isinstance(value, allowed_kwargs[name]):
                 raise ValueError(
                     f"Valid type for keyword argument {name} can only be {allowed_kwargs[name]}. {name} cannot be type {type(name)}. "
@@ -40,7 +41,9 @@ class ImageProperty(ABC):
         return
 
     @staticmethod
-    def mark_issue(scores: 'np.ndarray[Any, Any]', threshold: float) -> 'np.ndarray[Any, Any]':
+    def mark_issue(
+        scores: "np.ndarray[Any, Any]", threshold: float
+    ) -> "np.ndarray[Any, Any]":
         return scores < threshold
 
 
@@ -65,7 +68,9 @@ class BrightnessProperty(ImageProperty):
 
         return cur_bright
 
-    def get_scores(self: Any, raw_scores: Optional[Dict[Any, Any]] = None, *args: Any, **kwargs: Any) -> 'np.ndarray[Any, Any]':
+    def get_scores(
+        self: Any, raw_scores: Optional[List[float]] = None, *args: Any, **kwargs: Any
+    ) -> "np.ndarray[Any, Any]":
         super().get_scores(*args, **kwargs)
         assert raw_scores is not None
 
@@ -86,8 +91,12 @@ class AspectRatioProperty(ImageProperty):
         assert isinstance(size_score, float)
         return size_score
 
-    def get_scores(self: TAspectRatioProperty, raw_scores: Optional[Dict[Any, Any]] = None, *args: Any,
-                   **kwargs: Any) -> 'np.ndarray[Any, Any]':
+    def get_scores(
+        self: TAspectRatioProperty,
+        raw_scores: Optional[Dict[Any, Any]] = None,
+        *args: Any,
+        **kwargs: Any,
+    ) -> "np.ndarray[Any, Any]":
         super().get_scores(*args, **kwargs)
         assert raw_scores is not None
 
@@ -100,23 +109,30 @@ class EntropyProperty(ImageProperty):
 
     def calculate(self: TEntropyProperty, image: Image) -> float:
         entropy = image.entropy()
-        assert isinstance(entropy, float)  # PIL does not have type ann stub so need to assert function return
+        assert isinstance(
+            entropy, float
+        )  # PIL does not have type ann stub so need to assert function return
         return entropy
 
-    def get_scores(self: TEntropyProperty, raw_scores: Optional[Dict[Any, Any]] = None, normalizing_factor: float = 1.0, *args: Any,
-                   **kwargs: Any) -> 'np.ndarray[Any, Any]':
+    def get_scores(
+        self: TEntropyProperty,
+        raw_scores: Optional[Dict[Any, Any]] = None,
+        normalizing_factor: float = 1.0,
+        *args: Any,
+        **kwargs: Any,
+    ) -> "np.ndarray[Any, Any]":
         super().get_scores(*args, **kwargs)
         assert raw_scores is not None
 
         scores = np.array(raw_scores)
-        scores: 'np.ndarray[Any, Any]' = normalizing_factor * scores
+        scores: "np.ndarray[Any, Any]" = normalizing_factor * scores
         scores[scores > 1] = 1
         return scores
 
 
 def calculate_brightness(red: float, green: float, blue: float) -> float:
     cur_bright = (
-                     math.sqrt(0.241 * (red ** 2) + 0.691 * (green ** 2) + 0.068 * (blue ** 2))
-                 ) / 255
+        math.sqrt(0.241 * (red**2) + 0.691 * (green**2) + 0.068 * (blue**2))
+    ) / 255
 
     return cur_bright
