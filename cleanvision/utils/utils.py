@@ -73,16 +73,16 @@ def deep_update_dict(d: Dict, u: Dict) -> Dict:
     return d
 
 
-# def get_zscores(scores: "np.ndarray[np.float]") -> "np.ndarray[np.float]":
-#     mean = np.mean(scores)
-#     stdev = np.std(scores)
-#     zscores = (scores - mean) / stdev
-#     return zscores
+def get_zscores(scores: "np.ndarray[np.float]") -> "np.ndarray[np.float]":
+    mean = np.mean(scores)
+    stdev = np.std(scores)
+    zscores = (scores - mean) / stdev
+    return zscores
 
 
-# def get_is_issue(scores: "np.ndarray[np.float]", threshold: float) -> "np.ndarray[np.bool]":
-#     threshold_score = np.percentile(scores, threshold)
-#     return scores < threshold_score
+def get_is_issue(scores: "np.ndarray[np.float]", threshold: float) -> "np.ndarray[np.bool]":
+    threshold_score = np.percentile(scores, threshold)
+    return scores < threshold_score
 
 
 # def analyze_scores_old(scores, threshold):
