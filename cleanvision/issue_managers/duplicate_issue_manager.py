@@ -46,7 +46,7 @@ class DuplicateIssueManager(IssueManager):
         else:
             raise ValueError("Hash type not supported")
 
-    def _get_issue_types_to_compute(self, imagelab_info):
+    def _get_issue_types_to_compute(self, issue_types, imagelab_info):
         """Gets issue type for which computation needs to be done
 
         Only exact duplicate results are reused.
@@ -65,12 +65,12 @@ class DuplicateIssueManager(IssueManager):
         to_compute = []
         if SETS not in imagelab_info.get(IssueType.EXACT_DUPLICATES.value, {}):
             to_compute.append(IssueType.EXACT_DUPLICATES.value)
-        if IssueType.NEAR_DUPLICATES.value in self.issue_types:
+        if IssueType.NEAR_DUPLICATES.value in issue_types:
             to_compute.append(IssueType.NEAR_DUPLICATES.value)
         return to_compute
 
     def find_issues(self, filepaths, imagelab_info):
-        to_compute = self._get_issue_types_to_compute(imagelab_info)
+        to_compute = self._get_issue_types_to_compute(self.issue_types, imagelab_info)
         issue_type_hash_mapping = {issue_type: {} for issue_type in to_compute}
 
         for path in tqdm(filepaths):
