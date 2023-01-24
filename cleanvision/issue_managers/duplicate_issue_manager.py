@@ -16,8 +16,9 @@ class DuplicateIssueManager(IssueManager):
     visualization = "image_sets"
 
     def __init__(self, params):
-        super().__init__(params)
+        super().__init__()
         self.issue_types = list(params.keys())
+        self.set_params(params)
 
     def get_default_params(self):
         return {
@@ -26,13 +27,12 @@ class DuplicateIssueManager(IssueManager):
         }
 
     def set_params(self, params):
-        updated_params = {}
+        self.params = self.get_default_params()
         for issue_type in self.params:
             non_none_params = {
                 k: v for k, v in params.get(issue_type, {}).items() if v is not None
             }
-            updated_params[issue_type] = {**self.params[issue_type], **non_none_params}
-        self.params = updated_params
+            self.params[issue_type] = {**self.params[issue_type], **non_none_params}
 
     @staticmethod
     def _get_hash(image, params):
