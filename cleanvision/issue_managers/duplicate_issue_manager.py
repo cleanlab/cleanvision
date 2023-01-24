@@ -111,17 +111,23 @@ class DuplicateIssueManager(IssueManager):
                 lambda x: True if x in duplicated_images else False
             )
 
-    def _update_info(self, issue_type_hash_mapping, imagelab_info):
-        if IssueType.EXACT_DUPLICATES.value in imagelab_info:
-            self.info[IssueType.EXACT_DUPLICATES.value] = {
-                SETS: imagelab_info[IssueType.EXACT_DUPLICATES.value][SETS]
-            }
-
-        for issue_type in issue_type_hash_mapping:
-            self.info[issue_type] = {
-                SETS: self._get_duplicate_sets(issue_type_hash_mapping[issue_type])
-            }
-        self._remove_exact_duplicates_from_near()
+    def _update_info(self, issue_types, issue_type_hash_mapping, imagelab_info):
+        for issue_type in issue_types:
+            if issue_type == IssueType.EXACT_DUPLICATES.value:
+                if issue_type in issue_type_hash_mapping:
+                    self.info[issue_type] = {
+                        SETS: self._get_duplicate_sets(
+                            issue_type_hash_mapping[issue_type]
+                        )
+                    }
+                else:
+                    self.info[issue_type] = {SETS: imagelab_info[issue_type][SETS]}
+            elif issue_type == IssueType.NEAR_DUPLICATES.value:
+                self.info[issue_type] = {
+                    SETS: self._get_duplicate_sets(issue_type_hash_mapping[issue_type])
+                }
+        if IssueType.NEAR_DUPLICATES.value in issue_types:
+            self._remove_exact_duplicates_from_near()
 
     def _remove_exact_duplicates_from_near(self):
         updated_sets = []
