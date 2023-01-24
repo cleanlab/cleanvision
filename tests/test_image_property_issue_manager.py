@@ -55,7 +55,7 @@ class TestImagePropertyIssueManager:
         """Tests image_property_issue_manager.set_params() method for following cases:
         1. Set default parameters when no parameters are specified
         2. Update default parameters with given parameters and preserv default values for remaining parameters
-        3. After setting self.params only contains issue_types specified in the input params and not all default issue_types
+
 
         Assumes len(params) > 0
 
@@ -67,7 +67,7 @@ class TestImagePropertyIssueManager:
 
         """
         issue_manager.set_params(params)
-        assert issue_manager.params == expected_params
+        assert issue_manager.params==expected_params
 
     @pytest.fixture
     def set_image_properties(self, issue_manager, monkeypatch):
@@ -112,4 +112,4 @@ class TestImagePropertyIssueManager:
 
         """
         defer_set = issue_manager._get_defer_set(issue_types, imagelab_info)
-        assert defer_set == expected_defer_set
+        assert defer_set==expected_defer_set
