@@ -12,11 +12,58 @@ class TestDuplicateIssueManager:
     def issue_manager(self):
         return DuplicateIssueManager(params={})
 
-    def test_set_params(self):
-        pass
+    @pytest.fixture
+    def set_default_params(self, issue_manager, monkeypatch):
+        """Set default params for image property issue types"""
 
-    def test_get_issue_types_to_compute(self):
-        pass
+        def mock_get_default_params():
+            return {
+                exact: {"hash_type": "md5"},
+                near: {"hash_type": "whash", "hash_size": 8},
+            }
+
+        monkeypatch.setattr(
+            issue_manager, "get_default_params", mock_get_default_params
+        )
+
+    @pytest.mark.usefixtures("set_default_params")
+    @pytest.mark.parametrize(
+        "params,expected_params",
+        [
+            (
+                {exact: {}, near: {"hash_size": 16}},
+                {
+                    exact: {"hash_type": "md5"},
+                    near: {"hash_type": "whash", "hash_size": 16},
+                },
+            )
+        ],
+    )
+    def test_set_params(self, params, expected_params, issue_manager):
+        issue_manager.set_params(params)
+        assert issue_manager.params == expected_params
+
+    @pytest.mark.parametrize(
+        "issue_types, imagelab_info, expected_to_compute",
+        [
+            ([exact], {}, [exact]),
+            ([near], {}, [exact, near]),
+            ([exact, near], {}, [exact, near]),
+            ([exact], {exact: {"sets": []}}, []),
+            ([near], {exact: {"sets": []}}, [near]),
+            ([exact, near], {exact: {"sets": []}}, [near]),
+            ([exact], {exact: {"sets": []}, near: {"sets": []}}, []),
+            ([near], {exact: {"sets": []}, near: {"sets": []}}, [near]),
+            ([exact, near], {exact: {"sets": []}, near: {"sets": []}}, [near]),
+        ],
+    )
+    def test_get_issue_types_to_compute(
+        self, issue_types, imagelab_info, expected_to_compute, issue_manager
+    ):
+        to_compute = issue_manager._get_issue_types_to_compute(
+            issue_types, imagelab_info
+        )
+        assert set(to_compute) == set(expected_to_compute)
 
     def test_update_info(self):
         pass
