@@ -65,8 +65,54 @@ class TestDuplicateIssueManager:
         )
         assert set(to_compute) == set(expected_to_compute)
 
-    def test_update_info(self):
-        pass
+    @pytest.mark.parametrize(
+        "issue_types, issue_type_hash_mapping, imagelab_info, expected_info",
+        [
+            # If exact is present in issue_type_hash_mapping, implies imagelab_info does not contain any data on exact issue_type
+            ([exact], {exact: {}}, {}, {exact: {"sets": []}}),
+            ([exact], {}, {exact: {"sets": []}}, {exact: {"sets": []}}),
+            (
+                [near],
+                {exact: {}, near: {}},
+                {},
+                {exact: {"sets": []}, near: {"sets": []}},
+            ),
+            (
+                [near],
+                {near: {}},
+                {exact: {"sets": []}},
+                {exact: {"sets": []}, near: {"sets": []}},
+            ),
+            (
+                [exact, near],
+                {exact: {}, near: {}},
+                {},
+                {exact: {"sets": []}, near: {"sets": []}},
+            ),
+            (
+                [exact, near],
+                {near: {}},
+                {exact: {"sets": []}},
+                {exact: {"sets": []}, near: {"sets": []}},
+            ),
+            (
+                [exact, near],
+                {near: {}},
+                {exact: {"sets": []}, near: {"sets": []}},
+                {exact: {"sets": []}, near: {"sets": []}},
+            ),  # todo: add a check to ensure near duplicate sets are updated in this case
+        ],
+    )
+    def test_update_info(
+        self,
+        issue_types,
+        issue_type_hash_mapping,
+        imagelab_info,
+        expected_info,
+        issue_manager,
+    ):
+        issue_manager._update_info(issue_types, issue_type_hash_mapping, imagelab_info)
+        assert set(issue_types).issubset(issue_manager.info.keys())
 
     @pytest.mark.parametrize(
         "before_info, after_info",
