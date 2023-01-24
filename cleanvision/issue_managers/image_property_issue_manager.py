@@ -21,8 +21,9 @@ class ImagePropertyIssueManager(IssueManager):
     visualization = "individual_images"
 
     def __init__(self, params):
-        super().__init__(params)
-        self.issue_types = list(self.params.keys())
+        super().__init__()
+        self.issue_types = list(params.keys())
+        self.set_params(params)
         self.image_properties = self._get_image_properties()
 
     def get_default_params(self):
@@ -40,11 +41,12 @@ class ImagePropertyIssueManager(IssueManager):
         }
 
     def set_params(self, params):
-        update_params = {}
-        for issue_type, issue_params in params.items():
-            non_none_params = {k: v for k, v in issue_params.items() if v is not None}
-            update_params[issue_type] = {**self.params[issue_type], **non_none_params}
-        self.params = update_params
+        self.params = self.get_default_params()
+        for issue_type in self.params:
+            non_none_params = {
+                k: v for k, v in params.get(issue_type, {}).items() if v is not None
+            }
+            self.params[issue_type] = {**self.params[issue_type], **non_none_params}
 
     def _get_image_properties(self):
         return {
