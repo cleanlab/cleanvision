@@ -6,7 +6,6 @@ from cleanvision.issue_managers import IssueType
 from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
     calculate_brightness,
-    get_image_mode,
 )
 
 
@@ -36,9 +35,6 @@ def test_calculate_brightness(rgb, expected_brightness):
     ],
     ids=["white", "black", "grayscale", "rgb"],
 )
-def test_get_image_mode(image, expected_mode):
-    mode = get_image_mode(image)
-    assert mode == expected_mode
 
 
 class TestBrightnessHelper:
