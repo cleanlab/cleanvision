@@ -39,7 +39,7 @@ imagelab.find_issues()
 imagelab.report()
 ```
 
-To check for specific issue types
+To only check for specific types of issues:
 
 ```python
 issue_types = {"light": {}, "blurry": {}}
