@@ -46,7 +46,7 @@ issue_types = {"light": {}, "blurry": {}}
 
 imagelab.find_issues(issue_types)
 
-# Produce a report of only specified issue_types
+# Produce a report with only the specified issue_types
 imagelab.report(issue_types.keys())
 ```
 
