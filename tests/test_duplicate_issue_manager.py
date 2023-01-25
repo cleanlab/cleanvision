@@ -138,15 +138,18 @@ class TestDuplicateIssueManager:
             ),
             (
                 {
-                    exact: {"sets": [["im1", "im2"], ["im5", "im6"]]},
-                    near: {"sets": [["im1", "im2"], ["im3", "im4"]]},
+                    exact: {"sets": [["im1", "im2"], ["im5", "im6"], ["im7", "im8"]]},
+                    near: {
+                        "sets": [["im1", "im2"], ["im3", "im4"], ["im7", "im8", "im9"]]
+                    },
                 },
                 {
-                    exact: {"sets": [["im1", "im2"], ["im5", "im6"]]},
-                    near: {"sets": [["im3", "im4"]]},
+                    exact: {"sets": [["im1", "im2"], ["im5", "im6"], ["im7", "im8"]]},
+                    near: {"sets": [["im3", "im4"], ["im7", "im8", "im9"]]},
                 },
             ),
         ],
+        ids=["No overlapping sets", "Identical overlapping set between exact and near"],
     )
     def test_remove_exact_duplicates_from_near(
         self, before_info, after_info, issue_manager, monkeypatch
@@ -167,6 +170,7 @@ class TestDuplicateIssueManager:
                 [["im1", "im4"], ["im2", "im5", "im6"]],
             ),
         ],
+        ids=["No duplicate sets", "Multiple duplicate sets"],
     )
     def test_get_duplicate_sets(
         self, hash_image_mapping, expected_duplicate_sets, issue_manager
