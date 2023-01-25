@@ -38,6 +38,7 @@ class TestDuplicateIssueManager:
                 },
             )
         ],
+        ids=["use both default and specified params as necessary"],
     )
     def test_set_params(self, params, expected_params, issue_manager):
         """Tests DuplicateIssueManager.set_params(). Cases covered:
@@ -72,7 +73,6 @@ class TestDuplicateIssueManager:
     @pytest.mark.parametrize(
         "issue_types, issue_type_hash_mapping, imagelab_info, expected_info",
         [
-            # If exact is present in issue_type_hash_mapping, implies imagelab_info does not contain any data on exact issue_type
             ([exact], {exact: {}}, {}, {exact: {"sets": []}}),
             ([exact], {}, {exact: {"sets": []}}, {exact: {"sets": []}}),
             (
@@ -94,7 +94,13 @@ class TestDuplicateIssueManager:
                 {exact: {"sets": []}, near: {"sets": [["im_new1", "im_new2"]]}},
             ),
         ],
-        ids=["11", "12", "21", "22", "31"],
+        ids=[
+            "Only exact",
+            "Only exact, reuse exact",
+            "Only near, compute both",
+            "Only near, reuse exact",
+            "Both exact and near, update near sets",
+        ],
     )
     def test_update_info(
         self,
@@ -108,17 +114,17 @@ class TestDuplicateIssueManager:
         1.  Only exact is present in issue_types
             issue_manager.info should only contain duplicate sets for exact issue_types
             exact sets can be retrieved either from issue_type_hash_mapping or imagelab_info
-            test_ids: 11, 12
+            test_ids: "Only exact", "Only exact, reuse exact"
         2.  Only near is present in issue_types
             issue_manager.info contains both exact and near duplicate sets, as duplicate sets is used for
             calculating near duplicate sets.
             Near duplicates are always calculated, hence always present in issue_type_hash_mapping
             Exact duplicates can be retrieved either from issue_type_hash_mapping or imagelab_info
-            test_ids: 21, 22
+            test_ids: "Only near, compute both", "Only near, reuse exact",
         3.  Both exact and near are present in issue_types
             issue_manager.info should contain both exact and near duplicate sets
             Near duplicate sets are always calculated, and updated with new results
-            test_id: 31
+            test_id: "Both exact and near, update near sets",
         """
         issue_manager._update_info(issue_types, issue_type_hash_mapping, imagelab_info)
         assert set(issue_types).issubset(issue_manager.info.keys())
