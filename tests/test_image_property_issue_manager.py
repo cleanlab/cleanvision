@@ -50,11 +50,12 @@ class TestImagePropertyIssueManager:
                 },
             )
         ],
+        ids=["use both default and specified params as necessary"],
     )
     def test_set_params(self, params, expected_params, issue_manager):
         """Tests image_property_issue_manager.set_params() method for following cases:
         1. Set default parameters when no parameters are specified
-        2. Update default parameters with given parameters and preserv default values for remaining parameters
+        2. Update default parameters with given parameters and preserve default values for remaining parameters
 
 
         Assumes len(params) > 0
@@ -93,6 +94,10 @@ class TestImagePropertyIssueManager:
         [
             ([DARK, LIGHT, BLURRY], {"statistics": {}}, {LIGHT}),
             ([DARK, LIGHT, BLURRY], {"statistics": {"brightness": []}}, {DARK, LIGHT}),
+        ],
+        ids=[
+            "exclude issue types using same underlying property",
+            "exclude issue types with property precomputed",
         ],
     )
     def test_get_defer_set(
