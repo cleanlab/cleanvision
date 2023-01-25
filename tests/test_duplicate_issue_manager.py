@@ -9,21 +9,21 @@ NEAR = IssueType.NEAR_DUPLICATES.value
 
 class TestDuplicateIssueManager:
     @pytest.fixture
-    def issue_manager(self):
-        return DuplicateIssueManager(params={})
+    def issue_manager(self, monkeypatch):
+        return DuplicateIssueManager(params={EXACT: {}, NEAR: {}})
+
+    def mock_get_default_params(self):
+        return {
+            EXACT: {"hash_type": "md5"},
+            NEAR: {"hash_type": "whash", "hash_size": 8},
+        }
 
     @pytest.fixture
     def set_default_params(self, issue_manager, monkeypatch):
         """Set default params for image property issue types"""
 
-        def mock_get_default_params():
-            return {
-                EXACT: {"hash_type": "md5"},
-                NEAR: {"hash_type": "whash", "hash_size": 8},
-            }
-
         monkeypatch.setattr(
-            issue_manager, "get_default_params", mock_get_default_params
+            issue_manager, "get_default_params", self.mock_get_default_params
         )
 
     @pytest.mark.usefixtures("set_default_params")
@@ -45,7 +45,7 @@ class TestDuplicateIssueManager:
         1. If no params are specified for an issue_type, default params are used
         2. If params are specified, those specific params are updated, for the remaining ones default values are used
         """
-        assert not hasattr(issue_manager, "params")
+        assert issue_manager.params == self.mock_get_default_params()
         issue_manager.set_params(params)
         assert issue_manager.params == expected_params
 
@@ -163,12 +163,13 @@ class TestDuplicateIssueManager:
     def test_remove_exact_duplicates_from_near(
         self, before_info, after_info, issue_manager, monkeypatch
     ):
-        # Assumes info["exact"] is always populated
-
-        with monkeypatch.context() as m:
-            m.setattr(issue_manager, "info", before_info)
-            issue_manager._remove_exact_duplicates_from_near()
-            assert issue_manager.info == after_info
+        """Tests DuplicateIssueManager._remove_exact_duplicates_from_near().
+        Only identical exact duplicate sets are removed from near duplicates,
+        partial sets are not considered for removal
+        """
+        monkeypatch.setattr(issue_manager, "info", before_info)
+        issue_manager._remove_exact_duplicates_from_near()
+        assert issue_manager.info == after_info
 
     @pytest.mark.parametrize(
         "hash_image_mapping, expected_duplicate_sets",
