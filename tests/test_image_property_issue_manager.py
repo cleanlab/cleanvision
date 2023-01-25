@@ -5,9 +5,9 @@ from cleanvision.issue_managers.image_property_issue_manager import (
     ImagePropertyIssueManager,
 )
 
-dark = IssueType.DARK.value
-blurry = IssueType.BLURRY.value
-light = IssueType.LIGHT.value
+DARK = IssueType.DARK.value
+BLURRY = IssueType.BLURRY.value
+LIGHT = IssueType.LIGHT.value
 
 
 class TestImagePropertyIssueManager:
@@ -25,9 +25,9 @@ class TestImagePropertyIssueManager:
 
         def mock_get_default_params():
             return {
-                dark: {"threshold": 0.22},
-                blurry: {"threshold": 0.3, "normalizing_factor": 0.001},
-                light: {"threshold": 0.05},
+                DARK: {"threshold": 0.22},
+                BLURRY: {"threshold": 0.3, "normalizing_factor": 0.001},
+                LIGHT: {"threshold": 0.05},
             }
 
         monkeypatch.setattr(
@@ -39,14 +39,14 @@ class TestImagePropertyIssueManager:
         "params,expected_params",
         [
             (
-                {dark: {}, blurry: {"threshold": 0.4}},
+                {DARK: {}, BLURRY: {"threshold": 0.4}},
                 {
-                    dark: {"threshold": 0.22},
-                    blurry: {
+                    DARK: {"threshold": 0.22},
+                    BLURRY: {
                         "threshold": 0.4,
                         "normalizing_factor": 0.001,
                     },
-                    light: {"threshold": 0.05},
+                    LIGHT: {"threshold": 0.05},
                 },
             )
         ],
@@ -78,9 +78,9 @@ class TestImagePropertyIssueManager:
                 self.name = name
 
         image_properties = {
-            dark: MockImageProperty("brightness"),
-            light: MockImageProperty("brightness"),
-            blurry: MockImageProperty("blurriness"),
+            DARK: MockImageProperty("brightness"),
+            LIGHT: MockImageProperty("brightness"),
+            BLURRY: MockImageProperty("blurriness"),
         }
         monkeypatch.setattr(
             issue_manager, "image_properties", image_properties, raising=False
@@ -90,8 +90,8 @@ class TestImagePropertyIssueManager:
     @pytest.mark.parametrize(
         "issue_types, imagelab_info, expected_defer_set",
         [
-            ([dark, light, blurry], {"statistics": {}}, {light}),
-            ([dark, light, blurry], {"statistics": {"brightness": []}}, {dark, light}),
+            ([DARK, LIGHT, BLURRY], {"statistics": {}}, {LIGHT}),
+            ([DARK, LIGHT, BLURRY], {"statistics": {"brightness": []}}, {DARK, LIGHT}),
         ],
     )
     def test_get_defer_set(
