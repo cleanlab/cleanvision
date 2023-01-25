@@ -3,8 +3,8 @@ import pytest
 from cleanvision.issue_managers import IssueType
 from cleanvision.issue_managers.duplicate_issue_manager import DuplicateIssueManager
 
-exact = IssueType.EXACT_DUPLICATES.value
-near = IssueType.NEAR_DUPLICATES.value
+EXACT = IssueType.EXACT_DUPLICATES.value
+NEAR = IssueType.NEAR_DUPLICATES.value
 
 
 class TestDuplicateIssueManager:
@@ -18,8 +18,8 @@ class TestDuplicateIssueManager:
 
         def mock_get_default_params():
             return {
-                exact: {"hash_type": "md5"},
-                near: {"hash_type": "whash", "hash_size": 8},
+                EXACT: {"hash_type": "md5"},
+                NEAR: {"hash_type": "whash", "hash_size": 8},
             }
 
         monkeypatch.setattr(
@@ -31,10 +31,10 @@ class TestDuplicateIssueManager:
         "params,expected_params",
         [
             (
-                {exact: {}, near: {"hash_size": 16}},
+                {EXACT: {}, NEAR: {"hash_size": 16}},
                 {
-                    exact: {"hash_type": "md5"},
-                    near: {"hash_type": "whash", "hash_size": 16},
+                    EXACT: {"hash_type": "md5"},
+                    NEAR: {"hash_type": "whash", "hash_size": 16},
                 },
             )
         ],
@@ -51,11 +51,11 @@ class TestDuplicateIssueManager:
     @pytest.mark.parametrize(
         "issue_types, imagelab_info, expected_to_compute",
         [
-            ([exact], {}, [exact]),
-            ([near], {}, [exact, near]),
-            ([exact, near], {}, [exact, near]),
-            ([exact], {exact: {"sets": []}}, []),
-            ([near], {exact: {"sets": []}, near: {"sets": []}}, [near]),
+            ([EXACT], {}, [EXACT]),
+            ([NEAR], {}, [EXACT, NEAR]),
+            ([EXACT, NEAR], {}, [EXACT, NEAR]),
+            ([EXACT], {EXACT: {"sets": []}}, []),
+            ([NEAR], {EXACT: {"sets": []}, NEAR: {"sets": []}}, [NEAR]),
         ],
         ids=[
             "Only exact, compute exact",
@@ -81,25 +81,25 @@ class TestDuplicateIssueManager:
     @pytest.mark.parametrize(
         "issue_types, issue_type_hash_mapping, imagelab_info, expected_info",
         [
-            ([exact], {exact: {}}, {}, {exact: {"sets": []}}),
-            ([exact], {}, {exact: {"sets": []}}, {exact: {"sets": []}}),
+            ([EXACT], {EXACT: {}}, {}, {EXACT: {"sets": []}}),
+            ([EXACT], {}, {EXACT: {"sets": []}}, {EXACT: {"sets": []}}),
             (
-                [near],
-                {exact: {}, near: {}},
+                [NEAR],
+                {EXACT: {}, NEAR: {}},
                 {},
-                {exact: {"sets": []}, near: {"sets": []}},
+                {EXACT: {"sets": []}, NEAR: {"sets": []}},
             ),
             (
-                [near],
-                {near: {}},
-                {exact: {"sets": []}},
-                {exact: {"sets": []}, near: {"sets": []}},
+                [NEAR],
+                {NEAR: {}},
+                {EXACT: {"sets": []}},
+                {EXACT: {"sets": []}, NEAR: {"sets": []}},
             ),
             (
-                [exact, near],
-                {near: {"h1": ["im_new1", "im_new2"]}},
-                {exact: {"sets": []}, near: {"sets": [["im_old1", "im_old2"]]}},
-                {exact: {"sets": []}, near: {"sets": [["im_new1", "im_new2"]]}},
+                [EXACT, NEAR],
+                {NEAR: {"h1": ["im_new1", "im_new2"]}},
+                {EXACT: {"sets": []}, NEAR: {"sets": [["im_old1", "im_old2"]]}},
+                {EXACT: {"sets": []}, NEAR: {"sets": [["im_new1", "im_new2"]]}},
             ),
         ],
         ids=[
@@ -141,19 +141,19 @@ class TestDuplicateIssueManager:
         "before_info, after_info",
         [
             (
-                {exact: {"sets": [["im5", "im6"]]}, near: {"sets": [["im1", "im2"]]}},
-                {exact: {"sets": [["im5", "im6"]]}, near: {"sets": [["im1", "im2"]]}},
+                {EXACT: {"sets": [["im5", "im6"]]}, NEAR: {"sets": [["im1", "im2"]]}},
+                {EXACT: {"sets": [["im5", "im6"]]}, NEAR: {"sets": [["im1", "im2"]]}},
             ),
             (
                 {
-                    exact: {"sets": [["im1", "im2"], ["im5", "im6"], ["im7", "im8"]]},
-                    near: {
+                    EXACT: {"sets": [["im1", "im2"], ["im5", "im6"], ["im7", "im8"]]},
+                    NEAR: {
                         "sets": [["im1", "im2"], ["im3", "im4"], ["im7", "im8", "im9"]]
                     },
                 },
                 {
-                    exact: {"sets": [["im1", "im2"], ["im5", "im6"], ["im7", "im8"]]},
-                    near: {"sets": [["im3", "im4"], ["im7", "im8", "im9"]]},
+                    EXACT: {"sets": [["im1", "im2"], ["im5", "im6"], ["im7", "im8"]]},
+                    NEAR: {"sets": [["im3", "im4"], ["im7", "im8", "im9"]]},
                 },
             ),
         ],
