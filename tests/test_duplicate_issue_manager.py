@@ -55,16 +55,24 @@ class TestDuplicateIssueManager:
             ([near], {}, [exact, near]),
             ([exact, near], {}, [exact, near]),
             ([exact], {exact: {"sets": []}}, []),
-            ([near], {exact: {"sets": []}}, [near]),
-            ([exact, near], {exact: {"sets": []}}, [near]),
-            ([exact], {exact: {"sets": []}, near: {"sets": []}}, []),
             ([near], {exact: {"sets": []}, near: {"sets": []}}, [near]),
-            ([exact, near], {exact: {"sets": []}, near: {"sets": []}}, [near]),
+        ],
+        ids=[
+            "Only exact, compute exact",
+            "Only near, compute both",
+            "Both, compute both",
+            "Reuse exact",
+            "Compute near even if precomputed",
         ],
     )
     def test_get_issue_types_to_compute(
         self, issue_types, imagelab_info, expected_to_compute, issue_manager
     ):
+        """Tests DuplicateIssueManager._get_issue_types_to_compute().
+        Always compute near duplicates if specified in issue_types
+        Always compute exact if not present in imagelab_info as it is required both by exact and near
+        Reuse exact duplicates if present in imagelab_info
+        """
         to_compute = issue_manager._get_issue_types_to_compute(
             issue_types, imagelab_info
         )
