@@ -1,12 +1,12 @@
 ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanlab/cleanvision_logo_open_source_transparent.png)
 
-CleanVision automatically identifies various issues in image datasets, such as images that are: (near) duplicates,
-blurry, over/under-exposed, etc. This Data Centric AI package is designed as a quick first step for any computer vision
+CleanVision automatically detects various issues in image datasets, such as images that are: (near) duplicates,
+blurry, over/under-exposed, etc. This data-centric AI package is designed as a quick first step for any computer vision
 project to find problems in your dataset, which you may want to address before applying machine learning.
 
-At the moment this package is a work in progress (expect sharp edges!) and supports the following checks:
+At the moment this package is a work in progress (expect sharp edges!) and can detect the following types of issues:
 
-|     | Issue Check      | Description                                                                                  | Issue Key        |
+|     | Issue Type      | Description                                                                                  | Issue Key        |
 |-----|------------------|----------------------------------------------------------------------------------------------|------------------|
 | 1   | Light            | Images that are too bright/washed out in the dataset                                         | light            |
 | 2   | Dark             | Images that are irregularly dark                                                             | dark             |
