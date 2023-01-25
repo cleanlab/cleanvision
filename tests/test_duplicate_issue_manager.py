@@ -45,6 +45,7 @@ class TestDuplicateIssueManager:
         1. If no params are specified for an issue_type, default params are used
         2. If params are specified, those specific params are updated, for the remaining ones default values are used
         """
+        assert not hasattr(issue_manager, "params")
         issue_manager.set_params(params)
         assert issue_manager.params == expected_params
 

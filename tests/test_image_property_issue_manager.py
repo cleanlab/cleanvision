@@ -66,6 +66,7 @@ class TestImagePropertyIssueManager:
         issue_manager: instance of ImagePropertyIssueManager
 
         """
+        assert not hasattr(issue_manager, "params")
         issue_manager.set_params(params)
         assert issue_manager.params == expected_params
 
