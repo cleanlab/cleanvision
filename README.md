@@ -10,14 +10,16 @@ At the moment this package is a work in progress (expect sharp edges!) and can d
 |-----|------------------|----------------------------------------------------------------------------------------------|------------------|
 | 1   | Light            | Images that are too bright/washed out in the dataset                                         | light            |
 | 2   | Dark             | Images that are irregularly dark                                                             | dark             |
-| 3   | Odd Aspect Ratio | Images with unusual aspect ratio                                                             | odd_aspect_ratio |
-| 4   | Exact Duplicates | Set of images that are exact duplicates of each other at byte level                          | exact_duplicates |
-| 5   | Near Duplicates  | Set of images that are visually similar to each other                                        | near_duplicates  |
-| 6   | Blurry           | Images that are blurred or lack sharp edges                                                  | blurry           |
-| 7   | Grayscale        | Images that are in grayscale mode                                                            | grayscale        |
-| 8   | Low Information  | Images that lack any information, for example, complete black image with a few dots of white | low_information  |
+| 3   | Odd Aspect Ratio | Images with an unusual aspect ratio (i.e. overly skinny/wide)                                                       | odd_aspect_ratio |
+| 4   | Exact Duplicates | Images that are exact duplicates of each other                          | exact_duplicates |
+| 5   | Near Duplicates  | Images that are almost visually identical to each other                                 | near_duplicates  |
+| 6   | Blurry           | Images that are blurry or out of focus                                                  | blurry           |
+| 7   | Grayscale        | Images that are grayscale (lacking color)                                                            | grayscale        |
+| 8   | Low Information  | Images that lack much information (e.g. a completely black image with a few white dots) | low_information  |
 
-Feel free to submit any found bugs or desired future checks as an [issue][issue].
+The **Issue Key** column above specifies the name for each type of issue in the CleanVision code. Use these string names to specify: which types of issues should be considered or what non-default parameter values to use when checking for certain issues.
+
+Feel free to submit any found bugs or desired future checks as an [issue][issue]!
 
 ## Quickstart
 
