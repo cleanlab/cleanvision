@@ -6,12 +6,10 @@ import pandas as pd
 class IssueManager(ABC):
     """Base class for managing data issues of a particular type in Imagelab."""
 
-    def __init__(self, params):
+    def __init__(self):
         self.info = {"statistics": {}}
         self.issues = pd.DataFrame()
         self.summary = pd.DataFrame(columns=["issue_type"])
-        self.params = self.get_default_params()
-        self.set_params(params)
 
     def __repr__(self):
         class_name = self.__class__.__name__
