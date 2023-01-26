@@ -1,3 +1,7 @@
+import os
+import pickle
+from typing import TypeVar
+
 import pandas as pd
 
 from cleanvision.issue_managers import IssueType, IssueManagerFactory
@@ -11,6 +15,9 @@ from cleanvision.utils.constants import (
 from cleanvision.utils.utils import get_filepaths, deep_update_dict
 from cleanvision.utils.viz_manager import VizManager
 
+OBJECT_FILENAME = "imagelab.pkl"
+TImagelab = TypeVar("TImagelab", bound="Imagelab")
+
 
 class Imagelab:
     def __init__(self, data_path):
@@ -23,6 +30,7 @@ class Imagelab:
         self.issue_managers = {}
         # can be loaded from a file later
         self.config = self._set_default_config()
+        self.path = ""
 
     def _set_default_config(self):
         return {
@@ -252,3 +260,47 @@ class Imagelab:
 
     def get_stats(self):
         return self.info["statistics"]
+
+    def save(self, path: str) -> None:
+        """Saves this ImageLab to file (all files are in folder at path/).
+        We do not guarantee saved Imagelab can be loaded from future versions of Imagelab.
+        """
+        if os.path.exists(path):
+            print(
+                f"WARNING: Existing files will be overwritten by newly saved files at: {path}"
+            )
+        else:
+            os.mkdir(path)
+
+        self.path = path
+        object_file = os.path.join(self.path, OBJECT_FILENAME)
+        with open(object_file, "wb") as f:
+            pickle.dump(self, f)
+
+        print(f"Saved Imagelab to folder: {path}")
+        print(
+            "The data path and dataset must be not be changed to maintain consistent state when loading this Imagelab"
+        )
+
+    @classmethod
+    def load(cls, path: str, data_path=None) -> TImagelab:
+        """Loads Imagelab from file.
+        `path` is the path to the saved Imagelab, not pickle file.
+        data_path is the path to dataset used before for running Imagelab
+        If the data_path is changed, Imagelab will not be loaded as some of its functionalities are dependent on it.
+        """
+        if not os.path.exists(path):
+            raise ValueError(f"No folder found at specified path: {path}")
+
+        object_file = os.path.join(path, OBJECT_FILENAME)
+        with open(object_file, "rb") as f:
+            imagelab = pickle.load(f)
+
+        if data_path is not None:
+            filepaths = get_filepaths(data_path)
+            if set(filepaths) != set(imagelab.filepaths):
+                raise ValueError(
+                    "Absolute path of image(s) has changed in the dataset. Cannot load Imagelab."
+                )
+
+        return imagelab

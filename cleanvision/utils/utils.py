@@ -43,7 +43,9 @@ def get_filepaths(
     #     raise Exception(f"The current path {path} is not valid.")
     filepaths = []
     for type in TYPES:
-        filetype_images = glob.glob(os.path.join(dir_path, type), recursive=True)
+        filetype_images = glob.glob(
+            os.path.join(os.path.abspath(dir_path), type), recursive=True
+        )
         if len(filetype_images) == 0:
             continue
         filepaths += filetype_images
