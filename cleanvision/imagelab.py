@@ -109,9 +109,11 @@ class Imagelab:
         deep_update_dict(self.info, issue_manager_info)
 
     def _update_issue_summary(self, issue_manager_summary):
+        # Remove results for issue types computed again
         self.issue_summary = self.issue_summary[
             ~self.issue_summary["issue_type"].isin(issue_manager_summary["issue_type"])
         ]
+        # concat new results
         self.issue_summary = pd.concat(
             [self.issue_summary, issue_manager_summary], axis=0, ignore_index=True
         )
@@ -205,9 +207,15 @@ class Imagelab:
         issue_summary = self.issue_summary[
             self.issue_summary["issue_type"].isin(issue_types)
         ]
-        print(issue_summary.to_markdown(), "\n")
+        self.print_issue_summary(issue_summary)
 
         self.visualize(issue_types, report_args["examples_per_issue"])
+
+    def print_issue_summary(self, issue_summary):
+        issue_summary_copy = issue_summary.copy()
+        issue_summary_copy.dropna(axis=1, how="all", inplace=True)
+        issue_summary_copy.fillna("N/A", inplace=True)
+        print(issue_summary_copy.to_markdown(), "\n")
 
     def _get_issue_manager(self, issue_type_str):
         if issue_type_str in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
