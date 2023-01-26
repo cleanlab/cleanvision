@@ -21,8 +21,9 @@ class ImagePropertyIssueManager(IssueManager):
     visualization = "individual_images"
 
     def __init__(self, params):
-        super().__init__(params)
-        self.issue_types = list(self.params.keys())
+        super().__init__()
+        self.issue_types = list(params.keys())
+        self.set_params(params)
         self.image_properties = self._get_image_properties()
 
     def get_default_params(self):
@@ -40,11 +41,12 @@ class ImagePropertyIssueManager(IssueManager):
         }
 
     def set_params(self, params):
-        update_params = {}
-        for issue_type, issue_params in params.items():
-            non_none_params = {k: v for k, v in issue_params.items() if v is not None}
-            update_params[issue_type] = {**self.params[issue_type], **non_none_params}
-        self.params = update_params
+        self.params = self.get_default_params()
+        for issue_type in self.params:
+            non_none_params = {
+                k: v for k, v in params.get(issue_type, {}).items() if v is not None
+            }
+            self.params[issue_type] = {**self.params[issue_type], **non_none_params}
 
     def _get_image_properties(self):
         return {
@@ -56,26 +58,26 @@ class ImagePropertyIssueManager(IssueManager):
             IssueType.GRAYSCALE.value: ColorSpaceProperty(),
         }
 
-    def _get_defer_set(self, imagelab_info):
+    def _get_defer_set(self, issue_types, imagelab_info):
         defer_set = set()
 
         # Add precomputed issues to defer set
-        for issue_type in self.issue_types:
+        for issue_type in issue_types:
             image_property = self.image_properties[issue_type].name
             if image_property in imagelab_info[
                 "statistics"
-            ] or image_property in imagelab_info.get(issue_type, {}):
+            ] or image_property in imagelab_info.get(
+                issue_type, {}
+            ):  # todo: check not needed as properties always added in imagelab["statistics"]
                 defer_set.add(issue_type)
 
         # Add issues using same property
-        if {IssueType.LIGHT.value, IssueType.DARK.value}.issubset(
-            set(self.issue_types)
-        ):
+        if {IssueType.LIGHT.value, IssueType.DARK.value}.issubset(set(issue_types)):
             defer_set.add(IssueType.LIGHT.value)
         return defer_set
 
     def find_issues(self, filepaths, imagelab_info):
-        defer_set = self._get_defer_set(imagelab_info)
+        defer_set = self._get_defer_set(self.issue_types, imagelab_info)
 
         to_be_computed = list(set(self.issue_types).difference(defer_set))
         raw_scores = {issue_type: [] for issue_type in to_be_computed}

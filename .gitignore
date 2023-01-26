@@ -4,5 +4,6 @@
 dist/
 __pycache__/
 *.egg-info/
+.coverage
 results/
 image_files*
