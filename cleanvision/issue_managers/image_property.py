@@ -195,7 +195,7 @@ class ColorSpaceProperty(ImageProperty):
         super().get_scores(**kwargs)
         assert raw_scores is not None
 
-        scores = np.array([0 if mode is "L" else 1 for mode in raw_scores])
+        scores = np.array([0 if mode == "L" else 1 for mode in raw_scores])
         return scores
 
     @staticmethod
