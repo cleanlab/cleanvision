@@ -17,7 +17,7 @@ TColorSpaceProperty = TypeVar("TColorSpaceProperty", bound="ColorSpaceProperty")
 
 class ImageProperty(ABC):
     @staticmethod
-    def check_params(*args: Any, **kwargs: Any) -> None:
+    def check_params(**kwargs: Any) -> None:
         allowed_kwargs: Dict[str, Any] = {
             "image": Image,
             "scores": "np.ndarray[Any, Any]",
@@ -38,8 +38,8 @@ class ImageProperty(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_scores(self: Any, *args: Any, **kwargs: Any) -> Any:
-        self.check_params(*args, **kwargs)
+    def get_scores(self: Any, **kwargs: Any) -> Any:
+        self.check_params(**kwargs)
         return
 
     @staticmethod
@@ -72,11 +72,11 @@ class BrightnessProperty(ImageProperty):
 
     def get_scores(
         self: Any,
+        *,
         raw_scores: Optional[List[Union[float, str]]] = None,
-        *args: Any,
         **kwargs: Any,
     ) -> "np.ndarray[Any, Any]":
-        super().get_scores(*args, **kwargs)
+        super().get_scores(**kwargs)
         assert raw_scores is not None
 
         scores = np.array(raw_scores)
@@ -98,11 +98,11 @@ class AspectRatioProperty(ImageProperty):
 
     def get_scores(
         self: TAspectRatioProperty,
+        *,
         raw_scores: Optional[List[Union[float, str]]] = None,
-        *args: Any,
         **kwargs: Any,
     ) -> "np.ndarray[Any, Any]":
-        super().get_scores(*args, **kwargs)
+        super().get_scores(**kwargs)
         assert raw_scores is not None
 
         scores = np.array(raw_scores)
@@ -121,12 +121,12 @@ class EntropyProperty(ImageProperty):
 
     def get_scores(
         self: TEntropyProperty,
+        *,
         raw_scores: Optional[List[Union[float, str]]] = None,
         normalizing_factor: float = 1.0,
-        *args: Any,
         **kwargs: Any,
     ) -> "np.ndarray[Any, Any]":
-        super().get_scores(*args, **kwargs)
+        super().get_scores(**kwargs)
         assert raw_scores is not None
 
         scores = np.array(raw_scores)
@@ -148,12 +148,12 @@ class BlurrinessProperty(ImageProperty):
 
     def get_scores(
         self: TBlurrinessProperty,
+        *,
         raw_scores: Optional[List[Union[float, str]]] = None,
         normalizing_factor: float = 1.0,
-        *args: Any,
         **kwargs: Any,
     ) -> "np.ndarray[Any, Any]":
-        super().get_scores(*args, **kwargs)
+        super().get_scores(**kwargs)
         assert raw_scores is not None
 
         raw_scores = np.array(raw_scores)
@@ -185,12 +185,12 @@ class ColorSpaceProperty(ImageProperty):
 
     def get_scores(
         self: TColorSpaceProperty,
+        *,
         raw_scores: Optional[List[Union[float, str]]] = None,
         normalizing_factor: float = 1.0,
-        *args: Any,
         **kwargs: Any,
     ) -> "np.ndarray[Any, Any]":
-        super().get_scores(*args, **kwargs)
+        super().get_scores(**kwargs)
         assert raw_scores is not None
 
         scores = np.array([0 if mode is "L" else 1 for mode in raw_scores])
@@ -200,7 +200,8 @@ class ColorSpaceProperty(ImageProperty):
     def mark_issue(
         scores: "np.ndarray[Any, Any]", threshold: float
     ) -> "np.ndarray[Any, Any]":
-        return (1 - scores).astype("bool")
+        issues: "np.ndarray[Any, Any]" = 1 - scores
+        return issues.astype("bool")
 
 
 def get_image_mode(image: Image) -> str:
