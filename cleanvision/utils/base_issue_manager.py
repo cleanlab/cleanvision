@@ -26,6 +26,14 @@ class IssueManager(ABC):
         class_name = self.__class__.__name__
         return class_name
 
+    @property
+    def visualization(self: TIssueManager) -> str:
+        raise NotImplementedError
+
+    @property
+    def issue_name(self: TIssueManager) -> str:
+        raise NotImplementedError
+
     @staticmethod
     def check_params(**kwargs: Any) -> None:
         allowed_kwargs: Dict[str, Any] = {
