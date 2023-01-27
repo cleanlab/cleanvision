@@ -1,3 +1,6 @@
+from typing import TypeVar, List, Dict, Any, Optional, Tuple, Type
+from cleanvision.utils.base_issue_manager import IssueManager
+
 import pandas as pd
 
 from cleanvision.issue_managers import IssueType, IssueManagerFactory
@@ -11,20 +14,22 @@ from cleanvision.utils.constants import (
 from cleanvision.utils.utils import get_filepaths, deep_update_dict
 from cleanvision.utils.viz_manager import VizManager
 
+TImageLab = TypeVar("TImageLab", bound="Imagelab")
+
 
 class Imagelab:
-    def __init__(self, data_path):
-        self.filepaths = get_filepaths(data_path)
-        self.num_images = len(self.filepaths)
-        self.info = {"statistics": {}}
-        self.issue_summary = pd.DataFrame(columns=["issue_type"])
-        self.issues = pd.DataFrame(index=self.filepaths)
-        self.issue_types = []
-        self.issue_managers = {}
+    def __init__(self: TImageLab, data_path: str) -> None:
+        self.filepaths: List[str] = get_filepaths(data_path)
+        self.num_images: int = len(self.filepaths)
+        self.info: Dict[str, Any] = {"statistics": {}}
+        self.issue_summary: pd.DataFrame = pd.DataFrame(columns=["issue_type"])
+        self.issues: pd.DataFrame = pd.DataFrame(index=self.filepaths)
+        self.issue_types: List[str] = []
+        self.issue_managers: Dict[str, IssueManager] = {}
         # can be loaded from a file later
-        self.config = self._set_default_config()
+        self.config: Dict[str, Any] = self._set_default_config()
 
-    def _set_default_config(self):
+    def _set_default_config(self: TImageLab) -> Dict[str, Any]:
         return {
             "visualize_num_images_per_row": 4,
             "report_num_top_issues_values": [3, 5, 10, len(self.issue_types)],
@@ -42,20 +47,22 @@ class Imagelab:
             ],
         }
 
-    def list_default_issue_types(self):
+    def list_default_issue_types(self: TImageLab) -> None:
         print("Default issue type checked by Imagelab:\n")
         print(
             *[issue_type.value for issue_type in self.config["default_issue_types"]],
             sep="\n",
         )
 
-    def list_possible_issue_types(self):
+    def list_possible_issue_types(self: TImageLab) -> None:
         print("All possible issues checked by Imagelab:\n")
         print(*[issue_type.value for issue_type in list(IssueType)], sep="\n")
 
-    def _get_issues_to_compute(self, issue_types_with_params):
+    def _get_issues_to_compute(
+        self: TImageLab, issue_types_with_params: Optional[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         if not issue_types_with_params:
-            to_compute_issues_with_params = {
+            to_compute_issues_with_params: Dict[str, Any] = {
                 issue_type.value: {}
                 for issue_type in self.config["default_issue_types"]
             }
@@ -66,7 +73,9 @@ class Imagelab:
             }
         return to_compute_issues_with_params
 
-    def find_issues(self, issue_types=None):
+    def find_issues(
+        self: TImageLab, issue_types: Optional[Dict[str, Any]] = None
+    ) -> None:
         to_compute_issues_with_params = self._get_issues_to_compute(issue_types)
         print(
             f"Checking for {', '.join([issue_type for issue_type in to_compute_issues_with_params.keys()])} images ..."
@@ -97,10 +106,12 @@ class Imagelab:
         self.issue_summary = self.issue_summary.reset_index(drop=True)
         return
 
-    def _update_info(self, issue_manager_info):
+    def _update_info(self: TImageLab, issue_manager_info: Dict[str, Any]) -> None:
         deep_update_dict(self.info, issue_manager_info)
 
-    def _update_issue_summary(self, issue_manager_summary):
+    def _update_issue_summary(
+        self: TImageLab, issue_manager_summary: pd.DataFrame
+    ) -> None:
         self.issue_summary = self.issue_summary[
             ~self.issue_summary["issue_type"].isin(issue_manager_summary["issue_type"])
         ]
@@ -108,7 +119,7 @@ class Imagelab:
             [self.issue_summary, issue_manager_summary], axis=0, ignore_index=True
         )
 
-    def _update_issues(self, issue_manager_issues):
+    def _update_issues(self: TImageLab, issue_manager_issues: pd.DataFrame) -> None:
         columns_to_update, new_columns = [], []
         for column in issue_manager_issues.columns:
             if column in self.issues.columns:
@@ -119,7 +130,9 @@ class Imagelab:
             self.issues[column_name] = issue_manager_issues[column_name]
         self.issues = self.issues.join(issue_manager_issues[new_columns], how="left")
 
-    def _get_issue_type_groups(self, issue_types_with_params):
+    def _get_issue_type_groups(
+        self: TImageLab, issue_types_with_params: Dict[str, Any]
+    ) -> Dict[str, Any]:
         issue_type_groups = {}
 
         for issue_type, params in issue_types_with_params.items():
@@ -138,13 +151,15 @@ class Imagelab:
                     issue_type_groups[group_name] = {issue_type: params}
         return issue_type_groups
 
-    def _set_issue_managers(self, issue_type_groups):
+    def _set_issue_managers(self: TImageLab, issue_type_groups: Dict[str, Any]) -> None:
         for issue_type_group, params in issue_type_groups.items():
             self.issue_managers[issue_type_group] = IssueManagerFactory.from_str(
                 issue_type_group
             )(params)
 
-    def _get_topk_issues(self, num_top_issues, max_prevalence):
+    def _get_topk_issues(
+        self: TImageLab, num_top_issues: int, max_prevalence: float
+    ) -> List[str]:
         topk_issues = []
         # Assumes issue_summary is sorted in descending order
         for row in self.issue_summary.itertuples(index=False):
@@ -157,7 +172,9 @@ class Imagelab:
                 )
         return topk_issues[:num_top_issues]
 
-    def _get_report_args(self, verbosity, user_supplied_args):
+    def _get_report_args(
+        self: TImageLab, verbosity: int, user_supplied_args: Dict[str, Any]
+    ) -> Dict[str, Any]:
         report_args = {
             "num_top_issues": self.config["report_num_top_issues_values"][
                 verbosity - 1
@@ -175,33 +192,33 @@ class Imagelab:
         return {**report_args, **non_none_args}
 
     def report(
-        self,
-        issue_types=None,
-        num_top_issues=None,
-        max_prevalence=None,
-        examples_per_issue=None,
-        verbosity=1,
-    ):
+        self: TImageLab,
+        issue_types: Optional[List[str]] = None,
+        num_top_issues: Optional[int] = None,
+        max_prevalence: Optional[float] = None,
+        examples_per_issue: Optional[int] = None,
+        verbosity: int = 1,
+    ) -> None:
         assert isinstance(verbosity, int) and 0 < verbosity < 5
 
         user_supplied_args = locals()
         report_args = self._get_report_args(verbosity, user_supplied_args)
 
         if issue_types:
-            issue_types = issue_types
+            computed_issue_types = issue_types
         else:
             print("Top issues in the dataset\n")
-            issue_types = self._get_topk_issues(
+            computed_issue_types = self._get_topk_issues(
                 report_args["num_top_issues"], report_args["max_prevalence"]
             )
         issue_summary = self.issue_summary[
-            self.issue_summary["issue_type"].isin(issue_types)
+            self.issue_summary["issue_type"].isin(computed_issue_types)
         ]
         print(issue_summary.to_markdown(), "\n")
 
-        self.visualize(issue_types, report_args["examples_per_issue"])
+        self.visualize(computed_issue_types, report_args["examples_per_issue"])
 
-    def _get_issue_manager(self, issue_type_str):
+    def _get_issue_manager(self: TImageLab, issue_type_str: str) -> IssueManager:
         if issue_type_str in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
             return self.issue_managers[IMAGE_PROPERTY]
         elif issue_type_str in DUPLICATE_ISSUE_TYPES_LIST:
@@ -209,7 +226,12 @@ class Imagelab:
         else:
             return self.issue_managers[issue_type_str]
 
-    def _visualize(self, issue_type_str, examples_per_issue, cell_size):
+    def _visualize(
+        self: TImageLab,
+        issue_type_str: str,
+        examples_per_issue: int,
+        cell_size: Tuple[int, int],
+    ) -> None:
         issue_manager = self._get_issue_manager(issue_type_str)
         viz_name = issue_manager.visualization
 
@@ -246,9 +268,15 @@ class Imagelab:
                 cell_size=cell_size,
             )
 
-    def visualize(self, issue_types, examples_per_issue=4, cell_size=(2, 2)):
+    def visualize(
+        self: TImageLab,
+        issue_types: List[str],
+        examples_per_issue: int = 4,
+        cell_size: Tuple[int, int] = (2, 2),
+    ) -> None:
         for issue_type in issue_types:
             self._visualize(issue_type, examples_per_issue, cell_size)
 
-    def get_stats(self):
+    # Todo: Improve mypy dict typechecking so this does not return any
+    def get_stats(self: TImageLab) -> Any:
         return self.info["statistics"]
