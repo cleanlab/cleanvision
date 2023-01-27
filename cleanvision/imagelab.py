@@ -4,7 +4,11 @@ from typing import TypeVar
 
 import pandas as pd
 
-from cleanvision.issue_managers import IssueType, IssueManagerFactory
+from cleanvision.issue_managers import (
+    IssueType,
+    IssueManagerFactory,
+    ISSUE_MANAGER_REGISTRY,
+)
 from cleanvision.utils.constants import (
     IMAGE_PROPERTY,
     DUPLICATE,
@@ -58,8 +62,11 @@ class Imagelab:
         )
 
     def list_possible_issue_types(self):
+        # todo: sort this list
         print("All possible issues checked by Imagelab:\n")
-        print(*[issue_type.value for issue_type in list(IssueType)], sep="\n")
+        issue_types = {issue_type.value for issue_type in list(IssueType)}
+        issue_types.update(ISSUE_MANAGER_REGISTRY.keys())
+        print(*issue_types, sep="\n")
 
     def _get_issues_to_compute(self, issue_types_with_params):
         if not issue_types_with_params:
@@ -240,12 +247,15 @@ class Imagelab:
                 print(f"\nTop {examples_per_issue} images with {issue_type_str} issue")
 
             sorted_filepaths = sorted_df.index[:examples_per_issue].tolist()
-            VizManager.individual_images(
-                filepaths=sorted_filepaths,
-                ncols=self.config["visualize_num_images_per_row"],
-                cell_size=cell_size,
-                cmap="gray" if issue_type_str == IssueType.GRAYSCALE.value else None,
-            )
+            if len(sorted_filepaths) > 0:
+                VizManager.individual_images(
+                    filepaths=sorted_filepaths,
+                    ncols=self.config["visualize_num_images_per_row"],
+                    cell_size=cell_size,
+                    cmap="gray"
+                    if issue_type_str == IssueType.GRAYSCALE.value
+                    else None,
+                )
         elif viz_name == "image_sets":
             image_sets = self.info[issue_type_str][SETS][:examples_per_issue]
             if len(image_sets) < examples_per_issue:
@@ -256,11 +266,12 @@ class Imagelab:
                 print(
                     f"\nTop {examples_per_issue} sets of images with {issue_type_str} issue"
                 )
-            VizManager.image_sets(
-                image_sets,
-                ncols=self.config["visualize_num_images_per_row"],
-                cell_size=cell_size,
-            )
+            if len(image_sets) > 0:
+                VizManager.image_sets(
+                    image_sets,
+                    ncols=self.config["visualize_num_images_per_row"],
+                    cell_size=cell_size,
+                )
 
     def visualize(self, issue_types, examples_per_issue=4, cell_size=(2, 2)):
         for issue_type in issue_types:
@@ -310,5 +321,5 @@ class Imagelab:
                 raise ValueError(
                     "Absolute path of image(s) has changed in the dataset. Cannot load Imagelab."
                 )
-
+        print("Successfully loaded Imagelab")
         return imagelab
