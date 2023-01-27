@@ -1,4 +1,4 @@
-from typing import TypeVar, Dict, Any, List, Set, Optional
+from typing import Dict, Any, List, Set, Optional
 
 import pandas as pd
 from PIL import Image
@@ -15,9 +15,6 @@ from cleanvision.issue_managers.image_property import (
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import IMAGE_PROPERTY
 
-TImagePropertyIssueManager = TypeVar(
-    "TImagePropertyIssueManager", bound="ImagePropertyIssueManager"
-)
 
 # Combined all issues which are to be detected using image properties under one class to save time on loading image
 @register_issue_manager(IMAGE_PROPERTY)
@@ -25,12 +22,12 @@ class ImagePropertyIssueManager(IssueManager):
     issue_name: str = IMAGE_PROPERTY
     visualization: str = "individual_images"
 
-    def __init__(self: TImagePropertyIssueManager, params: Dict[str, Any]) -> None:
+    def __init__(self, params: Dict[str, Any]) -> None:
         super().__init__(params)
         self.issue_types: List[str] = list(self.params.keys())
         self.image_properties = self._get_image_properties()
 
-    def get_default_params(self: TImagePropertyIssueManager) -> Dict[str, Any]:
+    def get_default_params(self) -> Dict[str, Any]:
         return {
             IssueType.DARK.value: {"threshold": 0.22},
             IssueType.LIGHT.value: {"threshold": 0.05},
@@ -44,14 +41,14 @@ class ImagePropertyIssueManager(IssueManager):
             IssueType.GRAYSCALE.value: {},
         }
 
-    def set_params(self: TImagePropertyIssueManager, params: Dict[str, Any]) -> None:
+    def set_params(self, params: Dict[str, Any]) -> None:
         update_params = {}
         for issue_type, issue_params in params.items():
             non_none_params = {k: v for k, v in issue_params.items() if v is not None}
             update_params[issue_type] = {**self.params[issue_type], **non_none_params}
         self.params = update_params
 
-    def _get_image_properties(self: TImagePropertyIssueManager) -> Dict[str, Any]:
+    def _get_image_properties(self) -> Dict[str, Any]:
         return {
             IssueType.DARK.value: BrightnessProperty(IssueType.DARK),
             IssueType.LIGHT.value: BrightnessProperty(IssueType.LIGHT),
@@ -62,7 +59,7 @@ class ImagePropertyIssueManager(IssueManager):
         }
 
     def _get_defer_set(
-        self: TImagePropertyIssueManager, imagelab_info: Dict[str, Any]
+        self, imagelab_info: Dict[str, Any]
     ) -> Set[str]:
         defer_set = set()
 
@@ -82,7 +79,7 @@ class ImagePropertyIssueManager(IssueManager):
         return defer_set
 
     def find_issues(
-        self: TImagePropertyIssueManager,
+        self,
         *,
         filepaths: Optional[List[str]] = None,
         imagelab_info: Optional[Dict[str, Any]] = None,
@@ -137,7 +134,7 @@ class ImagePropertyIssueManager(IssueManager):
         return
 
     def update_info(
-        self: TImagePropertyIssueManager, raw_scores: Dict[str, Any]
+        self, raw_scores: Dict[str, Any]
     ) -> None:
         for issue_type, scores in raw_scores.items():
             # todo: add a way to update info for image properties which are not stats
@@ -145,7 +142,7 @@ class ImagePropertyIssueManager(IssueManager):
                 self.info["statistics"][self.image_properties[issue_type].name] = scores
 
     def update_summary(
-        self: TImagePropertyIssueManager, summary_dict: Dict[str, Any]
+        self, summary_dict: Dict[str, Any]
     ) -> None:
         summary_df = pd.DataFrame.from_dict(summary_dict, orient="index")
         summary_df["issue_type"] = summary_df.index
