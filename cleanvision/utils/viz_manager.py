@@ -1,8 +1,9 @@
 import math
-from typing import TypeVar, List, Tuple, Set
+from typing import TypeVar, List, Tuple, Set, Union
 
 import matplotlib.pyplot as plt  # type: ignore
 from PIL import Image
+from matplotlib.colors import Colormap  # type: ignore
 from mpl_toolkits.axes_grid1 import ImageGrid  # type: ignore
 
 TVizManager = TypeVar("TVizManager", bound="VizManager")  # self type for the class
@@ -14,7 +15,10 @@ class VizManager:
 
     @staticmethod
     def individual_images(
-        filepaths: List[str], ncols: int, cell_size: Tuple[int, int], cmap=None
+        filepaths: List[str],
+        ncols: int,
+        cell_size: Tuple[int, int],
+        cmap: Union[str, Colormap] = None,
     ) -> None:
         plot_image_grid(filepaths, ncols, cell_size, cmap)
 
@@ -27,7 +31,10 @@ class VizManager:
 
 
 def plot_image_grid(
-    filepaths: List[str], ncols: int, cell_size: Tuple[int, int], cmap=None
+    filepaths: List[str],
+    ncols: int,
+    cell_size: Tuple[int, int],
+    cmap: Union[str, Colormap] = None,
 ) -> None:
     nrows = math.ceil(len(filepaths) / ncols)
     ncols = min(ncols, len(filepaths))
