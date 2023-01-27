@@ -64,7 +64,7 @@ class Imagelab:
     def list_possible_issue_types(self):
         # todo: sort this list
         print("All possible issues checked by Imagelab:\n")
-        issue_types = {issue_type.value for issue_type in list(IssueType)}
+        issue_types = {issue_type.value for issue_type in IssueType}
         issue_types.update(ISSUE_MANAGER_REGISTRY.keys())
         print(*issue_types, sep="\n")
 
