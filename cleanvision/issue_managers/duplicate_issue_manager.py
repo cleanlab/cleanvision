@@ -16,8 +16,9 @@ class DuplicateIssueManager(IssueManager):
     visualization = "image_sets"
 
     def __init__(self, params):
-        super().__init__(params)
+        super().__init__()
         self.issue_types = list(params.keys())
+        self.set_params(params)
 
     def get_default_params(self):
         return {
@@ -26,13 +27,12 @@ class DuplicateIssueManager(IssueManager):
         }
 
     def set_params(self, params):
-        updated_params = {}
+        self.params = self.get_default_params()
         for issue_type in self.params:
             non_none_params = {
                 k: v for k, v in params.get(issue_type, {}).items() if v is not None
             }
-            updated_params[issue_type] = {**self.params[issue_type], **non_none_params}
-        self.params = updated_params
+            self.params[issue_type] = {**self.params[issue_type], **non_none_params}
 
     @staticmethod
     def _get_hash(image, params):
@@ -46,7 +46,7 @@ class DuplicateIssueManager(IssueManager):
         else:
             raise ValueError("Hash type not supported")
 
-    def _get_issue_types_to_compute(self, imagelab_info):
+    def _get_issue_types_to_compute(self, issue_types, imagelab_info):
         """Gets issue type for which computation needs to be done
 
         Only exact duplicate results are reused.
@@ -65,12 +65,12 @@ class DuplicateIssueManager(IssueManager):
         to_compute = []
         if SETS not in imagelab_info.get(IssueType.EXACT_DUPLICATES.value, {}):
             to_compute.append(IssueType.EXACT_DUPLICATES.value)
-        if IssueType.NEAR_DUPLICATES.value in self.issue_types:
+        if IssueType.NEAR_DUPLICATES.value in issue_types:
             to_compute.append(IssueType.NEAR_DUPLICATES.value)
         return to_compute
 
     def find_issues(self, filepaths, imagelab_info):
-        to_compute = self._get_issue_types_to_compute(imagelab_info)
+        to_compute = self._get_issue_types_to_compute(self.issue_types, imagelab_info)
         issue_type_hash_mapping = {issue_type: {} for issue_type in to_compute}
 
         for path in tqdm(filepaths):
@@ -83,7 +83,7 @@ class DuplicateIssueManager(IssueManager):
                     issue_type_hash_mapping[issue_type][hash] = [path]
 
         self.issues = pd.DataFrame(index=filepaths)
-        self._update_info(issue_type_hash_mapping, imagelab_info)
+        self._update_info(self.issue_types, issue_type_hash_mapping, imagelab_info)
         self._update_issues()
         self._update_summary()
 
@@ -112,17 +112,24 @@ class DuplicateIssueManager(IssueManager):
                 lambda x: True if x in duplicated_images else False
             )
 
-    def _update_info(self, issue_type_hash_mapping, imagelab_info):
-        if IssueType.EXACT_DUPLICATES.value in imagelab_info:
+    def _update_info(self, issue_types, issue_type_hash_mapping, imagelab_info):
+        if IssueType.EXACT_DUPLICATES.value in issue_type_hash_mapping:
+            self.info[IssueType.EXACT_DUPLICATES.value] = {
+                SETS: self._get_duplicate_sets(
+                    issue_type_hash_mapping[IssueType.EXACT_DUPLICATES.value]
+                )
+            }
+        else:
             self.info[IssueType.EXACT_DUPLICATES.value] = {
                 SETS: imagelab_info[IssueType.EXACT_DUPLICATES.value][SETS]
             }
-
-        for issue_type in issue_type_hash_mapping:
-            self.info[issue_type] = {
-                SETS: self._get_duplicate_sets(issue_type_hash_mapping[issue_type])
+        if IssueType.NEAR_DUPLICATES.value in issue_types:
+            self.info[IssueType.NEAR_DUPLICATES.value] = {
+                SETS: self._get_duplicate_sets(
+                    issue_type_hash_mapping[IssueType.NEAR_DUPLICATES.value]
+                )
             }
-        self._remove_exact_duplicates_from_near()
+            self._remove_exact_duplicates_from_near()
 
     def _remove_exact_duplicates_from_near(self):
         updated_sets = []

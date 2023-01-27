@@ -20,7 +20,8 @@ class CustomIssueManager(IssueManager):
     visualization = "property_based"
 
     def __init__(self, params):
-        super().__init__(params)
+        super().__init__()
+        self.set_params(params)
 
     def get_default_params(self):
         return {"threshold": 0.4}
