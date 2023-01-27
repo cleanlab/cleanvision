@@ -247,7 +247,7 @@ class Imagelab:
                 print(f"\nTop {examples_per_issue} images with {issue_type_str} issue")
 
             sorted_filepaths = sorted_df.index[:examples_per_issue].tolist()
-            if len(sorted_filepaths) > 0:
+            if sorted_filepaths:
                 VizManager.individual_images(
                     filepaths=sorted_filepaths,
                     ncols=self.config["visualize_num_images_per_row"],
