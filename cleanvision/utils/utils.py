@@ -1,8 +1,7 @@
 import glob
 import os
-import statistics
-from collections import OrderedDict
-from typing import Dict, List, Type
+
+from typing import Dict, List
 
 import numpy as np
 
