@@ -1,20 +1,12 @@
 import math
 from abc import ABC, abstractmethod
-from typing import TypeVar, List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Optional, Union
 
 import numpy as np
 from PIL import ImageStat, ImageFilter
 from PIL.Image import Image
 
 from cleanvision.issue_managers import IssueType
-
-TImageProperty = TypeVar("TImageProperty", bound="ImageProperty")
-
-TBrightnessProperty = TypeVar("TBrightnessProperty", bound="BrightnessProperty")
-TAspectRatioProperty = TypeVar("TAspectRatioProperty", bound="AspectRatioProperty")
-TEntropyProperty = TypeVar("TEntropyProperty", bound="EntropyProperty")
-TBlurrinessProperty = TypeVar("TBlurrinessProperty", bound="BlurrinessProperty")
-TColorSpaceProperty = TypeVar("TColorSpaceProperty", bound="ColorSpaceProperty")
 
 
 class ImageProperty(ABC):
@@ -36,11 +28,11 @@ class ImageProperty(ABC):
                 )
 
     @abstractmethod
-    def calculate(self: TImageProperty, image: Image) -> Union[float, str]:
+    def calculate(self, image: Image) -> Union[float, str]:
         raise NotImplementedError
 
     @abstractmethod
-    def get_scores(self: Any, **kwargs: Any) -> Any:
+    def get_scores(self, **kwargs: Any) -> Any:
         self.check_params(**kwargs)
         return
 
@@ -54,10 +46,10 @@ class ImageProperty(ABC):
 class BrightnessProperty(ImageProperty):
     name: str = "Brightness"
 
-    def __init__(self: TBrightnessProperty, issue_type: IssueType) -> None:
+    def __init__(self, issue_type: IssueType) -> None:
         self.issue_type = issue_type
 
-    def calculate(self: TBrightnessProperty, image: Image) -> Union[float, str]:
+    def calculate(self, image: Image) -> Union[float, str]:
         stat = ImageStat.Stat(image)
         try:
             red, green, blue = stat.mean
@@ -73,7 +65,7 @@ class BrightnessProperty(ImageProperty):
         return cur_bright
 
     def get_scores(
-        self: Any,
+        self,
         *,
         raw_scores: Optional[List[Union[float, str]]] = None,
         **kwargs: Any,
@@ -92,14 +84,14 @@ class BrightnessProperty(ImageProperty):
 class AspectRatioProperty(ImageProperty):
     name: str = "AspectRatio"
 
-    def calculate(self: TAspectRatioProperty, image: Image) -> Union[float, str]:
+    def calculate(self, image: Image) -> Union[float, str]:
         width, height = image.size
         size_score = min(width / height, height / width)  # consider extreme shapes
         assert isinstance(size_score, float)
         return size_score
 
     def get_scores(
-        self: TAspectRatioProperty,
+        self,
         *,
         raw_scores: Optional[List[Union[float, str]]] = None,
         **kwargs: Any,
@@ -114,7 +106,7 @@ class AspectRatioProperty(ImageProperty):
 class EntropyProperty(ImageProperty):
     name: str = "Entropy"
 
-    def calculate(self: TEntropyProperty, image: Image) -> Union[float, str]:
+    def calculate(self, image: Image) -> Union[float, str]:
         entropy = image.entropy()
         assert isinstance(
             entropy, float
@@ -122,7 +114,7 @@ class EntropyProperty(ImageProperty):
         return entropy
 
     def get_scores(
-        self: TEntropyProperty,
+        self,
         *,
         raw_scores: Optional[List[Union[float, str]]] = None,
         normalizing_factor: float = 1.0,
@@ -140,7 +132,7 @@ class EntropyProperty(ImageProperty):
 class BlurrinessProperty(ImageProperty):
     name = "blurriness"
 
-    def calculate(self: TBlurrinessProperty, image: Image) -> Union[float, str]:
+    def calculate(self, image: Image) -> Union[float, str]:
         edges = get_edges(image)
         blurriness = ImageStat.Stat(edges).var[0]
         assert isinstance(
@@ -149,7 +141,7 @@ class BlurrinessProperty(ImageProperty):
         return blurriness
 
     def get_scores(
-        self: TBlurrinessProperty,
+        self,
         *,
         raw_scores: Optional[List[Union[float, str]]] = None,
         normalizing_factor: float = 1.0,
@@ -182,11 +174,11 @@ def calculate_brightness(red: float, green: float, blue: float) -> float:
 class ColorSpaceProperty(ImageProperty):
     name = "color_space"
 
-    def calculate(self: TColorSpaceProperty, image: Image) -> Union[float, str]:
+    def calculate(self, image: Image) -> Union[float, str]:
         return get_image_mode(image)
 
     def get_scores(
-        self: TColorSpaceProperty,
+        self,
         *,
         raw_scores: Optional[List[Union[float, str]]] = None,
         normalizing_factor: float = 1.0,
