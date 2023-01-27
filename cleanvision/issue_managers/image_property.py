@@ -1,6 +1,6 @@
 import math
 from abc import ABC, abstractmethod
-from typing import TypeVar, List, Dict, Any, Type, Optional
+from typing import TypeVar, List, Dict, Any, Type, Optional, Union
 
 import numpy as np
 from PIL import ImageStat, Image, ImageFilter
@@ -11,6 +11,8 @@ TImageProperty = TypeVar("TImageProperty", bound="ImageProperty")
 TBrightnessProperty = TypeVar("TBrightnessProperty", bound="BrightnessProperty")
 TAspectRatioProperty = TypeVar("TAspectRatioProperty", bound="AspectRatioProperty")
 TEntropyProperty = TypeVar("TEntropyProperty", bound="EntropyProperty")
+TBlurrinessProperty = TypeVar("TBlurrinessProperty", bound="BlurrinessProperty")
+TColorSpaceProperty = TypeVar("TColorSpaceProperty", bound="ColorSpaceProperty")
 
 
 class ImageProperty(ABC):
@@ -20,7 +22,7 @@ class ImageProperty(ABC):
             "image": Image,
             "scores": "np.ndarray[Any, Any]",
             "threshold": float,
-            "raw_scores": Dict[Any, Any],
+            "raw_scores": List[Union[float, str]],
         }
 
         for name, value in kwargs.items():
@@ -32,7 +34,7 @@ class ImageProperty(ABC):
                 )
 
     @abstractmethod
-    def calculate(self: TImageProperty, image: Image) -> float:
+    def calculate(self: TImageProperty, image: Image) -> Union[float, str]:
         raise NotImplementedError
 
     @abstractmethod
@@ -53,7 +55,7 @@ class BrightnessProperty(ImageProperty):
     def __init__(self: TBrightnessProperty, issue_type: IssueType) -> None:
         self.issue_type = issue_type
 
-    def calculate(self: TBrightnessProperty, image: Image) -> float:
+    def calculate(self: TBrightnessProperty, image: Image) -> Union[float, str]:
         stat = ImageStat.Stat(image)
         try:
             red, green, blue = stat.mean
@@ -69,7 +71,10 @@ class BrightnessProperty(ImageProperty):
         return cur_bright
 
     def get_scores(
-        self: Any, raw_scores: Optional[List[float]] = None, *args: Any, **kwargs: Any
+        self: Any,
+        raw_scores: Optional[List[Union[float, str]]] = None,
+        *args: Any,
+        **kwargs: Any,
     ) -> "np.ndarray[Any, Any]":
         super().get_scores(*args, **kwargs)
         assert raw_scores is not None
@@ -85,7 +90,7 @@ class BrightnessProperty(ImageProperty):
 class AspectRatioProperty(ImageProperty):
     name: str = "AspectRatio"
 
-    def calculate(self: TAspectRatioProperty, image: Image) -> float:
+    def calculate(self: TAspectRatioProperty, image: Image) -> Union[float, str]:
         width, height = image.size
         size_score = min(width / height, height / width)  # consider extreme shapes
         assert isinstance(size_score, float)
@@ -93,7 +98,7 @@ class AspectRatioProperty(ImageProperty):
 
     def get_scores(
         self: TAspectRatioProperty,
-        raw_scores: Optional[Dict[Any, Any]] = None,
+        raw_scores: Optional[List[Union[float, str]]] = None,
         *args: Any,
         **kwargs: Any,
     ) -> "np.ndarray[Any, Any]":
@@ -107,7 +112,7 @@ class AspectRatioProperty(ImageProperty):
 class EntropyProperty(ImageProperty):
     name: str = "Entropy"
 
-    def calculate(self: TEntropyProperty, image: Image) -> float:
+    def calculate(self: TEntropyProperty, image: Image) -> Union[float, str]:
         entropy = image.entropy()
         assert isinstance(
             entropy, float
@@ -116,7 +121,7 @@ class EntropyProperty(ImageProperty):
 
     def get_scores(
         self: TEntropyProperty,
-        raw_scores: Optional[Dict[Any, Any]] = None,
+        raw_scores: Optional[List[Union[float, str]]] = None,
         normalizing_factor: float = 1.0,
         *args: Any,
         **kwargs: Any,
@@ -133,24 +138,38 @@ class EntropyProperty(ImageProperty):
 class BlurrinessProperty(ImageProperty):
     name = "blurriness"
 
-    def calculate(self, image):
+    def calculate(self: TBlurrinessProperty, image: Image) -> Union[float, str]:
         edges = get_edges(image)
         blurriness = ImageStat.Stat(edges).var[0]
+        assert isinstance(
+            blurriness, float
+        )  # ImageStat.Stat returns float but no typestub for package
         return blurriness
 
-    def get_scores(self, raw_scores, normalizing_factor, **_):
+    def get_scores(
+        self: TBlurrinessProperty,
+        raw_scores: Optional[List[Union[float, str]]] = None,
+        normalizing_factor: float = 1.0,
+        *args: Any,
+        **kwargs: Any,
+    ) -> "np.ndarray[Any, Any]":
+        super().get_scores(*args, **kwargs)
+        assert raw_scores is not None
+
         raw_scores = np.array(raw_scores)
-        scores = 1 - np.exp(-1 * raw_scores * normalizing_factor)
+        scores: "np.ndarray[Any, Any]" = 1 - np.exp(
+            -1 * raw_scores * normalizing_factor
+        )
         return scores
 
 
-def get_edges(image):
+def get_edges(image: Image) -> Image:
     gray_image = image.convert("L")
     edges = gray_image.filter(ImageFilter.FIND_EDGES)
     return edges
 
 
-def calculate_brightness(red, green, blue):
+def calculate_brightness(red: float, green: float, blue: float) -> float:
     cur_bright = (
         math.sqrt(0.241 * (red**2) + 0.691 * (green**2) + 0.068 * (blue**2))
     ) / 255
@@ -161,20 +180,34 @@ def calculate_brightness(red, green, blue):
 class ColorSpaceProperty(ImageProperty):
     name = "color_space"
 
-    def calculate(self, image):
+    def calculate(self: TColorSpaceProperty, image: Image) -> Union[float, str]:
         return get_image_mode(image)
 
-    def get_scores(self, raw_scores: List[str], **_):
-        scores = np.array([0 if mode == "L" else 1 for mode in raw_scores])
+    def get_scores(
+        self: TColorSpaceProperty,
+        raw_scores: Optional[List[Union[float, str]]] = None,
+        normalizing_factor: float = 1.0,
+        *args: Any,
+        **kwargs: Any,
+    ) -> "np.ndarray[Any, Any]":
+        super().get_scores(*args, **kwargs)
+        assert raw_scores is not None
+
+        scores = np.array([0 if mode is "L" else 1 for mode in raw_scores])
         return scores
 
-    def mark_issue(self, scores, *_):
+    @staticmethod
+    def mark_issue(
+        scores: "np.ndarray[Any, Any]", threshold: float
+    ) -> "np.ndarray[Any, Any]":
         return (1 - scores).astype("bool")
 
 
-def get_image_mode(image):
+def get_image_mode(image: Image) -> str:
     if image.mode:
-        return image.mode
+        image_mode = image.mode
+        assert isinstance(image_mode, str)
+        return image_mode
     else:
         imarr = np.asarray(image)
         if len(imarr.shape) == 2 or (
