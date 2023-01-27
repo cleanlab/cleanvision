@@ -1,4 +1,4 @@
-from typing import TypeVar, List, Dict, Any, Optional, Tuple, Type
+from typing import TypeVar, List, Dict, Any, Optional, Tuple
 from cleanvision.utils.base_issue_manager import IssueManager
 
 import pandas as pd

@@ -1,4 +1,4 @@
-from typing import TypeVar, Dict, Any, List, Union, Set, Optional
+from typing import TypeVar, Dict, Any, List, Set, Optional
 
 import pandas as pd
 from PIL import Image
