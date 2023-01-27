@@ -1,17 +1,13 @@
 import math
-from typing import TypeVar, List, Tuple, Set, Union
+from typing import List, Tuple, Set, Union
 
 import matplotlib.pyplot as plt  # type: ignore
 from PIL import Image
 from matplotlib.colors import Colormap  # type: ignore
 from mpl_toolkits.axes_grid1 import ImageGrid  # type: ignore
 
-TVizManager = TypeVar("TVizManager", bound="VizManager")  # self type for the class
-
 
 class VizManager:
-    def __init__(self: TVizManager):
-        pass
 
     @staticmethod
     def individual_images(

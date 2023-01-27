@@ -1,5 +1,5 @@
 import hashlib
-from typing import TypeVar, Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import imagehash
 import pandas as pd
@@ -10,27 +10,23 @@ from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import SETS, DUPLICATE
 
-TDuplicateIssueManager = TypeVar(
-    "TDuplicateIssueManager", bound="DuplicateIssueManager"
-)
-
 
 @register_issue_manager(DUPLICATE)
 class DuplicateIssueManager(IssueManager):
     issue_name: str = DUPLICATE
     visualization: str = "image_sets"
 
-    def __init__(self: TDuplicateIssueManager, params: Dict[str, Any]) -> None:
+    def __init__(self, params: Dict[str, Any]) -> None:
         super().__init__(params)
         self.issue_types: List[str] = list(params.keys())
 
-    def get_default_params(self: TDuplicateIssueManager) -> Dict[str, Any]:
+    def get_default_params(self) -> Dict[str, Any]:
         return {
             IssueType.EXACT_DUPLICATES.value: {"hash_type": "md5"},
             IssueType.NEAR_DUPLICATES.value: {"hash_type": "whash", "hash_size": 8},
         }
 
-    def set_params(self: TDuplicateIssueManager, params: Dict[str, Any]) -> None:
+    def set_params(self, params: Dict[str, Any]) -> None:
         updated_params = {}
         for issue_type in self.params:
             non_none_params = {
@@ -52,7 +48,7 @@ class DuplicateIssueManager(IssueManager):
             raise ValueError("Hash type not supported")
 
     def _get_issue_types_to_compute(
-        self: TDuplicateIssueManager, imagelab_info: Dict[str, Any]
+        self, imagelab_info: Dict[str, Any]
     ) -> List[str]:
         """Gets issue type for which computation needs to be done
 
@@ -77,7 +73,7 @@ class DuplicateIssueManager(IssueManager):
         return to_compute
 
     def find_issues(
-        self: TDuplicateIssueManager,
+        self,
         *,
         filepaths: Optional[List[str]] = None,
         imagelab_info: Optional[Dict[str, Any]] = None,
@@ -108,23 +104,24 @@ class DuplicateIssueManager(IssueManager):
 
         return
 
-    def _update_summary(self: TDuplicateIssueManager) -> None:
+    def _update_summary(self) -> None:
         summary_dict = {}
         for issue_type in self.issue_types:
+            issues_boolean = self.issues[f"{issue_type}_bool"]
             summary_dict[issue_type] = self._compute_summary(issue_type)
         summary_df = pd.DataFrame.from_dict(summary_dict, orient="index")
         summary_df["issue_type"] = summary_df.index
         self.summary = summary_df.reset_index()
 
     def _compute_summary(
-        self: TDuplicateIssueManager, issue_type: str
+        self, issue_type: str
     ) -> Dict[str, Any]:
         return {
             "num_images": self.issues[f"{issue_type}_bool"].sum(),
             "num_sets": len(self.info[issue_type][SETS]),
         }
 
-    def _update_issues(self: TDuplicateIssueManager) -> None:
+    def _update_issues(self) -> None:
         for issue_type in self.issue_types:
             duplicated_images = []
             for s in self.info[issue_type][SETS]:
@@ -134,7 +131,7 @@ class DuplicateIssueManager(IssueManager):
             )
 
     def _update_info(
-        self: TDuplicateIssueManager,
+        self,
         issue_type_hash_mapping: Dict[str, Any],
         imagelab_info: Dict[str, Any],
     ) -> None:
@@ -149,7 +146,7 @@ class DuplicateIssueManager(IssueManager):
             }
         self._remove_exact_duplicates_from_near()
 
-    def _remove_exact_duplicates_from_near(self: TDuplicateIssueManager) -> None:
+    def _remove_exact_duplicates_from_near(self) -> None:
         updated_sets = []
         for s in self.info[IssueType.NEAR_DUPLICATES.value][SETS]:
             if s not in self.info[IssueType.EXACT_DUPLICATES.value][SETS]:
