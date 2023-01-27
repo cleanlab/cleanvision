@@ -266,7 +266,7 @@ class Imagelab:
                 print(
                     f"\nTop {examples_per_issue} sets of images with {issue_type_str} issue"
                 )
-            if len(image_sets) > 0:
+            if image_sets:
                 VizManager.image_sets(
                     image_sets,
                     ncols=self.config["visualize_num_images_per_row"],
