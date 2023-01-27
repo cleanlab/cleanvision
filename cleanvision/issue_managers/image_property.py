@@ -9,6 +9,7 @@ from PIL.Image import Image
 from cleanvision.issue_managers import IssueType
 
 TImageProperty = TypeVar("TImageProperty", bound="ImageProperty")
+
 TBrightnessProperty = TypeVar("TBrightnessProperty", bound="BrightnessProperty")
 TAspectRatioProperty = TypeVar("TAspectRatioProperty", bound="AspectRatioProperty")
 TEntropyProperty = TypeVar("TEntropyProperty", bound="EntropyProperty")

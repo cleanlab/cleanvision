@@ -84,7 +84,7 @@ class Imagelab:
         # find issues
         for issue_type_group in issue_type_groups:
             issue_manager = self.issue_managers[issue_type_group]
-            issue_manager.find_issues(self.filepaths, self.info)
+            issue_manager.find_issues(filepaths=self.filepaths, imagelab_info=self.info)
 
             # update issues, issue_summary and info
             self._update_issues(issue_manager.issues)
