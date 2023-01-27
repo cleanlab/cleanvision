@@ -282,7 +282,8 @@ class Imagelab:
 
     def save(self, path: str) -> None:
         """Saves this ImageLab to file (all files are in folder at path/).
-        We do not guarantee saved Imagelab can be loaded from future versions of Imagelab.
+        Your saved Imagelab should be loaded from the same version of the CleanVision package.
+        This method does not save your image files.
         """
         if os.path.exists(path):
             print(
@@ -305,8 +306,9 @@ class Imagelab:
     def load(cls, path: str, data_path=None) -> TImagelab:
         """Loads Imagelab from file.
         `path` is the path to the saved Imagelab, not pickle file.
-        data_path is the path to dataset used before for running Imagelab
-        If the data_path is changed, Imagelab will not be loaded as some of its functionalities are dependent on it.
+        `data_path` is the path to image dataset previously used in Imagelab.
+        If the `data_path` is changed, Imagelab will not be loaded as some of its functionalities depend on it.
+        You should be using the same version of the CleanVision package previously used when saving the Imagelab.
         """
         if not os.path.exists(path):
             raise ValueError(f"No folder found at specified path: {path}")
