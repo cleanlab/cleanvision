@@ -7,6 +7,9 @@ import pandas as pd
 class IssueManager(ABC):
     """Base class for managing data issues of a particular type in Imagelab."""
 
+    visualization: str
+    issue_name: str
+
     def __init__(self, params: Dict[str, Any]):
         self.info: Dict[str, Dict[str, Any]] = {"statistics": {}}
         self.issues: pd.DataFrame = pd.DataFrame()
@@ -21,14 +24,6 @@ class IssueManager(ABC):
     def __str__(self) -> str:
         class_name = self.__class__.__name__
         return class_name
-
-    @property
-    def visualization(self) -> str:
-        raise NotImplementedError
-
-    @property
-    def issue_name(self) -> str:
-        raise NotImplementedError
 
     @staticmethod
     def check_params(**kwargs: Any) -> None:
