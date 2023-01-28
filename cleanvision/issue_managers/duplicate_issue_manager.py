@@ -9,6 +9,8 @@ from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import SETS, DUPLICATE
 
+from time import time
+
 
 @register_issue_manager(DUPLICATE)
 class DuplicateIssueManager(IssueManager):
@@ -70,9 +72,12 @@ class DuplicateIssueManager(IssueManager):
         return to_compute
 
     def find_issues(self, filepaths, imagelab_info):
+        start = time()
         to_compute = self._get_issue_types_to_compute(imagelab_info)
         issue_type_hash_mapping = {issue_type: {} for issue_type in to_compute}
 
+        print(f"duplicates, starting compute, time {time() - start}")
+        start = time()
         for path in tqdm(filepaths):
             image = Image.open(path)
             for issue_type in to_compute:
@@ -81,12 +86,15 @@ class DuplicateIssueManager(IssueManager):
                     issue_type_hash_mapping[issue_type][hash].append(path)
                 else:
                     issue_type_hash_mapping[issue_type][hash] = [path]
+        print(f"duplicates, finish compute, time {time() - start}")
+        start = time()
 
         self.issues = pd.DataFrame(index=filepaths)
         self._update_info(issue_type_hash_mapping, imagelab_info)
         self._update_issues()
         self._update_summary()
 
+        print(f"duplicates, returning, time {time() - start}")
         return
 
     def _update_summary(self):

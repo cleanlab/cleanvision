@@ -13,6 +13,8 @@ from cleanvision.issue_managers.image_property import (
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import IMAGE_PROPERTY
 
+from time import time
+
 
 # Combined all issues which are to be detected using image properties under one class to save time on loading image
 @register_issue_manager(IMAGE_PROPERTY)
@@ -75,10 +77,13 @@ class ImagePropertyIssueManager(IssueManager):
         return defer_set
 
     def find_issues(self, filepaths, imagelab_info):
+        start = time()
         defer_set = self._get_defer_set(imagelab_info)
 
         to_be_computed = list(set(self.issue_types).difference(defer_set))
         raw_scores = {issue_type: [] for issue_type in to_be_computed}
+        print(f"starting image property find_issues, time {time() - start}")
+        start = time()
         if to_be_computed:
             for path in tqdm(filepaths):
                 image = Image.open(path)
@@ -86,6 +91,8 @@ class ImagePropertyIssueManager(IssueManager):
                     raw_scores[issue_type].append(
                         self.image_properties[issue_type].calculate(image)
                     )
+        print(f"image property, finished compute loop, time {time() - start}")
+        start = time()
 
         # update info
         self.update_info(raw_scores)
@@ -115,8 +122,11 @@ class ImagePropertyIssueManager(IssueManager):
                 self.issues[f"{issue_type}_bool"]
             )
 
+        print(f"image property, updated params, time {time() - start}")
+        start = time()
         # update issues and summary
         self.update_summary(summary_dict)
+        print(f"image property returning, time {time() - start}")
         return
 
     def update_info(self, raw_scores):
