@@ -1,5 +1,5 @@
 import math
-from typing import List, Tuple, Set, Union
+from typing import List, Optional, Tuple, Set, Union
 
 import matplotlib.pyplot as plt  # type: ignore
 from PIL import Image
@@ -14,7 +14,7 @@ class VizManager:
         filepaths: List[str],
         ncols: int,
         cell_size: Tuple[int, int],
-        cmap: Union[str, Colormap] = None,
+        cmap: Optional[Union[str, Colormap]] = None,
     ) -> None:
         plot_image_grid(filepaths, ncols, cell_size, cmap)
 
@@ -30,7 +30,7 @@ def plot_image_grid(
     filepaths: List[str],
     ncols: int,
     cell_size: Tuple[int, int],
-    cmap: Union[str, Colormap] = None,
+    cmap: Optional[Union[str, Colormap]] = None,
 ) -> None:
     nrows = math.ceil(len(filepaths) / ncols)
     ncols = min(ncols, len(filepaths))
