@@ -57,5 +57,5 @@ class IssueManager(ABC):
         raise NotImplementedError
 
     @staticmethod
-    def _compute_summary(issues_boolean: pd.Series[bool]) -> Dict[str, int]:
+    def _compute_summary(issues_boolean: "pd.Series[bool]") -> Dict[str, int]:
         return {"num_images": issues_boolean.sum()}
