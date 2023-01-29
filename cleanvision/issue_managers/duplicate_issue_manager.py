@@ -9,7 +9,6 @@ from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import SETS, DUPLICATE
 
-from time import time
 import multiprocessing
 import psutil
 
@@ -96,18 +95,15 @@ class DuplicateIssueManager(IssueManager):
             to_compute.append(IssueType.NEAR_DUPLICATES.value)
         return to_compute
 
-    def find_issues_multi(self, filepaths, imagelab_info):
-        start = time()
+    def find_issues_multi(self, filepaths, imagelab_info, n_jobs=None):
         to_compute = self._get_issue_types_to_compute(imagelab_info)
         issue_type_hash_mapping = {issue_type: {} for issue_type in to_compute}
 
-        print(f"duplicates, starting compute, time {time() - start}")
-        start = time()
-        n_jobs = psutil.cpu_count(logical=False)
+        if n_jobs is None:
+            n_jobs = psutil.cpu_count(logical=False)
         args = [{'path': path,
                  'to_compute': to_compute,
                  'params': self.params} for path in filepaths]
-        num_path = len(filepaths)
         with multiprocessing.Pool(n_jobs) as p:
             results = list(p.imap_unordered(compute_hash, args, chunksize=10))
 
@@ -119,24 +115,18 @@ class DuplicateIssueManager(IssueManager):
                     issue_type_hash_mapping[issue_type][hash].append(result['path'])
                 else:
                     issue_type_hash_mapping[issue_type][hash] = [result['path']]
-        print(f"duplicates, finish compute, time {time() - start}")
-        start = time()
 
         self.issues = pd.DataFrame(index=filepaths)
         self._update_info(issue_type_hash_mapping, imagelab_info)
         self._update_issues()
         self._update_summary()
 
-        print(f"duplicates, returning, time {time() - start}")
         return
 
     def find_issues(self, filepaths, imagelab_info):
-        start = time()
         to_compute = self._get_issue_types_to_compute(imagelab_info)
         issue_type_hash_mapping = {issue_type: {} for issue_type in to_compute}
 
-        print(f"duplicates, starting compute, time {time() - start}")
-        start = time()
         for path in tqdm(filepaths):
             image = Image.open(path)
             for issue_type in to_compute:
@@ -145,15 +135,12 @@ class DuplicateIssueManager(IssueManager):
                     issue_type_hash_mapping[issue_type][hash].append(path)
                 else:
                     issue_type_hash_mapping[issue_type][hash] = [path]
-        print(f"duplicates, finish compute, time {time() - start}")
-        start = time()
 
         self.issues = pd.DataFrame(index=filepaths)
         self._update_info(issue_type_hash_mapping, imagelab_info)
         self._update_issues()
         self._update_summary()
 
-        print(f"duplicates, returning, time {time() - start}")
         return
 
     def _update_summary(self):

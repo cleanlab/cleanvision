@@ -13,7 +13,6 @@ from cleanvision.issue_managers.image_property import (
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import IMAGE_PROPERTY
 
-from time import time
 import multiprocessing
 import psutil
 from cleanvision.issue_managers.image_property import (
@@ -104,33 +103,25 @@ class ImagePropertyIssueManager(IssueManager):
             defer_set.add(IssueType.LIGHT.value)
         return defer_set
 
-    def find_issues_multi(self, filepaths, imagelab_info):
-        start = time()
+    def find_issues_multi(self, filepaths, imagelab_info, n_jobs=None):
         defer_set = self._get_defer_set(imagelab_info)
 
         to_be_computed = list(set(self.issue_types).difference(defer_set))
         raw_scores = {issue_type: [] for issue_type in to_be_computed}
-        print(f"starting image property find_issues, time {time() - start}")
-        start = time()
         if to_be_computed:
             args = [{'to_compute': to_be_computed,
                      'path': path} for i, path in enumerate(filepaths)]
-            num_path = len(args)
-            n_jobs = psutil.cpu_count(logical=False)
-            print(f"n_jobs {n_jobs}")
+            if n_jobs is None:
+                n_jobs = psutil.cpu_count(logical=False)
             with multiprocessing.Pool(n_jobs) as p:
                 computed_results = list(p.imap_unordered(compute_scores,
-                                                              args, chunksize=10))
-            print(f"finished compute, time {time() - start}")
-            start = time()
+                                                         args, chunksize=10))
 
             computed_results = sorted(computed_results, key=lambda r: r['path'])
             for result in computed_results:
                 for issue_type in to_be_computed:
                     raw_scores[issue_type].append(result[issue_type])
 
-        print(f"image property, finished compute loop, time {time() - start}")
-        start = time()
 
         # update info
         self.update_info(raw_scores)
@@ -160,25 +151,17 @@ class ImagePropertyIssueManager(IssueManager):
                 self.issues[f"{issue_type}_bool"]
             )
 
-        print(f"image property, updated params, time {time() - start}")
-        start = time()
         # update issues and summary
         self.update_summary(summary_dict)
-        print(f"image property returning, time {time() - start}")
         return
 
     def find_issues(self, filepaths, imagelab_info):
-        start = time()
         defer_set = self._get_defer_set(imagelab_info)
 
         to_be_computed = list(set(self.issue_types).difference(defer_set))
         raw_scores = {issue_type: [] for issue_type in to_be_computed}
-        print(f"starting image property find_issues, time {time() - start}")
-        start = time()
         for path in filepaths:
             image = Image.open(path)
-        print(f"time to open all paths {time() - start}")
-        start = time()
         if to_be_computed:
             for path in tqdm(filepaths):
                 image = Image.open(path)
@@ -186,8 +169,6 @@ class ImagePropertyIssueManager(IssueManager):
                     raw_scores[issue_type].append(
                         self.image_properties[issue_type].calculate(image)
                     )
-        print(f"image property, finished compute loop, time {time() - start}")
-        start = time()
 
         # update info
         self.update_info(raw_scores)
@@ -217,11 +198,8 @@ class ImagePropertyIssueManager(IssueManager):
                 self.issues[f"{issue_type}_bool"]
             )
 
-        print(f"image property, updated params, time {time() - start}")
-        start = time()
         # update issues and summary
         self.update_summary(summary_dict)
-        print(f"image property returning, time {time() - start}")
         return
 
     def update_info(self, raw_scores):
