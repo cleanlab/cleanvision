@@ -114,8 +114,8 @@ class ImagePropertyIssueManager(IssueManager):
             if n_jobs is None:
                 n_jobs = psutil.cpu_count(logical=False)
             with multiprocessing.Pool(n_jobs) as p:
-                computed_results = list(p.imap_unordered(compute_scores,
-                                                         args, chunksize=10))
+                computed_results = list(tqdm(p.imap_unordered(compute_scores,
+                                                         args, chunksize=10), total=len(filepaths)))
 
             computed_results = sorted(computed_results, key=lambda r: r['path'])
             for result in computed_results:

@@ -44,19 +44,6 @@ class BrightnessProperty(ImageProperty):
         self.issue_type = issue_type
 
     def calculate(self, image):
-        #stat = ImageStat.Stat(image)
-        #try:
-        #    red, green, blue = stat.mean
-        #except ValueError:
-        #    red, green, blue = (
-        #        stat.mean[0],
-        #        stat.mean[0],
-        #        stat.mean[0],
-        #    )  # deals with black and white images
-
-        #cur_bright = calculate_brightness(red, green, blue)
-
-        #return cur_bright
         return calc_brightness(image)
 
     def get_scores(self, raw_scores, **_):
@@ -78,9 +65,6 @@ class AspectRatioProperty(ImageProperty):
     name = "aspect_ratio"
 
     def calculate(self, image):
-        # width, height = image.size
-        # size_score = min(width / height, height / width)  # consider extreme shapes
-        # return size_score
         return calc_aspect_ratio(image)
 
     def get_scores(self, raw_scores, **_):
@@ -95,8 +79,6 @@ class EntropyProperty(ImageProperty):
     name = "entropy"
 
     def calculate(self, image):
-        # entropy = image.entropy()
-        # return entropy
         return calc_entropy(image)
 
     def get_scores(self, raw_scores, normalizing_factor, **_):
@@ -114,9 +96,6 @@ class BlurrinessProperty(ImageProperty):
     name = "blurriness"
 
     def calculate(self, image):
-        #edges = get_edges(image)
-        #blurriness = ImageStat.Stat(edges).var[0]
-        #return blurriness
         return calc_blurriness(image)
 
     def get_scores(self, raw_scores, normalizing_factor, **_):
@@ -147,7 +126,6 @@ class ColorSpaceProperty(ImageProperty):
     name = "color_space"
 
     def calculate(self, image):
-        # return get_image_mode(image)
         return calc_color_space(image)
 
     def get_scores(self, raw_scores: List[str], **_):

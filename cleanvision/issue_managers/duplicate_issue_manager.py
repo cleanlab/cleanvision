@@ -105,7 +105,7 @@ class DuplicateIssueManager(IssueManager):
                  'to_compute': to_compute,
                  'params': self.params} for path in filepaths]
         with multiprocessing.Pool(n_jobs) as p:
-            results = list(p.imap_unordered(compute_hash, args, chunksize=10))
+            results = list(tqdm(p.imap_unordered(compute_hash, args, chunksize=10), total=len(filepaths)))
 
         results = sorted(results, key=lambda r: r['path'])
         for result in results:

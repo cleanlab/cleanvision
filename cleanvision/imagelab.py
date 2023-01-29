@@ -66,7 +66,7 @@ class Imagelab:
             }
         return to_compute_issues_with_params
 
-    def find_issues(self, issue_types=None):
+    def find_issues(self, issue_types=None, n_jobs=None):
         to_compute_issues_with_params = self._get_issues_to_compute(issue_types)
         print(
             f"Checking for {', '.join([issue_type for issue_type in to_compute_issues_with_params.keys()])} images ..."
@@ -84,7 +84,10 @@ class Imagelab:
         # find issues
         for issue_type_group in issue_type_groups:
             issue_manager = self.issue_managers[issue_type_group]
-            issue_manager.find_issues(self.filepaths, self.info)
+            if n_jobs == 1:
+                issue_manager.find_issues(self.filepaths, self.info)
+            else:
+                issue_manager.find_issues_multi(self.filepaths, self.info, n_jobs=n_jobs)
 
             # update issues, issue_summary and info
             self._update_issues(issue_manager.issues)
