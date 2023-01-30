@@ -23,8 +23,8 @@ class ImagePropertyIssueManager(IssueManager):
     visualization: str = "individual_images"
 
     def __init__(self, params: Dict[str, Any]) -> None:
-        super().__init__(params)
-        self.issue_types: List[str] = list(self.params.keys())
+        super().__init__()
+        self.issue_types: List[str] = list(params.keys())
         self.set_params(params)
         self.image_properties = self._get_image_properties()
 
