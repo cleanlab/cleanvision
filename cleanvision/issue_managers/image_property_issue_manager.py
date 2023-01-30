@@ -58,9 +58,7 @@ class ImagePropertyIssueManager(IssueManager):
             IssueType.GRAYSCALE.value: ColorSpaceProperty(),
         }
 
-    def _get_defer_set(
-        self, imagelab_info: Dict[str, Any]
-    ) -> Set[str]:
+    def _get_defer_set(self, imagelab_info: Dict[str, Any]) -> Set[str]:
         defer_set = set()
 
         # Add precomputed issues to defer set
@@ -133,17 +131,13 @@ class ImagePropertyIssueManager(IssueManager):
         self.update_summary(summary_dict)
         return
 
-    def update_info(
-        self, raw_scores: Dict[str, Any]
-    ) -> None:
+    def update_info(self, raw_scores: Dict[str, Any]) -> None:
         for issue_type, scores in raw_scores.items():
             # todo: add a way to update info for image properties which are not stats
             if self.image_properties[issue_type].name is not None:
                 self.info["statistics"][self.image_properties[issue_type].name] = scores
 
-    def update_summary(
-        self, summary_dict: Dict[str, Any]
-    ) -> None:
+    def update_summary(self, summary_dict: Dict[str, Any]) -> None:
         summary_df = pd.DataFrame.from_dict(summary_dict, orient="index")
         summary_df["issue_type"] = summary_df.index
         self.summary = summary_df.reset_index()
