@@ -85,7 +85,9 @@ class DuplicateIssueManager(IssueManager):
         assert filepaths is not None
 
         to_compute = self._get_issue_types_to_compute(self.issue_types, imagelab_info)
-        issue_type_hash_mapping = {issue_type: {} for issue_type in to_compute}
+        issue_type_hash_mapping: Dict[str, Any] = {
+            issue_type: {} for issue_type in to_compute
+        }
 
         for path in tqdm(filepaths):
             image = Image.open(path)
