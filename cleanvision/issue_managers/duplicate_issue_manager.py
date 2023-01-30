@@ -47,7 +47,9 @@ class DuplicateIssueManager(IssueManager):
         else:
             raise ValueError("Hash type not supported")
 
-    def _get_issue_types_to_compute(self, issue_types: List[str], imagelab_info: Dict[str, Any]) -> List[str]:
+    def _get_issue_types_to_compute(
+        self, issue_types: List[str], imagelab_info: Dict[str, Any]
+    ) -> List[str]:
         """Gets issue type for which computation needs to be done
 
         Only exact duplicate results are reused.
@@ -104,7 +106,6 @@ class DuplicateIssueManager(IssueManager):
     def _update_summary(self) -> None:
         summary_dict = {}
         for issue_type in self.issue_types:
-            issues_boolean = self.issues[f"{issue_type}_bool"]
             summary_dict[issue_type] = self._compute_summary(issue_type)
         summary_df = pd.DataFrame.from_dict(summary_dict, orient="index")
         summary_df["issue_type"] = summary_df.index

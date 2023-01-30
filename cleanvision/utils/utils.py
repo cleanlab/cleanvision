@@ -3,8 +3,6 @@ import os
 
 from typing import Dict, List, Any
 
-import numpy as np
-
 TYPES: List[str] = [
     "*.jpg",
     "*.jpeg",
