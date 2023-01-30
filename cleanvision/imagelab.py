@@ -71,9 +71,7 @@ class Imagelab:
             }
         return to_compute_issues_with_params
 
-    def find_issues(
-        self, issue_types: Optional[Dict[str, Any]] = None
-    ) -> None:
+    def find_issues(self, issue_types: Optional[Dict[str, Any]] = None) -> None:
         to_compute_issues_with_params = self._get_issues_to_compute(issue_types)
         print(
             f"Checking for {', '.join([issue_type for issue_type in to_compute_issues_with_params.keys()])} images ..."
@@ -107,9 +105,7 @@ class Imagelab:
     def _update_info(self, issue_manager_info: Dict[str, Any]) -> None:
         deep_update_dict(self.info, issue_manager_info)
 
-    def _update_issue_summary(
-        self, issue_manager_summary: pd.DataFrame
-    ) -> None:
+    def _update_issue_summary(self, issue_manager_summary: pd.DataFrame) -> None:
         self.issue_summary = self.issue_summary[
             ~self.issue_summary["issue_type"].isin(issue_manager_summary["issue_type"])
         ]
@@ -155,9 +151,7 @@ class Imagelab:
                 issue_type_group
             )(params)
 
-    def _get_topk_issues(
-        self, num_top_issues: int, max_prevalence: float
-    ) -> List[str]:
+    def _get_topk_issues(self, num_top_issues: int, max_prevalence: float) -> List[str]:
         topk_issues = []
         # Assumes issue_summary is sorted in descending order
         for row in self.issue_summary.itertuples(index=False):
