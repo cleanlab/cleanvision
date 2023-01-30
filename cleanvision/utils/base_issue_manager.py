@@ -10,12 +10,10 @@ class IssueManager(ABC):
     visualization: str
     issue_name: str
 
-    def __init__(self, params: Dict[str, Any]):
+    def __init__(self):
         self.info: Dict[str, Dict[str, Any]] = {"statistics": {}}
         self.issues: pd.DataFrame = pd.DataFrame()
         self.summary: pd.DataFrame = pd.DataFrame(columns=["issue_type"])
-        self.params: Dict[str, Any] = self.get_default_params()
-        self.set_params(params)
 
     def __repr__(self) -> str:
         class_name = self.__class__.__name__
