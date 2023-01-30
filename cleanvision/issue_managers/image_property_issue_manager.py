@@ -60,7 +60,9 @@ class ImagePropertyIssueManager(IssueManager):
             IssueType.GRAYSCALE.value: ColorSpaceProperty(),
         }
 
-    def _get_defer_set(self, issue_types: List[str], imagelab_info: Dict[str, Any]) -> Set[str]:
+    def _get_defer_set(
+        self, issue_types: List[str], imagelab_info: Dict[str, Any]
+    ) -> Set[str]:
         defer_set = set()
 
         # Add precomputed issues to defer set
