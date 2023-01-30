@@ -10,7 +10,7 @@ class IssueManager(ABC):
     visualization: str
     issue_name: str
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.info: Dict[str, Dict[str, Any]] = {"statistics": {}}
         self.issues: pd.DataFrame = pd.DataFrame()
         self.summary: pd.DataFrame = pd.DataFrame(columns=["issue_type"])
