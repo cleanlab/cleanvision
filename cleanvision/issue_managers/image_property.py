@@ -44,7 +44,7 @@ class ImageProperty(ABC):
 
 
 class BrightnessProperty(ImageProperty):
-    name: str = "Brightness"
+    name: str = "brightness"
 
     def __init__(self, issue_type: IssueType) -> None:
         self.issue_type = issue_type
@@ -82,7 +82,7 @@ class BrightnessProperty(ImageProperty):
 
 
 class AspectRatioProperty(ImageProperty):
-    name: str = "AspectRatio"
+    name: str = "aspect_ratio"
 
     def calculate(self, image: Image) -> Union[float, str]:
         width, height = image.size
@@ -104,7 +104,7 @@ class AspectRatioProperty(ImageProperty):
 
 
 class EntropyProperty(ImageProperty):
-    name: str = "Entropy"
+    name: str = "entropy"
 
     def calculate(self, image: Image) -> Union[float, str]:
         entropy = image.entropy()
@@ -207,7 +207,7 @@ def get_image_mode(image: Image) -> str:
         imarr = np.asarray(image)
         if len(imarr.shape) == 2 or (
             len(imarr.shape) == 3
-            and (np.diff(imarr.reshape(-1, 3).T, axis=0) == 0).all()
+            and (np.diff(imarr.reshape(-1, 3).T, axis=0) == 0).all()  # type: ignore
         ):
             return "L"
         else:

@@ -1,14 +1,13 @@
 import math
 from typing import List, Optional, Tuple, Set, Union
 
-import matplotlib.pyplot as plt  # type: ignore
+import matplotlib.pyplot as plt
 from PIL import Image
-from matplotlib.colors import Colormap  # type: ignore
+from matplotlib.colors import Colormap
 from mpl_toolkits.axes_grid1 import ImageGrid  # type: ignore
 
 
 class VizManager:
-
     @staticmethod
     def individual_images(
         filepaths: List[str],
