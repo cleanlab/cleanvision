@@ -17,7 +17,7 @@ class DuplicateIssueManager(IssueManager):
     visualization: str = "image_sets"
 
     def __init__(self, params: Dict[str, Any]) -> None:
-        super().__init__(params)
+        super().__init__()
         self.issue_types: List[str] = list(params.keys())
         self.set_params(params)
 
