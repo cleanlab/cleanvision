@@ -14,8 +14,12 @@ if __name__ == "__main__":
     issue_types = {"near_duplicates": {}}
     imagelab.find_issues(issue_types)
     imagelab.report(issue_types.keys())
+    imagelab.save(
+        "./results"
+    )  # optional, just included to show how to save/load this as a file
 
     # Check for additional types of issues using existing Imagelab
+    imagelab = Imagelab.load("./results", dataset_path)
     issue_types = {"light": {}, "low_information": {}}
     imagelab.find_issues(issue_types)
     imagelab.report(issue_types.keys())
