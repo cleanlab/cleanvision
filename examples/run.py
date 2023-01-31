@@ -1,7 +1,9 @@
+import sys
+
 from cleanvision.imagelab import Imagelab
 
 if __name__ == "__main__":
-    dataset_path = "../../image_files"
+    dataset_path = sys.argv[1]
 
     # Run Imagelab with default settings
     imagelab = Imagelab(dataset_path)
