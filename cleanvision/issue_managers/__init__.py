@@ -1,7 +1,7 @@
 import importlib
 import os
 from enum import Enum
-from typing import List, Type
+from typing import List, Type, Dict, Callable
 
 from cleanvision.utils.base_issue_manager import IssueManager
 
@@ -17,7 +17,7 @@ class IssueType(Enum):
     GRAYSCALE = "grayscale"
 
 
-ISSUE_MANAGER_REGISTRY = {}
+ISSUE_MANAGER_REGISTRY: Dict[str, Type[IssueManager]] = {}
 
 
 class IssueManagerFactory:
@@ -38,8 +38,10 @@ class IssueManagerFactory:
         return [ISSUE_MANAGER_REGISTRY[issue_type] for issue_type in issue_types]
 
 
-def register_issue_manager(name):
-    def register_issue_manager_cls(cls):
+def register_issue_manager(
+    name: str,
+) -> Callable[[Type[IssueManager]], Type[IssueManager]]:
+    def register_issue_manager_cls(cls: Type[IssueManager]) -> Type[IssueManager]:
         if name in ISSUE_MANAGER_REGISTRY:
             return ISSUE_MANAGER_REGISTRY[name]
         if not issubclass(cls, IssueManager):
