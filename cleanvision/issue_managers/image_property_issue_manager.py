@@ -143,5 +143,6 @@ class ImagePropertyIssueManager(IssueManager):
 
     def update_summary(self, summary_dict: Dict[str, Any]) -> None:
         summary_df = pd.DataFrame.from_dict(summary_dict, orient="index")
-        summary_df["issue_type"] = summary_df.index
         self.summary = summary_df.reset_index()
+        self.summary = self.summary.rename(columns={"index": "issue_type"})
+        self.summary = self.summary.astype({"num_images": int, "issue_type": str})

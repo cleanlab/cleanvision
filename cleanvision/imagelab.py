@@ -1,9 +1,16 @@
+import os
+import pickle
 from typing import List, Dict, Any, Optional, Tuple
-from cleanvision.utils.base_issue_manager import IssueManager
+from typing import TypeVar
 
 import pandas as pd
 
-from cleanvision.issue_managers import IssueType, IssueManagerFactory
+from cleanvision.issue_managers import (
+    IssueType,
+    IssueManagerFactory,
+    ISSUE_MANAGER_REGISTRY,
+)
+from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import (
     IMAGE_PROPERTY,
     DUPLICATE,
@@ -14,11 +21,16 @@ from cleanvision.utils.constants import (
 from cleanvision.utils.utils import get_filepaths, deep_update_dict
 from cleanvision.utils.viz_manager import VizManager
 
+OBJECT_FILENAME = "imagelab.pkl"
+TImagelab = TypeVar("TImagelab", bound="Imagelab")
+
 
 class Imagelab:
     def __init__(self, data_path: str) -> None:
         self.filepaths: List[str] = get_filepaths(data_path)
         self.num_images: int = len(self.filepaths)
+        if self.num_images == 0:
+            raise ValueError(f"No images found in the specified path:{data_path}")
         self.info: Dict[str, Any] = {"statistics": {}}
         self.issue_summary: pd.DataFrame = pd.DataFrame(columns=["issue_type"])
         self.issues: pd.DataFrame = pd.DataFrame(index=self.filepaths)
@@ -26,6 +38,7 @@ class Imagelab:
         self.issue_managers: Dict[str, IssueManager] = {}
         # can be loaded from a file later
         self.config: Dict[str, Any] = self._set_default_config()
+        self.path = ""
 
     def _set_default_config(self) -> Dict[str, Any]:
         return {
@@ -54,7 +67,9 @@ class Imagelab:
 
     def list_possible_issue_types(self) -> None:
         print("All possible issues checked by Imagelab:\n")
-        print(*[issue_type.value for issue_type in list(IssueType)], sep="\n")
+        issue_types = {issue_type.value for issue_type in IssueType}
+        issue_types.update(ISSUE_MANAGER_REGISTRY.keys())
+        print(*issue_types, sep="\n")
 
     def _get_issues_to_compute(
         self, issue_types_with_params: Optional[Dict[str, Any]]
@@ -106,9 +121,11 @@ class Imagelab:
         deep_update_dict(self.info, issue_manager_info)
 
     def _update_issue_summary(self, issue_manager_summary: pd.DataFrame) -> None:
+        # Remove results for issue types computed again
         self.issue_summary = self.issue_summary[
             ~self.issue_summary["issue_type"].isin(issue_manager_summary["issue_type"])
         ]
+        # concat new results
         self.issue_summary = pd.concat(
             [self.issue_summary, issue_manager_summary], axis=0, ignore_index=True
         )
@@ -149,7 +166,7 @@ class Imagelab:
         for issue_type_group, params in issue_type_groups.items():
             self.issue_managers[issue_type_group] = IssueManagerFactory.from_str(
                 issue_type_group
-            )()
+            )(params)
 
     def _get_topk_issues(self, num_top_issues: int, max_prevalence: float) -> List[str]:
         topk_issues = []
@@ -206,9 +223,15 @@ class Imagelab:
         issue_summary = self.issue_summary[
             self.issue_summary["issue_type"].isin(computed_issue_types)
         ]
-        print(issue_summary.to_markdown(), "\n")
+        self.print_issue_summary(issue_summary)
 
         self.visualize(computed_issue_types, report_args["examples_per_issue"])
+
+    def print_issue_summary(self, issue_summary):
+        issue_summary_copy = issue_summary.copy()
+        issue_summary_copy.dropna(axis=1, how="all", inplace=True)
+        issue_summary_copy.fillna("N/A", inplace=True)
+        print(issue_summary_copy.to_markdown(), "\n")
 
     def _get_issue_manager(self, issue_type_str: str) -> IssueManager:
         if issue_type_str in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
@@ -238,12 +261,15 @@ class Imagelab:
                 print(f"\nTop {examples_per_issue} images with {issue_type_str} issue")
 
             sorted_filepaths = sorted_df.index[:examples_per_issue].tolist()
-            VizManager.individual_images(
-                filepaths=sorted_filepaths,
-                ncols=self.config["visualize_num_images_per_row"],
-                cell_size=cell_size,
-                cmap="gray" if issue_type_str == IssueType.GRAYSCALE.value else None,
-            )
+            if sorted_filepaths:
+                VizManager.individual_images(
+                    filepaths=sorted_filepaths,
+                    ncols=self.config["visualize_num_images_per_row"],
+                    cell_size=cell_size,
+                    cmap="gray"
+                    if issue_type_str == IssueType.GRAYSCALE.value
+                    else None,
+                )
         elif viz_name == "image_sets":
             image_sets = self.info[issue_type_str][SETS][:examples_per_issue]
             if len(image_sets) < examples_per_issue:
@@ -254,11 +280,12 @@ class Imagelab:
                 print(
                     f"\nTop {examples_per_issue} sets of images with {issue_type_str} issue"
                 )
-            VizManager.image_sets(
-                image_sets,
-                ncols=self.config["visualize_num_images_per_row"],
-                cell_size=cell_size,
-            )
+            if image_sets:
+                VizManager.image_sets(
+                    image_sets,
+                    ncols=self.config["visualize_num_images_per_row"],
+                    cell_size=cell_size,
+                )
 
     def visualize(
         self,
@@ -272,3 +299,49 @@ class Imagelab:
     # Todo: Improve mypy dict typechecking so this does not return any
     def get_stats(self) -> Any:
         return self.info["statistics"]
+
+    def save(self, path: str) -> None:
+        """Saves this ImageLab to file (all files are in folder at path/).
+        Your saved Imagelab should be loaded from the same version of the CleanVision package.
+        This method does not save your image files.
+        """
+        if os.path.exists(path):
+            print(
+                f"WARNING: Existing files will be overwritten by newly saved files at: {path}"
+            )
+        else:
+            os.mkdir(path)
+
+        self.path = path
+        object_file = os.path.join(self.path, OBJECT_FILENAME)
+        with open(object_file, "wb") as f:
+            pickle.dump(self, f)
+
+        print(f"Saved Imagelab to folder: {path}")
+        print(
+            "The data path and dataset must be not be changed to maintain consistent state when loading this Imagelab"
+        )
+
+    @classmethod
+    def load(cls, path: str, data_path=None) -> TImagelab:
+        """Loads Imagelab from file.
+        `path` is the path to the saved Imagelab, not pickle file.
+        `data_path` is the path to image dataset previously used in Imagelab.
+        If the `data_path` is changed, Imagelab will not be loaded as some of its functionalities depend on it.
+        You should be using the same version of the CleanVision package previously used when saving the Imagelab.
+        """
+        if not os.path.exists(path):
+            raise ValueError(f"No folder found at specified path: {path}")
+
+        object_file = os.path.join(path, OBJECT_FILENAME)
+        with open(object_file, "rb") as f:
+            imagelab = pickle.load(f)
+
+        if data_path is not None:
+            filepaths = get_filepaths(data_path)
+            if set(filepaths) != set(imagelab.filepaths):
+                raise ValueError(
+                    "Absolute path of image(s) has changed in the dataset. Cannot load Imagelab."
+                )
+        print("Successfully loaded Imagelab")
+        return imagelab

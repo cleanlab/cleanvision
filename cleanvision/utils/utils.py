@@ -36,11 +36,15 @@ def get_filepaths(
     sorted_names: list[str]
     a list of image filenames sorted numerically and alphabetically
     """
-    # if not os.path.isdir(path):  # check if specified path is an existing directory
-    #     raise Exception(f"The current path {path} is not valid.")
+
+    if not os.path.isdir(dir_path):
+        raise NotADirectoryError
+
+    abs_dir_path = os.path.abspath(dir_path)
+    print(f"Reading images from {abs_dir_path}")
     filepaths = []
     for type in TYPES:
-        filetype_images = glob.glob(os.path.join(dir_path, type), recursive=True)
+        filetype_images = glob.glob(os.path.join(abs_dir_path, type), recursive=True)
         if len(filetype_images) == 0:
             continue
         filepaths += filetype_images
