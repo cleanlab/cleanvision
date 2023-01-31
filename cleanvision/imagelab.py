@@ -1,9 +1,7 @@
 import os
 import pickle
-from typing import TypeVar
-
 from typing import List, Dict, Any, Optional, Tuple
-from cleanvision.utils.base_issue_manager import IssueManager
+from typing import TypeVar
 
 import pandas as pd
 
@@ -12,6 +10,7 @@ from cleanvision.issue_managers import (
     IssueManagerFactory,
     ISSUE_MANAGER_REGISTRY,
 )
+from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import (
     IMAGE_PROPERTY,
     DUPLICATE,
@@ -123,8 +122,6 @@ class Imagelab:
 
     def _update_issue_summary(self, issue_manager_summary: pd.DataFrame) -> None:
         # Remove results for issue types computed again
-    def _update_issue_summary(self, issue_manager_summary):
-        # Remove results for issue types computed again
         self.issue_summary = self.issue_summary[
             ~self.issue_summary["issue_type"].isin(issue_manager_summary["issue_type"])
         ]
@@ -235,7 +232,6 @@ class Imagelab:
         issue_summary_copy.dropna(axis=1, how="all", inplace=True)
         issue_summary_copy.fillna("N/A", inplace=True)
         print(issue_summary_copy.to_markdown(), "\n")
-
 
     def _get_issue_manager(self, issue_type_str: str) -> IssueManager:
         if issue_type_str in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
