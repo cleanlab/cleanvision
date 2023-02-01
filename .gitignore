@@ -1,9 +1,19 @@
 .idea/
 .DS_Store
-.ipynb_checkpoints/
-dist/
 __pycache__/
+
+# jupyter notebooks
+.ipynb_checkpoints/
+
+# packaging
+dist/
 *.egg-info/
+
+# Coverage
 .coverage
+coverage.xml
+
+# Misc
 results/
 image_files*
+
