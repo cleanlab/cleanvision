@@ -23,7 +23,7 @@ Feel free to submit any found bugs or desired future checks as an [issue][issue]
 
 ## Quickstart
 
-Adding CleanVision into your pipeline is as simple as running the code below:
+Using CleanVision to audit your image data is as simple as running the code below:
 
 ```python
 
