@@ -33,7 +33,7 @@ jobs:
         run: ./.github/scripts/setup_python_env.sh
         shell: bash
       - name: Type check
-        run: mypy --strict --install-types --non-interactive cleanvision
+        run: mypy --strict --install-types --non-interactive src
   fmt:
     name: Black format
     runs-on: ubuntu-latest
@@ -51,4 +51,4 @@ jobs:
       - name: Install flake8
         run: pip install flake8
       - name: Lint with flake8
-        run: flake8 --ignore=E501,E722,E401,W503 cleanvision tests --count --show-source --statistics
+        run: flake8 --ignore=E501,E722,E401,W503 src tests --count --show-source --statistics

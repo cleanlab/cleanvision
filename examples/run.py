@@ -1,7 +1,9 @@
+import sys
+
 from cleanvision.imagelab import Imagelab
 
 if __name__ == "__main__":
-    dataset_path = "../../image_files"
+    dataset_path = sys.argv[1]
 
     # Run Imagelab with default settings
     imagelab = Imagelab(dataset_path)
@@ -52,7 +54,7 @@ if __name__ == "__main__":
     print(stats.keys())
 
     # Run imagelab on custom issue
-    from examples.custom_issue_manager import CustomIssueManager
+    from custom_issue_manager import CustomIssueManager
 
     imagelab = Imagelab(dataset_path)
     issue_name = CustomIssueManager.issue_name
