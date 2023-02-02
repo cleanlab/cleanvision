@@ -52,3 +52,8 @@ jobs:
         run: pip install flake8
       - name: Lint with flake8
         run: flake8 --ignore=E501,E722,E401,W503 src tests --count --show-source --statistics
+  docs:
+    name: Docs build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: readthedocs/actions/preview@v1
