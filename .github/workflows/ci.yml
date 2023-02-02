@@ -52,14 +52,8 @@ jobs:
         run: pip install flake8
       - name: Lint with flake8
         run: flake8 --ignore=E501,E722,E401,W503 src tests --count --show-source --statistics
-  docs:
+  pull-request-links:
     name: Readthedocs build
-    on:
-      pull_request_target:
-        types:
-          - opened
-    permissions:
-      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - uses: readthedocs/actions/preview@v1
