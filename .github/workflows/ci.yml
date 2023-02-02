@@ -60,10 +60,8 @@ jobs:
           - opened
     permissions:
       pull-requests: write
-    jobs:
-      pull-request-links:
-        runs-on: ubuntu-latest
-        steps:
-          - uses: readthedocs/actions/preview@v1
-            with:
-              project-slug: "readthedocs-preview"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: readthedocs/actions/preview@v1
+        with:
+          project-slug: "readthedocs-preview"
