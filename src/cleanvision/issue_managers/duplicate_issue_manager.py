@@ -108,17 +108,13 @@ class DuplicateIssueManager(IssueManager):
     def _update_summary(self) -> None:
         summary_dict = {}
         for issue_type in self.issue_types:
-            summary_dict[issue_type] = self._compute_summary(issue_type)
+            summary_dict[issue_type] = self._compute_summary(
+                self.issues[f"{issue_type}_bool"]
+            )
         summary_df = pd.DataFrame.from_dict(summary_dict, orient="index")
         self.summary = summary_df.reset_index()
         self.summary = self.summary.rename(columns={"index": "issue_type"})
         self.summary = self.summary.astype({"num_sets": int, "issue_type": str})
-
-    def _compute_summary(self, issue_type: str) -> Dict[str, Any]:
-        return {
-            "num_images": self.issues[f"{issue_type}_bool"].sum(),
-            "num_sets": len(self.info[issue_type][SETS]),
-        }
 
     def _update_issues(self) -> None:
         for issue_type in self.issue_types:
@@ -135,6 +131,7 @@ class DuplicateIssueManager(IssueManager):
         issue_type_hash_mapping: Dict[str, Any],
         imagelab_info: Dict[str, Any],
     ) -> None:
+        num_sets = "num_sets"
         if IssueType.EXACT_DUPLICATES.value in issue_type_hash_mapping:
             self.info[IssueType.EXACT_DUPLICATES.value] = {
                 SETS: self._get_duplicate_sets(
@@ -145,6 +142,10 @@ class DuplicateIssueManager(IssueManager):
             self.info[IssueType.EXACT_DUPLICATES.value] = {
                 SETS: imagelab_info[IssueType.EXACT_DUPLICATES.value][SETS]
             }
+        self.info[IssueType.EXACT_DUPLICATES.value][num_sets] = len(
+            self.info[IssueType.EXACT_DUPLICATES.value][SETS]
+        )
+
         if IssueType.NEAR_DUPLICATES.value in issue_types:
             self.info[IssueType.NEAR_DUPLICATES.value] = {
                 SETS: self._get_duplicate_sets(
@@ -152,6 +153,9 @@ class DuplicateIssueManager(IssueManager):
                 )
             }
             self._remove_exact_duplicates_from_near()
+            self.info[IssueType.NEAR_DUPLICATES.value][num_sets] = len(
+                self.info[IssueType.NEAR_DUPLICATES.value][SETS]
+            )
 
     def _remove_exact_duplicates_from_near(self) -> None:
         updated_sets = []
