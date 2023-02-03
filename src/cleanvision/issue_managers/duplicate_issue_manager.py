@@ -119,7 +119,7 @@ class DuplicateIssueManager(IssueManager):
         summary_df = pd.DataFrame.from_dict(summary_dict, orient="index")
         self.summary = summary_df.reset_index()
         self.summary = self.summary.rename(columns={"index": "issue_type"})
-        self.summary = self.summary.astype({"num_sets": int, "issue_type": str})
+        self.summary = self.summary.astype({"issue_type": str})
 
     def _update_issues(self) -> None:
         for issue_type in self.issue_types:
