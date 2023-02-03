@@ -227,7 +227,7 @@ class Imagelab:
 
         self.visualize(computed_issue_types, report_args["examples_per_issue"])
 
-    def print_issue_summary(self, issue_summary):
+    def print_issue_summary(self, issue_summary: pd.DataFrame) -> None:
         issue_summary_copy = issue_summary.copy()
         issue_summary_copy.dropna(axis=1, how="all", inplace=True)
         issue_summary_copy.fillna("N/A", inplace=True)
@@ -323,7 +323,7 @@ class Imagelab:
         )
 
     @classmethod
-    def load(cls, path: str, data_path=None) -> TImagelab:
+    def load(cls, path: str, data_path: Optional[str] = None) -> TImagelab:
         """Loads Imagelab from file.
         `path` is the path to the saved Imagelab, not pickle file.
         `data_path` is the path to image dataset previously used in Imagelab.
@@ -335,7 +335,7 @@ class Imagelab:
 
         object_file = os.path.join(path, OBJECT_FILENAME)
         with open(object_file, "rb") as f:
-            imagelab = pickle.load(f)
+            imagelab: TImagelab = pickle.load(f)
 
         if data_path is not None:
             filepaths = get_filepaths(data_path)
