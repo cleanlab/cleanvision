@@ -1,6 +1,6 @@
 import os
 import pickle
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, Type
 from typing import TypeVar
 
 import pandas as pd
@@ -323,7 +323,7 @@ class Imagelab:
         )
 
     @classmethod
-    def load(cls, path: str, data_path: Optional[str] = None) -> TImagelab:
+    def load(cls: Type[TImagelab], path: str, data_path: Optional[str] = None) -> TImagelab:
         """Loads Imagelab from file.
         `path` is the path to the saved Imagelab, not pickle file.
         `data_path` is the path to image dataset previously used in Imagelab.
