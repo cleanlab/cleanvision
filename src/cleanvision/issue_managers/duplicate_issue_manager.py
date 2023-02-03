@@ -80,7 +80,6 @@ class DuplicateIssueManager(IssueManager):
         imagelab_info: Optional[Dict[str, Any]] = None,
         **kwargs: Any,
     ) -> None:
-
         super().find_issues(**kwargs)
         assert params is not None
         assert imagelab_info is not None
