@@ -21,7 +21,6 @@ class DuplicateIssueManager(IssueManager):
         self.issue_types: List[str] = []
         self.params = self.get_default_params()
 
-
     def get_default_params(self) -> Dict[str, Any]:
         return {
             IssueType.EXACT_DUPLICATES.value: {"hash_type": "md5"},
@@ -39,11 +38,11 @@ class DuplicateIssueManager(IssueManager):
     @staticmethod
     def _get_hash(image: Image.Image, params: Dict[str, Any]) -> str:
         hash_type, hash_size = params["hash_type"], params.get("hash_size", None)
-        if hash_type=="md5":
+        if hash_type == "md5":
             return hashlib.md5(image.tobytes()).hexdigest()
-        elif hash_type=="whash":
+        elif hash_type == "whash":
             return str(imagehash.whash(image, hash_size=hash_size))
-        elif hash_type=="phash":
+        elif hash_type == "phash":
             return str(imagehash.phash(image, hash_size=hash_size))
         else:
             raise ValueError("Hash type not supported")

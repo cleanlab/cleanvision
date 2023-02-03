@@ -26,9 +26,7 @@ class TestImagePropertyIssueManager:
                 LIGHT: {"threshold": 0.05},
             }
 
-        monkeypatch.setattr(
-            issue_manager, "params", mock_get_default_params()
-        )
+        monkeypatch.setattr(issue_manager, "params", mock_get_default_params())
 
     @pytest.mark.usefixtures("set_default_params")
     @pytest.mark.parametrize(
@@ -64,7 +62,7 @@ class TestImagePropertyIssueManager:
 
         """
         issue_manager.update_params(params)
-        assert issue_manager.params==expected_params
+        assert issue_manager.params == expected_params
 
     @pytest.fixture
     def set_image_properties(self, issue_manager, monkeypatch):
@@ -113,4 +111,4 @@ class TestImagePropertyIssueManager:
 
         """
         defer_set = issue_manager._get_defer_set(issue_types, imagelab_info)
-        assert defer_set==expected_defer_set
+        assert defer_set == expected_defer_set
