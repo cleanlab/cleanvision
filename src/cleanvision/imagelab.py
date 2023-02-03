@@ -29,7 +29,7 @@ class Imagelab:
     def __init__(self, data_path: str) -> None:
         self.filepaths: List[str] = get_filepaths(data_path)
         self.num_images: int = len(self.filepaths)
-        if self.num_images == 0:
+        if self.num_images==0:
             raise ValueError(f"No images found in the specified path:{data_path}")
         self.info: Dict[str, Any] = {"statistics": {}}
         self.issue_summary: pd.DataFrame = pd.DataFrame(columns=["issue_type"])
@@ -102,9 +102,9 @@ class Imagelab:
         self._set_issue_managers(issue_type_groups)
 
         # find issues
-        for issue_type_group in issue_type_groups:
+        for issue_type_group, params in issue_type_groups.items():
             issue_manager = self.issue_managers[issue_type_group]
-            issue_manager.find_issues(filepaths=self.filepaths, imagelab_info=self.info)
+            issue_manager.find_issues(params=params, filepaths=self.filepaths, imagelab_info=self.info)
 
             # update issues, issue_summary and info
             self._update_issues(issue_manager.issues)
@@ -166,7 +166,7 @@ class Imagelab:
         for issue_type_group, params in issue_type_groups.items():
             self.issue_managers[issue_type_group] = IssueManagerFactory.from_str(
                 issue_type_group
-            )(params)
+            )()
 
     def _get_topk_issues(self, num_top_issues: int, max_prevalence: float) -> List[str]:
         topk_issues = []
@@ -187,11 +187,11 @@ class Imagelab:
         report_args = {
             "num_top_issues": self.config["report_num_top_issues_values"][
                 verbosity - 1
-            ],
+                ],
             "max_prevalence": self.config["report_max_prevalence"],
             "examples_per_issue": self.config["report_examples_per_issue_values"][
                 verbosity - 1
-            ],
+                ],
         }
 
         non_none_args = {
@@ -250,9 +250,9 @@ class Imagelab:
         issue_manager = self._get_issue_manager(issue_type_str)
         viz_name = issue_manager.visualization
 
-        if viz_name == "individual_images":
+        if viz_name=="individual_images":
             sorted_df = self.issues.sort_values(by=[f"{issue_type_str}_score"])
-            sorted_df = sorted_df[sorted_df[f"{issue_type_str}_bool"] == 1]
+            sorted_df = sorted_df[sorted_df[f"{issue_type_str}_bool"]==1]
             if len(sorted_df) < examples_per_issue:
                 print(
                     f"Found {len(sorted_df)} examples of {issue_type_str} issue in the dataset."
@@ -267,10 +267,10 @@ class Imagelab:
                     ncols=self.config["visualize_num_images_per_row"],
                     cell_size=cell_size,
                     cmap="gray"
-                    if issue_type_str == IssueType.GRAYSCALE.value
+                    if issue_type_str==IssueType.GRAYSCALE.value
                     else None,
                 )
-        elif viz_name == "image_sets":
+        elif viz_name=="image_sets":
             image_sets = self.info[issue_type_str][SETS][:examples_per_issue]
             if len(image_sets) < examples_per_issue:
                 print(
@@ -339,7 +339,7 @@ class Imagelab:
 
         if data_path is not None:
             filepaths = get_filepaths(data_path)
-            if set(filepaths) != set(imagelab.filepaths):
+            if set(filepaths)!=set(imagelab.filepaths):
                 raise ValueError(
                     "Absolute path of image(s) has changed in the dataset. Cannot load Imagelab."
                 )

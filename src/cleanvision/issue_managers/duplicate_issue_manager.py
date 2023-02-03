@@ -16,10 +16,11 @@ class DuplicateIssueManager(IssueManager):
     issue_name: str = DUPLICATE
     visualization: str = "image_sets"
 
-    def __init__(self, params: Dict[str, Any]) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.issue_types: List[str] = list(params.keys())
-        self.set_params(params)
+        self.issue_types: List[str] = []
+        self.params = self.get_default_params()
+
 
     def get_default_params(self) -> Dict[str, Any]:
         return {
@@ -27,7 +28,7 @@ class DuplicateIssueManager(IssueManager):
             IssueType.NEAR_DUPLICATES.value: {"hash_type": "whash", "hash_size": 8},
         }
 
-    def set_params(self, params: Dict[str, Any]) -> None:
+    def update_params(self, params: Dict[str, Any]) -> None:
         self.params = self.get_default_params()
         for issue_type in self.params:
             non_none_params = {
@@ -38,11 +39,11 @@ class DuplicateIssueManager(IssueManager):
     @staticmethod
     def _get_hash(image: Image.Image, params: Dict[str, Any]) -> str:
         hash_type, hash_size = params["hash_type"], params.get("hash_size", None)
-        if hash_type == "md5":
+        if hash_type=="md5":
             return hashlib.md5(image.tobytes()).hexdigest()
-        elif hash_type == "whash":
+        elif hash_type=="whash":
             return str(imagehash.whash(image, hash_size=hash_size))
-        elif hash_type == "phash":
+        elif hash_type=="phash":
             return str(imagehash.phash(image, hash_size=hash_size))
         else:
             raise ValueError("Hash type not supported")
@@ -75,14 +76,19 @@ class DuplicateIssueManager(IssueManager):
     def find_issues(
         self,
         *,
+        params: Optional[Dict[str, Any]] = None,
         filepaths: Optional[List[str]] = None,
         imagelab_info: Optional[Dict[str, Any]] = None,
         **kwargs: Any,
     ) -> None:
 
         super().find_issues(**kwargs)
+        assert params is not None
         assert imagelab_info is not None
         assert filepaths is not None
+
+        self.issue_types = list(params.keys())
+        self.update_params(params)
 
         to_compute = self._get_issue_types_to_compute(self.issue_types, imagelab_info)
         issue_type_hash_mapping: Dict[str, Any] = {

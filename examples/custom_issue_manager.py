@@ -21,12 +21,12 @@ class CustomIssueManager(IssueManager):
 
     def __init__(self, params):
         super().__init__()
-        self.set_params(params)
+        self.update_params(params)
 
     def get_default_params(self):
         return {"threshold": 0.4}
 
-    def set_params(self, params):
+    def update_params(self, params):
         self.params = self.get_default_params()
         non_none_params = {k: v for k, v in params.items() if v is not None}
         self.params = {**self.params, **non_none_params}

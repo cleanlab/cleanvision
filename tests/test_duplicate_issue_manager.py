@@ -9,22 +9,21 @@ NEAR = IssueType.NEAR_DUPLICATES.value
 
 class TestDuplicateIssueManager:
     @pytest.fixture
-    def issue_manager(self, monkeypatch):
-        return DuplicateIssueManager(params={EXACT: {}, NEAR: {}})
+    def issue_manager(self):
+        return DuplicateIssueManager()
 
-    def mock_get_default_params(self):
-        return {
-            EXACT: {"hash_type": "md5"},
-            NEAR: {"hash_type": "whash", "hash_size": 8},
-        }
 
     @pytest.fixture
     def set_default_params(self, issue_manager, monkeypatch):
         """Set default params for image property issue types"""
 
-        monkeypatch.setattr(
-            issue_manager, "get_default_params", self.mock_get_default_params
-        )
+        def mock_get_default_params():
+            return {
+                EXACT: {"hash_type": "md5"},
+                NEAR: {"hash_type": "whash", "hash_size": 8},
+            }
+
+        monkeypatch.setattr(issue_manager, "params", mock_get_default_params())
 
     @pytest.mark.usefixtures("set_default_params")
     @pytest.mark.parametrize(
@@ -45,9 +44,8 @@ class TestDuplicateIssueManager:
         1. If no params are specified for an issue_type, default params are used
         2. If params are specified, those specific params are updated, for the remaining ones default values are used
         """
-        assert issue_manager.params == self.mock_get_default_params()
-        issue_manager.set_params(params)
-        assert issue_manager.params == expected_params
+        issue_manager.update_params(params)
+        assert issue_manager.params==expected_params
 
     @pytest.mark.parametrize(
         "issue_types, imagelab_info, expected_to_compute",
@@ -77,7 +75,7 @@ class TestDuplicateIssueManager:
         to_compute = issue_manager._get_issue_types_to_compute(
             issue_types, imagelab_info
         )
-        assert set(to_compute) == set(expected_to_compute)
+        assert set(to_compute)==set(expected_to_compute)
 
     @pytest.mark.parametrize(
         "issue_types, issue_type_hash_mapping, imagelab_info, expected_info",
@@ -169,7 +167,7 @@ class TestDuplicateIssueManager:
         """
         monkeypatch.setattr(issue_manager, "info", before_info)
         issue_manager._remove_exact_duplicates_from_near()
-        assert issue_manager.info == after_info
+        assert issue_manager.info==after_info
 
     @pytest.mark.parametrize(
         "hash_image_mapping, expected_duplicate_sets",
@@ -196,8 +194,8 @@ class TestDuplicateIssueManager:
         issue_manager
         """
         duplicate_sets = issue_manager._get_duplicate_sets(hash_image_mapping)
-        assert len(duplicate_sets) == len(expected_duplicate_sets)
+        assert len(duplicate_sets)==len(expected_duplicate_sets)
         duplicate_sets.sort()
         expected_duplicate_sets.sort()
         for s1, s2 in zip(duplicate_sets, expected_duplicate_sets):
-            assert set(s1) == set(s2)
+            assert set(s1)==set(s2)
