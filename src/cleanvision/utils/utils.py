@@ -16,9 +16,7 @@ TYPES: List[str] = [
 ]  # filetypes supported by PIL
 
 
-def get_filepaths(
-    dir_path: str,
-) -> List[str]:
+def get_filepaths(dir_path: str,) -> List[str]:
     """
     Used in initialization of ImageDataset Class
     Obtains image files of supported types and
@@ -37,8 +35,10 @@ def get_filepaths(
     a list of image filenames sorted numerically and alphabetically
     """
 
-    if not os.path.isdir(dir_path):
-        raise NotADirectoryError
+    # this check means we cannot have dir_path be something like this: /256_ObjectCategories/*/
+    # i.e. cannot have images in nested directories
+    # if not os.path.isdir(dir_path):
+    #    raise NotADirectoryError
 
     abs_dir_path = os.path.abspath(dir_path)
     print(f"Reading images from {abs_dir_path}")
