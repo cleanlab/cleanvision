@@ -14,19 +14,19 @@ import multiprocessing
 import psutil
 
 
-def get_hash(image, params):
+def get_hash(image: Image, params: Dict[str, Any]) -> str:
     hash_type, hash_size = params["hash_type"], params.get("hash_size", None)
     if hash_type == "md5":
         return hashlib.md5(image.tobytes()).hexdigest()
     elif hash_type == "whash":
-        return imagehash.whash(image, hash_size=hash_size)
+        return str(imagehash.whash(image, hash_size=hash_size))
     elif hash_type == "phash":
-        return imagehash.phash(image, hash_size=hash_size)
+        return str(imagehash.phash(image, hash_size=hash_size))
     else:
         raise ValueError("Hash type not supported")
 
 
-def compute_hash(arg):
+def compute_hash(arg: Dict[str, Any]) -> Dict[str, Any]:
     path = arg["path"]
     to_compute = arg["to_compute"]
     params = arg["params"]

@@ -26,7 +26,7 @@ from cleanvision.issue_managers.image_property import (
 )
 
 
-def compute_scores(arg):
+def compute_scores(arg: Dict[str, Any]) -> Dict[str, Any]:
     compute_functions = {
         IssueType.DARK.value: calc_brightness,
         IssueType.LIGHT.value: calc_brightness,
@@ -43,7 +43,6 @@ def compute_scores(arg):
     for issue_type in to_compute:
         results[issue_type] = compute_functions[issue_type](image)
     return results
-
 
 
 # Combined all issues which are to be detected using image properties under one class to save time on loading image
@@ -161,7 +160,7 @@ class ImagePropertyIssueManager(IssueManager):
                 property_values = self.info["statistics"][image_property]
 
             scores = self.image_properties[issue_type].get_scores(
-                property_values, **self.params[issue_type]
+                raw_scores=property_values, **self.params[issue_type]
             )
 
             # Update issues
