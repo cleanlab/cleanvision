@@ -188,11 +188,15 @@ def calculate_brightness(red: float, green: float, blue: float) -> float:
     return cur_bright
 
 
+def calc_color_space(image: Image) -> Union[float, str]:
+    return get_image_mode(image)
+
+
 class ColorSpaceProperty(ImageProperty):
     name = "color_space"
 
     def calculate(self, image: Image) -> Union[float, str]:
-        return get_image_mode(image)
+        return calc_color_space(image)
 
     def get_scores(
         self,
