@@ -15,6 +15,36 @@ from cleanvision.issue_managers.image_property import (
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import IMAGE_PROPERTY
 
+import multiprocessing
+import psutil
+from cleanvision.issue_managers.image_property import (
+    calc_brightness,
+    calc_aspect_ratio,
+    calc_entropy,
+    calc_blurriness,
+    calc_color_space,
+)
+
+
+def compute_scores(arg):
+    compute_functions = {
+        IssueType.DARK.value: calc_brightness,
+        IssueType.LIGHT.value: calc_brightness,
+        IssueType.ODD_ASPECT_RATIO.value: calc_aspect_ratio,
+        IssueType.LOW_INFORMATION.value: calc_entropy,
+        IssueType.BLURRY.value: calc_blurriness,
+        IssueType.GRAYSCALE.value: calc_color_space,
+    }
+    to_compute = arg["to_compute"]
+    path = arg["path"]
+    image = Image.open(path)
+    results = {}
+    results["path"] = path
+    for issue_type in to_compute:
+        results[issue_type] = compute_functions[issue_type](image)
+    return results
+
+
 
 # Combined all issues which are to be detected using image properties under one class to save time on loading image
 @register_issue_manager(IMAGE_PROPERTY)
@@ -79,6 +109,74 @@ class ImagePropertyIssueManager(IssueManager):
         if {IssueType.LIGHT.value, IssueType.DARK.value}.issubset(set(issue_types)):
             defer_set.add(IssueType.LIGHT.value)
         return defer_set
+
+    def find_issues_multi(
+        self,
+        *,
+        filepaths: Optional[List[str]] = None,
+        imagelab_info: Optional[Dict[str, Any]] = None,
+        n_jobs: Optional[int] = None,
+        **kwargs: Any,
+    ) -> None:
+        super().find_issues(**kwargs)
+        assert imagelab_info is not None
+        assert filepaths is not None
+
+        defer_set = self._get_defer_set(self.issue_types, imagelab_info)
+
+        to_be_computed = list(set(self.issue_types).difference(defer_set))
+        raw_scores: Dict[str, Any] = {issue_type: [] for issue_type in to_be_computed}
+        if to_be_computed:
+            args = [
+                {"to_compute": to_be_computed, "path": path}
+                for i, path in enumerate(filepaths)
+            ]
+            if n_jobs is None:
+                n_jobs = psutil.cpu_count(logical=False)
+            with multiprocessing.Pool(n_jobs) as p:
+                computed_results = list(
+                    tqdm(
+                        p.imap_unordered(compute_scores, args, chunksize=10),
+                        total=len(filepaths),
+                    )
+                )
+
+            computed_results = sorted(computed_results, key=lambda r: r["path"])
+            for result in computed_results:
+                for issue_type in to_be_computed:
+                    raw_scores[issue_type].append(result[issue_type])
+
+        # update info
+        self.update_info(raw_scores)
+
+        # Init issues, summary
+        self.issues = pd.DataFrame(index=filepaths)
+        summary_dict = {}
+
+        for issue_type in self.issue_types:
+            image_property = self.image_properties[issue_type].name
+            if image_property in imagelab_info["statistics"]:
+                property_values = imagelab_info["statistics"][image_property]
+            else:
+                property_values = self.info["statistics"][image_property]
+
+            scores = self.image_properties[issue_type].get_scores(
+                property_values, **self.params[issue_type]
+            )
+
+            # Update issues
+            self.issues[f"{issue_type}_score"] = scores
+            self.issues[f"{issue_type}_bool"] = self.image_properties[
+                issue_type
+            ].mark_issue(scores, self.params[issue_type].get("threshold"))
+
+            summary_dict[issue_type] = self._compute_summary(
+                self.issues[f"{issue_type}_bool"]
+            )
+
+        # update issues and summary
+        self.update_summary(summary_dict)
+        return
 
     def find_issues(
         self,

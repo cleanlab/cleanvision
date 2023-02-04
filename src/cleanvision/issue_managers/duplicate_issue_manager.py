@@ -10,6 +10,33 @@ from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import SETS, DUPLICATE
 
+import multiprocessing
+import psutil
+
+
+def get_hash(image, params):
+    hash_type, hash_size = params["hash_type"], params.get("hash_size", None)
+    if hash_type == "md5":
+        return hashlib.md5(image.tobytes()).hexdigest()
+    elif hash_type == "whash":
+        return imagehash.whash(image, hash_size=hash_size)
+    elif hash_type == "phash":
+        return imagehash.phash(image, hash_size=hash_size)
+    else:
+        raise ValueError("Hash type not supported")
+
+
+def compute_hash(arg):
+    path = arg["path"]
+    to_compute = arg["to_compute"]
+    params = arg["params"]
+    image = Image.open(path)
+    result = {}
+    result["path"] = path
+    for issue_type in to_compute:
+        result[issue_type] = get_hash(image, params[issue_type])
+    return result
+
 
 @register_issue_manager(DUPLICATE)
 class DuplicateIssueManager(IssueManager):
@@ -71,6 +98,54 @@ class DuplicateIssueManager(IssueManager):
         if IssueType.NEAR_DUPLICATES.value in issue_types:
             to_compute.append(IssueType.NEAR_DUPLICATES.value)
         return to_compute
+
+    def find_issues_multi(
+        self,
+        *,
+        filepaths: Optional[List[str]] = None,
+        imagelab_info: Optional[Dict[str, Any]] = None,
+        n_jobs: Optional[int] = None,
+        **kwargs: Any,
+    ) -> None:
+
+        super().find_issues(**kwargs)
+        assert imagelab_info is not None
+        assert filepaths is not None
+
+        to_compute = self._get_issue_types_to_compute(self.issue_types, imagelab_info)
+        issue_type_hash_mapping: Dict[str, Any] = {
+            issue_type: {} for issue_type in to_compute
+        }
+
+        if n_jobs is None:
+            n_jobs = psutil.cpu_count(logical=False)
+        args = [
+            {"path": path, "to_compute": to_compute, "params": self.params}
+            for path in filepaths
+        ]
+        with multiprocessing.Pool(n_jobs) as p:
+            results = list(
+                tqdm(
+                    p.imap_unordered(compute_hash, args, chunksize=10),
+                    total=len(filepaths),
+                )
+            )
+
+        results = sorted(results, key=lambda r: r["path"])
+        for result in results:
+            for issue_type in to_compute:
+                hash = result[issue_type]
+                if hash in issue_type_hash_mapping[issue_type]:
+                    issue_type_hash_mapping[issue_type][hash].append(result["path"])
+                else:
+                    issue_type_hash_mapping[issue_type][hash] = [result["path"]]
+
+        self.issues = pd.DataFrame(index=filepaths)
+        self._update_info(self.issue_types, issue_type_hash_mapping, imagelab_info)
+        self._update_issues()
+        self._update_summary()
+
+        return
 
     def find_issues(
         self,
