@@ -180,6 +180,14 @@ def get_edges(image: Image) -> Image:
     return edges
 
 
+def calculate_brightness(red: float, green: float, blue: float) -> float:
+    cur_bright = (
+        math.sqrt(0.241 * (red**2) + 0.691 * (green**2) + 0.068 * (blue**2))
+    ) / 255
+
+    return cur_bright
+
+
 def calc_color_space(image: Image) -> Union[float, str]:
     return get_image_mode(image)
 
