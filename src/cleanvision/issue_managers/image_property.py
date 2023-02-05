@@ -55,7 +55,7 @@ def calc_brightness(image: Image) -> Union[float, str]:
         )  # deals with black and white images
 
     cur_bright = (
-        math.sqrt(0.241 * (red ** 2) + 0.691 * (green ** 2) + 0.068 * (blue ** 2))
+        math.sqrt(0.241 * (red**2) + 0.691 * (green**2) + 0.068 * (blue**2))
     ) / 255
     return cur_bright
 
@@ -70,7 +70,10 @@ class BrightnessProperty(ImageProperty):
         return calc_brightness(image)
 
     def get_scores(
-        self, *, raw_scores: Optional[List[Union[float, str]]] = None, **kwargs: Any,
+        self,
+        *,
+        raw_scores: Optional[List[Union[float, str]]] = None,
+        **kwargs: Any,
     ) -> "np.ndarray[Any, Any]":
         super().get_scores(**kwargs)
         assert raw_scores is not None
@@ -97,7 +100,10 @@ class AspectRatioProperty(ImageProperty):
         return calc_aspect_ratio(image)
 
     def get_scores(
-        self, *, raw_scores: Optional[List[Union[float, str]]] = None, **kwargs: Any,
+        self,
+        *,
+        raw_scores: Optional[List[Union[float, str]]] = None,
+        **kwargs: Any,
     ) -> "np.ndarray[Any, Any]":
         super().get_scores(**kwargs)
         assert raw_scores is not None
@@ -172,14 +178,6 @@ def get_edges(image: Image) -> Image:
     gray_image = image.convert("L")
     edges = gray_image.filter(ImageFilter.FIND_EDGES)
     return edges
-
-
-def calculate_brightness(red: float, green: float, blue: float) -> float:
-    cur_bright = (
-        math.sqrt(0.241 * (red ** 2) + 0.691 * (green ** 2) + 0.068 * (blue ** 2))
-    ) / 255
-
-    return cur_bright
 
 
 def calc_color_space(image: Image) -> Union[float, str]:

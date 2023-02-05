@@ -16,7 +16,6 @@ from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import IMAGE_PROPERTY
 
 import multiprocessing
-import psutil
 from cleanvision.issue_managers.image_property import (
     calc_brightness,
     calc_aspect_ratio,
@@ -24,6 +23,15 @@ from cleanvision.issue_managers.image_property import (
     calc_blurriness,
     calc_color_space,
 )
+
+# psutil is a package used to count physical cores for multiprocessing
+# This package is not necessary, because we can always fall back to logical cores as the default
+try:
+    import psutil
+
+    psutil_exists = True
+except ImportError as e:  # pragma: no cover
+    psutil_exists = False
 
 
 def compute_scores(arg: Dict[str, Any]) -> Dict[str, Any]:
@@ -109,7 +117,7 @@ class ImagePropertyIssueManager(IssueManager):
             defer_set.add(IssueType.LIGHT.value)
         return defer_set
 
-    def find_issues_multi(
+    def find_issues(
         self,
         *,
         filepaths: Optional[List[str]] = None,
@@ -126,79 +134,39 @@ class ImagePropertyIssueManager(IssueManager):
         to_be_computed = list(set(self.issue_types).difference(defer_set))
         raw_scores: Dict[str, Any] = {issue_type: [] for issue_type in to_be_computed}
         if to_be_computed:
-            args = [
-                {"to_compute": to_be_computed, "path": path}
-                for i, path in enumerate(filepaths)
-            ]
             if n_jobs is None:
-                n_jobs = psutil.cpu_count(logical=False)
-            with multiprocessing.Pool(n_jobs) as p:
-                computed_results = list(
-                    tqdm(
-                        p.imap_unordered(compute_scores, args, chunksize=10),
-                        total=len(filepaths),
-                    )
-                )
+                if psutil_exists:
+                    n_jobs = psutil.cpu_count(logical=False)  # physical cores
+                if not n_jobs:
+                    # either psutil does not exist
+                    # or psutil can return None when physical cores cannot be determined
+                    # switch to logical cores
+                    n_jobs = multiprocessing.cpu_count()
 
-            computed_results = sorted(computed_results, key=lambda r: r["path"])
-            for result in computed_results:
-                for issue_type in to_be_computed:
-                    raw_scores[issue_type].append(result[issue_type])
-
-        # update info
-        self.update_info(raw_scores)
-
-        # Init issues, summary
-        self.issues = pd.DataFrame(index=filepaths)
-        summary_dict = {}
-
-        for issue_type in self.issue_types:
-            image_property = self.image_properties[issue_type].name
-            if image_property in imagelab_info["statistics"]:
-                property_values = imagelab_info["statistics"][image_property]
+            if n_jobs == 1:
+                for path in tqdm(filepaths):
+                    image = Image.open(path)
+                    for issue_type in to_be_computed:
+                        raw_scores[issue_type].append(
+                            self.image_properties[issue_type].calculate(image)
+                        )
             else:
-                property_values = self.info["statistics"][image_property]
-
-            scores = self.image_properties[issue_type].get_scores(
-                raw_scores=property_values, **self.params[issue_type]
-            )
-
-            # Update issues
-            self.issues[f"{issue_type}_score"] = scores
-            self.issues[f"{issue_type}_bool"] = self.image_properties[
-                issue_type
-            ].mark_issue(scores, self.params[issue_type].get("threshold"))
-
-            summary_dict[issue_type] = self._compute_summary(
-                self.issues[f"{issue_type}_bool"]
-            )
-
-        # update issues and summary
-        self.update_summary(summary_dict)
-        return
-
-    def find_issues(
-        self,
-        *,
-        filepaths: Optional[List[str]] = None,
-        imagelab_info: Optional[Dict[str, Any]] = None,
-        **kwargs: Any,
-    ) -> None:
-        super().find_issues(**kwargs)
-        assert imagelab_info is not None
-        assert filepaths is not None
-
-        defer_set = self._get_defer_set(self.issue_types, imagelab_info)
-
-        to_be_computed = list(set(self.issue_types).difference(defer_set))
-        raw_scores: Dict[str, Any] = {issue_type: [] for issue_type in to_be_computed}
-        if to_be_computed:
-            for path in tqdm(filepaths):
-                image = Image.open(path)
-                for issue_type in to_be_computed:
-                    raw_scores[issue_type].append(
-                        self.image_properties[issue_type].calculate(image)
+                args = [
+                    {"to_compute": to_be_computed, "path": path}
+                    for i, path in enumerate(filepaths)
+                ]
+                with multiprocessing.Pool(n_jobs) as p:
+                    computed_results = list(
+                        tqdm(
+                            p.imap_unordered(compute_scores, args, chunksize=10),
+                            total=len(filepaths),
+                        )
                     )
+
+                computed_results = sorted(computed_results, key=lambda r: r["path"])
+                for result in computed_results:
+                    for issue_type in to_be_computed:
+                        raw_scores[issue_type].append(result[issue_type])
 
         # update info
         self.update_info(raw_scores)

@@ -106,14 +106,9 @@ class Imagelab:
         # find issues
         for issue_type_group in issue_type_groups:
             issue_manager = self.issue_managers[issue_type_group]
-            if n_jobs == 1:
-                issue_manager.find_issues(
-                    filepaths=self.filepaths, imagelab_info=self.info
-                )
-            else:
-                issue_manager.find_issues_multi(
-                    filepaths=self.filepaths, imagelab_info=self.info, n_jobs=n_jobs
-                )
+            issue_manager.find_issues(
+                filepaths=self.filepaths, imagelab_info=self.info, n_jobs=n_jobs
+            )
 
             # update issues, issue_summary and info
             self._update_issues(issue_manager.issues)
@@ -251,7 +246,10 @@ class Imagelab:
             return self.issue_managers[issue_type_str]
 
     def _visualize(
-        self, issue_type_str: str, examples_per_issue: int, cell_size: Tuple[int, int],
+        self,
+        issue_type_str: str,
+        examples_per_issue: int,
+        cell_size: Tuple[int, int],
     ) -> None:
         issue_manager = self._get_issue_manager(issue_type_str)
         viz_name = issue_manager.visualization
