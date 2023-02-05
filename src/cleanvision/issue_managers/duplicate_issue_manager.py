@@ -11,7 +11,15 @@ from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import SETS, DUPLICATE
 
 import multiprocessing
-import psutil
+
+# psutil is a package used to count physical cores for multiprocessing
+# This package is not necessary, because we can always fall back to logical cores as the default
+try:
+    import psutil
+
+    psutil_exists = True
+except ImportError as e:  # pragma: no cover
+    psutil_exists = False
 
 
 def get_hash(image: Image, params: Dict[str, Any]) -> str:
@@ -99,7 +107,7 @@ class DuplicateIssueManager(IssueManager):
             to_compute.append(IssueType.NEAR_DUPLICATES.value)
         return to_compute
 
-    def find_issues_multi(
+    def find_issues(
         self,
         *,
         filepaths: Optional[List[str]] = None,
@@ -118,60 +126,44 @@ class DuplicateIssueManager(IssueManager):
         }
 
         if n_jobs is None:
-            n_jobs = psutil.cpu_count(logical=False)
-        args = [
-            {"path": path, "to_compute": to_compute, "params": self.params}
-            for path in filepaths
-        ]
-        with multiprocessing.Pool(n_jobs) as p:
-            results = list(
-                tqdm(
-                    p.imap_unordered(compute_hash, args, chunksize=10),
-                    total=len(filepaths),
+            if psutil_exists:
+                n_jobs = psutil.cpu_count(logical=False)  # physical cores
+            if not n_jobs:
+                # either psutil does not exist
+                # or psutil can return None when physical cores cannot be determined
+                # switch to logical cores
+                n_jobs = multiprocessing.cpu_count()
+
+        if n_jobs == 1:
+            for path in tqdm(filepaths):
+                image = Image.open(path)
+                for issue_type in to_compute:
+                    hash = self._get_hash(image, self.params[issue_type])
+                    if hash in issue_type_hash_mapping[issue_type]:
+                        issue_type_hash_mapping[issue_type][hash].append(path)
+                    else:
+                        issue_type_hash_mapping[issue_type][hash] = [path]
+        else:
+            args = [
+                {"path": path, "to_compute": to_compute, "params": self.params}
+                for path in filepaths
+            ]
+            with multiprocessing.Pool(n_jobs) as p:
+                results = list(
+                    tqdm(
+                        p.imap_unordered(compute_hash, args, chunksize=10),
+                        total=len(filepaths),
+                    )
                 )
-            )
 
-        results = sorted(results, key=lambda r: r["path"])
-        for result in results:
-            for issue_type in to_compute:
-                hash = result[issue_type]
-                if hash in issue_type_hash_mapping[issue_type]:
-                    issue_type_hash_mapping[issue_type][hash].append(result["path"])
-                else:
-                    issue_type_hash_mapping[issue_type][hash] = [result["path"]]
-
-        self.issues = pd.DataFrame(index=filepaths)
-        self._update_info(self.issue_types, issue_type_hash_mapping, imagelab_info)
-        self._update_issues()
-        self._update_summary()
-
-        return
-
-    def find_issues(
-        self,
-        *,
-        filepaths: Optional[List[str]] = None,
-        imagelab_info: Optional[Dict[str, Any]] = None,
-        **kwargs: Any,
-    ) -> None:
-
-        super().find_issues(**kwargs)
-        assert imagelab_info is not None
-        assert filepaths is not None
-
-        to_compute = self._get_issue_types_to_compute(self.issue_types, imagelab_info)
-        issue_type_hash_mapping: Dict[str, Any] = {
-            issue_type: {} for issue_type in to_compute
-        }
-
-        for path in tqdm(filepaths):
-            image = Image.open(path)
-            for issue_type in to_compute:
-                hash = self._get_hash(image, self.params[issue_type])
-                if hash in issue_type_hash_mapping[issue_type]:
-                    issue_type_hash_mapping[issue_type][hash].append(path)
-                else:
-                    issue_type_hash_mapping[issue_type][hash] = [path]
+            results = sorted(results, key=lambda r: r["path"])
+            for result in results:
+                for issue_type in to_compute:
+                    hash = result[issue_type]
+                    if hash in issue_type_hash_mapping[issue_type]:
+                        issue_type_hash_mapping[issue_type][hash].append(result["path"])
+                    else:
+                        issue_type_hash_mapping[issue_type][hash] = [result["path"]]
 
         self.issues = pd.DataFrame(index=filepaths)
         self._update_info(self.issue_types, issue_type_hash_mapping, imagelab_info)

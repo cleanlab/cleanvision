@@ -16,7 +16,9 @@ TYPES: List[str] = [
 ]  # filetypes supported by PIL
 
 
-def get_filepaths(dir_path: str,) -> List[str]:
+def get_filepaths(
+    dir_path: str,
+) -> List[str]:
     """
     Used in initialization of ImageDataset Class
     Obtains image files of supported types and
