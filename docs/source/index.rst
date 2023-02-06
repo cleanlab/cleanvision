@@ -1,23 +1,23 @@
-Welcome to Cleanvision's documentation!
-===================================
+.. cleanvision documentation master file, created by
+   sphinx-quickstart on Thu Feb  2 13:55:53 2023.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
 
-CleanVision automatically detects various issues in image datasets, such as images
-that are: (near) duplicates, blurry, over/under-exposed, etc. This data-centric AI
-package is designed as a quick first step for any computer vision project to find
-problems in your dataset, which you may want to address before applying machine
-learning.
-
-Check out the :doc:`usage` section for further information, including
-how to :ref:`installation` the project.
-
-.. note::
-
-   This project is under active development.
-
-Contents
---------
+Welcome to cleanvision's documentation!
+=======================================
 
 .. toctree::
+   :maxdepth: 2
+   :caption: Contents:
 
-   usage
-   api
+    src/cleanvision/utils/utils
+    cleanvision/utils/utils
+    utils/utils
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
