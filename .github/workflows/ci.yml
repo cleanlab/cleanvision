@@ -20,7 +20,7 @@ jobs:
         shell: bash
       - name: Test with coverage
         run: pytest --verbose --cov=cleanvision/ --cov-config .coveragerc --cov-report=xml
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v3
   typecheck:
     name: Type check
     runs-on: ubuntu-latest
