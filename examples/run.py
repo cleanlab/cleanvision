@@ -84,7 +84,6 @@ if __name__ == "__main__":
     4. Increase the size of images in the grid displayed by visualize
     """
 
-    # Run imagelab for default issue_type, but override parameters for one or more issues
     imagelab = Imagelab(dataset_path)
     imagelab.find_issues()
     imagelab.report(["near_duplicates"])
