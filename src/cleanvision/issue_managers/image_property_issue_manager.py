@@ -140,7 +140,7 @@ class ImagePropertyIssueManager(IssueManager):
             if n_jobs is None:
                 n_jobs = get_max_n_jobs()
 
-            results = []
+            results: List[Any] = []
             if n_jobs == 1:
                 for path in tqdm(filepaths):
                     results.append(compute_scores(path, to_be_computed))
