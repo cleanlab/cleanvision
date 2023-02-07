@@ -107,7 +107,7 @@ if __name__ == "__main__":
     """
     Example 4
 
-    This example demonstrates creating your own custom issue and using Imagelab to check for the added issue type
+    This example demonstrates creating your own custom issue and using Imagelab to detect this additional issue type, along with the default set of issues
     """
     # Run imagelab on custom issue
     from custom_issue_manager import CustomIssueManager
