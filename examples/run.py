@@ -31,9 +31,7 @@ if __name__ == "__main__":
     blurry_images = imagelab.issues[
         imagelab.issues["blurry_bool"] == True
     ].index.to_list()
-    imagelab.visualize(
-        image_files=blurry_images
-    )  # visualize the given image files
+    imagelab.visualize(image_files=blurry_images)  # visualize the given image files
 
     # Miscellaneous extra information about dataset and its issues
     print(list(imagelab.info.keys()), "\n")
@@ -113,7 +111,7 @@ if __name__ == "__main__":
     imagelab.list_possible_issue_types()
 
     issue_types = {issue_name: {}}
-    imagelab.find_issues(issue_types) # check for custom issue type
+    imagelab.find_issues(issue_types)  # check for custom issue type
 
-    imagelab.find_issues() # also check for default issue types
+    imagelab.find_issues()  # also check for default issue types
     imagelab.report()

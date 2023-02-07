@@ -305,7 +305,9 @@ class Imagelab:
                 self._visualize(issue_type, examples_per_issue, cell_size)
         else:
             if not image_files:
-                image_files = np.random.choice(self.filepaths, num_images, replace=False)
+                image_files = np.random.choice(
+                    self.filepaths, num_images, replace=False
+                )
             VizManager.individual_images(
                 filepaths=image_files,
                 ncols=self.config["visualize_num_images_per_row"],
