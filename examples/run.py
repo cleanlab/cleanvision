@@ -2,10 +2,9 @@ import argparse
 
 from cleanvision.imagelab import Imagelab
 
-if __name__=="__main__":
-    parser = argparse.ArgumentParser(
-        description='Demonstrates how to use Imagelab')
-    parser.add_argument('--path', type=str, help='path to dataset', required=True)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Demonstrates how to use Imagelab")
+    parser.add_argument("--path", type=str, help="path to dataset", required=True)
     args = parser.parse_args()
 
     dataset_path = args.path
@@ -34,8 +33,8 @@ if __name__=="__main__":
 
     # Get all images with blurry issue type
     image_filepaths = imagelab.issues[
-        imagelab.issues["blurry_bool"]==True
-        ].index.to_list()
+        imagelab.issues["blurry_bool"] == True
+    ].index.to_list()
     imagelab.visualize(
         filepaths=image_filepaths
     )  # visualize images with given filepaths
