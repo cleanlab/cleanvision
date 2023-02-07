@@ -77,11 +77,11 @@ if __name__ == "__main__":
     """
     Example 3
 
-    This examples demonstrates using Imagelab to
-    1. Check for all issue types,but override the hyperparameters for an issue type
-    2. Change verbosity of report
-    3. Filter out issues occurring in more than x% of the dataset
-    4. Increase the cell size of image in image grid
+    This example demonstrates using Imagelab to:
+    1. Check for all default issue types, overriding some parameters for a particular issue type from their default values.
+    2. Change the verbosity of generated report to see more details
+    3. Ignore issues occurring in more than x% of images in the dataset
+    4. Increase the size of images in the grid displayed by visualize
     """
 
     # Run imagelab for default issue_type, but override parameters for one or more issues
