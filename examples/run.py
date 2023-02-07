@@ -12,11 +12,7 @@ if __name__ == "__main__":
     """
     Example 1
 
-    This example demonstrates using Imagelab to
-    1. Explore the dataset
-    2. Find all types of issues
-    3. Report top issues found and visualize them
-    4. Check Imagelab attributes: imagelab.issue_summary, imagelab.issues, imagelab.info
+    This example demonstrates the default Imagelab workflow to detect various types of issues in an image dataset.
     """
 
     imagelab = Imagelab(dataset_path)  # initalize imagelab
@@ -36,7 +32,7 @@ if __name__ == "__main__":
         imagelab.issues["blurry_bool"] == True
     ].index.to_list()
     imagelab.visualize(
-        filepaths=image_filepaths
+        image_files=image_filepaths
     )  # visualize images with given filepaths
 
     # More info on issue checks
@@ -116,6 +112,9 @@ if __name__ == "__main__":
     imagelab = Imagelab(dataset_path)
     issue_name = CustomIssueManager.issue_name
     imagelab.list_possible_issue_types()
+
     issue_types = {issue_name: {}}
-    imagelab.find_issues(issue_types)
-    imagelab.report(issue_types=[issue_name])
+    imagelab.find_issues(issue_types) # check for custom issue type
+
+    imagelab.find_issues() # also check for default issue types
+    imagelab.report()

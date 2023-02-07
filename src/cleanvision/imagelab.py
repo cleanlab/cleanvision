@@ -294,7 +294,7 @@ class Imagelab:
 
     def visualize(
         self,
-        filepaths: Optional[List[str]] = None,
+        image_files: Optional[List[str]] = None,
         issue_types: Optional[List[str]] = None,
         num_images: int = 4,
         examples_per_issue: int = 4,
@@ -304,10 +304,10 @@ class Imagelab:
             for issue_type in issue_types:
                 self._visualize(issue_type, examples_per_issue, cell_size)
         else:
-            if not filepaths:
-                filepaths = np.random.choice(self.filepaths, num_images, replace=False)
+            if not image_files:
+                image_files = np.random.choice(self.filepaths, num_images, replace=False)
             VizManager.individual_images(
-                filepaths=filepaths,
+                filepaths=image_files,
                 ncols=self.config["visualize_num_images_per_row"],
                 cell_size=cell_size,
             )
