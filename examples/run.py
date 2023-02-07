@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     imagelab = Imagelab(dataset_path)  # initalize imagelab
     imagelab.list_default_issue_types()  # list default checks
-    imagelab.visualize()  # visualize the dataset
+    imagelab.visualize()  # visualize random images in dataset
 
     imagelab.find_issues()  # Find issues in the dataset
     imagelab.report()
