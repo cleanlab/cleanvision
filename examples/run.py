@@ -72,7 +72,7 @@ if __name__ == "__main__":
     # Check for an issue with a different threshold
     issue_types = {"dark": {"threshold": 0.2}}
     imagelab.find_issues(issue_types)
-    imagelab.report(issue_types=issue_types.keys())  # report specific issues
+    imagelab.report(issue_types=issue_types.keys())  # report only specific issues
 
     """
     Example 3
