@@ -107,7 +107,10 @@ class Imagelab:
         for issue_type_group, params in issue_type_groups.items():
             issue_manager = self.issue_managers[issue_type_group]
             issue_manager.find_issues(
-                params=params, filepaths=self.filepaths, imagelab_info=self.info, n_jobs=n_jobs
+                params=params,
+                filepaths=self.filepaths,
+                imagelab_info=self.info,
+                n_jobs=n_jobs,
             )
 
             # update issues, issue_summary and info
