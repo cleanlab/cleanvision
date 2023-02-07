@@ -2,6 +2,7 @@ Usage
 =====
 
 .. _installation:
+.. _quickstart:
 
 Installation
 ------------
@@ -12,7 +13,7 @@ To install cleanvision using pip:
 
    (.venv) $ pip install cleanvision
 
-
+Quickstart
 ----------------
 
 Using CleanVision to audit your image data is as simple as running the code below:
