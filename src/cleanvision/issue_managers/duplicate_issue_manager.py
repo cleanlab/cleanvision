@@ -16,10 +16,10 @@ class DuplicateIssueManager(IssueManager):
     issue_name: str = DUPLICATE
     visualization: str = "image_sets"
 
-    def __init__(self, params: Dict[str, Any]) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.issue_types: List[str] = list(params.keys())
-        self.set_params(params)
+        self.issue_types: List[str] = []
+        self.params = self.get_default_params()
 
     def get_default_params(self) -> Dict[str, Any]:
         return {
@@ -27,7 +27,7 @@ class DuplicateIssueManager(IssueManager):
             IssueType.NEAR_DUPLICATES.value: {"hash_type": "whash", "hash_size": 8},
         }
 
-    def set_params(self, params: Dict[str, Any]) -> None:
+    def update_params(self, params: Dict[str, Any]) -> None:
         self.params = self.get_default_params()
         for issue_type in self.params:
             non_none_params = {
@@ -75,13 +75,18 @@ class DuplicateIssueManager(IssueManager):
     def find_issues(
         self,
         *,
+        params: Optional[Dict[str, Any]] = None,
         filepaths: Optional[List[str]] = None,
         imagelab_info: Optional[Dict[str, Any]] = None,
         **kwargs: Any,
     ) -> None:
         super().find_issues(**kwargs)
+        assert params is not None
         assert imagelab_info is not None
         assert filepaths is not None
+
+        self.issue_types = list(params.keys())
+        self.update_params(params)
 
         to_compute = self._get_issue_types_to_compute(self.issue_types, imagelab_info)
         issue_type_hash_mapping: Dict[str, Any] = {
@@ -107,17 +112,13 @@ class DuplicateIssueManager(IssueManager):
     def _update_summary(self) -> None:
         summary_dict = {}
         for issue_type in self.issue_types:
-            summary_dict[issue_type] = self._compute_summary(issue_type)
+            summary_dict[issue_type] = self._compute_summary(
+                self.issues[f"{issue_type}_bool"]
+            )
         summary_df = pd.DataFrame.from_dict(summary_dict, orient="index")
         self.summary = summary_df.reset_index()
         self.summary = self.summary.rename(columns={"index": "issue_type"})
-        self.summary = self.summary.astype({"num_sets": int, "issue_type": str})
-
-    def _compute_summary(self, issue_type: str) -> Dict[str, Any]:
-        return {
-            "num_images": self.issues[f"{issue_type}_bool"].sum(),
-            "num_sets": len(self.info[issue_type][SETS]),
-        }
+        self.summary = self.summary.astype({"issue_type": str})
 
     def _update_issues(self) -> None:
         for issue_type in self.issue_types:
@@ -134,6 +135,7 @@ class DuplicateIssueManager(IssueManager):
         issue_type_hash_mapping: Dict[str, Any],
         imagelab_info: Dict[str, Any],
     ) -> None:
+        num_sets = "num_sets"
         if IssueType.EXACT_DUPLICATES.value in issue_type_hash_mapping:
             self.info[IssueType.EXACT_DUPLICATES.value] = {
                 SETS: self._get_duplicate_sets(
@@ -144,6 +146,10 @@ class DuplicateIssueManager(IssueManager):
             self.info[IssueType.EXACT_DUPLICATES.value] = {
                 SETS: imagelab_info[IssueType.EXACT_DUPLICATES.value][SETS]
             }
+        self.info[IssueType.EXACT_DUPLICATES.value][num_sets] = len(
+            self.info[IssueType.EXACT_DUPLICATES.value][SETS]
+        )
+
         if IssueType.NEAR_DUPLICATES.value in issue_types:
             self.info[IssueType.NEAR_DUPLICATES.value] = {
                 SETS: self._get_duplicate_sets(
@@ -151,6 +157,9 @@ class DuplicateIssueManager(IssueManager):
                 )
             }
             self._remove_exact_duplicates_from_near()
+            self.info[IssueType.NEAR_DUPLICATES.value][num_sets] = len(
+                self.info[IssueType.NEAR_DUPLICATES.value][SETS]
+            )
 
     def _remove_exact_duplicates_from_near(self) -> None:
         updated_sets = []

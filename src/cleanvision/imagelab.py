@@ -1,6 +1,6 @@
 import os
 import pickle
-from typing import List, Dict, Any, Optional, Tuple, TypeVar
+from typing import List, Dict, Any, Optional, Tuple, TypeVar, Type
 
 import numpy as np
 import pandas as pd
@@ -64,7 +64,6 @@ class Imagelab:
             *[issue_type.value for issue_type in self.config["default_issue_types"]],
             sep="\n",
         )
-        print("\n")
 
     def list_possible_issue_types(self) -> None:
         print("All possible issues checked by Imagelab:\n")
@@ -104,9 +103,11 @@ class Imagelab:
         self._set_issue_managers(issue_type_groups)
 
         # find issues
-        for issue_type_group in issue_type_groups:
+        for issue_type_group, params in issue_type_groups.items():
             issue_manager = self.issue_managers[issue_type_group]
-            issue_manager.find_issues(filepaths=self.filepaths, imagelab_info=self.info)
+            issue_manager.find_issues(
+                params=params, filepaths=self.filepaths, imagelab_info=self.info
+            )
 
             # update issues, issue_summary and info
             self._update_issues(issue_manager.issues)
@@ -168,7 +169,7 @@ class Imagelab:
         for issue_type_group, params in issue_type_groups.items():
             self.issue_managers[issue_type_group] = IssueManagerFactory.from_str(
                 issue_type_group
-            )(params)
+            )()
 
     def _get_topk_issues(self, num_top_issues: int, max_prevalence: float) -> List[str]:
         topk_issues = []
@@ -232,7 +233,7 @@ class Imagelab:
             examples_per_issue=report_args["examples_per_issue"],
         )
 
-    def print_issue_summary(self, issue_summary):
+    def print_issue_summary(self, issue_summary: pd.DataFrame) -> None:
         issue_summary_copy = issue_summary.copy()
         issue_summary_copy.dropna(axis=1, how="all", inplace=True)
         issue_summary_copy.fillna("N/A", inplace=True)
@@ -341,7 +342,9 @@ class Imagelab:
         )
 
     @classmethod
-    def load(cls, path: str, data_path=None) -> TImagelab:
+    def load(
+        cls: Type[TImagelab], path: str, data_path: Optional[str] = None
+    ) -> TImagelab:
         """Loads Imagelab from file.
         `path` is the path to the saved Imagelab, not pickle file.
         `data_path` is the path to image dataset previously used in Imagelab.
@@ -353,7 +356,7 @@ class Imagelab:
 
         object_file = os.path.join(path, OBJECT_FILENAME)
         with open(object_file, "rb") as f:
-            imagelab = pickle.load(f)
+            imagelab: TImagelab = pickle.load(f)
 
         if data_path is not None:
             filepaths = get_filepaths(data_path)
