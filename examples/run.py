@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     imagelab = Imagelab(dataset_path)  # initalize imagelab
     imagelab.list_default_issue_types()  # list default checks
-    imagelab.visualize()  # visualize the dataset
+    imagelab.visualize()  # visualize random images in dataset
 
     imagelab.find_issues()  # Find issues in the dataset
     imagelab.report()
@@ -25,17 +25,17 @@ if __name__ == "__main__":
     print("Summary of all issues checks\n", imagelab.issue_summary.to_markdown())
     imagelab.visualize(
         issue_types=["blurry"], examples_per_issue=8
-    )  # visualize specific issues
+    )  # visualize images that have specific issues
 
     # Get all images with blurry issue type
-    image_filepaths = imagelab.issues[
+    blurry_images = imagelab.issues[
         imagelab.issues["blurry_bool"] == True
     ].index.to_list()
     imagelab.visualize(
-        image_files=image_filepaths
-    )  # visualize images with given filepaths
+        image_files=blurry_images
+    )  # visualize the given image files
 
-    # More info on issue checks
+    # Miscellaneous extra information about dataset and its issues
     print(list(imagelab.info.keys()), "\n")
     print(list(imagelab.info["statistics"].keys()))
     print(imagelab.info["statistics"]["brightness"][:10])
@@ -43,12 +43,12 @@ if __name__ == "__main__":
     """
     Example 2
 
-    This examples demonstrates using Imagelab to
-    1. Check for specific issue types
-    2. Incrementally running checks for different issue types
-    3. Checking for an issue type with a different threshold
-    4. Save and load Imagelab
-    5. Report specific issue types
+    This example demonstrates using Imagelab to:
+    1. Check data for specific types of issues
+    2. Incrementally detect additional types of issues with  existing Imagelab
+    3. Specify nondefault parameter to use when detecting a particular issue type (e.g. a different threshold)
+    4. Save and load Imagelab to file
+    5. Report only specific issue types
     """
 
     imagelab = Imagelab(dataset_path)
@@ -68,19 +68,18 @@ if __name__ == "__main__":
     # Check for an issue with a different threshold
     issue_types = {"dark": {"threshold": 0.2}}
     imagelab.find_issues(issue_types)
-    imagelab.report(issue_types=issue_types.keys())  # report specific issues
+    imagelab.report(issue_types=issue_types.keys())  # report only specific issues
 
     """
     Example 3
 
-    This examples demonstrates using Imagelab to
-    1. Check for all issue types,but override the hyperparameters for an issue type
-    2. Change verbosity of report
-    3. Filter out issues occurring in more than x% of the dataset
-    4. Increase the cell size of image in image grid
+    This example demonstrates using Imagelab to:
+    1. Check for all default issue types, overriding some parameters for a particular issue type from their default values.
+    2. Change the verbosity of generated report to see more details
+    3. Ignore issues occurring in more than x% of images in the dataset
+    4. Increase the size of images in the grid displayed by visualize
     """
 
-    # Run imagelab for default issue_type, but override parameters for one or more issues
     imagelab = Imagelab(dataset_path)
     imagelab.find_issues()
     imagelab.report(["near_duplicates"])
@@ -104,7 +103,7 @@ if __name__ == "__main__":
     """
     Example 4
 
-    This example demonstrates creating your own custom issue and using Imagelab to check for the added issue type
+    This example demonstrates creating your own custom issue and using Imagelab to detect this additional issue type, along with the default set of issues
     """
     # Run imagelab on custom issue
     from custom_issue_manager import CustomIssueManager
