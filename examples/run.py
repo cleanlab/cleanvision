@@ -29,7 +29,7 @@ if __name__ == "__main__":
     print("Summary of all issues checks\n", imagelab.issue_summary.to_markdown())
     imagelab.visualize(
         issue_types=["blurry"], examples_per_issue=8
-    )  # visualize specific issues
+    )  # visualize images that have specific issues
 
     # Get all images with blurry issue type
     blurry_images = imagelab.issues[
