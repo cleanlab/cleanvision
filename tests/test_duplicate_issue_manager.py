@@ -9,22 +9,20 @@ NEAR = IssueType.NEAR_DUPLICATES.value
 
 class TestDuplicateIssueManager:
     @pytest.fixture
-    def issue_manager(self, monkeypatch):
-        return DuplicateIssueManager(params={EXACT: {}, NEAR: {}})
-
-    def mock_get_default_params(self):
-        return {
-            EXACT: {"hash_type": "md5"},
-            NEAR: {"hash_type": "whash", "hash_size": 8},
-        }
+    def issue_manager(self):
+        return DuplicateIssueManager()
 
     @pytest.fixture
     def set_default_params(self, issue_manager, monkeypatch):
         """Set default params for image property issue types"""
 
-        monkeypatch.setattr(
-            issue_manager, "get_default_params", self.mock_get_default_params
-        )
+        def mock_get_default_params():
+            return {
+                EXACT: {"hash_type": "md5"},
+                NEAR: {"hash_type": "whash", "hash_size": 8},
+            }
+
+        monkeypatch.setattr(issue_manager, "params", mock_get_default_params())
 
     @pytest.mark.usefixtures("set_default_params")
     @pytest.mark.parametrize(
@@ -45,8 +43,7 @@ class TestDuplicateIssueManager:
         1. If no params are specified for an issue_type, default params are used
         2. If params are specified, those specific params are updated, for the remaining ones default values are used
         """
-        assert issue_manager.params == self.mock_get_default_params()
-        issue_manager.set_params(params)
+        issue_manager.update_params(params)
         assert issue_manager.params == expected_params
 
     @pytest.mark.parametrize(
