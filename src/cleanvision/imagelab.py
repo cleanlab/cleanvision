@@ -306,8 +306,8 @@ class Imagelab:
                 self._visualize(issue_type, examples_per_issue, cell_size)
         else:
             if not image_files:
-                image_files = np.random.choice(
-                    self.filepaths, num_images, replace=False
+                image_files = list(
+                    np.random.choice(self.filepaths, num_images, replace=False)
                 )
             VizManager.individual_images(
                 filepaths=image_files,
@@ -316,7 +316,7 @@ class Imagelab:
             )
 
     # Todo: Improve mypy dict typechecking so this does not return any
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> Any:
         return self.info["statistics"]
 
     def save(self, path: str) -> None:
