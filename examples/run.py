@@ -47,12 +47,12 @@ if __name__ == "__main__":
     """
     Example 2
 
-    This examples demonstrates using Imagelab to
-    1. Check for specific issue types
-    2. Incrementally running checks for different issue types
-    3. Checking for an issue type with a different threshold
-    4. Save and load Imagelab
-    5. Report specific issue types
+    This example demonstrates using Imagelab to:
+    1. Check data for specific types of issues
+    2. Incrementally detect additional types of issues with  existing Imagelab
+    3. Specify nondefault parameter to use when detecting a particular issue type (e.g. a different threshold)
+    4. Save and load Imagelab to file
+    5. Report only specific issue types
     """
 
     imagelab = Imagelab(dataset_path)
