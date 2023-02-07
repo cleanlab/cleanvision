@@ -9,17 +9,9 @@ from tqdm import tqdm
 from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import SETS, DUPLICATE
+from cleanvision.utils.utils import get_max_n_jobs
 
 import multiprocessing
-
-# psutil is a package used to count physical cores for multiprocessing
-# This package is not necessary, because we can always fall back to logical cores as the default
-try:
-    import psutil
-
-    psutil_exists = True
-except ImportError as e:  # pragma: no cover
-    psutil_exists = False
 
 
 def get_hash(image: Image, params: Dict[str, Any]) -> str:
@@ -34,16 +26,22 @@ def get_hash(image: Image, params: Dict[str, Any]) -> str:
         raise ValueError("Hash type not supported")
 
 
-def compute_hash(arg: Dict[str, Any]) -> Dict[str, Any]:
-    path = arg["path"]
-    to_compute = arg["to_compute"]
-    params = arg["params"]
+def compute_hash(
+    path: str, to_compute: List[str], params: Dict[str, Any]
+) -> Dict[str, Any]:
     image = Image.open(path)
     result = {}
     result["path"] = path
     for issue_type in to_compute:
         result[issue_type] = get_hash(image, params[issue_type])
     return result
+
+
+def compute_hash_wrapper(arg: Dict[str, Any]) -> Dict[str, Any]:
+    path = arg["path"]
+    to_compute = arg["to_compute"]
+    params = arg["params"]
+    return compute_hash(path, to_compute, params)
 
 
 @register_issue_manager(DUPLICATE)
@@ -69,18 +67,6 @@ class DuplicateIssueManager(IssueManager):
                 k: v for k, v in params.get(issue_type, {}).items() if v is not None
             }
             self.params[issue_type] = {**self.params[issue_type], **non_none_params}
-
-    @staticmethod
-    def _get_hash(image: Image.Image, params: Dict[str, Any]) -> str:
-        hash_type, hash_size = params["hash_type"], params.get("hash_size", None)
-        if hash_type == "md5":
-            return hashlib.md5(image.tobytes()).hexdigest()
-        elif hash_type == "whash":
-            return str(imagehash.whash(image, hash_size=hash_size))
-        elif hash_type == "phash":
-            return str(imagehash.phash(image, hash_size=hash_size))
-        else:
-            raise ValueError("Hash type not supported")
 
     def _get_issue_types_to_compute(
         self, issue_types: List[str], imagelab_info: Dict[str, Any]
@@ -126,23 +112,12 @@ class DuplicateIssueManager(IssueManager):
         }
 
         if n_jobs is None:
-            if psutil_exists:
-                n_jobs = psutil.cpu_count(logical=False)  # physical cores
-            if not n_jobs:
-                # either psutil does not exist
-                # or psutil can return None when physical cores cannot be determined
-                # switch to logical cores
-                n_jobs = multiprocessing.cpu_count()
+            n_jobs = get_max_n_jobs()
 
+        results = []
         if n_jobs == 1:
             for path in tqdm(filepaths):
-                image = Image.open(path)
-                for issue_type in to_compute:
-                    hash = self._get_hash(image, self.params[issue_type])
-                    if hash in issue_type_hash_mapping[issue_type]:
-                        issue_type_hash_mapping[issue_type][hash].append(path)
-                    else:
-                        issue_type_hash_mapping[issue_type][hash] = [path]
+                results.append(compute_hash(path, to_compute, self.params))
         else:
             args = [
                 {"path": path, "to_compute": to_compute, "params": self.params}
@@ -151,19 +126,19 @@ class DuplicateIssueManager(IssueManager):
             with multiprocessing.Pool(n_jobs) as p:
                 results = list(
                     tqdm(
-                        p.imap_unordered(compute_hash, args, chunksize=10),
+                        p.imap_unordered(compute_hash_wrapper, args, chunksize=10),
                         total=len(filepaths),
                     )
                 )
-
             results = sorted(results, key=lambda r: r["path"])
-            for result in results:
-                for issue_type in to_compute:
-                    hash = result[issue_type]
-                    if hash in issue_type_hash_mapping[issue_type]:
-                        issue_type_hash_mapping[issue_type][hash].append(result["path"])
-                    else:
-                        issue_type_hash_mapping[issue_type][hash] = [result["path"]]
+
+        for result in results:
+            for issue_type in to_compute:
+                hash_str = result[issue_type]
+                if hash_str in issue_type_hash_mapping[issue_type]:
+                    issue_type_hash_mapping[issue_type][hash_str].append(result["path"])
+                else:
+                    issue_type_hash_mapping[issue_type][hash_str] = [result["path"]]
 
         self.issues = pd.DataFrame(index=filepaths)
         self._update_info(self.issue_types, issue_type_hash_mapping, imagelab_info)

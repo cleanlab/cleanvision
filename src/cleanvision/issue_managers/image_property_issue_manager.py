@@ -14,6 +14,7 @@ from cleanvision.issue_managers.image_property import (
 )
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import IMAGE_PROPERTY
+from cleanvision.utils.utils import get_max_n_jobs
 
 import multiprocessing
 from cleanvision.issue_managers.image_property import (
@@ -24,17 +25,11 @@ from cleanvision.issue_managers.image_property import (
     calc_color_space,
 )
 
-# psutil is a package used to count physical cores for multiprocessing
-# This package is not necessary, because we can always fall back to logical cores as the default
-try:
-    import psutil
 
-    psutil_exists = True
-except ImportError as e:  # pragma: no cover
-    psutil_exists = False
-
-
-def compute_scores(arg: Dict[str, Any]) -> Dict[str, Any]:
+def compute_scores(
+    path: str,
+    to_compute: List[str],
+) -> Dict[str, Any]:
     compute_functions = {
         IssueType.DARK.value: calc_brightness,
         IssueType.LIGHT.value: calc_brightness,
@@ -43,14 +38,18 @@ def compute_scores(arg: Dict[str, Any]) -> Dict[str, Any]:
         IssueType.BLURRY.value: calc_blurriness,
         IssueType.GRAYSCALE.value: calc_color_space,
     }
-    to_compute = arg["to_compute"]
-    path = arg["path"]
     image = Image.open(path)
-    results = {}
+    results: Dict[str, Any] = {}
     results["path"] = path
     for issue_type in to_compute:
         results[issue_type] = compute_functions[issue_type](image)
     return results
+
+
+def compute_scores_wrapper(arg: Dict[str, Any]) -> Dict[str, Any]:
+    to_compute = arg["to_compute"]
+    path = arg["path"]
+    return compute_scores(path, to_compute)
 
 
 # Combined all issues which are to be detected using image properties under one class to save time on loading image
@@ -135,38 +134,32 @@ class ImagePropertyIssueManager(IssueManager):
         raw_scores: Dict[str, Any] = {issue_type: [] for issue_type in to_be_computed}
         if to_be_computed:
             if n_jobs is None:
-                if psutil_exists:
-                    n_jobs = psutil.cpu_count(logical=False)  # physical cores
-                if not n_jobs:
-                    # either psutil does not exist
-                    # or psutil can return None when physical cores cannot be determined
-                    # switch to logical cores
-                    n_jobs = multiprocessing.cpu_count()
+                n_jobs = get_max_n_jobs()
 
+            results = []
             if n_jobs == 1:
                 for path in tqdm(filepaths):
-                    image = Image.open(path)
-                    for issue_type in to_be_computed:
-                        raw_scores[issue_type].append(
-                            self.image_properties[issue_type].calculate(image)
-                        )
+                    results.append(compute_scores(path, to_be_computed))
             else:
                 args = [
                     {"to_compute": to_be_computed, "path": path}
                     for i, path in enumerate(filepaths)
                 ]
                 with multiprocessing.Pool(n_jobs) as p:
-                    computed_results = list(
+                    results = list(
                         tqdm(
-                            p.imap_unordered(compute_scores, args, chunksize=10),
+                            p.imap_unordered(
+                                compute_scores_wrapper, args, chunksize=10
+                            ),
                             total=len(filepaths),
                         )
                     )
 
-                computed_results = sorted(computed_results, key=lambda r: r["path"])
-                for result in computed_results:
-                    for issue_type in to_be_computed:
-                        raw_scores[issue_type].append(result[issue_type])
+                results = sorted(results, key=lambda r: r["path"])
+
+            for result in results:
+                for issue_type in to_be_computed:
+                    raw_scores[issue_type].append(result[issue_type])
 
         # update info
         self.update_info(raw_scores)
