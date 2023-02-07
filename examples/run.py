@@ -39,7 +39,7 @@ if __name__ == "__main__":
         image_files=blurry_images
     )  # visualize the given image files
 
-    # More info on issue checks
+    # Miscellaneous extra information about dataset and its issues
     print(list(imagelab.info.keys()), "\n")
     print(list(imagelab.info["statistics"].keys()))
     print(imagelab.info["statistics"]["brightness"][:10])
