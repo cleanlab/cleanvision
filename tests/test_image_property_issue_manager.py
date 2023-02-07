@@ -12,12 +12,8 @@ LIGHT = IssueType.LIGHT.value
 
 class TestImagePropertyIssueManager:
     @pytest.fixture()
-    def issue_manager(self, monkeypatch):
-        def mock_init(*args, **kwargs):
-            pass
-
-        monkeypatch.setattr(ImagePropertyIssueManager, "__init__", mock_init)
-        return ImagePropertyIssueManager(params={})
+    def issue_manager(self):
+        return ImagePropertyIssueManager()
 
     @pytest.fixture
     def set_default_params(self, issue_manager, monkeypatch):
@@ -30,9 +26,7 @@ class TestImagePropertyIssueManager:
                 LIGHT: {"threshold": 0.05},
             }
 
-        monkeypatch.setattr(
-            issue_manager, "get_default_params", mock_get_default_params
-        )
+        monkeypatch.setattr(issue_manager, "params", mock_get_default_params())
 
     @pytest.mark.usefixtures("set_default_params")
     @pytest.mark.parametrize(
@@ -67,8 +61,7 @@ class TestImagePropertyIssueManager:
         issue_manager: instance of ImagePropertyIssueManager
 
         """
-        assert not hasattr(issue_manager, "params")
-        issue_manager.set_params(params)
+        issue_manager.update_params(params)
         assert issue_manager.params == expected_params
 
     @pytest.fixture
