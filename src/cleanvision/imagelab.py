@@ -27,6 +27,17 @@ TImagelab = TypeVar("TImagelab", bound="Imagelab")
 
 class Imagelab:
     def __init__(self, data_path: str) -> None:
+        """
+
+        Parameters
+        ----------
+        data_path : str
+            Path to image files. Imagelab will recursively retrieve all image files from the specified path
+        Raises
+        ------
+        ValueError
+            If not images are found in the data_path
+        """
         self.filepaths: List[str] = get_filepaths(data_path)
         self.num_images: int = len(self.filepaths)
         if self.num_images == 0:
@@ -41,6 +52,12 @@ class Imagelab:
         self.path = ""
 
     def _set_default_config(self) -> Dict[str, Any]:
+        """
+
+        Returns
+        -------
+
+        """
         return {
             "visualize_num_images_per_row": 4,
             "report_num_top_issues_values": [3, 5, 10, len(self.issue_types)],
@@ -59,6 +76,7 @@ class Imagelab:
         }
 
     def list_default_issue_types(self) -> None:
+        """ """
         print("Default issue type checked by Imagelab:\n")
         print(
             *[issue_type.value for issue_type in self.config["default_issue_types"]],
@@ -66,6 +84,7 @@ class Imagelab:
         )
 
     def list_possible_issue_types(self) -> None:
+        """ """
         print("All possible issues checked by Imagelab:\n")
         issue_types = {issue_type.value for issue_type in IssueType}
         issue_types.update(ISSUE_MANAGER_REGISTRY.keys())
@@ -75,6 +94,16 @@ class Imagelab:
     def _get_issues_to_compute(
         self, issue_types_with_params: Optional[Dict[str, Any]]
     ) -> Dict[str, Any]:
+        """
+
+        Parameters
+        ----------
+        issue_types_with_params
+
+        Returns
+        -------
+
+        """
         if not issue_types_with_params:
             to_compute_issues_with_params: Dict[str, Any] = {
                 issue_type.value: {}
@@ -88,6 +117,16 @@ class Imagelab:
         return to_compute_issues_with_params
 
     def find_issues(self, issue_types: Optional[Dict[str, Any]] = None) -> None:
+        """
+
+        Parameters
+        ----------
+        issue_types
+
+        Returns
+        -------
+
+        """
         to_compute_issues_with_params = self._get_issues_to_compute(issue_types)
         print(
             f"Checking for {', '.join([issue_type for issue_type in to_compute_issues_with_params.keys()])} images ..."

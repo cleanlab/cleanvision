@@ -16,25 +16,25 @@ TYPES: List[str] = [
 ]  # filetypes supported by PIL
 
 
+# todo: make recursive an option
 def get_filepaths(
     dir_path: str,
 ) -> List[str]:
-    """
-    Used in initialization of ImageDataset Class
-    Obtains image files of supported types and
-    sorts them based on filenames numerically and alphabetically
+    """Gets paths of all image files in the dir_path recursively.
+     All image files with extension in TYPES are allowed.
+     Returns a sorted list of sorted filepaths
 
 
     Parameters
     ----------
-    dir_path: str (an attribute of ImageDataset Class)
-    a string represening the current working directory
+    dir_path: str
+    Path to the dir containing image files, can be relative or absolute path
 
 
     Returns
     -------
-    sorted_names: list[str]
-    a list of image filenames sorted numerically and alphabetically
+    list of str
+        Sorted list of image filepaths, note that all paths in this list are absolute paths
     """
 
     if not os.path.isdir(dir_path):
