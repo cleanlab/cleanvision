@@ -341,13 +341,13 @@ class Imagelab:
         Default usage
 
         .. code-block:: python
-        imagelab.report()
+            imagelab.report()
 
         Report specific issue types
 
         .. code-block:: python
-        issue_types = ["dark", "near_duplicates"]
-        imagelab.report(issue_types=issue_types)
+            issue_types = ["dark", "near_duplicates"]
+            imagelab.report(issue_types=issue_types)
 
         """
         assert isinstance(verbosity, int) and 0 < verbosity < 5
@@ -477,23 +477,23 @@ class Imagelab:
         To visualize random images from the dataset
 
         .. code-block:: python
-        imagelab.visualize()
+            imagelab.visualize()
 
         .. code-block:: python
-        imagelab.visualize(num_images=8)
+            imagelab.visualize(num_images=8)
 
         To visualize specfic images from the dataset
 
         .. code-block:: python
-        image_files = ["./dataset/cat.png", "./dataset/dog.png", "./dataset/mouse.png"]
-        imagelab.visualize(image_files=image_files)
+            image_files = ["./dataset/cat.png", "./dataset/dog.png", "./dataset/mouse.png"]
+            imagelab.visualize(image_files=image_files)
 
 
         To visualize top examples of specific issue types from the dataset
 
         .. code-block:: python
-        issue_types = ["dark", "odd_aspect_ratio"]
-        imagelab.visualize(issue_types=issue_types)
+            issue_types = ["dark", "odd_aspect_ratio"]
+            imagelab.visualize(issue_types=issue_types)
 
         """
         if issue_types:
