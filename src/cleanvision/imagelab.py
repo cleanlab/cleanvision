@@ -1,3 +1,6 @@
+"""Defines Imagelab class for finding all types of issues in image dataset
+"""
+
 import os
 import pickle
 from typing import List, Dict, Any, Optional, Tuple, TypeVar, Type
@@ -20,6 +23,8 @@ from cleanvision.utils.constants import (
 )
 from cleanvision.utils.utils import get_filepaths, deep_update_dict
 from cleanvision.utils.viz_manager import VizManager
+
+__all__ = ["Imagelab"]
 
 OBJECT_FILENAME = "imagelab.pkl"
 TImagelab = TypeVar("TImagelab", bound="Imagelab")
@@ -62,9 +67,6 @@ class Imagelab:
     info : dict
         This is a nested dictionary that contains statistics on images or other useful information,
         collected while checking for issues in the dataset.
-
-
-
 
     Raises
     ------
