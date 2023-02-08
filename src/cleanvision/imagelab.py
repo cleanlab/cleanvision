@@ -52,11 +52,13 @@ class Imagelab:
         self.path = ""
 
     def _set_default_config(self) -> Dict[str, Any]:
-        """
+        """Sets default values for various config variables used in Imagelab class
+        The naming convention for methods is {method_name}_{config_variable_name}
 
         Returns
         -------
-
+        Dict[str, Any]
+            Returns a dict with keys as config variables and their values as dict values
         """
         return {
             "visualize_num_images_per_row": 4,
