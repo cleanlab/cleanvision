@@ -78,9 +78,7 @@ class Imagelab:
         }
 
     def list_default_issue_types(self) -> None:
-        """
-        Prints a list of all issue types checked by default if no issue types are specified in imagelab.find_issues()
-        """
+        """Prints a list of all issue types checked by default if no issue types are specified in imagelab.find_issues()"""
 
         print("Default issue type checked by Imagelab:\n")
         print(
@@ -89,8 +87,7 @@ class Imagelab:
         )
 
     def list_possible_issue_types(self) -> None:
-        """
-        Prints a list of all possible issue types that can be checked in the dataset.
+        """Prints a list of all possible issue types that can be checked in the dataset.
         It will also include custom added issue types.
         """
         print("All possible issues checked by Imagelab:\n")
@@ -102,16 +99,6 @@ class Imagelab:
     def _get_issues_to_compute(
         self, issue_types_with_params: Optional[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """
-
-        Parameters
-        ----------
-        issue_types_with_params
-
-        Returns
-        -------
-
-        """
         if not issue_types_with_params:
             to_compute_issues_with_params: Dict[str, Any] = {
                 issue_type.value: {}
@@ -290,6 +277,16 @@ class Imagelab:
         examples_per_issue: Optional[int] = None,
         verbosity: int = 1,
     ) -> None:
+        """Prints a summary report of issues found in the dataset with their example images from the dataset.
+
+        Parameters
+        ----------
+        issue_types :
+        num_top_issues
+        max_prevalence
+        examples_per_issue
+        verbosity
+        """
         assert isinstance(verbosity, int) and 0 < verbosity < 5
 
         user_supplied_args = locals()
@@ -305,14 +302,14 @@ class Imagelab:
         issue_summary = self.issue_summary[
             self.issue_summary["issue_type"].isin(computed_issue_types)
         ]
-        self.print_issue_summary(issue_summary)
+        self._pprint_issue_summary(issue_summary)
 
         self.visualize(
             issue_types=computed_issue_types,
             examples_per_issue=report_args["examples_per_issue"],
         )
 
-    def print_issue_summary(self, issue_summary: pd.DataFrame) -> None:
+    def _pprint_issue_summary(self, issue_summary: pd.DataFrame) -> None:
         issue_summary_copy = issue_summary.copy()
         issue_summary_copy.dropna(axis=1, how="all", inplace=True)
         issue_summary_copy.fillna("N/A", inplace=True)
@@ -403,7 +400,7 @@ class Imagelab:
 
         num_images : int, optional
             Number of images to randomly visualize from the dataset
-            Used only when image_files and issue_types are empty
+            Used only when image_files and issue_types are empty, otherwise this argument will be ignored
 
         examples_per_issue : int, optional
             Number of top examples per issue type to visualize
@@ -411,6 +408,31 @@ class Imagelab:
 
         cell_size : Tuple[int, int]
             cell size of each image in the image grid when visualizing
+
+        Examples
+        --------
+
+        To visualize random images from the dataset
+
+        .. code-block:: python
+        imagelab.visualize()
+
+        .. code-block:: python
+        imagelab.visualize(num_images=8)
+
+        To visualize specfic images from the dataset
+
+        .. code-block:: python
+        image_files = ["./dataset/cat.png", "./dataset/dog.png", "./dataset/mouse.png"]
+        imagelab.visualize(image_files=image_files)
+
+
+        To visualize top examples of specific issue types from the dataset
+
+        .. code-block:: python
+        issue_types = ["dark", "odd_aspect_ratio"]
+        imagelab.visualize(issue_types=issue_types)
+
         """
         if issue_types:
             for issue_type in issue_types:
@@ -456,7 +478,7 @@ class Imagelab:
     def load(
         cls: Type[TImagelab], path: str, data_path: Optional[str] = None
     ) -> TImagelab:
-        """Loads Imagelab from file.
+        """Loads Imagelab from given path.
         `path` is the path to the saved Imagelab, not pickle file.
         `data_path` is the path to image dataset previously used in Imagelab.
         If the `data_path` is changed, Imagelab will not be loaded as some of its functionalities depend on it.
