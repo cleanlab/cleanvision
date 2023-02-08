@@ -374,10 +374,13 @@ class Imagelab:
         examples_per_issue: int = 4,
         cell_size: Tuple[int, int] = (2, 2),
     ) -> None:
-        """Visualization helper for images. This method has multipurpose and can be used for visualizaing:
+        """Visualization helper for images.
+
+        This method is multipurpose and can be used for visualizaing:
         1. Random images from the dataset
         2. Particular images with paths given in image_files
         3. Top examples of given issue_types found in the dataset
+
         If no image_files or issue_types are given, random images will be shown from the dataset.
         If specific image_files are given, it will override the argument issue_types and will show given image_files
         If image_files are not given and issue_types are given, top examples of given image_types will be shown
@@ -385,16 +388,21 @@ class Imagelab:
 
         Parameters
         ----------
+
         image_files : List[str], optional
             List of image filepaths to visualize
+
         issue_types: List[str], optional
             List of issue types to visualize
+
         num_images : int, optional
             Number of images to randomly visualize from the dataset
             Used only when image_files and issue_types are empty
+
         examples_per_issue : int, optional
             Number of top examples per issue type to visualize
             Used only when issue_types is given and image_files is empty
+
         cell_size : Tuple[int, int]
             cell size of each image in the image grid when visualizing
         """
