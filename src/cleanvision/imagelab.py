@@ -515,9 +515,14 @@ class Imagelab:
         return self.info["statistics"]
 
     def save(self, path: str) -> None:
-        """Saves this ImageLab to file (all files are in folder at path/).
+        """Saves this ImageLab instance to the given path.
         Your saved Imagelab should be loaded from the same version of the CleanVision package.
         This method does not save your image files.
+
+        Parameters
+        ----------
+        path : str
+            path at which to save the Imagelab instance
         """
         if os.path.exists(path):
             print(
