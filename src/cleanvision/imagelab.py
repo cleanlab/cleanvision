@@ -277,15 +277,43 @@ class Imagelab:
         examples_per_issue: Optional[int] = None,
         verbosity: int = 1,
     ) -> None:
-        """Prints a summary report of issues found in the dataset with their example images from the dataset.
+        """Prints a summary of issues found in the dataset with their example images from the dataset.
+        By default, if no arguments are specified, it reports the top issues found in the dataset.
+
+
 
         Parameters
         ----------
-        issue_types :
-        num_top_issues
-        max_prevalence
-        examples_per_issue
-        verbosity
+        issue_types : List[str], optional
+            List of issue types to report
+
+        num_top_issues : int, default=3
+            Number of top issues to report. It is ignored if issue_types is given
+
+        max_prevalence : float, default=0.5
+            Between 0 and 1.
+            Ignores the issue types from reporting if found in more than max_prevalence fraction of the dataset.
+            It is ignored if issue_types is given.
+
+        examples_per_issue : int, default=4
+            Number of examples to show for issue type reported.
+
+        verbosity : int, {1, 2, 3, 4}
+            Increasing verbosity increases the detail in the report output
+
+        Examples
+        --------
+        Default usage
+
+        .. code-block:: python
+        imagelab.report()
+
+        Report specific issue types
+
+        .. code-block:: python
+        issue_types = ["dark", "near_duplicates"]
+        imagelab.report(issue_types=issue_types)
+
         """
         assert isinstance(verbosity, int) and 0 < verbosity < 5
 
