@@ -280,8 +280,6 @@ class Imagelab:
         """Prints a summary of issues found in the dataset with their example images from the dataset.
         By default, if no arguments are specified, it reports the top issues found in the dataset.
 
-
-
         Parameters
         ----------
         issue_types : List[str], optional
@@ -416,7 +414,6 @@ class Imagelab:
         If specific image_files are given, it will override the argument issue_types and will show given image_files
         If image_files are not given and issue_types are given, top examples of given image_types will be shown
 
-
         Parameters
         ----------
 
@@ -507,10 +504,21 @@ class Imagelab:
         cls: Type[TImagelab], path: str, data_path: Optional[str] = None
     ) -> TImagelab:
         """Loads Imagelab from given path.
-        `path` is the path to the saved Imagelab, not pickle file.
-        `data_path` is the path to image dataset previously used in Imagelab.
-        If the `data_path` is changed, Imagelab will not be loaded as some of its functionalities depend on it.
-        You should be using the same version of the CleanVision package previously used when saving the Imagelab.
+
+
+        Parameters
+        ----------
+        path : str
+            Path to the saved Imagelab, not pickle file.
+        data_path : str
+            Path to image dataset previously used in Imagelab.
+            If the data_path is changed, Imagelab will not be loaded as some of its functionalities depend on it.
+            You should be using the same version of the CleanVision package previously used when saving the Imagelab.
+
+        Returns
+        -------
+        Imagelab
+            Returns a saved instance of Imagelab
         """
         if not os.path.exists(path):
             raise ValueError(f"No folder found at specified path: {path}")
