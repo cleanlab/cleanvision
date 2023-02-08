@@ -10,9 +10,9 @@ import multiprocessing
 try:
     import psutil
 
-    psutil_exists = True
+    PSUTIL_EXISTS = True
 except ImportError:  # pragma: no cover
-    psutil_exists = False
+    PSUTIL_EXISTS = False
 
 TYPES: List[str] = [
     "*.jpg",
@@ -28,7 +28,7 @@ TYPES: List[str] = [
 
 
 def get_max_n_jobs() -> int:
-    if psutil_exists:
+    if PSUTIL_EXISTS:
         n_jobs = psutil.cpu_count(logical=False)  # physical cores
     if not n_jobs:
         # either psutil does not exist
@@ -68,8 +68,6 @@ def get_filepaths(
             continue
         filepaths += filetype_images
 
-    if len(filepaths) < 1:
-        print(f"Warning: no images were found in {abs_dir_path}")
     return sorted(filepaths)  # sort image names alphabetically and numerically
 
 
