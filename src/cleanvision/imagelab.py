@@ -26,30 +26,65 @@ TImagelab = TypeVar("TImagelab", bound="Imagelab")
 
 
 class Imagelab:
-    def __init__(self, data_path: str) -> None:
-        """
+    """A single class to find all types of issues in image datasets.
 
-        Parameters
-        ----------
-        data_path : str
-            Path to image files. Imagelab will recursively retrieve all image files from the specified path
-        Raises
-        ------
-        ValueError
-            If not images are found in the data_path
-        """
-        self.filepaths: List[str] = get_filepaths(data_path)
-        self.num_images: int = len(self.filepaths)
-        if self.num_images == 0:
+    Parameters
+    ----------
+    data_path : str
+        Path to image files. Imagelab will recursively retrieve all image files from the specified path
+
+    Examples
+    --------
+
+    Basic usage of Imagelab class
+
+    .. code-block:: python
+        from cleanvision.imagelab import Imagelab
+        imagelab = Imagelab(data_path)
+        imagelab.find_issues()
+        imagelab.report()
+
+
+    Attributes
+    ----------
+    issues : pd.DataFrame
+        Dataframe containing scores on all issue types for all images in the dataset.
+        It has two types of columns for each issue type
+        1. <issue_type>_score - This column indicates the score of each image for that issue type. Lower scores imply
+        higher probability of issue_type being present in the image
+        2. <issue_type>_bool - This column indicates whether the issue_type is present in the image or not.
+
+
+    issue_summary:
+        Dataframe containing summary of all issue types found.
+        Specifically, it shows num_images of each issue found in the dataset
+
+    info : dict
+        This is a nested dictionary that contains statistics on images or other useful information,
+        collected while checking for issues in the dataset.
+
+
+
+
+    Raises
+    ------
+    ValueError
+        If not images are found in the data_path
+    """
+
+    def __init__(self, data_path: str) -> None:
+        self._filepaths: List[str] = get_filepaths(data_path)
+        self._num_images: int = len(self._filepaths)
+        if self._num_images == 0:
             raise ValueError(f"No images found in the specified path:{data_path}")
         self.info: Dict[str, Any] = {"statistics": {}}
         self.issue_summary: pd.DataFrame = pd.DataFrame(columns=["issue_type"])
-        self.issues: pd.DataFrame = pd.DataFrame(index=self.filepaths)
-        self.issue_types: List[str] = []
-        self.issue_managers: Dict[str, IssueManager] = {}
+        self.issues: pd.DataFrame = pd.DataFrame(index=self._filepaths)
+        self._issue_types: List[str] = []
+        self._issue_managers: Dict[str, IssueManager] = {}
         # can be loaded from a file later
-        self.config: Dict[str, Any] = self._set_default_config()
-        self.path = ""
+        self._config: Dict[str, Any] = self._set_default_config()
+        self._path = ""
 
     def _set_default_config(self) -> Dict[str, Any]:
         """Sets default values for various config variables used in Imagelab class
@@ -62,7 +97,7 @@ class Imagelab:
         """
         return {
             "visualize_num_images_per_row": 4,
-            "report_num_top_issues_values": [3, 5, 10, len(self.issue_types)],
+            "report_num_top_issues_values": [3, 5, 10, len(self._issue_types)],
             "report_examples_per_issue_values": [4, 8, 16, 32],
             "report_max_prevalence": 0.5,
             "default_issue_types": [
@@ -82,7 +117,7 @@ class Imagelab:
 
         print("Default issue type checked by Imagelab:\n")
         print(
-            *[issue_type.value for issue_type in self.config["default_issue_types"]],
+            *[issue_type.value for issue_type in self._config["default_issue_types"]],
             sep="\n",
         )
 
@@ -102,7 +137,7 @@ class Imagelab:
         if not issue_types_with_params:
             to_compute_issues_with_params: Dict[str, Any] = {
                 issue_type.value: {}
-                for issue_type in self.config["default_issue_types"]
+                for issue_type in self._config["default_issue_types"]
             }
         else:
             to_compute_issues_with_params = {
@@ -157,8 +192,8 @@ class Imagelab:
         )
 
         # update issue_types
-        self.issue_types = list(
-            set(self.issue_types).union(set(to_compute_issues_with_params.keys()))
+        self._issue_types = list(
+            set(self._issue_types).union(set(to_compute_issues_with_params.keys()))
         )
 
         # set issue managers
@@ -167,9 +202,9 @@ class Imagelab:
 
         # find issues
         for issue_type_group, params in issue_type_groups.items():
-            issue_manager = self.issue_managers[issue_type_group]
+            issue_manager = self._issue_managers[issue_type_group]
             issue_manager.find_issues(
-                params=params, filepaths=self.filepaths, imagelab_info=self.info
+                params=params, filepaths=self._filepaths, imagelab_info=self.info
             )
 
             # update issues, issue_summary and info
@@ -233,7 +268,7 @@ class Imagelab:
 
     def _set_issue_managers(self, issue_type_groups: Dict[str, Any]) -> None:
         for issue_type_group, params in issue_type_groups.items():
-            self.issue_managers[issue_type_group] = IssueManagerFactory.from_str(
+            self._issue_managers[issue_type_group] = IssueManagerFactory.from_str(
                 issue_type_group
             )()
 
@@ -241,7 +276,7 @@ class Imagelab:
         topk_issues = []
         # Assumes issue_summary is sorted in descending order
         for row in self.issue_summary.itertuples(index=False):
-            if getattr(row, "num_images") / self.num_images < max_prevalence:
+            if getattr(row, "num_images") / self._num_images < max_prevalence:
                 topk_issues.append(getattr(row, "issue_type"))
             else:
                 print(
@@ -254,11 +289,11 @@ class Imagelab:
         self, verbosity: int, user_supplied_args: Dict[str, Any]
     ) -> Dict[str, Any]:
         report_args = {
-            "num_top_issues": self.config["report_num_top_issues_values"][
+            "num_top_issues": self._config["report_num_top_issues_values"][
                 verbosity - 1
             ],
-            "max_prevalence": self.config["report_max_prevalence"],
-            "examples_per_issue": self.config["report_examples_per_issue_values"][
+            "max_prevalence": self._config["report_max_prevalence"],
+            "examples_per_issue": self._config["report_examples_per_issue_values"][
                 verbosity - 1
             ],
         }
@@ -343,11 +378,11 @@ class Imagelab:
 
     def _get_issue_manager(self, issue_type_str: str) -> IssueManager:
         if issue_type_str in IMAGE_PROPERTY_ISSUE_TYPES_LIST:
-            return self.issue_managers[IMAGE_PROPERTY]
+            return self._issue_managers[IMAGE_PROPERTY]
         elif issue_type_str in DUPLICATE_ISSUE_TYPES_LIST:
-            return self.issue_managers[DUPLICATE]
+            return self._issue_managers[DUPLICATE]
         else:
-            return self.issue_managers[issue_type_str]
+            return self._issue_managers[issue_type_str]
 
     def _visualize(
         self,
@@ -372,7 +407,7 @@ class Imagelab:
             if sorted_filepaths:
                 VizManager.individual_images(
                     filepaths=sorted_filepaths,
-                    ncols=self.config["visualize_num_images_per_row"],
+                    ncols=self._config["visualize_num_images_per_row"],
                     cell_size=cell_size,
                     cmap="gray"
                     if issue_type_str == IssueType.GRAYSCALE.value
@@ -391,7 +426,7 @@ class Imagelab:
             if image_sets:
                 VizManager.image_sets(
                     image_sets,
-                    ncols=self.config["visualize_num_images_per_row"],
+                    ncols=self._config["visualize_num_images_per_row"],
                     cell_size=cell_size,
                 )
 
@@ -465,11 +500,11 @@ class Imagelab:
         else:
             if not image_files:
                 image_files = list(
-                    np.random.choice(self.filepaths, num_images, replace=False)
+                    np.random.choice(self._filepaths, num_images, replace=False)
                 )
             VizManager.individual_images(
                 filepaths=image_files,
-                ncols=self.config["visualize_num_images_per_row"],
+                ncols=self._config["visualize_num_images_per_row"],
                 cell_size=cell_size,
             )
 
@@ -489,8 +524,8 @@ class Imagelab:
         else:
             os.mkdir(path)
 
-        self.path = path
-        object_file = os.path.join(self.path, OBJECT_FILENAME)
+        self._path = path
+        object_file = os.path.join(self._path, OBJECT_FILENAME)
         with open(object_file, "wb") as f:
             pickle.dump(self, f)
 
@@ -529,7 +564,7 @@ class Imagelab:
 
         if data_path is not None:
             filepaths = get_filepaths(data_path)
-            if set(filepaths) != set(imagelab.filepaths):
+            if set(filepaths) != set(imagelab._filepaths):
                 raise ValueError(
                     "Absolute path of image(s) has changed in the dataset. Cannot load Imagelab."
                 )
