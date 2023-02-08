@@ -78,7 +78,10 @@ class Imagelab:
         }
 
     def list_default_issue_types(self) -> None:
-        """Prints a list of all issue types checked by default if no issue types are specified in imagelab.find_issues()"""
+        """
+        Prints a list of all issue types checked by default if no issue types are specified in imagelab.find_issues()
+        """
+
         print("Default issue type checked by Imagelab:\n")
         print(
             *[issue_type.value for issue_type in self.config["default_issue_types"]],
@@ -86,7 +89,10 @@ class Imagelab:
         )
 
     def list_possible_issue_types(self) -> None:
-        """ """
+        """
+        Prints a list of all possible issue types that can be checked in the dataset.
+        It will also include custom added issue types.
+        """
         print("All possible issues checked by Imagelab:\n")
         issue_types = {issue_type.value for issue_type in IssueType}
         issue_types.update(ISSUE_MANAGER_REGISTRY.keys())
