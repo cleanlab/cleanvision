@@ -118,15 +118,44 @@ class Imagelab:
             }
         return to_compute_issues_with_params
 
-    def find_issues(self, issue_types: Optional[Dict[str, Any]] = None) -> None:
-        """
+    def find_issues(
+        self, issue_types: Optional[Dict[str, Dict[str, Any]]] = None
+    ) -> None:
+        """Finds issues in the dataset.
+        If issue_types is empty or not given, dataset is checked for all default issue types.
 
         Parameters
         ----------
-        issue_types
+        issue_types : Dict[str, Any], optional
+            Dict with issue_types to check as keys
+            The value of this dict is a dict containing hyperparameters for each issue type
 
-        Returns
-        -------
+        Examples
+        --------
+        To check for all default issue types use
+
+        .. code-block:: python
+            imagelab.find_issues()
+
+        To check for specific issue types with default settings
+
+        .. code-block:: python
+            issue_types = {
+                "dark": {},
+                "blurry": {}
+            }
+            imagelab.find_issues(issue_types)
+
+        To check for issue types with different hyperparameters.
+
+        .. code-block:: python
+            issue_types = {
+                "dark": {"threshold": 0.1},
+                "blurry": {}
+            }
+            imagelab.find_issues(issue_types)
+
+        Different issue types can have different hyperparameters
 
         """
         to_compute_issues_with_params = self._get_issues_to_compute(issue_types)
@@ -159,6 +188,9 @@ class Imagelab:
             by=["num_images"], ascending=False
         )
         self.issue_summary = self.issue_summary.reset_index(drop=True)
+        print(
+            "Issue checks completed. To see a detailed report of issues found use imagelab.report()."
+        )
         return
 
     def _update_info(self, issue_manager_info: Dict[str, Any]) -> None:
