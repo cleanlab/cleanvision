@@ -28,7 +28,7 @@ def get_filepaths(
     Parameters
     ----------
     dir_path: str
-    Path to the dir containing image files, can be relative or absolute path
+        Path to the dir containing image files, can be relative or absolute path
 
 
     Returns
