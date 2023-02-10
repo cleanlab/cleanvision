@@ -12,9 +12,9 @@ and [venv](https://docs.python.org/3/library/venv.html). You can
 the tools and choose what is right for you. Here, we'll explain how to get set
 up with venv, which is built in to Python 3.
 
-```console
-$ python3 -m venv ./ENV  # create a new virtual environment in the directory ENV
-$ source ./ENV/bin/activate  # switch to using the virtual environment
+```shell
+python3 -m venv ./ENV  # create a new virtual environment in the directory ENV
+source ./ENV/bin/activate  # switch to using the virtual environment
 ```
 
 You only need to create the virtual environment once, but you will need to
@@ -22,38 +22,51 @@ activate it every time you start a new shell. Once the virtual environment is
 activated, the `pip install` commands below will install dependencies into the
 virtual environment rather than your system Python installation.
 
-## Installing dependencies and CleanVision
+## Installing dependencies and cleanvision package
 
 Run the following commands in the repository's root directory.
-
-1. Install development requirements with `pip install -r requires.txt`
-
-2. Install CleanVision as an editable package with `pip install -e .`
+1. Upgrade pip
+```shell
+python -m pip install --upgrade pip
+```
+2. Install CleanVision as an editable package
+```shell
+pip install -e .
+```
+3. Install development requirements
+```shell
+pip install -r requirements-dev.txt
+```
+4. Inorder to set the path to pytest, it is required to deactivate and activate the environment when pytest is installed.
+```shell
+deactivate
+source ./ENV/bin/activate
+```
 
 ## Testing
 
 **Run all the tests:**
 
-```console
-$ pytest
+```shell
+pytest
 ```
 
 **Run a specific file or test:**
 
-```
-$ pytest -k <filename or filter expression>
+```shell
+pytest -k <filename or filter expression>
 ```
 
 **Run with verbose output:**
 
-```
-$ pytest --verbose
+```shell
+pytest --verbose
 ```
 
 **Run with code coverage:**
 
-```
-$ pytest --cov=cleanvision/ --cov-config .coveragerc --cov-report=html
+```shell
+pytest --cov=cleanvision --cov-config .coveragerc --cov-report=html
 ```
 
 The coverage report will be available in `coverage_html_report/index.html`,
@@ -65,8 +78,8 @@ CleanVision uses [mypy](https://mypy.readthedocs.io/en/stable/) typing. Type che
 
 **Check typing in all files:**
 
-```
-$ mypy --strict --install-types --non-interactive cleanvision
+```shell
+mypy --strict --install-types --non-interactive --python-version 3.7  src
 ```
 
 ## How to style new code contributions
@@ -83,8 +96,8 @@ This repo uses the [pre-commit framework](https://pre-commit.com/) to easily
 set up code style checks that run automatically whenever you make a commit.
 You can install the git hook scripts with:
 
-```console
-$ pre-commit install
+```shell
+pre-commit install
 ```
 
 ### EditorConfig
