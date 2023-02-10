@@ -52,6 +52,15 @@ autodoc_inherit_docstrings = True
 # Order functions displayed by the order of source code
 autodoc_member_order = "bysource"
 
+# -- Options for copybutton extension -----------------------------------------
+
+# Strip input prompts when copying code blocks. Supports:
+# - Python Repl + continuation prompt
+# - Bash prompt
+# - ipython + continuation prompt
+# - jupyter-console + continuation prompt
+copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: "
+copybutton_prompt_is_regexp = True
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
