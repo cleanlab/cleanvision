@@ -10,10 +10,10 @@ sys.path.insert(0, os.path.abspath("../../"))
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'cleanvision'
+project = "cleanvision"
 copyright = f"{datetime.datetime.now().year}, Cleanlab Inc."
-author = 'Cleanlab'
-release = '2023'
+author = "Cleanlab"
+release = "2023"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -32,7 +32,7 @@ extensions = [
     "sphinx_autodoc_typehints",
 ]
 
-templates_path = ['_templates']
+templates_path = ["_templates"]
 exclude_patterns = []
 
 # --------- Autodoc configuration --------------------------------------------
@@ -57,11 +57,9 @@ autodoc_member_order = "bysource"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_title = ""
-html_theme = 'furo'
-html_static_path = ['_static']
-html_logo = (
-    "https://raw.githubusercontent.com/cleanlab/assets/master/cleanlab/cleanlab_logo_only.png"
-)
+html_theme = "furo"
+html_static_path = ["_static"]
+html_logo = "https://raw.githubusercontent.com/cleanlab/assets/master/cleanlab/cleanlab_logo_only.png"
 
 html_theme_options = {
     "footer_icons": [
