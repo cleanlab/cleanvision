@@ -54,8 +54,8 @@ CleanVision diagnoses many types of issues, but you can also check for only spec
 
 More on how to get started with CleanVision:
 
-- `example script <https://github.com/cleanlab/cleanvision/blob/main/examples/run.py>`
-- `jupyter notebook demo <https://github.com/cleanlab/cleanvision/blob/main/notebooks/demo.ipynb>`
+- `example script <https://github.com/cleanlab/cleanvision/blob/main/examples/run.py>`_
+- `jupyter notebook demo <https://github.com/cleanlab/cleanvision/blob/main/notebooks/demo.ipynb>`_
 
 
 .. toctree::
