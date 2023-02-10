@@ -1,7 +1,6 @@
 # Python dependencies for development
 coverage != 6.3, != 6.3.*
 mypy
-pandas-stubs
 pre-commit
 pytest
 pytest-cov
