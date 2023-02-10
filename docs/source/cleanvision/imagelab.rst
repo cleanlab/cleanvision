@@ -1,5 +1,5 @@
 Imagelab
-==============
+========
 
 .. automodule:: src.cleanvision.imagelab
    :autosummary:
