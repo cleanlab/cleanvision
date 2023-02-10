@@ -26,6 +26,7 @@ class IssueManager(ABC):
     @staticmethod
     def check_params(**kwargs: Any) -> None:
         allowed_kwargs: Dict[str, Any] = {
+            "params": Dict[str, Any],
             "filepaths": List[str],
             "imagelab_info": Dict[str, Any],
         }
@@ -50,7 +51,7 @@ class IssueManager(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def set_params(self, params: Dict[str, Any]) -> None:
+    def update_params(self, params: Dict[str, Any]) -> None:
         """Sets params for an issue manager. Default params will be overridden by user provided params"""
         raise NotImplementedError
 
