@@ -39,14 +39,10 @@ Using CleanVision to audit your image data is as simple as running the code belo
 
 .. toctree::
    :hidden:
+   :maxdepth: 3
+   :caption: API Reference
 
    Quickstart <self>
-
-.. toctree::
-   :hidden:
-   :maxdepth: 3
-   :caption: API Reference:
-
    cleanvision/imagelab
    cleanvision/issue_managers/image_property
    cleanvision/issue_managers/image_property_issue_manager
