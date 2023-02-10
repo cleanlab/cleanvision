@@ -15,7 +15,7 @@ to find problems in your dataset, which you may want to address before applying 
 
 
 Installation
-===========
+============
 
 To install cleanvision using pip:
 
