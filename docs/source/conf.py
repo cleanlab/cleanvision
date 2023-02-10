@@ -56,8 +56,9 @@ autodoc_member_order = "bysource"
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'alabaster'
+html_theme = 'nature'
 html_static_path = ['_static']
+html_sidebars = { '**': ['globaltoc.html', 'searchbox.html'] }
 
 # https://stackoverflow.com/questions/12206334/sphinx-autosummary-toctree-contains-reference-to-nonexisting-document-warnings
 numpydoc_show_class_members = True
