@@ -6,3 +6,4 @@ pre-commit
 pytest
 pytest-cov
 pytest-lazy-fixture
+furo
