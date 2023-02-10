@@ -6,3 +6,4 @@ sphinx-multiversion==0.2.4
 sphinx-copybutton==0.5.0
 sphinxcontrib-katex==0.8.6
 sphinx-autodoc-typehints==1.19.2
+furo==2022.06.21
