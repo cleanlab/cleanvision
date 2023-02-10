@@ -14,7 +14,7 @@ over/under-exposed, etc. This data-centric AI package is designed as a quick fir
 to find problems in your dataset, which you may want to address before applying machine learning.
 
 
-Instalation
+Installation
 ===========
 
 To install cleanvision using pip:
