@@ -38,6 +38,9 @@ def plot_image_grid(
     grid = ImageGrid(fig, 111, nrows_ncols=(nrows, ncols), axes_pad=0.2, share_all=True)
 
     for ax, path in zip(grid, filepaths):
+        image = Image.open(path)
+        if image.mode == "L" and cmap is None:
+            cmap = "gray"
         # Iterating over the grid returns the Axes.
         ax.set_xticklabels([])
         ax.set_xticks([])

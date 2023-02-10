@@ -1,8 +1,8 @@
 import os
 import pickle
-from typing import List, Dict, Any, Optional, Tuple
-from typing import TypeVar
+from typing import List, Dict, Any, Optional, Tuple, TypeVar, Type
 
+import numpy as np
 import pandas as pd
 
 from cleanvision.issue_managers import (
@@ -70,6 +70,7 @@ class Imagelab:
         issue_types = {issue_type.value for issue_type in IssueType}
         issue_types.update(ISSUE_MANAGER_REGISTRY.keys())
         print(*issue_types, sep="\n")
+        print("\n")
 
     def _get_issues_to_compute(
         self, issue_types_with_params: Optional[Dict[str, Any]]
@@ -102,9 +103,11 @@ class Imagelab:
         self._set_issue_managers(issue_type_groups)
 
         # find issues
-        for issue_type_group in issue_type_groups:
+        for issue_type_group, params in issue_type_groups.items():
             issue_manager = self.issue_managers[issue_type_group]
-            issue_manager.find_issues(filepaths=self.filepaths, imagelab_info=self.info)
+            issue_manager.find_issues(
+                params=params, filepaths=self.filepaths, imagelab_info=self.info
+            )
 
             # update issues, issue_summary and info
             self._update_issues(issue_manager.issues)
@@ -166,7 +169,7 @@ class Imagelab:
         for issue_type_group, params in issue_type_groups.items():
             self.issue_managers[issue_type_group] = IssueManagerFactory.from_str(
                 issue_type_group
-            )(params)
+            )()
 
     def _get_topk_issues(self, num_top_issues: int, max_prevalence: float) -> List[str]:
         topk_issues = []
@@ -225,9 +228,12 @@ class Imagelab:
         ]
         self.print_issue_summary(issue_summary)
 
-        self.visualize(computed_issue_types, report_args["examples_per_issue"])
+        self.visualize(
+            issue_types=computed_issue_types,
+            examples_per_issue=report_args["examples_per_issue"],
+        )
 
-    def print_issue_summary(self, issue_summary):
+    def print_issue_summary(self, issue_summary: pd.DataFrame) -> None:
         issue_summary_copy = issue_summary.copy()
         issue_summary_copy.dropna(axis=1, how="all", inplace=True)
         issue_summary_copy.fillna("N/A", inplace=True)
@@ -289,12 +295,25 @@ class Imagelab:
 
     def visualize(
         self,
-        issue_types: List[str],
+        image_files: Optional[List[str]] = None,
+        issue_types: Optional[List[str]] = None,
+        num_images: int = 4,
         examples_per_issue: int = 4,
         cell_size: Tuple[int, int] = (2, 2),
     ) -> None:
-        for issue_type in issue_types:
-            self._visualize(issue_type, examples_per_issue, cell_size)
+        if issue_types:
+            for issue_type in issue_types:
+                self._visualize(issue_type, examples_per_issue, cell_size)
+        else:
+            if not image_files:
+                image_files = list(
+                    np.random.choice(self.filepaths, num_images, replace=False)
+                )
+            VizManager.individual_images(
+                filepaths=image_files,
+                ncols=self.config["visualize_num_images_per_row"],
+                cell_size=cell_size,
+            )
 
     # Todo: Improve mypy dict typechecking so this does not return any
     def get_stats(self) -> Any:
@@ -323,7 +342,9 @@ class Imagelab:
         )
 
     @classmethod
-    def load(cls, path: str, data_path=None) -> TImagelab:
+    def load(
+        cls: Type[TImagelab], path: str, data_path: Optional[str] = None
+    ) -> TImagelab:
         """Loads Imagelab from file.
         `path` is the path to the saved Imagelab, not pickle file.
         `data_path` is the path to image dataset previously used in Imagelab.
@@ -335,7 +356,7 @@ class Imagelab:
 
         object_file = os.path.join(path, OBJECT_FILENAME)
         with open(object_file, "rb") as f:
-            imagelab = pickle.load(f)
+            imagelab: TImagelab = pickle.load(f)
 
         if data_path is not None:
             filepaths = get_filepaths(data_path)
