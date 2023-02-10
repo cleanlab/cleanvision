@@ -21,7 +21,7 @@ To install cleanvision using pip:
 
 .. code-block:: console
 
-   (.venv) $ pip install cleanvision
+   $ pip install cleanvision
 
 Quickstart
 ===========
