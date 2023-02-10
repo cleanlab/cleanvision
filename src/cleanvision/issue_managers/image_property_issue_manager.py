@@ -22,10 +22,10 @@ class ImagePropertyIssueManager(IssueManager):
     issue_name: str = IMAGE_PROPERTY
     visualization: str = "individual_images"
 
-    def __init__(self, params: Dict[str, Any]) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.issue_types: List[str] = list(params.keys())
-        self.set_params(params)
+        self.issue_types: List[str] = []
+        self.params = self.get_default_params()
         self.image_properties = self._get_image_properties()
 
     def get_default_params(self) -> Dict[str, Any]:
@@ -42,8 +42,7 @@ class ImagePropertyIssueManager(IssueManager):
             IssueType.GRAYSCALE.value: {},
         }
 
-    def set_params(self, params: Dict[str, Any]) -> None:
-        self.params = self.get_default_params()
+    def update_params(self, params: Dict[str, Any]) -> None:
         for issue_type in self.params:
             non_none_params = {
                 k: v for k, v in params.get(issue_type, {}).items() if v is not None
@@ -83,13 +82,18 @@ class ImagePropertyIssueManager(IssueManager):
     def find_issues(
         self,
         *,
+        params: Optional[Dict[str, Any]] = None,
         filepaths: Optional[List[str]] = None,
         imagelab_info: Optional[Dict[str, Any]] = None,
         **kwargs: Any,
     ) -> None:
         super().find_issues(**kwargs)
+        assert params is not None
         assert imagelab_info is not None
         assert filepaths is not None
+
+        self.issue_types = list(params.keys())
+        self.update_params(params)
 
         defer_set = self._get_defer_set(self.issue_types, imagelab_info)
 
