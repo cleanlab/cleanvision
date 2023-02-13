@@ -11,4 +11,5 @@ pandas
 numpy
 matplotlib
 tqdm
+imagehash
 
