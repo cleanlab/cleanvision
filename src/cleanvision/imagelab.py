@@ -557,7 +557,7 @@ class Imagelab:
             Path to the saved Imagelab, not pickle file.
         data_path : str
             Path to image dataset previously used in Imagelab.
-            If the data_path is changed, Imagelab will not be loaded as some of its functionalities depend on it.
+            If the `data_path` is changed, Imagelab will not be loaded as some of its functionalities depend on it.
             You should be using the same version of the CleanVision package previously used when saving the Imagelab.
 
         Returns
