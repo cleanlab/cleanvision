@@ -318,8 +318,8 @@ class Imagelab:
         examples_per_issue: Optional[int] = None,
         verbosity: int = 1,
     ) -> None:
-        """Prints a summary of issues found in the dataset with their example images from the dataset.
-        By default, if no arguments are specified, it reports the top issues found in the dataset.
+        """Prints summary of the issues found in your dataset.
+        By default, this method depicts the images representing top-most severe instances of each issue type.
 
         Parameters
         ----------
