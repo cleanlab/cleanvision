@@ -458,7 +458,7 @@ class Imagelab:
         ----------
 
         image_files : List[str], optional
-            List of image filepaths to visualize
+            List of filepaths for images to visualize.
 
         issue_types: List[str], optional
             List of issue types to visualize. For each type of issue, will show a few images representing the top-most severe instances of this issue in the dataset.
