@@ -1,4 +1,7 @@
-"""Defines Imagelab class for finding all types of issues in image dataset
+"""
+Imagelab is the core class in CleanVision for finding all types of issues in an image dataset.
+The methods in this module should suffice for most use-cases,
+but advanced users can get extra flexibility via the code in other CleanVision modules.
 """
 
 import os
