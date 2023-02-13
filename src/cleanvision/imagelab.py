@@ -323,7 +323,8 @@ class Imagelab:
         Parameters
         ----------
         issue_types : List[str], optional
-            List of issue types to report
+            List of issue types to consider in report.
+            This must be subset of the issue types specified in ``imagelab.find_issues()``.
 
         num_top_issues : int, default=3
             By default, this report will only cover the top most prevalent types of issues in the dataset, specified by this value. You can specify `issue_types` instead to override this and include specific types of issues in the report. 
