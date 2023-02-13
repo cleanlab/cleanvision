@@ -1,7 +1,7 @@
 Viz Manager
 ==============
 
-.. automodule:: src.cleanvision.utils.viz_manager
+.. automodule:: cleanvision.utils.viz_manager
    :imported-members:
    :autosummary:
    :members:
