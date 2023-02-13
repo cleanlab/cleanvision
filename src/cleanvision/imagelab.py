@@ -53,11 +53,11 @@ class Imagelab:
     Attributes
     ----------
     issues : pd.DataFrame
-        Dataframe containing scores on all issue types for all images in the dataset.
-        It has two types of columns for each issue type
-        1. <issue_type>_score - This column indicates the score of each image for that issue type. Lower scores imply
-        higher probability of issue_type being present in the image
-        2. <issue_type>_bool - This column indicates whether the issue_type is present in the image or not.
+        Dataframe where each row corresponds to an image and columns specify which issues were detected in this image.
+        It has two types of columns for each issue type:
+        1. <issue_type>_score - This column contains a quality-score for each image for a particular type of issue. 
+        Scores are between 0 and 1, lower values indicate images exhibiting more severe instances of this issue.
+        2. <issue_type>_bool - This column indicates whether or not the issue_type is detected in each image (a binary decision rather than numeric score).
 
 
     issue_summary:
