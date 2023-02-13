@@ -10,4 +10,5 @@ furo==2022.06.21
 pandas
 numpy
 matplotlib
+tqdm
 
