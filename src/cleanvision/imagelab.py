@@ -472,7 +472,7 @@ class Imagelab:
             Used only when issue_types is given and image_files is empty
 
         cell_size : Tuple[int, int], optional
-            cell size of each image in the image grid when visualizing
+            Dimensions controlling the size of each image in the depicted image grid.
 
         Examples
         --------
