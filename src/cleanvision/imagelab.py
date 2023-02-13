@@ -326,7 +326,7 @@ class Imagelab:
             List of issue types to report
 
         num_top_issues : int, default=3
-            Number of top issues to report. It is ignored if issue_types is given
+            By default, this report will only cover the top most prevalent types of issues in the dataset, specified by this value. You can specify `issue_types` instead to override this and include specific types of issues in the report. 
 
         max_prevalence : float, default=0.5
             Between 0 and 1.
