@@ -43,6 +43,23 @@ class ImageProperty(ABC):
         return scores < threshold
 
 
+def calc_brightness(image: Image) -> Union[float, str]:
+    stat = ImageStat.Stat(image)
+    try:
+        red, green, blue = stat.mean
+    except ValueError:
+        red, green, blue = (
+            stat.mean[0],
+            stat.mean[0],
+            stat.mean[0],
+        )  # deals with black and white images
+
+    cur_bright = (
+        math.sqrt(0.241 * (red**2) + 0.691 * (green**2) + 0.068 * (blue**2))
+    ) / 255
+    return cur_bright
+
+
 class BrightnessProperty(ImageProperty):
     name: str = "brightness"
 
@@ -50,19 +67,7 @@ class BrightnessProperty(ImageProperty):
         self.issue_type = issue_type
 
     def calculate(self, image: Image) -> Union[float, str]:
-        stat = ImageStat.Stat(image)
-        try:
-            red, green, blue = stat.mean
-        except ValueError:
-            red, green, blue = (
-                stat.mean[0],
-                stat.mean[0],
-                stat.mean[0],
-            )  # deals with black and white images
-
-        cur_bright = calculate_brightness(red, green, blue)
-
-        return cur_bright
+        return calc_brightness(image)
 
     def get_scores(
         self,
@@ -81,14 +86,18 @@ class BrightnessProperty(ImageProperty):
         return scores
 
 
+def calc_aspect_ratio(image: Image) -> Union[float, str]:
+    width, height = image.size
+    size_score = min(width / height, height / width)  # consider extreme shapes
+    assert isinstance(size_score, float)
+    return size_score
+
+
 class AspectRatioProperty(ImageProperty):
     name: str = "aspect_ratio"
 
     def calculate(self, image: Image) -> Union[float, str]:
-        width, height = image.size
-        size_score = min(width / height, height / width)  # consider extreme shapes
-        assert isinstance(size_score, float)
-        return size_score
+        return calc_aspect_ratio(image)
 
     def get_scores(
         self,
@@ -103,15 +112,19 @@ class AspectRatioProperty(ImageProperty):
         return scores
 
 
+def calc_entropy(image: Image) -> Union[float, str]:
+    entropy = image.entropy()
+    assert isinstance(
+        entropy, float
+    )  # PIL does not have type ann stub so need to assert function return
+    return entropy
+
+
 class EntropyProperty(ImageProperty):
     name: str = "entropy"
 
     def calculate(self, image: Image) -> Union[float, str]:
-        entropy = image.entropy()
-        assert isinstance(
-            entropy, float
-        )  # PIL does not have type ann stub so need to assert function return
-        return entropy
+        return calc_entropy(image)
 
     def get_scores(
         self,
@@ -129,16 +142,20 @@ class EntropyProperty(ImageProperty):
         return scores
 
 
+def calc_blurriness(image: Image) -> Union[float, str]:
+    edges = get_edges(image)
+    blurriness = ImageStat.Stat(edges).var[0]
+    assert isinstance(
+        blurriness, float
+    )  # ImageStat.Stat returns float but no typestub for package
+    return blurriness
+
+
 class BlurrinessProperty(ImageProperty):
     name = "blurriness"
 
     def calculate(self, image: Image) -> Union[float, str]:
-        edges = get_edges(image)
-        blurriness = ImageStat.Stat(edges).var[0]
-        assert isinstance(
-            blurriness, float
-        )  # ImageStat.Stat returns float but no typestub for package
-        return blurriness
+        return calc_blurriness(image)
 
     def get_scores(
         self,
@@ -171,11 +188,15 @@ def calculate_brightness(red: float, green: float, blue: float) -> float:
     return cur_bright
 
 
+def calc_color_space(image: Image) -> Union[float, str]:
+    return get_image_mode(image)
+
+
 class ColorSpaceProperty(ImageProperty):
     name = "color_space"
 
     def calculate(self, image: Image) -> Union[float, str]:
-        return get_image_mode(image)
+        return calc_color_space(image)
 
     def get_scores(
         self,
