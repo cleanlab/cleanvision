@@ -87,7 +87,9 @@ class Imagelab:
             }
         return to_compute_issues_with_params
 
-    def find_issues(self, issue_types: Optional[Dict[str, Any]] = None) -> None:
+    def find_issues(
+        self, issue_types: Optional[Dict[str, Any]] = None, n_jobs: Optional[int] = None
+    ) -> None:
         to_compute_issues_with_params = self._get_issues_to_compute(issue_types)
         print(
             f"Checking for {', '.join([issue_type for issue_type in to_compute_issues_with_params.keys()])} images ..."
@@ -106,7 +108,10 @@ class Imagelab:
         for issue_type_group, params in issue_type_groups.items():
             issue_manager = self.issue_managers[issue_type_group]
             issue_manager.find_issues(
-                params=params, filepaths=self.filepaths, imagelab_info=self.info
+                params=params,
+                filepaths=self.filepaths,
+                imagelab_info=self.info,
+                n_jobs=n_jobs,
             )
 
             # update issues, issue_summary and info
