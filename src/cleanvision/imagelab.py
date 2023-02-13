@@ -155,7 +155,8 @@ class Imagelab:
         self, issue_types: Optional[Dict[str, Dict[str, Any]]] = None
     ) -> None:
         """Finds issues in the dataset.
-        If issue_types is empty or not given, dataset is checked for all default issue types.
+        If `issue_types` is not provided, dataset is checked for a default set of issue types.
+        To see default set: ``imagelabl.list_default_issue_types()``
 
         Parameters
         ----------
