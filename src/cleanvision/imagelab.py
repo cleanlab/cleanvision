@@ -337,7 +337,7 @@ class Imagelab:
             Number of examples to show for issue type reported.
 
         verbosity : int, {1, 2, 3, 4}
-            Increasing verbosity increases the detail in the report output
+            Increasing verbosity increases the detail of the report. Set this to 0 to report less information, or to 4 to report the most information.
 
         Examples
         --------
