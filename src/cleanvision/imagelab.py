@@ -1,8 +1,8 @@
 import os
 import pickle
-from typing import List, Dict, Any, Optional, Tuple, Type
-from typing import TypeVar
+from typing import List, Dict, Any, Optional, Tuple, TypeVar, Type
 
+import numpy as np
 import pandas as pd
 
 from cleanvision.issue_managers import (
@@ -70,6 +70,7 @@ class Imagelab:
         issue_types = {issue_type.value for issue_type in IssueType}
         issue_types.update(ISSUE_MANAGER_REGISTRY.keys())
         print(*issue_types, sep="\n")
+        print("\n")
 
     def _get_issues_to_compute(
         self, issue_types_with_params: Optional[Dict[str, Any]]
@@ -232,7 +233,10 @@ class Imagelab:
         ]
         self.print_issue_summary(issue_summary)
 
-        self.visualize(computed_issue_types, report_args["examples_per_issue"])
+        self.visualize(
+            issue_types=computed_issue_types,
+            examples_per_issue=report_args["examples_per_issue"],
+        )
 
     def print_issue_summary(self, issue_summary: pd.DataFrame) -> None:
         issue_summary_copy = issue_summary.copy()
@@ -296,12 +300,25 @@ class Imagelab:
 
     def visualize(
         self,
-        issue_types: List[str],
+        image_files: Optional[List[str]] = None,
+        issue_types: Optional[List[str]] = None,
+        num_images: int = 4,
         examples_per_issue: int = 4,
         cell_size: Tuple[int, int] = (2, 2),
     ) -> None:
-        for issue_type in issue_types:
-            self._visualize(issue_type, examples_per_issue, cell_size)
+        if issue_types:
+            for issue_type in issue_types:
+                self._visualize(issue_type, examples_per_issue, cell_size)
+        else:
+            if not image_files:
+                image_files = list(
+                    np.random.choice(self.filepaths, num_images, replace=False)
+                )
+            VizManager.individual_images(
+                filepaths=image_files,
+                ncols=self.config["visualize_num_images_per_row"],
+                cell_size=cell_size,
+            )
 
     # Todo: Improve mypy dict typechecking so this does not return any
     def get_stats(self) -> Any:
