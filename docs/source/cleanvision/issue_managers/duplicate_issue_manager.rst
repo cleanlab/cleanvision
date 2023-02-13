@@ -2,6 +2,7 @@ Duplicate Issue Manager
 =======================
 
 .. automodule:: src.cleanvision.issue_managers.duplicate_issue_manager
+   :imported-members:
    :autosummary:
    :members:
    :undoc-members:
