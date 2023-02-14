@@ -33,7 +33,7 @@ def get_filepaths(
 
     Returns
     -------
-    list of str
+    List[str]
         Sorted list of image filepaths, note that all paths in this list are absolute paths
     """
 
