@@ -1,4 +1,5 @@
 import hashlib
+import multiprocessing
 from typing import Any, Dict, List, Optional
 
 import imagehash
@@ -10,10 +11,6 @@ from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import SETS, DUPLICATE
 from cleanvision.utils.utils import get_max_n_jobs, get_is_issue_colname
-
-""
-
-import multiprocessing
 
 
 def get_hash(image: Image, params: Dict[str, Any]) -> str:
