@@ -1,5 +1,5 @@
 """
-Imagelab is the core class in CleanVision for finding all types of issues in an image dataset.
+Imagelab is the core class in CleanVision for finding all types of issues in an image dataset.
 The methods in this module should suffice for most use-cases,
 but advanced users can get extra flexibility via the code in other CleanVision modules.
 """
@@ -49,7 +49,6 @@ class Imagelab:
         1. <issue_type>_score - This column contains a quality-score for each image for a particular type of issue.
         Scores are between 0 and 1, lower values indicate images exhibiting more severe instances of this issue.
         2. <issue_type>_bool - This column indicates whether or not the issue_type is detected in each image (a binary decision rather than numeric score).
-
 
     issue_summary : pd.DataFrame
         Dataframe containing summary of all issue types found.
@@ -119,7 +118,7 @@ class Imagelab:
         }
 
     def list_default_issue_types(self) -> None:
-        """Prints list of the issue types detected by default if no types are specified in ``imagelab.find_issues()``"""
+        """Prints list of the issue types detected by default if no types are specified in :py:meth:`Imagelab.find_issues`"""
 
         print("Default issue type checked by Imagelab:\n")
         print(
@@ -156,8 +155,8 @@ class Imagelab:
         self, issue_types: Optional[Dict[str, Dict[str, Any]]] = None
     ) -> None:
         """Finds issues in the dataset.
-        If `issue_types` is not provided, dataset is checked for a default set of issue types.
-        To see default set: ``imagelabl.list_default_issue_types()``
+        If `issue_types` is not provided, dataset is checked for a default set of issue types.
+        To see default set: :py:meth:`Imagelab.list_default_issue_types`
 
         Parameters
         ----------
@@ -335,7 +334,7 @@ class Imagelab:
             By default, this report will only cover the top most prevalent types of issues in the dataset, specified by this value. You can specify `issue_types` instead to override this and include specific types of issues in the report.
 
         max_prevalence : float, default=0.5
-            Value between 0 and 1, ignored if `issue_types` is provided. 
+            Value between 0 and 1, ignored if `issue_types` is provided.
             Otherwise issue types that are detected in more than `max_prevalence` fraction of the images in dataset will be omitted from report.
             You are presumably already aware of these in your dataset.
 
@@ -452,19 +451,19 @@ class Imagelab:
         cell_size: Tuple[int, int] = (2, 2),
     ) -> None:
         """Show specific images.
-        
+
         Can be used for visualizing either:
         1. Particular images with paths given in `image_files`.
         2. Images representing top-most severe instances of given `issue_types` detected the dataset.
         3. If no `image_files` or `issue_types` are given, random images will be shown from the dataset.
-        
+
         If `image_files` is given, this overrides the argument `issue_types`.
 
         Parameters
         ----------
 
         image_files : List[str], optional
-            List of filepaths for images to visualize.
+            List of filepaths for images to visualize.
 
         issue_types: List[str], optional
             List of issue types to visualize. For each type of issue, will show a few images representing the top-most severe instances of this issue in the dataset.
@@ -499,7 +498,6 @@ class Imagelab:
 
             image_files = ["./dataset/cat.png", "./dataset/dog.png", "./dataset/mouse.png"]
             imagelab.visualize(image_files=image_files)
-
 
         To visualize top examples of specific issue types from the dataset
 
@@ -564,7 +562,7 @@ class Imagelab:
         Parameters
         ----------
         path : str
-            Path to the saved Imagelab folder previously specified in ``save()`` (not the individual pickle file).
+            Path to the saved Imagelab folder previously specified in :py:meth:`Imagelab.save` (not the individual pickle file).
         data_path : str
             Path to image dataset previously used in Imagelab.
             If the `data_path` is changed, Imagelab will not be loaded as some of its functionalities depend on it.
