@@ -15,7 +15,7 @@ if __name__ == "__main__":
     This example demonstrates the default Imagelab workflow to detect various types of issues in an image dataset.
     """
 
-    imagelab = Imagelab(data_path=dataset_path)  # initalize imagelab
+    imagelab = Imagelab(data_path=dataset_path)  # initialize imagelab
     imagelab.list_default_issue_types()  # list default checks
     imagelab.visualize()  # visualize random images in dataset
 

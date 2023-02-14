@@ -48,8 +48,8 @@ class Imagelab:
 
     filepaths: List[str], optional
         Issue checks will be run on this list of image paths specified in `filepaths`.
-        If both `data_path` and `filepaths` are specified`data_path` will be given preference
-        and images will be retrieved from `data_path`.
+
+    Specifying both `data_path` and `filepaths` or not specifying either of them will raise a ValueError
 
     Attributes
     ----------
@@ -73,7 +73,8 @@ class Imagelab:
     Raises
     ------
     ValueError
-        If no images are found in the `data_path` or both `data_path` and `filepaths` are not given.
+        If no images are found in the specified paths.
+        If both `data_path` and `filepaths` are given or none of them are specified.
 
     Examples
     --------
@@ -95,7 +96,7 @@ class Imagelab:
         self._filepaths = self._get_filepaths(data_path, filepaths)
         self._num_images: int = len(self._filepaths)
         if self._num_images == 0:
-            raise ValueError(f"No images found in the specified path:{data_path}")
+            raise ValueError(f"No images found in the specified path")
         self.info: Dict[str, Any] = {"statistics": {}}
         self.issue_summary: pd.DataFrame = pd.DataFrame(columns=["issue_type"])
         self.issues: pd.DataFrame = pd.DataFrame(index=self._filepaths)
@@ -108,10 +109,11 @@ class Imagelab:
     def _get_filepaths(
         self, data_path: Optional[str], filepaths: Optional[List[str]]
     ) -> List[str]:
-        filepaths = []
-        if not data_path and not filepaths:
+        if (data_path is None and filepaths is None) or (
+            data_path is not None and filepaths is not None
+        ):
             raise ValueError(
-                "Please specify data_path or filepaths to check for issues."
+                "Please specify one of data_path or filepaths to check for issues."
             )
         elif data_path:
             filepaths = get_filepaths(data_path)
