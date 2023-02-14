@@ -1,9 +1,7 @@
 import glob
-import os
-
-from typing import Dict, List, Any
-
 import multiprocessing
+import os
+from typing import Dict, List, Any
 
 # psutil is a package used to count physical cores for multiprocessing
 # This package is not necessary, because we can always fall back to logical cores as the default
@@ -28,6 +26,7 @@ TYPES: List[str] = [
 
 
 def get_max_n_jobs() -> int:
+    n_jobs = None
     if PSUTIL_EXISTS:
         n_jobs = psutil.cpu_count(logical=False)  # physical cores
     if not n_jobs:
