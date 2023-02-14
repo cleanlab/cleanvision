@@ -34,7 +34,7 @@ TImagelab = TypeVar("TImagelab", bound="Imagelab")
 
 
 class Imagelab:
-    """A single class to find all types of issues in image datasets.
+    """A single class to find all types of issues in image datasets. Imagelab detects issues in the raw image files themselves and thus can be useful in most computer vision tasks.
 
     Parameters
     ----------
