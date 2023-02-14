@@ -335,9 +335,9 @@ class Imagelab:
             By default, this report will only cover the top most prevalent types of issues in the dataset, specified by this value. You can specify `issue_types` instead to override this and include specific types of issues in the report.
 
         max_prevalence : float, default=0.5
-            Between 0 and 1.
-            Ignores the issue types from reporting if found in more than max_prevalence fraction of the dataset.
-            It is ignored if issue_types is given.
+            Value between 0 and 1, ignored if `issue_types` is provided. 
+            Otherwise issue types that are detected in more than `max_prevalence` fraction of the images in dataset will be omitted from report.
+            You are presumably already aware of these in your dataset.
 
         examples_per_issue : int, default=4
             Number of examples to show for issue type reported.
