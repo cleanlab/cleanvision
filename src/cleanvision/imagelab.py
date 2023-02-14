@@ -63,8 +63,8 @@ class Imagelab:
         2. is_<issue_type>_issue - This column indicates whether or not the issue_type is detected in each image (a binary decision rather than numeric score).
 
     issue_summary : pd.DataFrame
-        Dataframe containing summary of all issue types found.
-        Specifically, it shows num_images of each issue found in the dataset
+        Dataframe where each row corresponds to a type of issue and columns summarize the overall prevalence of this issue in the dataset.
+        Specifically, it shows the number of images detected with the issue.
 
     info : Dict
         This is a nested dictionary that contains statistics on images or other useful information,
