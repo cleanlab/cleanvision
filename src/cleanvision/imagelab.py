@@ -62,7 +62,7 @@ class Imagelab:
     Raises
     ------
     ValueError
-        If not images are found in the data_path
+        If no images are found in the `data_path`
 
     Examples
     --------
