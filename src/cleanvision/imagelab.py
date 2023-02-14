@@ -105,15 +105,19 @@ class Imagelab:
         self._config: Dict[str, Any] = self._set_default_config()
         self._path = ""
 
-    def _get_filepaths(self, data_path, filepaths):
+    def _get_filepaths(
+        self, data_path: Optional[str], filepaths: Optional[List[str]]
+    ) -> List[str]:
+        filepaths = []
         if not data_path and not filepaths:
             raise ValueError(
                 "Please specify data_path or filepaths to check for issues."
             )
         elif data_path:
-            return get_filepaths(data_path)
+            filepaths = get_filepaths(data_path)
         elif filepaths:
-            return filepaths
+            filepaths = filepaths
+        return filepaths
 
     def _set_default_config(self) -> Dict[str, Any]:
         """Sets default values for various config variables used in Imagelab class
