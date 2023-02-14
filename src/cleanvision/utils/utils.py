@@ -72,3 +72,7 @@ def deep_update_dict(d: Dict[str, Any], u: Dict[str, Any]) -> Dict[str, Any]:
         else:
             d[k] = v
     return d
+
+
+def get_is_issue_colname(issue_type):
+    return f"is_{issue_type}_issue"

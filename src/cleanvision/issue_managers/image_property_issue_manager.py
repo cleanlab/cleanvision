@@ -14,6 +14,7 @@ from cleanvision.issue_managers.image_property import (
 )
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import IMAGE_PROPERTY
+from cleanvision.utils.utils import get_is_issue_colname
 
 
 # Combined all issues which are to be detected using image properties under one class to save time on loading image
@@ -127,12 +128,12 @@ class ImagePropertyIssueManager(IssueManager):
 
             # Update issues
             self.issues[f"{issue_type}_score"] = scores
-            self.issues[f"{issue_type}_bool"] = self.image_properties[
+            self.issues[get_is_issue_colname(issue_type)] = self.image_properties[
                 issue_type
             ].mark_issue(scores, self.params[issue_type].get("threshold"))
 
             summary_dict[issue_type] = self._compute_summary(
-                self.issues[f"{issue_type}_bool"]
+                self.issues[get_is_issue_colname(issue_type)]
             )
 
         # update issues and summary

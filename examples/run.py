@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     # Get all images with blurry issue type
     blurry_images = imagelab.issues[
-        imagelab.issues["blurry_bool"] == True
+        imagelab.issues["is_blurry_issue"] == True
     ].index.to_list()
     imagelab.visualize(image_files=blurry_images)  # visualize the given image files
 

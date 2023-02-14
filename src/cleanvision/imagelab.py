@@ -24,7 +24,11 @@ from cleanvision.utils.constants import (
     DUPLICATE_ISSUE_TYPES_LIST,
     SETS,
 )
-from cleanvision.utils.utils import get_filepaths, deep_update_dict
+from cleanvision.utils.utils import (
+    get_filepaths,
+    deep_update_dict,
+    get_is_issue_colname,
+)
 from cleanvision.utils.viz_manager import VizManager
 
 __all__ = ["Imagelab"]
@@ -56,7 +60,7 @@ class Imagelab:
         1. <issue_type>_score - This column contains a quality-score for each image for a particular type of issue.
         Scores are between 0 and 1, lower values indicate images exhibiting more severe instances of this issue.
 
-        2. <issue_type>_bool - This column indicates whether or not the issue_type is detected in each image (a binary decision rather than numeric score).
+        2. is_<issue_type>_issue - This column indicates whether or not the issue_type is detected in each image (a binary decision rather than numeric score).
 
     issue_summary : pd.DataFrame
         Dataframe containing summary of all issue types found.
@@ -427,7 +431,7 @@ class Imagelab:
 
         if viz_name == "individual_images":
             sorted_df = self.issues.sort_values(by=[f"{issue_type_str}_score"])
-            sorted_df = sorted_df[sorted_df[f"{issue_type_str}_bool"] == 1]
+            sorted_df = sorted_df[sorted_df[get_is_issue_colname(issue_type_str)] == 1]
             if len(sorted_df) < examples_per_issue:
                 print(
                     f"Found {len(sorted_df)} examples of {issue_type_str} issue in the dataset."
