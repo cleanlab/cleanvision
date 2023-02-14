@@ -41,6 +41,29 @@ class Imagelab:
     data_path : str
         Path to image files. Imagelab will recursively retrieve all image files from the specified path
 
+    Attributes
+    ----------
+    issues : pd.DataFrame
+        Dataframe where each row corresponds to an image and columns specify which issues were detected in this image.
+        It has two types of columns for each issue type:
+        1. <issue_type>_score - This column contains a quality-score for each image for a particular type of issue.
+        Scores are between 0 and 1, lower values indicate images exhibiting more severe instances of this issue.
+        2. <issue_type>_bool - This column indicates whether or not the issue_type is detected in each image (a binary decision rather than numeric score).
+
+
+    issue_summary : pd.DataFrame
+        Dataframe containing summary of all issue types found.
+        Specifically, it shows num_images of each issue found in the dataset
+
+    info : Dict
+        This is a nested dictionary that contains statistics on images or other useful information,
+        collected while checking for issues in the dataset.
+
+    Raises
+    ------
+    ValueError
+        If not images are found in the data_path
+
     Examples
     --------
 
@@ -53,29 +76,6 @@ class Imagelab:
         imagelab.find_issues()
         imagelab.report()
 
-
-    Attributes
-    ----------
-    issues : pd.DataFrame
-        Dataframe where each row corresponds to an image and columns specify which issues were detected in this image.
-        It has two types of columns for each issue type:
-        1. <issue_type>_score - This column contains a quality-score for each image for a particular type of issue.
-        Scores are between 0 and 1, lower values indicate images exhibiting more severe instances of this issue.
-        2. <issue_type>_bool - This column indicates whether or not the issue_type is detected in each image (a binary decision rather than numeric score).
-
-
-    issue_summary:
-        Dataframe containing summary of all issue types found.
-        Specifically, it shows num_images of each issue found in the dataset
-
-    info : dict
-        This is a nested dictionary that contains statistics on images or other useful information,
-        collected while checking for issues in the dataset.
-
-    Raises
-    ------
-    ValueError
-        If not images are found in the data_path
     """
 
     def __init__(self, data_path: str) -> None:
