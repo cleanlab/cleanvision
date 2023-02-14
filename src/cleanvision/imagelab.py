@@ -67,8 +67,8 @@ class Imagelab:
         Specifically, it shows the number of images detected with the issue.
 
     info : Dict
-        This is a nested dictionary that contains statistics on images or other useful information,
-        collected while checking for issues in the dataset.
+        Nested dictionary that contains statistics and other useful information about the dataset.
+        Also contains additional information saved while checking for issues in the dataset.
 
     Raises
     ------
