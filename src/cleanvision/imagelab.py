@@ -47,6 +47,7 @@ class Imagelab:
     Basic usage of Imagelab class
 
     .. code-block:: python
+
         from cleanvision.imagelab import Imagelab
         imagelab = Imagelab("FOLDER_WITH_IMAGES/")
         imagelab.find_issues()
@@ -58,7 +59,7 @@ class Imagelab:
     issues : pd.DataFrame
         Dataframe where each row corresponds to an image and columns specify which issues were detected in this image.
         It has two types of columns for each issue type:
-        1. <issue_type>_score - This column contains a quality-score for each image for a particular type of issue. 
+        1. <issue_type>_score - This column contains a quality-score for each image for a particular type of issue.
         Scores are between 0 and 1, lower values indicate images exhibiting more severe instances of this issue.
         2. <issue_type>_bool - This column indicates whether or not the issue_type is detected in each image (a binary decision rather than numeric score).
 
@@ -169,11 +170,13 @@ class Imagelab:
         To check for all default issue types use
 
         .. code-block:: python
+
             imagelab.find_issues()
 
         To check for specific issue types with default settings
 
         .. code-block:: python
+
             issue_types = {
                 "dark": {},
                 "blurry": {}
@@ -183,6 +186,7 @@ class Imagelab:
         To check for issue types with different hyperparameters.
 
         .. code-block:: python
+
             issue_types = {
                 "dark": {"threshold": 0.1},
                 "blurry": {}
@@ -328,7 +332,7 @@ class Imagelab:
             This must be subset of the issue types specified in ``imagelab.find_issues()``.
 
         num_top_issues : int, default=3
-            By default, this report will only cover the top most prevalent types of issues in the dataset, specified by this value. You can specify `issue_types` instead to override this and include specific types of issues in the report. 
+            By default, this report will only cover the top most prevalent types of issues in the dataset, specified by this value. You can specify `issue_types` instead to override this and include specific types of issues in the report.
 
         max_prevalence : float, default=0.5
             Between 0 and 1.
@@ -346,11 +350,13 @@ class Imagelab:
         Default usage
 
         .. code-block:: python
+
             imagelab.report()
 
         Report specific issue types
 
         .. code-block:: python
+
             issue_types = ["dark", "near_duplicates"]
             imagelab.report(issue_types=issue_types)
 
@@ -482,14 +488,17 @@ class Imagelab:
         To visualize random images from the dataset
 
         .. code-block:: python
+
             imagelab.visualize()
 
         .. code-block:: python
+
             imagelab.visualize(num_images=8)
 
         To visualize specfic images from the dataset
 
         .. code-block:: python
+
             image_files = ["./dataset/cat.png", "./dataset/dog.png", "./dataset/mouse.png"]
             imagelab.visualize(image_files=image_files)
 
@@ -497,6 +506,7 @@ class Imagelab:
         To visualize top examples of specific issue types from the dataset
 
         .. code-block:: python
+
             issue_types = ["dark", "odd_aspect_ratio"]
             imagelab.visualize(issue_types=issue_types)
 
