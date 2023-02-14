@@ -499,9 +499,11 @@ class Imagelab:
             List of issue types to visualize. For each type of issue, will show a few images representing the top-most severe instances of this issue in the dataset.
 
         num_images : int, optional
-            Number of images to randomly visualize from the dataset.
-            If `issue_types` is given, it implies number of top examples per issue type to visualize.
-            If `image_files` is given, this argument will be ignored.
+            Number of images to visualize from the dataset.
+            These are randomly selected if `issue_types` is ``None``.
+            If `issue_types` is given, then this is the number of images for each issue type to visualize
+            (images representing top-most severe instances of this issue will be shown).
+            If `image_files` is given, this argument is ignored.
 
         cell_size : Tuple[int, int], optional
             Dimensions controlling the size of each image in the depicted image grid.
