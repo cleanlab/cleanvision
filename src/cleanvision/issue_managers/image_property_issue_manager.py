@@ -1,3 +1,4 @@
+import multiprocessing
 from typing import Dict, Any, List, Set, Optional
 
 import pandas as pd
@@ -12,11 +13,6 @@ from cleanvision.issue_managers.image_property import (
     BlurrinessProperty,
     ColorSpaceProperty,
 )
-from cleanvision.utils.base_issue_manager import IssueManager
-from cleanvision.utils.constants import IMAGE_PROPERTY
-from cleanvision.utils.utils import get_max_n_jobs
-
-import multiprocessing
 from cleanvision.issue_managers.image_property import (
     calc_brightness,
     calc_aspect_ratio,
@@ -24,6 +20,9 @@ from cleanvision.issue_managers.image_property import (
     calc_blurriness,
     calc_color_space,
 )
+from cleanvision.utils.base_issue_manager import IssueManager
+from cleanvision.utils.constants import IMAGE_PROPERTY
+from cleanvision.utils.utils import get_max_n_jobs, get_is_issue_colname
 
 
 def compute_scores(
@@ -50,9 +49,6 @@ def compute_scores_wrapper(arg: Dict[str, Any]) -> Dict[str, Any]:
     to_compute = arg["to_compute"]
     path = arg["path"]
     return compute_scores(path, to_compute)
-
-
-from cleanvision.utils.utils import get_is_issue_colname
 
 
 # Combined all issues which are to be detected using image properties under one class to save time on loading image
