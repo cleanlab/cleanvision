@@ -114,7 +114,8 @@ class Imagelab:
             raise ValueError(
                 "Please specify one of data_path or filepaths to check for issues."
             )
-        elif data_path:
+        filepaths = []
+        if data_path:
             filepaths = get_filepaths(data_path)
         elif filepaths:
             filepaths = filepaths
