@@ -536,7 +536,8 @@ class Imagelab:
         Parameters
         ----------
         path : str
-            path at which to save the Imagelab instance
+            Path to folder where this Imagelab instance will be saved on disk. 
+            **Caution:** If a folder already exists at this location, it will be overwritten! 
         """
         if os.path.exists(path):
             print(
