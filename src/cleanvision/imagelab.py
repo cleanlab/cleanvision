@@ -119,7 +119,7 @@ class Imagelab:
         }
 
     def list_default_issue_types(self) -> None:
-        """Prints a list of all issue types checked by default if no issue types are specified in imagelab.find_issues()"""
+        """Prints list of the issue types detected by default if no types are specified in ``imagelab.find_issues()``"""
 
         print("Default issue type checked by Imagelab:\n")
         print(
