@@ -475,10 +475,6 @@ class Imagelab:
             If `issue_types` is given, it implies number of top examples per issue type to visualize.
             If `image_files` is given, this argument will be ignored.
 
-        examples_per_issue : int, optional
-            Number of top examples per issue type to visualize
-            Used only when `issue_types` is given and `image_files` is empty
-
         cell_size : Tuple[int, int], optional
             Dimensions controlling the size of each image in the depicted image grid.
 
