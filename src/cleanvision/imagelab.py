@@ -42,6 +42,11 @@ class Imagelab:
         Path to image files.
         Imagelab will recursively retrieve all image files from the specified path
 
+    filepaths: List[str], optional
+        Issue checks will be run on this list of image paths specified in `filepaths`.
+        If both `data_path` and `filepaths` are specified`data_path` will be given preference
+        and images will be retrieved from `data_path`.
+
     Attributes
     ----------
     issues : pd.DataFrame
@@ -64,7 +69,7 @@ class Imagelab:
     Raises
     ------
     ValueError
-        If no images are found in the `data_path`
+        If no images are found in the `data_path` or both `data_path` and `filepaths` are not given.
 
     Examples
     --------
@@ -74,14 +79,16 @@ class Imagelab:
     .. code-block:: python
 
         from cleanvision.imagelab import Imagelab
-        imagelab = Imagelab("FOLDER_WITH_IMAGES/")
+        imagelab = Imagelab(data_path="FOLDER_WITH_IMAGES/")
         imagelab.find_issues()
         imagelab.report()
 
     """
 
-    def __init__(self, data_path: str) -> None:
-        self._filepaths: List[str] = get_filepaths(data_path)
+    def __init__(
+        self, data_path: Optional[str] = None, filepaths: Optional[List[str]] = None
+    ) -> None:
+        self._filepaths = self._get_filepaths(data_path, filepaths)
         self._num_images: int = len(self._filepaths)
         if self._num_images == 0:
             raise ValueError(f"No images found in the specified path:{data_path}")
@@ -93,6 +100,16 @@ class Imagelab:
         # can be loaded from a file later
         self._config: Dict[str, Any] = self._set_default_config()
         self._path = ""
+
+    def _get_filepaths(self, data_path, filepaths):
+        if not data_path and not filepaths:
+            raise ValueError(
+                "Please specify data_path or filepaths to check for issues."
+            )
+        elif data_path:
+            return get_filepaths(data_path)
+        elif filepaths:
+            return filepaths
 
     def _set_default_config(self) -> Dict[str, Any]:
         """Sets default values for various config variables used in Imagelab class
@@ -512,7 +529,11 @@ class Imagelab:
         else:
             if not image_files:
                 image_files = list(
-                    np.random.choice(self._filepaths, num_images, replace=False)
+                    np.random.choice(
+                        self._filepaths,
+                        min(num_images, self._num_images),
+                        replace=False,
+                    )
                 )
             VizManager.individual_images(
                 filepaths=image_files,

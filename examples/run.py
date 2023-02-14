@@ -15,7 +15,7 @@ if __name__ == "__main__":
     This example demonstrates the default Imagelab workflow to detect various types of issues in an image dataset.
     """
 
-    imagelab = Imagelab(dataset_path)  # initalize imagelab
+    imagelab = Imagelab(data_path=dataset_path)  # initalize imagelab
     imagelab.list_default_issue_types()  # list default checks
     imagelab.visualize()  # visualize random images in dataset
 
@@ -42,14 +42,14 @@ if __name__ == "__main__":
     Example 2
 
     This example demonstrates using Imagelab to:
-    1. Check data for specific types of issues
+    1. Check data for specific types of issues
     2. Incrementally detect additional types of issues with  existing Imagelab
     3. Specify nondefault parameter to use when detecting a particular issue type (e.g. a different threshold)
     4. Save and load Imagelab to file
     5. Report only specific issue types
     """
 
-    imagelab = Imagelab(dataset_path)
+    imagelab = Imagelab(data_path=dataset_path)
     issue_types = {"near_duplicates": {}}
     imagelab.find_issues(issue_types)
     imagelab.report()
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     4. Increase the size of images in the grid displayed by visualize
     """
 
-    imagelab = Imagelab(dataset_path)
+    imagelab = Imagelab(data_path=dataset_path)
     imagelab.find_issues()
     imagelab.report(["near_duplicates"])
 
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     # Run imagelab on custom issue
     from custom_issue_manager import CustomIssueManager
 
-    imagelab = Imagelab(dataset_path)
+    imagelab = Imagelab(data_path=dataset_path)
     issue_name = CustomIssueManager.issue_name
     imagelab.list_possible_issue_types()
 
