@@ -39,15 +39,18 @@ class Imagelab:
     Parameters
     ----------
     data_path : str
-        Path to image files. Imagelab will recursively retrieve all image files from the specified path
+        Path to image files.
+        Imagelab will recursively retrieve all image files from the specified path
 
     Attributes
     ----------
     issues : pd.DataFrame
         Dataframe where each row corresponds to an image and columns specify which issues were detected in this image.
         It has two types of columns for each issue type:
+
         1. <issue_type>_score - This column contains a quality-score for each image for a particular type of issue.
         Scores are between 0 and 1, lower values indicate images exhibiting more severe instances of this issue.
+
         2. <issue_type>_bool - This column indicates whether or not the issue_type is detected in each image (a binary decision rather than numeric score).
 
     issue_summary : pd.DataFrame
@@ -161,8 +164,8 @@ class Imagelab:
         Parameters
         ----------
         issue_types : Dict[str, Any], optional
-            Dict with issue_types to check as keys
-            The value of this dict is a dict containing hyperparameters for each issue type
+            Dict with issue types to check as keys.
+            The value of this dict is a dict containing hyperparameters for each issue type.
 
         Examples
         --------
@@ -182,7 +185,7 @@ class Imagelab:
             }
             imagelab.find_issues(issue_types)
 
-        To check for issue types with different hyperparameters.
+        To check for issue types with different hyperparameters. Different issue types can have different hyperparameters.
 
         .. code-block:: python
 
@@ -192,7 +195,7 @@ class Imagelab:
             }
             imagelab.find_issues(issue_types)
 
-        Different issue types can have different hyperparameters
+
 
         """
         to_compute_issues_with_params = self._get_issues_to_compute(issue_types)
@@ -470,11 +473,11 @@ class Imagelab:
 
         num_images : int, optional
             Number of images to randomly visualize from the dataset
-            Used only when image_files and issue_types are empty, otherwise this argument will be ignored
+            Used only when `image_files` and `issue_types` are empty, otherwise this argument will be ignored
 
         examples_per_issue : int, optional
             Number of top examples per issue type to visualize
-            Used only when issue_types is given and image_files is empty
+            Used only when `issue_types` is given and `image_files` is empty
 
         cell_size : Tuple[int, int], optional
             Dimensions controlling the size of each image in the depicted image grid.
