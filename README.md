@@ -38,7 +38,7 @@ More on how to get started with CleanVision:
 
 - [Example script](https://github.com/cleanlab/cleanvision/blob/main/examples/run.py)
 - [Jupyter notebook tutorial](https://github.com/cleanlab/cleanvision/blob/main/examples/demo.ipynb)
-- [Documentation](https://cleanvision.readthedocs.io/en/latest/)
+- [Documentation](https://cleanvision.readthedocs.io/)
 
 Example image dataset you can run this library on can be downloaded using:
 
