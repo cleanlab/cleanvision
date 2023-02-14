@@ -566,7 +566,7 @@ class Imagelab:
         Parameters
         ----------
         path : str
-            Path to the saved Imagelab, not pickle file.
+            Path to the saved Imagelab folder previously specified in ``save()`` (not the individual pickle file).
         data_path : str
             Path to image dataset previously used in Imagelab.
             If the `data_path` is changed, Imagelab will not be loaded as some of its functionalities depend on it.
