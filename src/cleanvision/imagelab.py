@@ -590,7 +590,7 @@ class Imagelab:
                 )
             else:
                 raise ValueError(
-                    "Path already exists, specify a new path or set allow_overwrite=True"
+                    "Existing files already exist at the given path, either specify a new path or set allow_overwrite=True"
                 )
 
         self._path = path
