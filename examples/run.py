@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     print("Summary of all issues checks\n", imagelab.issue_summary.to_markdown())
     imagelab.visualize(
-        issue_types=["blurry"], examples_per_issue=8
+        issue_types=["blurry"], num_images=8
     )  # visualize images that have specific issues
 
     # Get all images with blurry issue type
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     imagelab.report(num_top_issues=5, max_prevalence=0.01)
 
     # Increase cell_size in the grid
-    imagelab.visualize(issue_types=["light"], examples_per_issue=8, cell_size=(3, 3))
+    imagelab.visualize(issue_types=["light"], num_images=8, cell_size=(3, 3))
 
     """
     Example 4

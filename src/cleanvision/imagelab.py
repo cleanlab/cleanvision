@@ -382,7 +382,7 @@ class Imagelab:
 
         self.visualize(
             issue_types=computed_issue_types,
-            examples_per_issue=report_args["examples_per_issue"],
+            num_images=report_args["examples_per_issue"],
         )
 
     def _pprint_issue_summary(self, issue_summary: pd.DataFrame) -> None:
@@ -450,7 +450,6 @@ class Imagelab:
         image_files: Optional[List[str]] = None,
         issue_types: Optional[List[str]] = None,
         num_images: int = 4,
-        examples_per_issue: int = 4,
         cell_size: Tuple[int, int] = (2, 2),
     ) -> None:
         """Show specific images.
@@ -472,8 +471,9 @@ class Imagelab:
             List of issue types to visualize. For each type of issue, will show a few images representing the top-most severe instances of this issue in the dataset.
 
         num_images : int, optional
-            Number of images to randomly visualize from the dataset
-            Used only when `image_files` and `issue_types` are empty, otherwise this argument will be ignored
+            Number of images to randomly visualize from the dataset.
+            If `issue_types` is given, it implies number of top examples per issue type to visualize.
+            If `image_files` is given, this argument will be ignored.
 
         examples_per_issue : int, optional
             Number of top examples per issue type to visualize
@@ -512,7 +512,7 @@ class Imagelab:
         """
         if issue_types:
             for issue_type in issue_types:
-                self._visualize(issue_type, examples_per_issue, cell_size)
+                self._visualize(issue_type, num_images, cell_size)
         else:
             if not image_files:
                 image_files = list(
@@ -536,8 +536,8 @@ class Imagelab:
         Parameters
         ----------
         path : str
-            Path to folder where this Imagelab instance will be saved on disk. 
-            **Caution:** If a folder already exists at this location, it will be overwritten! 
+            Path to folder where this Imagelab instance will be saved on disk.
+            **Caution:** If a folder already exists at this location, it will be overwritten!
         """
         if os.path.exists(path):
             print(
