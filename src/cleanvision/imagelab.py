@@ -48,8 +48,7 @@ class Imagelab:
 
     filepaths: List[str], optional
         Issue checks will be run on this list of image paths specified in `filepaths`.
-
-    Specifying both `data_path` and `filepaths` or not specifying either of them will raise a ValueError
+        Specifying both `data_path` and `filepaths` or not specifying either of them will raise a ValueError.
 
     Attributes
     ----------
