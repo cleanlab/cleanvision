@@ -95,7 +95,7 @@ class Imagelab:
         self._filepaths = self._get_filepaths(data_path, filepaths)
         self._num_images: int = len(self._filepaths)
         if self._num_images == 0:
-            raise ValueError(f"No images found in the specified path")
+            raise ValueError("No images found in the specified path")
         self.info: Dict[str, Any] = {"statistics": {}}
         self.issue_summary: pd.DataFrame = pd.DataFrame(columns=["issue_type"])
         self.issues: pd.DataFrame = pd.DataFrame(index=self._filepaths)
