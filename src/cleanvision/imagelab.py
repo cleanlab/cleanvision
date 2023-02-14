@@ -340,7 +340,7 @@ class Imagelab:
             You are presumably already aware of these in your dataset.
 
         examples_per_issue : int, default=4
-            Number of examples to show for issue type reported.
+            Maximum number of images to show for issue type reported. These are examples of the top-most severe instances of the issue in your dataset.
 
         verbosity : int, {1, 2, 3, 4}
             Increasing verbosity increases the detail of the report. Set this to 0 to report less information, or to 4 to report the most information.
