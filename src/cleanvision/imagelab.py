@@ -128,8 +128,8 @@ class Imagelab:
         )
 
     def list_possible_issue_types(self) -> None:
-        """Prints a list of all possible issue types that can be checked in the dataset.
-        It will also include custom added issue types.
+        """Prints list of all possible issue types that can be detected in a dataset.
+        This list will also include custom issue types if you properly add them.
         """
         print("All possible issues checked by Imagelab:\n")
         issue_types = {issue_type.value for issue_type in IssueType}
