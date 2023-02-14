@@ -3,6 +3,17 @@ import os
 
 from typing import Dict, List, Any
 
+import multiprocessing
+
+# psutil is a package used to count physical cores for multiprocessing
+# This package is not necessary, because we can always fall back to logical cores as the default
+try:
+    import psutil
+
+    PSUTIL_EXISTS = True
+except ImportError:  # pragma: no cover
+    PSUTIL_EXISTS = False
+
 TYPES: List[str] = [
     "*.jpg",
     "*.jpeg",
@@ -14,6 +25,17 @@ TYPES: List[str] = [
     "*.JPEG",
     "*.png",
 ]  # filetypes supported by PIL
+
+
+def get_max_n_jobs() -> int:
+    if PSUTIL_EXISTS:
+        n_jobs = psutil.cpu_count(logical=False)  # physical cores
+    if not n_jobs:
+        # either psutil does not exist
+        # or psutil can return None when physical cores cannot be determined
+        # switch to logical cores
+        n_jobs = multiprocessing.cpu_count()
+    return n_jobs
 
 
 # todo: make recursive an option
@@ -37,9 +59,6 @@ def get_filepaths(
         Sorted list of image filepaths, note that all paths in this list are absolute paths
     """
 
-    if not os.path.isdir(dir_path):
-        raise NotADirectoryError
-
     abs_dir_path = os.path.abspath(dir_path)
     print(f"Reading images from {abs_dir_path}")
     filepaths = []
@@ -48,6 +67,7 @@ def get_filepaths(
         if len(filetype_images) == 0:
             continue
         filepaths += filetype_images
+
     return sorted(filepaths)  # sort image names alphabetically and numerically
 
 

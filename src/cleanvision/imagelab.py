@@ -180,7 +180,7 @@ class Imagelab:
         return to_compute_issues_with_params
 
     def find_issues(
-        self, issue_types: Optional[Dict[str, Dict[str, Any]]] = None
+        self, issue_types: Optional[Dict[str, Any]] = None, n_jobs: Optional[int] = None
     ) -> None:
         """Finds issues in the dataset.
         If `issue_types` is not provided, dataset is checked for a default set of issue types.
@@ -241,7 +241,10 @@ class Imagelab:
         for issue_type_group, params in issue_type_groups.items():
             issue_manager = self._issue_managers[issue_type_group]
             issue_manager.find_issues(
-                params=params, filepaths=self._filepaths, imagelab_info=self.info
+                params=params,
+                filepaths=self._filepaths,
+                imagelab_info=self.info,
+                n_jobs=n_jobs,
             )
 
             # update issues, issue_summary and info
