@@ -68,7 +68,7 @@ More on how to get started with CleanVision:
 
 .. toctree::
    :hidden:
-   :maxdepth: 3
+   :maxdepth: 5
    :caption: API Reference
    :name: _api_reference
 
