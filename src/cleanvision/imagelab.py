@@ -193,6 +193,10 @@ class Imagelab:
         issue_types : Dict[str, Any], optional
             Dict with issue types to check as keys.
             The value of this dict is a dict containing hyperparameters for each issue type.
+        n_jobs :  int, default=None
+            Number of processing threads used by multiprocessing.
+            Default None sets to the number of cores on your CPU (physical cores if you have psutil package installed, otherwise logical cores).
+            Set this to 1 to disable parallel processing (if its causing issues). Windows users may see a speed-up with n_jobs=1.
 
         Examples
         --------
