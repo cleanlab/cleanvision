@@ -1,9 +1,7 @@
 import glob
-import os
-
-from typing import Dict, List, Any
-
 import multiprocessing
+import os
+from typing import Dict, List, Any
 
 # psutil is a package used to count physical cores for multiprocessing
 # This package is not necessary, because we can always fall back to logical cores as the default
@@ -63,7 +61,9 @@ def get_filepaths(
     print(f"Reading images from {abs_dir_path}")
     filepaths = []
     for type in TYPES:
-        filetype_images = glob.glob(os.path.join(abs_dir_path, type), recursive=True)
+        filetype_images = glob.glob(
+            os.path.join(abs_dir_path, "**", type), recursive=True
+        )
         if len(filetype_images) == 0:
             continue
         filepaths += filetype_images
