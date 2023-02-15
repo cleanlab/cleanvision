@@ -26,6 +26,7 @@ TYPES: List[str] = [
 
 
 def get_max_n_jobs() -> int:
+    n_jobs = None
     if PSUTIL_EXISTS:
         n_jobs = psutil.cpu_count(logical=False)  # physical cores
     if not n_jobs:
