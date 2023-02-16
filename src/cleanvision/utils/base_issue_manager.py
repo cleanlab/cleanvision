@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 import pandas as pd
 
@@ -29,12 +29,13 @@ class IssueManager(ABC):
             "params": Dict[str, Any],
             "filepaths": List[str],
             "imagelab_info": Dict[str, Any],
+            "n_jobs": int,
         }
 
         for name, value in kwargs.items():
             if name not in allowed_kwargs:
                 raise ValueError(f"{name} is not a valid keyword argument.")
-            if not isinstance(value, allowed_kwargs[name]):
+            if value is not None and not isinstance(value, allowed_kwargs[name]):
                 raise ValueError(
                     f"Valid type for keyword argument {name} can only be {allowed_kwargs[name]}. {name} cannot be type {type(name)}. "
                 )
