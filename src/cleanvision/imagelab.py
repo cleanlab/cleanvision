@@ -564,7 +564,7 @@ class Imagelab:
     def get_stats(self) -> Any:
         return self.info["statistics"]
 
-    def save(self, path: str, allow_overwrite: bool = False) -> None:
+    def save(self, path: str, force: bool = False) -> None:
         """Saves this ImageLab instance into a folder at the given path.
         Your saved Imagelab should be loaded from the same version of the CleanVision package.
         This method does not save your image files.
@@ -586,14 +586,12 @@ class Imagelab:
         if not path_exists:
             os.mkdir(path)
         else:
-            if allow_overwrite:
+            if force:
                 print(
                     f"WARNING: Existing files will be overwritten by newly saved files at: {path}"
                 )
             else:
-                raise ValueError(
-                    "Existing files already exist at the given path, either specify a new path or set allow_overwrite=True"
-                )
+                raise FileExistsError("Please specify a new path or set force=True")
 
         self._path = path
         object_file = os.path.join(self._path, OBJECT_FILENAME)
