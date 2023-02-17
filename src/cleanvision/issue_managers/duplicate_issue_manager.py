@@ -134,7 +134,7 @@ class DuplicateIssueManager(IssueManager):
                         total=len(filepaths),
                     )
                 )
-            results = sorted(results, key=lambda r: r["path"])
+            results = sorted(results, key=lambda r: r["path"])  # type:ignore
 
         for result in results:
             for issue_type in to_compute:
