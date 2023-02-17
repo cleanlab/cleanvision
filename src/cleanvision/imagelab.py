@@ -417,13 +417,16 @@ class Imagelab:
         num_report = (
             report_args["num_top_issues"] if issue_types is None else len(issue_types)
         )
-        filtered_issue_types = filtered_issue_types[:num_report]
 
         issue_summary = self.issue_summary[
-            self.issue_summary["issue_type"].isin(filtered_issue_types)
+            self.issue_summary["issue_type"].isin(filtered_issue_types[:num_report])
         ]
         print("Issues found in order of severity in the dataset\n")
         self._pprint_issue_summary(issue_summary)
+        if issue_types is None and num_report < len(filtered_issue_types):
+            print(
+                f"{len(filtered_issue_types) - num_report} more issues found in the dataset. To view them increase verbosity or check imagelab.issue_summary."
+            )
 
         self.visualize(
             issue_types=filtered_issue_types,
