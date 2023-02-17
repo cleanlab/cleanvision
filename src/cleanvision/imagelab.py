@@ -408,22 +408,25 @@ class Imagelab:
             non_zero_issue_types = self.issue_summary[
                 self.issue_summary["num_images"] > 0
             ]["issue_type"].tolist()
-            issue_types_to_report = non_zero_issue_types[
-                : report_args["num_top_issues"]
-            ]
+            issue_types_to_report = non_zero_issue_types
 
-        print("Issues found in order of severity in the dataset\n")
-        computed_issue_types = self._filter_report(
+        filtered_issue_types = self._filter_report(
             issue_types_to_report, report_args["max_prevalence"]
         )
 
+        num_report = (
+            report_args["num_top_issues"] if issue_types is None else len(issue_types)
+        )
+        filtered_issue_types = filtered_issue_types[:num_report]
+
         issue_summary = self.issue_summary[
-            self.issue_summary["issue_type"].isin(computed_issue_types)
+            self.issue_summary["issue_type"].isin(filtered_issue_types)
         ]
+        print("Issues found in order of severity in the dataset\n")
         self._pprint_issue_summary(issue_summary)
 
         self.visualize(
-            issue_types=computed_issue_types,
+            issue_types=filtered_issue_types,
             num_images=report_args["examples_per_issue"],
         )
 
