@@ -93,7 +93,7 @@ if __name__ == "__main__":
 
     # Report arg values here will overwrite verbosity defaults
     # Find top examples suffering from issues that are not present in more than 1% of the dataset
-    imagelab.report(num_top_issues=5, max_prevalence=0.01)
+    imagelab.report(max_prevalence=0.01)
 
     # Increase cell_size in the grid
     imagelab.visualize(issue_types=["light"], num_images=8, cell_size=(3, 3))

@@ -132,7 +132,7 @@ class Imagelab:
         """
         return {
             "visualize_num_images_per_row": 4,
-            "report_num_top_issues_values": [3, 5, 10, len(self._issue_types)],
+            "report_num_top_issues_values": [5, 7, 10, len(self._issue_types)],
             "report_examples_per_issue_values": [4, 8, 16, 32],
             "report_max_prevalence": 0.5,
             "default_issue_types": [
@@ -318,18 +318,22 @@ class Imagelab:
                 issue_type_group
             )()
 
-    def _get_topk_issues(self, num_top_issues: int, max_prevalence: float) -> List[str]:
-        topk_issues = []
-        # Assumes issue_summary is sorted in descending order
-        for row in self.issue_summary.itertuples(index=False):
+    def _filter_report(
+        self, issue_types: List[str], max_prevalence: float
+    ) -> List[str]:
+        issue_summary = self.issue_summary[
+            self.issue_summary["issue_type"].isin(issue_types)
+        ]
+        issue_to_report = []
+        for row in issue_summary.itertuples(index=False):
             if getattr(row, "num_images") / self._num_images < max_prevalence:
-                topk_issues.append(getattr(row, "issue_type"))
+                issue_to_report.append(getattr(row, "issue_type"))
             else:
                 print(
                     f"Removing {getattr(row, 'issue_type')} from potential issues in the dataset as it exceeds "
                     f"max_prevalence={max_prevalence} "
                 )
-        return topk_issues[:num_top_issues]
+        return issue_to_report
 
     def _get_report_args(
         self, verbosity: int, user_supplied_args: Dict[str, Any]
@@ -353,9 +357,8 @@ class Imagelab:
     def report(
         self,
         issue_types: Optional[List[str]] = None,
-        num_top_issues: Optional[int] = None,
         max_prevalence: Optional[float] = None,
-        examples_per_issue: Optional[int] = None,
+        num_images: Optional[int] = None,
         verbosity: int = 1,
     ) -> None:
         """Prints summary of the issues found in your dataset.
@@ -365,17 +368,14 @@ class Imagelab:
         ----------
         issue_types : List[str], optional
             List of issue types to consider in report.
-            This must be subset of the issue types specified in ``imagelab.find_issues()``.
-
-        num_top_issues : int, default=3
-            By default, this report will only cover the top most prevalent types of issues in the dataset, specified by this value. You can specify `issue_types` instead to override this and include specific types of issues in the report.
+            This must be subset of the issue types specified in :py:meth:`Imagelab.find_issues``.
 
         max_prevalence : float, default=0.5
-            Value between 0 and 1, ignored if `issue_types` is provided.
-            Otherwise issue types that are detected in more than `max_prevalence` fraction of the images in dataset will be omitted from report.
+            Value between 0 and 1
+            Issue types that are detected in more than `max_prevalence` fraction of the images in dataset will be omitted from the report.
             You are presumably already aware of these in your dataset.
 
-        examples_per_issue : int, default=4
+        num_images : int, default=4
             Maximum number of images to show for issue type reported. These are examples of the top-most severe instances of the issue in your dataset.
 
         verbosity : int, {1, 2, 3, 4}
@@ -403,12 +403,20 @@ class Imagelab:
         report_args = self._get_report_args(verbosity, user_supplied_args)
 
         if issue_types:
-            computed_issue_types = issue_types
+            issue_types_to_report = issue_types
         else:
-            print("Top issues in the dataset\n")
-            computed_issue_types = self._get_topk_issues(
-                report_args["num_top_issues"], report_args["max_prevalence"]
-            )
+            non_zero_issue_types = self.issue_summary[
+                self.issue_summary["num_images"] > 0
+            ]["issue_type"].tolist()
+            issue_types_to_report = non_zero_issue_types[
+                : report_args["num_top_issues"]
+            ]
+
+        print("Issues found in order of severity in the dataset\n")
+        computed_issue_types = self._filter_report(
+            issue_types_to_report, report_args["max_prevalence"]
+        )
+
         issue_summary = self.issue_summary[
             self.issue_summary["issue_type"].isin(computed_issue_types)
         ]
