@@ -57,7 +57,7 @@ class DuplicateIssueManager(IssueManager):
     def get_default_params(self) -> Dict[str, Any]:
         return {
             IssueType.EXACT_DUPLICATES.value: {"hash_type": "md5"},
-            IssueType.NEAR_DUPLICATES.value: {"hash_type": "whash", "hash_size": 8},
+            IssueType.NEAR_DUPLICATES.value: {"hash_type": "phash", "hash_size": 8},
         }
 
     def update_params(self, params: Dict[str, Any]) -> None:
