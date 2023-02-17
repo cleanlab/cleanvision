@@ -159,7 +159,7 @@ class ImagePropertyIssueManager(IssueManager):
                         )
                     )
 
-                results = sorted(results, key=lambda r: r["path"])
+                results = sorted(results, key=lambda r: r["path"])  # type:ignore
 
             for result in results:
                 for issue_type in to_be_computed:
