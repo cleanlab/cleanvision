@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
+          python-version: '3.11'
       - name: Setup python environment
         run: ./.github/scripts/setup_python_env.sh
         shell: bash

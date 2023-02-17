@@ -79,7 +79,7 @@ CleanVision uses [mypy](https://mypy.readthedocs.io/en/stable/) typing. Type che
 **Check typing in all files:**
 
 ```shell
-mypy --strict --install-types --non-interactive --python-version 3.7  src
+mypy --strict --install-types --non-interactive --python-version 3.11  src
 ```
 
 ## How to style new code contributions
