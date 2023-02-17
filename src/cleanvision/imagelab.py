@@ -573,8 +573,9 @@ class Imagelab:
         ----------
         path : str
             Path to folder where this Imagelab instance will be saved on disk.
+
         allow_overwrite: bool, default=False
-            If set to True, existing files at `path` will be overwritten.
+            If set to True, any existing files at `path` will be overwritten.
 
         Raises
         ------
