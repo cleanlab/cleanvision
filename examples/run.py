@@ -15,7 +15,7 @@ if __name__ == "__main__":
     This example demonstrates the default Imagelab workflow to detect various types of issues in an image dataset.
     """
 
-    imagelab = Imagelab(dataset_path)  # initalize imagelab
+    imagelab = Imagelab(data_path=dataset_path)  # initialize imagelab
     imagelab.list_default_issue_types()  # list default checks
     imagelab.visualize()  # visualize random images in dataset
 
@@ -24,12 +24,12 @@ if __name__ == "__main__":
 
     print("Summary of all issues checks\n", imagelab.issue_summary.to_markdown())
     imagelab.visualize(
-        issue_types=["blurry"], examples_per_issue=8
+        issue_types=["blurry"], num_images=8
     )  # visualize images that have specific issues
 
     # Get all images with blurry issue type
     blurry_images = imagelab.issues[
-        imagelab.issues["blurry_bool"] == True
+        imagelab.issues["is_blurry_issue"] == True
     ].index.to_list()
     imagelab.visualize(image_files=blurry_images)  # visualize the given image files
 
@@ -42,14 +42,14 @@ if __name__ == "__main__":
     Example 2
 
     This example demonstrates using Imagelab to:
-    1. Check data for specific types of issues
+    1. Check data for specific types of issues
     2. Incrementally detect additional types of issues with  existing Imagelab
     3. Specify nondefault parameter to use when detecting a particular issue type (e.g. a different threshold)
     4. Save and load Imagelab to file
     5. Report only specific issue types
     """
 
-    imagelab = Imagelab(dataset_path)
+    imagelab = Imagelab(data_path=dataset_path)
     issue_types = {"near_duplicates": {}}
     imagelab.find_issues(issue_types)
     imagelab.report()
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     4. Increase the size of images in the grid displayed by visualize
     """
 
-    imagelab = Imagelab(dataset_path)
+    imagelab = Imagelab(data_path=dataset_path)
     imagelab.find_issues()
     imagelab.report(["near_duplicates"])
 
@@ -93,10 +93,10 @@ if __name__ == "__main__":
 
     # Report arg values here will overwrite verbosity defaults
     # Find top examples suffering from issues that are not present in more than 1% of the dataset
-    imagelab.report(num_top_issues=5, max_prevalence=0.01)
+    imagelab.report(max_prevalence=0.01)
 
     # Increase cell_size in the grid
-    imagelab.visualize(issue_types=["light"], examples_per_issue=8, cell_size=(3, 3))
+    imagelab.visualize(issue_types=["light"], num_images=8, cell_size=(3, 3))
 
     """
     Example 4
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     # Run imagelab on custom issue
     from custom_issue_manager import CustomIssueManager
 
-    imagelab = Imagelab(dataset_path)
+    imagelab = Imagelab(data_path=dataset_path)
     issue_name = CustomIssueManager.issue_name
     imagelab.list_possible_issue_types()
 

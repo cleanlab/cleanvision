@@ -1,4 +1,5 @@
 import hashlib
+import multiprocessing
 from typing import Any, Dict, List, Optional
 
 import imagehash
@@ -9,9 +10,7 @@ from tqdm import tqdm
 from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import SETS, DUPLICATE
-from cleanvision.utils.utils import get_max_n_jobs
-
-import multiprocessing
+from cleanvision.utils.utils import get_max_n_jobs, get_is_issue_colname
 
 
 def get_hash(image: Image, params: Dict[str, Any]) -> str:
@@ -155,7 +154,7 @@ class DuplicateIssueManager(IssueManager):
         summary_dict = {}
         for issue_type in self.issue_types:
             summary_dict[issue_type] = self._compute_summary(
-                self.issues[f"{issue_type}_bool"]
+                self.issues[get_is_issue_colname(issue_type)]
             )
         summary_df = pd.DataFrame.from_dict(summary_dict, orient="index")
         self.summary = summary_df.reset_index()
@@ -167,7 +166,9 @@ class DuplicateIssueManager(IssueManager):
             duplicated_images = []
             for s in self.info[issue_type][SETS]:
                 duplicated_images.extend(s)
-            self.issues[f"{issue_type}_bool"] = self.issues.index.to_series().apply(
+            self.issues[
+                get_is_issue_colname(issue_type)
+            ] = self.issues.index.to_series().apply(
                 lambda x: True if x in duplicated_images else False
             )
 
