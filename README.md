@@ -34,10 +34,11 @@ imagelab.find_issues(issue_types)
 imagelab.report(issue_types.keys())
 ```
 
-More on how to get started with CleanVision: 
+More on how to get started with CleanVision:
 
-- [example script](https://github.com/cleanlab/cleanvision/blob/main/examples/run.py)
-- [jupyter notebook demo](https://github.com/cleanlab/cleanvision/blob/main/notebooks/demo.ipynb)
+- [Example script](https://github.com/cleanlab/cleanvision/blob/main/examples/run.py)
+- [Jupyter notebook tutorial](https://github.com/cleanlab/cleanvision/blob/main/examples/demo.ipynb)
+- [Documentation](https://cleanvision.readthedocs.io/)
 
 Example image dataset you can run this library on can be downloaded using:
 

@@ -1,9 +1,7 @@
 import glob
-import os
-
-from typing import Dict, List, Any
-
 import multiprocessing
+import os
+from typing import Dict, List, Any
 
 # psutil is a package used to count physical cores for multiprocessing
 # This package is not necessary, because we can always fall back to logical cores as the default
@@ -28,6 +26,7 @@ TYPES: List[str] = [
 
 
 def get_max_n_jobs() -> int:
+    n_jobs = None
     if PSUTIL_EXISTS:
         n_jobs = psutil.cpu_count(logical=False)  # physical cores
     if not n_jobs:
@@ -38,32 +37,34 @@ def get_max_n_jobs() -> int:
     return n_jobs
 
 
+# todo: make recursive an option
 def get_filepaths(
     dir_path: str,
 ) -> List[str]:
-    """
-    Used in initialization of ImageDataset Class
-    Obtains image files of supported types and
-    sorts them based on filenames numerically and alphabetically
+    """Gets paths of all image files in the dir_path recursively.
+     All image files with extension in TYPES are allowed.
+     Returns a sorted list of sorted filepaths
 
 
     Parameters
     ----------
-    dir_path: str (an attribute of ImageDataset Class)
-    a string represening the current working directory
+    dir_path: str
+        Path to the dir containing image files, can be relative or absolute path
 
 
     Returns
     -------
-    sorted_names: list[str]
-    a list of image filenames sorted numerically and alphabetically
+    List[str]
+        Sorted list of image filepaths, note that all paths in this list are absolute paths
     """
 
     abs_dir_path = os.path.abspath(dir_path)
     print(f"Reading images from {abs_dir_path}")
     filepaths = []
     for type in TYPES:
-        filetype_images = glob.glob(os.path.join(abs_dir_path, type), recursive=True)
+        filetype_images = glob.glob(
+            os.path.join(abs_dir_path, "**", type), recursive=True
+        )
         if len(filetype_images) == 0:
             continue
         filepaths += filetype_images
@@ -92,3 +93,7 @@ def deep_update_dict(d: Dict[str, Any], u: Dict[str, Any]) -> Dict[str, Any]:
         else:
             d[k] = v
     return d
+
+
+def get_is_issue_colname(issue_type: str) -> str:
+    return f"is_{issue_type}_issue"

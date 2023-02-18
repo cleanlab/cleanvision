@@ -1,3 +1,4 @@
+import multiprocessing
 from typing import Dict, Any, List, Set, Optional
 
 import pandas as pd
@@ -12,11 +13,6 @@ from cleanvision.issue_managers.image_property import (
     BlurrinessProperty,
     ColorSpaceProperty,
 )
-from cleanvision.utils.base_issue_manager import IssueManager
-from cleanvision.utils.constants import IMAGE_PROPERTY
-from cleanvision.utils.utils import get_max_n_jobs
-
-import multiprocessing
 from cleanvision.issue_managers.image_property import (
     calc_brightness,
     calc_aspect_ratio,
@@ -24,6 +20,9 @@ from cleanvision.issue_managers.image_property import (
     calc_blurriness,
     calc_color_space,
 )
+from cleanvision.utils.base_issue_manager import IssueManager
+from cleanvision.utils.constants import IMAGE_PROPERTY
+from cleanvision.utils.utils import get_max_n_jobs, get_is_issue_colname
 
 
 def compute_scores(
@@ -159,7 +158,7 @@ class ImagePropertyIssueManager(IssueManager):
                         )
                     )
 
-                results = sorted(results, key=lambda r: r["path"])
+                results = sorted(results, key=lambda r: r["path"])  # type:ignore
 
             for result in results:
                 for issue_type in to_be_computed:
@@ -185,12 +184,12 @@ class ImagePropertyIssueManager(IssueManager):
 
             # Update issues
             self.issues[f"{issue_type}_score"] = scores
-            self.issues[f"{issue_type}_bool"] = self.image_properties[
+            self.issues[get_is_issue_colname(issue_type)] = self.image_properties[
                 issue_type
             ].mark_issue(scores, self.params[issue_type].get("threshold"))
 
             summary_dict[issue_type] = self._compute_summary(
-                self.issues[f"{issue_type}_bool"]
+                self.issues[get_is_issue_colname(issue_type)]
             )
 
         # update issues and summary
