@@ -12,6 +12,9 @@ try:
 except ImportError:  # pragma: no cover
     PSUTIL_EXISTS = False
 
+# max number of processes that can be forked/spawned for multiprocessing
+MAX_PROCS = 5000
+
 TYPES: List[str] = [
     "*.jpg",
     "*.jpeg",
