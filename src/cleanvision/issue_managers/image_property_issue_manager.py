@@ -153,9 +153,7 @@ class ImagePropertyIssueManager(IssueManager):
                     results = list(
                         tqdm(
                             p.imap_unordered(
-                                compute_scores_wrapper,
-                                args,
-                                chunksize=chunksize
+                                compute_scores_wrapper, args, chunksize=chunksize
                             ),
                             total=len(filepaths),
                         )
