@@ -130,7 +130,9 @@ class DuplicateIssueManager(IssueManager):
             with multiprocessing.Pool(n_jobs) as p:
                 results = list(
                     tqdm(
-                        p.imap_unordered(compute_hash_wrapper, args, chunksize=chunksize),
+                        p.imap_unordered(
+                            compute_hash_wrapper, args, chunksize=chunksize
+                        ),
                         total=len(filepaths),
                     )
                 )
