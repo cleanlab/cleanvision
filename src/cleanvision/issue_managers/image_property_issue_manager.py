@@ -1,3 +1,4 @@
+import multiprocessing
 from typing import Dict, Any, List, Set, Optional
 
 import pandas as pd
@@ -12,11 +13,6 @@ from cleanvision.issue_managers.image_property import (
     BlurrinessProperty,
     ColorSpaceProperty,
 )
-from cleanvision.utils.base_issue_manager import IssueManager
-from cleanvision.utils.constants import IMAGE_PROPERTY
-from cleanvision.utils.utils import get_max_n_jobs
-
-import multiprocessing
 from cleanvision.issue_managers.image_property import (
     calc_brightness,
     calc_aspect_ratio,
@@ -24,6 +20,9 @@ from cleanvision.issue_managers.image_property import (
     calc_blurriness,
     calc_color_space,
 )
+from cleanvision.utils.base_issue_manager import IssueManager
+from cleanvision.utils.constants import IMAGE_PROPERTY
+from cleanvision.utils.utils import get_max_n_jobs
 
 
 def compute_scores(
@@ -66,15 +65,15 @@ class ImagePropertyIssueManager(IssueManager):
 
     def get_default_params(self) -> Dict[str, Any]:
         return {
-            IssueType.DARK.value: {"threshold": 0.22},
-            IssueType.LIGHT.value: {"threshold": 0.05},
-            IssueType.ODD_ASPECT_RATIO.value: {"threshold": 0.5},
+            IssueType.DARK.value: {"threshold": 0.1},
+            IssueType.LIGHT.value: {"threshold": 0.04},
+            IssueType.ODD_ASPECT_RATIO.value: {"threshold": 0.4},
             # todo: check low complexity params on a different dataset
             IssueType.LOW_INFORMATION.value: {
                 "threshold": 0.3,
                 "normalizing_factor": 0.1,
             },
-            IssueType.BLURRY.value: {"threshold": 0.3, "normalizing_factor": 0.001},
+            IssueType.BLURRY.value: {"threshold": 0.06, "normalizing_factor": 0.001},
             IssueType.GRAYSCALE.value: {},
         }
 
