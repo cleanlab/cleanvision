@@ -11,6 +11,7 @@ from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import SETS, DUPLICATE
 from cleanvision.utils.utils import get_max_n_jobs, get_is_issue_colname
+from cleanvision.utils.constants import MAX_PROCS
 
 
 def get_hash(image: Image, params: Dict[str, Any]) -> str:
@@ -126,10 +127,13 @@ class DuplicateIssueManager(IssueManager):
                 {"path": path, "to_compute": to_compute, "params": self.params}
                 for path in filepaths
             ]
+            chunksize = max(1, len(args) // MAX_PROCS)
             with multiprocessing.Pool(n_jobs) as p:
                 results = list(
                     tqdm(
-                        p.imap_unordered(compute_hash_wrapper, args, chunksize=10),
+                        p.imap_unordered(
+                            compute_hash_wrapper, args, chunksize=chunksize
+                        ),
                         total=len(filepaths),
                     )
                 )
