@@ -22,7 +22,8 @@ from cleanvision.issue_managers.image_property import (
 )
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import IMAGE_PROPERTY
-from cleanvision.utils.utils import get_max_n_jobs, get_is_issue_colname, MAX_PROCS
+from cleanvision.utils.utils import get_max_n_jobs, get_is_issue_colname
+from cleanvision.utils.constants import MAX_PROCS
 
 
 def compute_scores(
