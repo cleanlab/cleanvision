@@ -12,3 +12,6 @@ IMAGE_PROPERTY_ISSUE_TYPES_LIST: List[str] = [
 ]
 DUPLICATE_ISSUE_TYPES_LIST: List[str] = ["exact_duplicates", "near_duplicates"]
 SETS: str = "sets"
+
+# max number of processes that can be forked/spawned for multiprocessing
+MAX_PROCS = 5000
