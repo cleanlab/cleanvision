@@ -37,25 +37,25 @@ def get_max_n_jobs() -> int:
     return n_jobs
 
 
+# todo: make recursive an option
 def get_filepaths(
     dir_path: str,
 ) -> List[str]:
-    """
-    Used in initialization of ImageDataset Class
-    Obtains image files of supported types and
-    sorts them based on filenames numerically and alphabetically
+    """Gets paths of all image files in the dir_path recursively.
+     All image files with extension in TYPES are allowed.
+     Returns a sorted list of sorted filepaths
 
 
     Parameters
     ----------
-    dir_path: str (an attribute of ImageDataset Class)
-    a string represening the current working directory
+    dir_path: str
+        Path to the dir containing image files, can be relative or absolute path
 
 
     Returns
     -------
-    sorted_names: list[str]
-    a list of image filenames sorted numerically and alphabetically
+    List[str]
+        Sorted list of image filepaths, note that all paths in this list are absolute paths
     """
 
     abs_dir_path = os.path.abspath(dir_path)
@@ -93,3 +93,7 @@ def deep_update_dict(d: Dict[str, Any], u: Dict[str, Any]) -> Dict[str, Any]:
         else:
             d[k] = v
     return d
+
+
+def get_is_issue_colname(issue_type: str) -> str:
+    return f"is_{issue_type}_issue"
