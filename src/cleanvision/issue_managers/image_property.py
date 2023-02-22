@@ -43,7 +43,7 @@ class ImageProperty(ABC):
         return scores < threshold
 
 
-def calc_brightness(image: Image) -> Union[float, str]:
+def calc_avg_brightness(image: Image) -> Union[float, str]:
     stat = ImageStat.Stat(image)
     try:
         red, green, blue = stat.mean
@@ -60,14 +60,33 @@ def calc_brightness(image: Image) -> Union[float, str]:
     return cur_bright
 
 
+def calc_percentile_brightness(
+    image: Image, percentiles: List[int]
+) -> Union[float, str]:
+    imarr = np.asarray(image)
+    if len(imarr.shape) == 3:
+        r, g, b = imarr[:, :, 0], imarr[:, :, 1], imarr[:, :, 2]
+        pixel_brightness = np.sqrt(0.241 * r * r + 0.691 * g * g + 0.068 * b * b)
+    else:
+        pixel_brightness = imarr
+    return np.percentile(pixel_brightness, percentiles) / 255
+
+
 class BrightnessProperty(ImageProperty):
     name: str = "brightness"
 
-    def __init__(self, issue_type: IssueType) -> None:
+    def __init__(self, issue_type: str) -> None:
         self.issue_type = issue_type
+        self.score_column = (
+            "perc_99" if self.issue_type == IssueType.DARK.value else "perc_5"
+        )
 
-    def calculate(self, image: Image) -> Union[float, str]:
-        return calc_brightness(image)
+    def calculate(self, image: Image) -> Union[float, str, Dict]:
+        percentiles = [1, 5, 10, 15, 90, 95, 99]
+        perc_values = calc_percentile_brightness(image, percentiles=percentiles)
+        raw_values = {f"perc_{p}": value for p, value in zip(percentiles, perc_values)}
+        raw_values[self.name] = calc_avg_brightness(image)
+        return raw_values
 
     def get_scores(
         self,
@@ -76,14 +95,11 @@ class BrightnessProperty(ImageProperty):
         **kwargs: Any,
     ) -> "np.ndarray[Any, Any]":
         super().get_scores(**kwargs)
-        assert raw_scores is not None
-
-        scores = np.array(raw_scores)
-        scores[scores > 1] = 1
-        # reverse the brightness scores to catch images which are too bright
-        if self.issue_type.name == IssueType.LIGHT.name:
-            scores = 1 - scores
-        return scores
+        assert raw_scores is not None  # all values are between 0 and 1
+        if self.issue_type == IssueType.DARK.value:
+            return raw_scores
+        else:
+            return 1 - raw_scores
 
 
 def calc_aspect_ratio(image: Image) -> Union[float, str]:
@@ -96,8 +112,11 @@ def calc_aspect_ratio(image: Image) -> Union[float, str]:
 class AspectRatioProperty(ImageProperty):
     name: str = "aspect_ratio"
 
+    def __init__(self):
+        self.score_column = self.name
+
     def calculate(self, image: Image) -> Union[float, str]:
-        return calc_aspect_ratio(image)
+        return {self.name: calc_aspect_ratio(image)}
 
     def get_scores(
         self,
@@ -107,9 +126,7 @@ class AspectRatioProperty(ImageProperty):
     ) -> "np.ndarray[Any, Any]":
         super().get_scores(**kwargs)
         assert raw_scores is not None
-
-        scores = np.array(raw_scores)
-        return scores
+        return raw_scores
 
 
 def calc_entropy(image: Image) -> Union[float, str]:
@@ -123,8 +140,11 @@ def calc_entropy(image: Image) -> Union[float, str]:
 class EntropyProperty(ImageProperty):
     name: str = "entropy"
 
+    def __init__(self):
+        self.score_column = self.name
+
     def calculate(self, image: Image) -> Union[float, str]:
-        return calc_entropy(image)
+        return {self.name: calc_entropy(image)}
 
     def get_scores(
         self,
@@ -136,8 +156,7 @@ class EntropyProperty(ImageProperty):
         super().get_scores(**kwargs)
         assert raw_scores is not None
 
-        scores = np.array(raw_scores)
-        scores: "np.ndarray[Any, Any]" = normalizing_factor * scores
+        scores: "np.ndarray[Any, Any]" = normalizing_factor * raw_scores
         scores[scores > 1] = 1
         return scores
 
@@ -154,8 +173,11 @@ def calc_blurriness(image: Image) -> Union[float, str]:
 class BlurrinessProperty(ImageProperty):
     name = "blurriness"
 
+    def __init__(self):
+        self.score_column = self.name
+
     def calculate(self, image: Image) -> Union[float, str]:
-        return calc_blurriness(image)
+        return {self.name: calc_blurriness(image)}
 
     def get_scores(
         self,
@@ -166,8 +188,6 @@ class BlurrinessProperty(ImageProperty):
     ) -> "np.ndarray[Any, Any]":
         super().get_scores(**kwargs)
         assert raw_scores is not None
-
-        raw_scores = np.array(raw_scores)
         scores: "np.ndarray[Any, Any]" = 1 - np.exp(
             -1 * raw_scores * normalizing_factor
         )
@@ -195,8 +215,11 @@ def calc_color_space(image: Image) -> Union[float, str]:
 class ColorSpaceProperty(ImageProperty):
     name = "color_space"
 
+    def __init__(self):
+        self.score_column = self.name
+
     def calculate(self, image: Image) -> Union[float, str]:
-        return calc_color_space(image)
+        return {self.name: calc_color_space(image)}
 
     def get_scores(
         self,
@@ -207,8 +230,7 @@ class ColorSpaceProperty(ImageProperty):
     ) -> "np.ndarray[Any, Any]":
         super().get_scores(**kwargs)
         assert raw_scores is not None
-
-        scores = np.array([0 if mode == "L" else 1 for mode in raw_scores])
+        scores = raw_scores.apply(lambda mode: 0 if mode == "L" else 1)
         return scores
 
     @staticmethod
