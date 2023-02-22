@@ -580,7 +580,7 @@ class Imagelab:
             for issue_type in issue_types:
                 self._visualize(issue_type, num_images, cell_size)
         else:
-            if not image_files:
+            if image_files is None:
                 image_files = list(
                     np.random.choice(
                         self._filepaths,
@@ -588,13 +588,16 @@ class Imagelab:
                         replace=False,
                     )
                 )
-            titles = [path.split("/")[-1] for path in image_files]
-            VizManager.individual_images(
-                image_files,
-                titles,
-                ncols=self._config["visualize_num_images_per_row"],
-                cell_size=cell_size,
-            )
+            elif len(image_files) == 0:
+                raise ValueError("image_files list is empty.")
+            if image_files:
+                titles = [path.split("/")[-1] for path in image_files]
+                VizManager.individual_images(
+                    image_files,
+                    titles,
+                    ncols=self._config["visualize_num_images_per_row"],
+                    cell_size=cell_size,
+                )
 
     # Todo: Improve mypy dict typechecking so this does not return any
     def get_stats(self) -> Any:
