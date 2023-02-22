@@ -28,6 +28,7 @@ from cleanvision.utils.utils import (
     get_filepaths,
     deep_update_dict,
     get_is_issue_colname,
+    get_score_colname,
 )
 from cleanvision.utils.viz_manager import VizManager
 
@@ -451,43 +452,63 @@ class Imagelab:
 
     def _visualize(
         self,
-        issue_type_str: str,
-        examples_per_issue: int,
+        issue_type: str,
+        num_images: int,
         cell_size: Tuple[int, int],
     ) -> None:
-        issue_manager = self._get_issue_manager(issue_type_str)
+        # todo: remove dependency on issue manager
+        issue_manager = self._get_issue_manager(issue_type)
         viz_name = issue_manager.visualization
 
         if viz_name == "individual_images":
-            sorted_df = self.issues.sort_values(by=[f"{issue_type_str}_score"])
-            sorted_df = sorted_df[sorted_df[get_is_issue_colname(issue_type_str)] == 1]
-            if len(sorted_df) < examples_per_issue:
+            sorted_df = self.issues.sort_values(by=get_score_colname(issue_type))
+            sorted_df = sorted_df[sorted_df[get_is_issue_colname(issue_type)] == 1]
+
+            examples_str = "examples" if len(sorted_df) > 1 else "example"
+            if len(sorted_df) < num_images:
                 print(
-                    f"Found {len(sorted_df)} examples of {issue_type_str} issue in the dataset."
+                    f"Found {len(sorted_df)} {examples_str} with {issue_type} issue in the dataset."
                 )
             else:
-                print(f"\nTop {examples_per_issue} images with {issue_type_str} issue")
+                print(
+                    f"\nTop {num_images} {examples_str} with {issue_type} issue in the dataset."
+                )
 
-            sorted_filepaths = sorted_df.index[:examples_per_issue].tolist()
-            if sorted_filepaths:
+            scores = sorted_df.head(num_images)[get_score_colname(issue_type)]
+            titles = scores.apply(lambda x: f"score: {round(x, 4)}").tolist()
+            paths = scores.index.tolist()
+            if paths:
                 VizManager.individual_images(
-                    filepaths=sorted_filepaths,
+                    filepaths=paths,
+                    titles=titles,
                     ncols=self._config["visualize_num_images_per_row"],
                     cell_size=cell_size,
                 )
+
         elif viz_name == "image_sets":
-            image_sets = self.info[issue_type_str][SETS][:examples_per_issue]
-            if len(image_sets) < examples_per_issue:
+            image_sets = list(self.info[issue_type][SETS][:num_images])
+
+            sets_str = "sets" if len(image_sets) > 1 else "set"
+            if len(image_sets) < num_images:
                 print(
-                    f"Found {len(image_sets)} sets of images with {issue_type_str} issue in the dataset."
+                    f"Found {len(image_sets)} {sets_str} of images with {issue_type} issue in the dataset."
                 )
             else:
                 print(
-                    f"\nTop {examples_per_issue} sets of images with {issue_type_str} issue"
+                    f"\nTop {num_images} {sets_str} of images with {issue_type} issue"
                 )
+
+            title_sets = []
+            for s in image_sets:
+                filenames = []
+                for path in s:
+                    filenames.append(path.split("/")[-1])
+                title_sets.append(filenames)
+
             if image_sets:
                 VizManager.image_sets(
                     image_sets,
+                    title_sets,
                     ncols=self._config["visualize_num_images_per_row"],
                     cell_size=cell_size,
                 )
@@ -540,7 +561,7 @@ class Imagelab:
 
             imagelab.visualize(num_images=8)
 
-        To visualize specfic images from the dataset
+        To visualize specific images from the dataset
 
         .. code-block:: python
 
@@ -567,8 +588,10 @@ class Imagelab:
                         replace=False,
                     )
                 )
+            titles = [path.split("/")[-1] for path in image_files]
             VizManager.individual_images(
-                filepaths=image_files,
+                image_files,
+                titles,
                 ncols=self._config["visualize_num_images_per_row"],
                 cell_size=cell_size,
             )

@@ -97,3 +97,7 @@ def deep_update_dict(d: Dict[str, Any], u: Dict[str, Any]) -> Dict[str, Any]:
 
 def get_is_issue_colname(issue_type: str) -> str:
     return f"is_{issue_type}_issue"
+
+
+def get_score_colname(issue_type: str) -> str:
+    return f"{issue_type}_score"
