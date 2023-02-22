@@ -16,6 +16,7 @@ from cleanvision.issue_managers.image_property import (
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import IMAGE_PROPERTY
 from cleanvision.utils.utils import get_max_n_jobs, get_is_issue_colname
+from cleanvision.utils.constants import MAX_PROCS
 
 
 def compute_scores(path: str, to_compute: List[str], properties) -> Dict[str, Any]:
@@ -143,11 +144,12 @@ class ImagePropertyIssueManager(IssueManager):
                     }
                     for i, path in enumerate(filepaths)
                 ]
+                chunksize = max(1, len(args) // MAX_PROCS)
                 with multiprocessing.Pool(n_jobs) as p:
                     results = list(
                         tqdm(
                             p.imap_unordered(
-                                compute_scores_wrapper, args, chunksize=10
+                                compute_scores_wrapper, args, chunksize=chunksize
                             ),
                             total=len(filepaths),
                         )
