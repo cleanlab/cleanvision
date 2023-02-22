@@ -16,8 +16,8 @@ from cleanvision.issue_managers.image_property import (
 )
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import IMAGE_PROPERTY
-from cleanvision.utils.utils import get_max_n_jobs, get_is_issue_colname
 from cleanvision.utils.constants import MAX_PROCS
+from cleanvision.utils.utils import get_max_n_jobs, get_is_issue_colname
 
 
 def compute_scores(
@@ -88,10 +88,16 @@ class ImagePropertyIssueManager(IssueManager):
         # Add precomputed issues to defer set
         for issue_type in issue_types:
             score_column = self.image_properties[issue_type].score_column
-            if score_column in imagelab_info[
-                "statistics"
-            ] or score_column in imagelab_info.get(issue_type, {}):
+            if score_column in imagelab_info["statistics"]:
                 defer_set.add(issue_type)
+            elif (
+                issue_type == IssueType.DARK.value
+                or issue_type == IssueType.LIGHT.value
+            ):
+                if score_column in imagelab_info.get(
+                    IssueType.LIGHT.value, {}
+                ) or score_column in imagelab_info.get(IssueType.DARK.value, {}):
+                    defer_set.add(issue_type)
 
         # Add issues using same property
         if {IssueType.LIGHT.value, IssueType.DARK.value}.issubset(set(issue_types)):
@@ -193,7 +199,9 @@ class ImagePropertyIssueManager(IssueManager):
     def aggregate_comp(
         self, results: List[Dict[str, Any]], issue_types: List[str]
     ) -> Dict[str, pd.DataFrame]:
-        agg_computations = {issue_type: pd.DataFrame() for issue_type in issue_types}
+        agg_computations: Dict[str, List[Dict[str, Any]]] = {
+            issue_type: [] for issue_type in issue_types
+        }
         paths = []
         for result in results:
             paths.append(result["path"])

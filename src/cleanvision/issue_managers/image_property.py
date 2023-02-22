@@ -1,6 +1,5 @@
-import math
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Optional, Union, overload
 
 import numpy as np
 import pandas as pd
@@ -62,9 +61,33 @@ def calc_avg_brightness(image: Image) -> float:
             stat.mean[0],
         )  # deals with black and white images
 
+    cur_bright: float = calculate_brightness(red, green, blue)
+    return cur_bright
+
+
+@overload
+def calculate_brightness(red: float, green: float, blue: float) -> float:
+    ...
+
+
+@overload
+def calculate_brightness(
+    red: "np.ndarray[Any, Any]",
+    green: "np.ndarray[Any, Any]",
+    blue: "np.ndarray[Any, Any]",
+) -> "np.ndarray[Any, Any]":
+    ...
+
+
+def calculate_brightness(
+    red: Union[float, "np.ndarray[Any, Any]"],
+    green: Union[float, "np.ndarray[Any, Any]"],
+    blue: Union[float, "np.ndarray[Any, Any]"],
+) -> Union[float, "np.ndarray[Any, Any]"]:
     cur_bright = (
-        math.sqrt(0.241 * (red**2) + 0.691 * (green**2) + 0.068 * (blue**2))
+        np.sqrt(0.241 * (red * red) + 0.691 * (green * green) + 0.068 * (blue * blue))
     ) / 255
+
     return cur_bright
 
 
@@ -74,12 +97,12 @@ def calc_percentile_brightness(
     imarr = np.asarray(image)
     if len(imarr.shape) == 3:
         r, g, b = imarr[:, :, 0], imarr[:, :, 1], imarr[:, :, 2]
-        pixel_brightness = np.sqrt(0.241 * r * r + 0.691 * g * g + 0.068 * b * b)
+        pixel_brightness = calculate_brightness(
+            r, g, b
+        )  # np.sqrt(0.241 * r * r + 0.691 * g * g + 0.068 * b * b)
     else:
         pixel_brightness = imarr
-    perc_values: "np.ndarray[Any, Any]" = (
-        np.percentile(pixel_brightness, percentiles) / 255
-    )
+    perc_values: "np.ndarray[Any, Any]" = np.percentile(pixel_brightness, percentiles)
     return perc_values
 
 

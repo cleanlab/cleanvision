@@ -62,7 +62,6 @@ class DuplicateIssueManager(IssueManager):
         }
 
     def update_params(self, params: Dict[str, Any]) -> None:
-        self.params = self.get_default_params()
         for issue_type in self.params:
             non_none_params = {
                 k: v for k, v in params.get(issue_type, {}).items() if v is not None
