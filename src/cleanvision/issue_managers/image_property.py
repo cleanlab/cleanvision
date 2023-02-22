@@ -22,7 +22,7 @@ class ImageProperty(ABC):
     def check_params(**kwargs: Any) -> None:
         allowed_kwargs: Dict[str, Any] = {
             "image": Image,
-            "scores": "np.ndarray[Any, Any]",
+            "scores": pd.Series,
             "threshold": float,
             "raw_scores": pd.Series,
         }
