@@ -12,6 +12,7 @@ from cleanvision.issue_managers.image_property import (
     EntropyProperty,
     BlurrinessProperty,
     ColorSpaceProperty,
+    ImageProperty,
 )
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import IMAGE_PROPERTY
@@ -19,15 +20,9 @@ from cleanvision.utils.utils import get_max_n_jobs, get_is_issue_colname
 from cleanvision.utils.constants import MAX_PROCS
 
 
-def compute_scores(path: str, to_compute: List[str], properties) -> Dict[str, Any]:
-    # compute_functions = {
-    #     IssueType.DARK.value: calc_percentile_brightness,
-    #     IssueType.LIGHT.value: calc_percentile_brightness,
-    #     IssueType.ODD_ASPECT_RATIO.value: calc_aspect_ratio,
-    #     IssueType.LOW_INFORMATION.value: calc_entropy,
-    #     IssueType.BLURRY.value: calc_blurriness,
-    #     IssueType.GRAYSCALE.value: calc_color_space,
-    # }
+def compute_scores(
+    path: str, to_compute: List[str], properties: Dict[str, ImageProperty]
+) -> Dict[str, Any]:
     image = Image.open(path)
     results: Dict[str, Any] = {}
     results["path"] = path
@@ -75,7 +70,7 @@ class ImagePropertyIssueManager(IssueManager):
             }
             self.params[issue_type] = {**self.params[issue_type], **non_none_params}
 
-    def _get_image_properties(self) -> Dict[str, Any]:
+    def _get_image_properties(self) -> Dict[str, ImageProperty]:
         return {
             IssueType.DARK.value: BrightnessProperty(IssueType.DARK.value),
             IssueType.LIGHT.value: BrightnessProperty(IssueType.LIGHT.value),
@@ -168,7 +163,7 @@ class ImagePropertyIssueManager(IssueManager):
         self.update_summary()
         return
 
-    def update_issues(self, scores, filepaths):
+    def update_issues(self, scores: Dict[str, pd.Series], filepaths: List[str]) -> None:
         self.issues = pd.DataFrame(index=filepaths)
         for issue_type in self.issue_types:
             self.issues = self.issues.join(
@@ -178,10 +173,10 @@ class ImagePropertyIssueManager(IssueManager):
                 scores[issue_type], self.params[issue_type].get("threshold")
             )
             self.issues = self.issues.join(
-                is_issue.rename(get_is_issue_colname(issue_type))
+                is_issue.rename(get_is_issue_colname(issue_type))  # type: ignore
             )
 
-    def compute_scores(self):
+    def compute_scores(self) -> Dict[str, pd.Series]:
         scores = {}
         for issue_type in self.issue_types:
             score_column = self.image_properties[issue_type].score_column
@@ -195,10 +190,10 @@ class ImagePropertyIssueManager(IssueManager):
             )
         return scores
 
-    def aggregate_comp(self, results: Dict[str, Any], issue_types):
-        agg_computations: Dict[str, Any] = {
-            issue_type: [] for issue_type in issue_types
-        }
+    def aggregate_comp(
+        self, results: List[Dict[str, Any]], issue_types: List[str]
+    ) -> Dict[str, pd.DataFrame]:
+        agg_computations = {issue_type: pd.DataFrame() for issue_type in issue_types}
         paths = []
         for result in results:
             paths.append(result["path"])
@@ -210,7 +205,9 @@ class ImagePropertyIssueManager(IssueManager):
             )
         return agg_computations
 
-    def update_info(self, agg_computations: Dict[str, Any], imagelab_info) -> None:
+    def update_info(
+        self, agg_computations: Dict[str, pd.DataFrame], imagelab_info: Dict[str, Any]
+    ) -> None:
         for issue_type in self.issue_types:
             property_name = self.image_properties[issue_type].name
             if issue_type in agg_computations:
