@@ -50,42 +50,43 @@ class TestBrightnessHelper:
         assert isinstance(image_property, BrightnessProperty)
         assert hasattr(image_property, "issue_type")
 
-    # todo: rewrite these test based on updated logic
-    # @pytest.mark.parametrize(
-    #     "mock_mean,expected_output",
-    #     [
-    #         [[100], 0.39216],
-    #         [[100, 200, 50], 0.68172],
-    #     ],
-    #     ids=["gray", "rgb"],
-    # )
-    # def test_calculate(self, image_property, monkeypatch, mock_mean, expected_output):
-    #     from PIL import ImageStat
-    #
-    #     class MockStat:
-    #         def __init__(self, *args, **kwargs):
-    #             pass
-    #
-    #         @property
-    #         def mean(self):
-    #             return mock_mean
-    #
-    #     monkeypatch.setattr(ImageStat, "Stat", MockStat)
-    #
-    #     cur_bright = image_property.calculate("my_image")
-    #     assert cur_bright == pytest.approx(expected=expected_output, abs=1e-5)
+    @pytest.mark.skip(reason="Needs to be updated")
+    @pytest.mark.parametrize(
+        "mock_mean,expected_output",
+        [
+            [[100], 0.39216],
+            [[100, 200, 50], 0.68172],
+        ],
+        ids=["gray", "rgb"],
+    )
+    def test_calculate(self, image_property, monkeypatch, mock_mean, expected_output):
+        from PIL import ImageStat
 
-    # def test_normalize(self, image_property, monkeypatch):
-    #     raw_scores = [0.5, 0.3, 1.0, 1.2, 0.9, 0.1, 0.2]
-    #     expected_output = np.array([0.5, 0.3, 1.0, 1.0, 0.9, 0.1, 0.2])
-    #
-    #     with monkeypatch.context() as m:
-    #         m.setattr(image_property, "issue_type", IssueType.DARK)
-    #         normalized_scores = image_property.get_scores(raw_scores=raw_scores)
-    #         assert all(normalized_scores==expected_output)
-    #
-    #     normalized_scores = image_property.get_scores(raw_scores=raw_scores)
-    #     assert all(normalized_scores==1 - expected_output)
+        class MockStat:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            @property
+            def mean(self):
+                return mock_mean
+
+        monkeypatch.setattr(ImageStat, "Stat", MockStat)
+
+        cur_bright = image_property.calculate("my_image")
+        assert cur_bright == pytest.approx(expected=expected_output, abs=1e-5)
+
+    @pytest.mark.skip(reason="Needs to be updated")
+    def test_normalize(self, image_property, monkeypatch):
+        raw_scores = [0.5, 0.3, 1.0, 1.2, 0.9, 0.1, 0.2]
+        expected_output = np.array([0.5, 0.3, 1.0, 1.0, 0.9, 0.1, 0.2])
+
+        with monkeypatch.context() as m:
+            m.setattr(image_property, "issue_type", IssueType.DARK)
+            normalized_scores = image_property.get_scores(raw_scores=raw_scores)
+            assert all(normalized_scores == expected_output)
+
+        normalized_scores = image_property.get_scores(raw_scores=raw_scores)
+        assert all(normalized_scores == 1 - expected_output)
 
     @pytest.mark.parametrize(
         "scores,threshold,expected_mark",
