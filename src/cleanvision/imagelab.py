@@ -498,12 +498,7 @@ class Imagelab:
                     f"\nTop {num_images} {sets_str} of images with {issue_type} issue"
                 )
 
-            title_sets = []
-            for s in image_sets:
-                filenames = []
-                for path in s:
-                    filenames.append(path.split("/")[-1])
-                title_sets.append(filenames)
+            title_sets = [[path.split("/")[-1] for path in s] for s in image_sets]
 
             if image_sets:
                 VizManager.image_sets(
