@@ -475,7 +475,7 @@ class Imagelab:
                 )
 
             scores = sorted_df.head(num_images)[get_score_colname(issue_type)]
-            titles = scores.apply(lambda x: f"score: {round(x, 4)}").tolist()
+            titles = [f"score : {x:.4f}" for x in scores]
             paths = scores.index.tolist()
             if paths:
                 VizManager.individual_images(
