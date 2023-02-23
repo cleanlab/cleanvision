@@ -431,9 +431,9 @@ class Imagelab:
 
         self.visualize(
             issue_types=filtered_issue_types[:num_report],
-            num_images=report_args["examples_per_issue"]
-            if num_images is None
-            else num_images,
+            num_images=(
+                report_args["examples_per_issue"] if num_images is None else num_images
+            ),
         )
 
     def _pprint_issue_summary(self, issue_summary: pd.DataFrame) -> None:
