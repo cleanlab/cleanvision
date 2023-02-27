@@ -96,12 +96,16 @@ def calc_percentile_brightness(
 ) -> "np.ndarray[Any, Any]":
     imarr = np.asarray(image)
     if len(imarr.shape) == 3:
-        r, g, b = imarr[:, :, 0], imarr[:, :, 1], imarr[:, :, 2]
+        r, g, b = (
+            imarr[:, :, 0].astype("int"),
+            imarr[:, :, 1].astype("int"),
+            imarr[:, :, 2].astype("int"),
+        )
         pixel_brightness = calculate_brightness(
             r, g, b
         )  # np.sqrt(0.241 * r * r + 0.691 * g * g + 0.068 * b * b)
     else:
-        pixel_brightness = imarr
+        pixel_brightness = imarr / 255.0
     perc_values: "np.ndarray[Any, Any]" = np.percentile(pixel_brightness, percentiles)
     return perc_values
 
