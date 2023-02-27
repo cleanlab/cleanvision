@@ -1,8 +1,8 @@
-import math
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Optional, Union, overload
 
 import numpy as np
+import pandas as pd
 from PIL import ImageStat, ImageFilter
 from PIL.Image import Image
 
@@ -10,25 +10,32 @@ from cleanvision.issue_managers import IssueType
 
 
 class ImageProperty(ABC):
+    name: str
+
+    @property
+    @abstractmethod
+    def score_column(self) -> str:
+        pass
+
     @staticmethod
     def check_params(**kwargs: Any) -> None:
         allowed_kwargs: Dict[str, Any] = {
             "image": Image,
-            "scores": "np.ndarray[Any, Any]",
+            "scores": pd.Series,
             "threshold": float,
-            "raw_scores": List[Union[float, str]],
+            "raw_scores": pd.Series,
         }
 
         for name, value in kwargs.items():
             if name not in allowed_kwargs:
                 raise ValueError(f"{name} is not a valid keyword argument.")
-            if not isinstance(value, allowed_kwargs[name]):
+            if value is not None and not isinstance(value, allowed_kwargs[name]):
                 raise ValueError(
                     f"Valid type for keyword argument {name} can only be {allowed_kwargs[name]}. {name} cannot be type {type(name)}. "
                 )
 
     @abstractmethod
-    def calculate(self, image: Image) -> Union[float, str]:
+    def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
         raise NotImplementedError
 
     @abstractmethod
@@ -43,7 +50,7 @@ class ImageProperty(ABC):
         return scores < threshold
 
 
-def calc_brightness(image: Image) -> Union[float, str]:
+def calc_avg_brightness(image: Image) -> float:
     stat = ImageStat.Stat(image)
     try:
         red, green, blue = stat.mean
@@ -54,39 +61,86 @@ def calc_brightness(image: Image) -> Union[float, str]:
             stat.mean[0],
         )  # deals with black and white images
 
-    cur_bright = (
-        math.sqrt(0.241 * (red**2) + 0.691 * (green**2) + 0.068 * (blue**2))
-    ) / 255
+    cur_bright: float = calculate_brightness(red, green, blue)
     return cur_bright
+
+
+@overload
+def calculate_brightness(red: float, green: float, blue: float) -> float:
+    ...
+
+
+@overload
+def calculate_brightness(
+    red: "np.ndarray[Any, Any]",
+    green: "np.ndarray[Any, Any]",
+    blue: "np.ndarray[Any, Any]",
+) -> "np.ndarray[Any, Any]":
+    ...
+
+
+def calculate_brightness(
+    red: Union[float, "np.ndarray[Any, Any]"],
+    green: Union[float, "np.ndarray[Any, Any]"],
+    blue: Union[float, "np.ndarray[Any, Any]"],
+) -> Union[float, "np.ndarray[Any, Any]"]:
+    cur_bright = (
+        np.sqrt(0.241 * (red * red) + 0.691 * (green * green) + 0.068 * (blue * blue))
+    ) / 255
+
+    return cur_bright
+
+
+def calc_percentile_brightness(
+    image: Image, percentiles: List[int]
+) -> "np.ndarray[Any, Any]":
+    imarr = np.asarray(image)
+    if len(imarr.shape) == 3:
+        r, g, b = imarr[:, :, 0], imarr[:, :, 1], imarr[:, :, 2]
+        pixel_brightness = calculate_brightness(
+            r, g, b
+        )  # np.sqrt(0.241 * r * r + 0.691 * g * g + 0.068 * b * b)
+    else:
+        pixel_brightness = imarr
+    perc_values: "np.ndarray[Any, Any]" = np.percentile(pixel_brightness, percentiles)
+    return perc_values
 
 
 class BrightnessProperty(ImageProperty):
     name: str = "brightness"
 
-    def __init__(self, issue_type: IssueType) -> None:
-        self.issue_type = issue_type
+    @property
+    def score_column(self) -> str:
+        return self._score_column
 
-    def calculate(self, image: Image) -> Union[float, str]:
-        return calc_brightness(image)
+    def __init__(self, issue_type: str) -> None:
+        self.issue_type = issue_type
+        self._score_column = (
+            "perc_99" if self.issue_type == IssueType.DARK.value else "perc_5"
+        )
+
+    def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
+        percentiles = [1, 5, 10, 15, 90, 95, 99]
+        perc_values = calc_percentile_brightness(image, percentiles=percentiles)
+        raw_values = {f"perc_{p}": value for p, value in zip(percentiles, perc_values)}
+        raw_values[self.name] = calc_avg_brightness(image)
+        return raw_values
 
     def get_scores(
         self,
         *,
-        raw_scores: Optional[List[Union[float, str]]] = None,
+        raw_scores: Optional[pd.Series] = None,
         **kwargs: Any,
-    ) -> "np.ndarray[Any, Any]":
+    ) -> pd.Series:
         super().get_scores(**kwargs)
-        assert raw_scores is not None
-
-        scores = np.array(raw_scores)
-        scores[scores > 1] = 1
-        # reverse the brightness scores to catch images which are too bright
-        if self.issue_type.name == IssueType.LIGHT.name:
-            scores = 1 - scores
-        return scores
+        assert raw_scores is not None  # all values are between 0 and 1
+        if self.issue_type == IssueType.DARK.value:
+            return raw_scores
+        else:
+            return 1 - raw_scores
 
 
-def calc_aspect_ratio(image: Image) -> Union[float, str]:
+def calc_aspect_ratio(image: Image) -> float:
     width, height = image.size
     size_score = min(width / height, height / width)  # consider extreme shapes
     assert isinstance(size_score, float)
@@ -96,23 +150,28 @@ def calc_aspect_ratio(image: Image) -> Union[float, str]:
 class AspectRatioProperty(ImageProperty):
     name: str = "aspect_ratio"
 
-    def calculate(self, image: Image) -> Union[float, str]:
-        return calc_aspect_ratio(image)
+    @property
+    def score_column(self) -> str:
+        return self._score_column
+
+    def __init__(self) -> None:
+        self._score_column = self.name
+
+    def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
+        return {self.name: calc_aspect_ratio(image)}
 
     def get_scores(
         self,
         *,
-        raw_scores: Optional[List[Union[float, str]]] = None,
+        raw_scores: Optional[pd.Series] = None,
         **kwargs: Any,
-    ) -> "np.ndarray[Any, Any]":
+    ) -> pd.Series:
         super().get_scores(**kwargs)
         assert raw_scores is not None
-
-        scores = np.array(raw_scores)
-        return scores
+        return raw_scores
 
 
-def calc_entropy(image: Image) -> Union[float, str]:
+def calc_entropy(image: Image) -> float:
     entropy = image.entropy()
     assert isinstance(
         entropy, float
@@ -123,26 +182,32 @@ def calc_entropy(image: Image) -> Union[float, str]:
 class EntropyProperty(ImageProperty):
     name: str = "entropy"
 
-    def calculate(self, image: Image) -> Union[float, str]:
-        return calc_entropy(image)
+    @property
+    def score_column(self) -> str:
+        return self._score_column
+
+    def __init__(self) -> None:
+        self._score_column = self.name
+
+    def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
+        return {self.name: calc_entropy(image)}
 
     def get_scores(
         self,
         *,
-        raw_scores: Optional[List[Union[float, str]]] = None,
+        raw_scores: Optional[pd.Series] = None,
         normalizing_factor: float = 1.0,
         **kwargs: Any,
-    ) -> "np.ndarray[Any, Any]":
+    ) -> pd.Series:
         super().get_scores(**kwargs)
         assert raw_scores is not None
 
-        scores = np.array(raw_scores)
-        scores: "np.ndarray[Any, Any]" = normalizing_factor * scores
+        scores: "np.ndarray[Any, Any]" = normalizing_factor * raw_scores
         scores[scores > 1] = 1
         return scores
 
 
-def calc_blurriness(image: Image) -> Union[float, str]:
+def calc_blurriness(image: Image) -> float:
     edges = get_edges(image)
     blurriness = ImageStat.Stat(edges).var[0]
     assert isinstance(
@@ -154,23 +219,26 @@ def calc_blurriness(image: Image) -> Union[float, str]:
 class BlurrinessProperty(ImageProperty):
     name = "blurriness"
 
-    def calculate(self, image: Image) -> Union[float, str]:
-        return calc_blurriness(image)
+    @property
+    def score_column(self) -> str:
+        return self._score_column
+
+    def __init__(self) -> None:
+        self._score_column = self.name
+
+    def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
+        return {self.name: calc_blurriness(image)}
 
     def get_scores(
         self,
         *,
-        raw_scores: Optional[List[Union[float, str]]] = None,
+        raw_scores: Optional[pd.Series] = None,
         normalizing_factor: float = 1.0,
         **kwargs: Any,
-    ) -> "np.ndarray[Any, Any]":
+    ) -> pd.Series:
         super().get_scores(**kwargs)
         assert raw_scores is not None
-
-        raw_scores = np.array(raw_scores)
-        scores: "np.ndarray[Any, Any]" = 1 - np.exp(
-            -1 * raw_scores * normalizing_factor
-        )
+        scores = 1 - np.exp(-1 * raw_scores * normalizing_factor)
         return scores
 
 
@@ -180,35 +248,33 @@ def get_edges(image: Image) -> Image:
     return edges
 
 
-def calculate_brightness(red: float, green: float, blue: float) -> float:
-    cur_bright = (
-        math.sqrt(0.241 * (red**2) + 0.691 * (green**2) + 0.068 * (blue**2))
-    ) / 255
-
-    return cur_bright
-
-
-def calc_color_space(image: Image) -> Union[float, str]:
+def calc_color_space(image: Image) -> str:
     return get_image_mode(image)
 
 
 class ColorSpaceProperty(ImageProperty):
     name = "color_space"
 
-    def calculate(self, image: Image) -> Union[float, str]:
-        return calc_color_space(image)
+    @property
+    def score_column(self) -> str:
+        return self._score_column
+
+    def __init__(self) -> None:
+        self._score_column = self.name
+
+    def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
+        return {self.name: calc_color_space(image)}
 
     def get_scores(
         self,
         *,
-        raw_scores: Optional[List[Union[float, str]]] = None,
+        raw_scores: Optional[pd.Series] = None,
         normalizing_factor: float = 1.0,
         **kwargs: Any,
-    ) -> "np.ndarray[Any, Any]":
+    ) -> pd.Series:
         super().get_scores(**kwargs)
         assert raw_scores is not None
-
-        scores = np.array([0 if mode == "L" else 1 for mode in raw_scores])
+        scores = raw_scores.apply(lambda mode: 0 if mode == "L" else 1)
         return scores
 
     @staticmethod

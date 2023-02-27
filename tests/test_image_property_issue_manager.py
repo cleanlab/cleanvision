@@ -1,3 +1,4 @@
+import pandas as pd
 import pytest
 
 from cleanvision.issue_managers import IssueType
@@ -64,29 +65,18 @@ class TestImagePropertyIssueManager:
         issue_manager.update_params(params)
         assert issue_manager.params == expected_params
 
-    @pytest.fixture
-    def set_image_properties(self, issue_manager, monkeypatch):
-        class MockImageProperty:
-            name = None
-
-            def __init__(self, name):
-                self.name = name
-
-        image_properties = {
-            DARK: MockImageProperty("brightness"),
-            LIGHT: MockImageProperty("brightness"),
-            BLURRY: MockImageProperty("blurriness"),
-        }
-        monkeypatch.setattr(
-            issue_manager, "image_properties", image_properties, raising=False
-        )
-
-    @pytest.mark.usefixtures("set_image_properties")
     @pytest.mark.parametrize(
         "issue_types, imagelab_info, expected_defer_set",
         [
             ([DARK, LIGHT, BLURRY], {"statistics": {}}, {LIGHT}),
-            ([DARK, LIGHT, BLURRY], {"statistics": {"brightness": []}}, {DARK, LIGHT}),
+            (
+                [DARK, LIGHT, BLURRY],
+                {
+                    "statistics": {"brightness": []},
+                    "dark": {"perc_99": pd.Series(), "perc_5": pd.Series()},
+                },
+                {DARK, LIGHT},
+            ),
         ],
         ids=[
             "exclude issue types using same underlying property",

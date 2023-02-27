@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 from cleanvision.issue_managers import register_issue_manager
 from cleanvision.utils.base_issue_manager import IssueManager
+from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
 
 ISSUE_NAME = "custom"
 
@@ -19,7 +20,7 @@ class CustomIssueManager(IssueManager):
     """
 
     issue_name: str = ISSUE_NAME
-    visualization: str = "property_based"
+    visualization: str = "individual_images"
 
     def __init__(self) -> None:
         super().__init__()
@@ -74,11 +75,13 @@ class CustomIssueManager(IssueManager):
 
         self.issues = pd.DataFrame(index=filepaths)
         scores = self.get_scores(raw_scores)
-        self.issues[f"{self.issue_name}_score"] = scores
-        self.issues[f"{self.issue_name}_bool"] = self.mark_issue(
+        self.issues[get_score_colname(self.issue_name)] = scores
+        self.issues[get_is_issue_colname(self.issue_name)] = self.mark_issue(
             scores, self.params["threshold"]
         )
         self.info[self.issue_name] = {"PixelValue": raw_scores}
-        summary_dict = self._compute_summary(self.issues[f"{self.issue_name}_bool"])
+        summary_dict = self._compute_summary(
+            self.issues[get_is_issue_colname(self.issue_name)]
+        )
 
         self.update_summary(summary_dict)

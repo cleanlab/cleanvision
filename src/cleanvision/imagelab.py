@@ -28,6 +28,7 @@ from cleanvision.utils.utils import (
     get_filepaths,
     deep_update_dict,
     get_is_issue_colname,
+    get_score_colname,
 )
 from cleanvision.utils.viz_manager import VizManager
 
@@ -263,7 +264,7 @@ class Imagelab:
         )
         self.issue_summary = self.issue_summary.reset_index(drop=True)
         print(
-            "Issue checks completed. To see a detailed report of issues found use imagelab.report()."
+            "Issue checks completed. To see a detailed report of issues found, use imagelab.report()."
         )
         return
 
@@ -429,8 +430,10 @@ class Imagelab:
             )
 
         self.visualize(
-            issue_types=filtered_issue_types,
-            num_images=report_args["examples_per_issue"],
+            issue_types=filtered_issue_types[:num_report],
+            num_images=(
+                report_args["examples_per_issue"] if num_images is None else num_images
+            ),
         )
 
     def _pprint_issue_summary(self, issue_summary: pd.DataFrame) -> None:
@@ -449,43 +452,58 @@ class Imagelab:
 
     def _visualize(
         self,
-        issue_type_str: str,
-        examples_per_issue: int,
+        issue_type: str,
+        num_images: int,
         cell_size: Tuple[int, int],
     ) -> None:
-        issue_manager = self._get_issue_manager(issue_type_str)
+        # todo: remove dependency on issue manager
+        issue_manager = self._get_issue_manager(issue_type)
         viz_name = issue_manager.visualization
 
         if viz_name == "individual_images":
-            sorted_df = self.issues.sort_values(by=[f"{issue_type_str}_score"])
-            sorted_df = sorted_df[sorted_df[get_is_issue_colname(issue_type_str)] == 1]
-            if len(sorted_df) < examples_per_issue:
+            sorted_df = self.issues.sort_values(by=get_score_colname(issue_type))
+            sorted_df = sorted_df[sorted_df[get_is_issue_colname(issue_type)] == 1]
+
+            examples_str = "examples" if len(sorted_df) > 1 else "example"
+            if len(sorted_df) < num_images:
                 print(
-                    f"Found {len(sorted_df)} examples of {issue_type_str} issue in the dataset."
+                    f"Found {len(sorted_df)} {examples_str} with {issue_type} issue in the dataset."
                 )
             else:
-                print(f"\nTop {examples_per_issue} images with {issue_type_str} issue")
+                print(
+                    f"\nTop {num_images} {examples_str} with {issue_type} issue in the dataset."
+                )
 
-            sorted_filepaths = sorted_df.index[:examples_per_issue].tolist()
-            if sorted_filepaths:
+            scores = sorted_df.head(num_images)[get_score_colname(issue_type)]
+            titles = [f"score : {x:.4f}" for x in scores]
+            paths = scores.index.tolist()
+            if paths:
                 VizManager.individual_images(
-                    filepaths=sorted_filepaths,
+                    filepaths=paths,
+                    titles=titles,
                     ncols=self._config["visualize_num_images_per_row"],
                     cell_size=cell_size,
                 )
+
         elif viz_name == "image_sets":
-            image_sets = self.info[issue_type_str][SETS][:examples_per_issue]
-            if len(image_sets) < examples_per_issue:
+            image_sets = list(self.info[issue_type][SETS][:num_images])
+
+            sets_str = "sets" if len(image_sets) > 1 else "set"
+            if len(image_sets) < num_images:
                 print(
-                    f"Found {len(image_sets)} sets of images with {issue_type_str} issue in the dataset."
+                    f"Found {len(image_sets)} {sets_str} of images with {issue_type} issue in the dataset."
                 )
             else:
                 print(
-                    f"\nTop {examples_per_issue} sets of images with {issue_type_str} issue"
+                    f"\nTop {num_images} {sets_str} of images with {issue_type} issue"
                 )
+
+            title_sets = [[path.split("/")[-1] for path in s] for s in image_sets]
+
             if image_sets:
                 VizManager.image_sets(
                     image_sets,
+                    title_sets,
                     ncols=self._config["visualize_num_images_per_row"],
                     cell_size=cell_size,
                 )
@@ -538,7 +556,7 @@ class Imagelab:
 
             imagelab.visualize(num_images=8)
 
-        To visualize specfic images from the dataset
+        To visualize specific images from the dataset
 
         .. code-block:: python
 
@@ -557,7 +575,7 @@ class Imagelab:
             for issue_type in issue_types:
                 self._visualize(issue_type, num_images, cell_size)
         else:
-            if not image_files:
+            if image_files is None:
                 image_files = list(
                     np.random.choice(
                         self._filepaths,
@@ -565,11 +583,16 @@ class Imagelab:
                         replace=False,
                     )
                 )
-            VizManager.individual_images(
-                filepaths=image_files,
-                ncols=self._config["visualize_num_images_per_row"],
-                cell_size=cell_size,
-            )
+            elif len(image_files) == 0:
+                raise ValueError("image_files list is empty.")
+            if image_files:
+                titles = [path.split("/")[-1] for path in image_files]
+                VizManager.individual_images(
+                    image_files,
+                    titles,
+                    ncols=self._config["visualize_num_images_per_row"],
+                    cell_size=cell_size,
+                )
 
     # Todo: Improve mypy dict typechecking so this does not return any
     def get_stats(self) -> Any:
