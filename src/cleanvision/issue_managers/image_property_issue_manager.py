@@ -91,8 +91,8 @@ class ImagePropertyIssueManager(IssueManager):
             if score_column in imagelab_info["statistics"]:
                 defer_set.add(issue_type)
             elif (
-                issue_type==IssueType.DARK.value
-                or issue_type==IssueType.LIGHT.value
+                issue_type == IssueType.DARK.value
+                or issue_type == IssueType.LIGHT.value
             ):
                 if score_column in imagelab_info.get(
                     IssueType.LIGHT.value, {}
@@ -131,7 +131,7 @@ class ImagePropertyIssueManager(IssueManager):
                 n_jobs = get_max_n_jobs()
 
             results: List[Any] = []
-            if n_jobs==1:
+            if n_jobs == 1:
                 for path in tqdm(filepaths):
                     results.append(
                         compute_scores(path, to_be_computed, self.image_properties)
@@ -223,7 +223,7 @@ class ImagePropertyIssueManager(IssueManager):
                 self.info[issue_type] = {}
 
                 for column_name in comp.columns:
-                    if column_name==property_name:
+                    if column_name == property_name:
                         self.info["statistics"][property_name] = comp[property_name]
                     else:
                         self.info[issue_type][column_name] = comp[column_name]
@@ -239,14 +239,18 @@ class ImagePropertyIssueManager(IssueManager):
             IssueType.LIGHT.value in self.issue_types
             and not self.info[IssueType.LIGHT.value]
         ):
-            self.info[IssueType.LIGHT.value] = {**imagelab_info.get(IssueType.DARK.value, {}),
-                                                **self.info.get(IssueType.DARK.value, {})}
+            self.info[IssueType.LIGHT.value] = {
+                **imagelab_info.get(IssueType.DARK.value, {}),
+                **self.info.get(IssueType.DARK.value, {}),
+            }
         if (
             IssueType.DARK.value in self.issue_types
             and not self.info[IssueType.DARK.value]
         ):
-            self.info[IssueType.DARK.value] = {**imagelab_info.get(IssueType.LIGHT.value, {}),
-                                               **self.info.get(IssueType.LIGHT.value, {})}
+            self.info[IssueType.DARK.value] = {
+                **imagelab_info.get(IssueType.LIGHT.value, {}),
+                **self.info.get(IssueType.LIGHT.value, {}),
+            }
 
     def update_summary(self) -> None:
         summary_dict = {}
