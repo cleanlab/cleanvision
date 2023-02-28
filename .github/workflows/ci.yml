@@ -19,7 +19,7 @@ jobs:
         run: ./.github/scripts/setup_python_env.sh
         shell: bash
       - name: Test with coverage
-        run: pytest --verbose --cov=src/cleanvision/ --cov-config .coveragerc --cov-report=xml
+        run: pytest --verbose --cov=src/cleanvision/ --cov-config .coveragerc --cov-report=xml tests/
       - uses: codecov/codecov-action@v3
   typecheck:
     name: Type check
