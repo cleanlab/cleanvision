@@ -54,3 +54,9 @@ jobs:
         run: pip install flake8
       - name: Lint with flake8
         run: flake8 --ignore=E501,E722,E401,W503 src tests --count --show-source --statistics
+  nblint:
+    name: Lint Notebooks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cleanlab/nblint-action@v1
