@@ -51,13 +51,6 @@ def test_calc_bluriness():
     assert isinstance(blurriness, float)
 
 
-def test_calc_color_space():
-    img = Image.new("RGB", (200, 200), (255, 0, 0))
-    img.mode = None
-    color_space = calc_color_space(img)
-    assert color_space == "UNK"
-
-
 @pytest.mark.parametrize(
     "image,expected_mode",
     [

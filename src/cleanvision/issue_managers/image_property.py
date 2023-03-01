@@ -225,7 +225,7 @@ def get_image_mode(image: Image) -> str:
         assert isinstance(image_mode, str)
         return image_mode
     else:
-        imarr = np.array(image)
+        imarr = np.asarray(image)
         if len(imarr.shape) == 2 or (
             len(imarr.shape) == 3
             and (np.diff(imarr.reshape(-1, 3).T, axis=0) == 0).all()
