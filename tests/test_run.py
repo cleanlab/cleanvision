@@ -1,6 +1,4 @@
 import pytest
-import os
-import argparse
 from PIL import Image
 import numpy as np
 
@@ -12,7 +10,6 @@ from cleanvision.issue_managers.image_property_issue_manager import (
 )
 
 # to suppress plt.show()
-from unittest.mock import patch
 import matplotlib.pyplot as plt
 
 
@@ -46,18 +43,13 @@ def generate_n_image_files(tmpdir_factory, n=40):
     return str(tmp_image_dir)
 
 
-# contents of a single image
-def test_single_image(generate_single_image_file):
-    img = Image.open(generate_single_image_file)
-
-
 @pytest.mark.usefixtures("generate_n_image_files")
 def test_example1(capsys, monkeypatch, generate_n_image_files):
     monkeypatch.setattr(plt, "show", lambda: None)
     imagelab = Imagelab(data_path=generate_n_image_files)  # initialize imagelab
     imagelab.list_default_issue_types()  # list default checks
 
-    ## ==== Test list_default_issue_types() lists all default isssue types====
+    # ==== Test list_default_issue_types() lists all default isssue types====
     DEFAULT_ISSUE_TYPES = [
         "dark",
         "light",
@@ -76,21 +68,21 @@ def test_example1(capsys, monkeypatch, generate_n_image_files):
     for issue_type in imagelab._issue_types:
         assert issue_type in captured.out
 
-    ## ===[TODO] Test visualize produces some result ===
+    # ===[TODO] Test visualize produces some result ===
     # imagelab.visualize()  # visualize random images in dataset
 
-    ## === Test find_issues() finds issues in dataset ===
+    # === Test find_issues() finds issues in dataset ===
     assert len(imagelab.issue_summary) == 0
     imagelab.find_issues()  # Find issues in the dataset
     assert len(imagelab.issue_summary) > 0
 
-    ## === Test report() produces print output ===
+    # === Test report() produces print output ===
     captured = capsys.readouterr()
     imagelab.report()
     captured = capsys.readouterr()
     assert len(captured) > 0
 
-    ## === [TODO] Test visualize works as needed ===
+    # === [TODO] Test visualize works as needed ===
     # imagelab.visualize(
     #     issue_types=["blurry"], num_images=8
     # )  # visualize images that have specific issues
@@ -101,7 +93,7 @@ def test_example1(capsys, monkeypatch, generate_n_image_files):
     #     ].index.to_list()
     # imagelab.visualize(image_files=blurry_images)  # visualize the given image files
 
-    ## === Test miscellaneous extra information about datasset
+    # === Test miscellaneous extra information about datasset
     assert list(imagelab.info.keys()) == [
         "statistics",
         "exact_duplicates",

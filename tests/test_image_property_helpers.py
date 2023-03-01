@@ -11,7 +11,6 @@ from cleanvision.issue_managers.image_property import (
     calc_entropy,
     calc_blurriness,
     get_edges,
-    calc_color_space,
 )
 
 
