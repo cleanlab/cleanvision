@@ -7,6 +7,11 @@ from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
     calculate_brightness,
     get_image_mode,
+    calc_aspect_ratio,
+    calc_entropy,
+    calc_blurriness,
+    get_edges,
+    calc_color_space,
 )
 
 
@@ -24,6 +29,33 @@ from cleanvision.issue_managers.image_property import (
 def test_calculate_brightness(rgb, expected_brightness):
     brightness = calculate_brightness(*rgb)
     assert brightness == pytest.approx(expected=expected_brightness, abs=1e-5)
+
+
+def test_calc_aspect_ratio():
+    img = Image.new("RGB", (200, 200), (255, 0, 0))
+    size_score = calc_aspect_ratio(img)  # min(width/height,height/width)
+    assert size_score == 1
+
+
+def test_calc_entropy():
+    img = Image.new("RGB", (200, 200), (255, 0, 0))
+    entropy_score = calc_entropy(img)  # min(width/height,height/width)
+    assert entropy_score == img.entropy()
+
+
+def test_calc_bluriness():
+    img = Image.new("RGB", (200, 200), (255, 0, 0))
+    edges = get_edges(img)
+    blurriness = calc_blurriness(img)
+    assert isinstance(edges, Image.Image)
+    assert isinstance(blurriness, float)
+
+
+def test_calc_color_space():
+    img = Image.new("RGB", (200, 200), (255, 0, 0))
+    img.mode = None
+    color_space = calc_color_space(img)
+    assert color_space == "UNK"
 
 
 @pytest.mark.parametrize(

@@ -168,3 +168,9 @@ def test_example4(monkeypatch, generate_n_image_files):
 
     imagelab.find_issues()  # also check for default issue types
     imagelab.report()
+
+
+def test_jobs(monkeypatch, generate_n_image_files):
+    monkeypatch.setattr(plt, "show", lambda: None)
+    imagelab = Imagelab(data_path=generate_n_image_files)
+    imagelab.find_issues(n_jobs=1)
