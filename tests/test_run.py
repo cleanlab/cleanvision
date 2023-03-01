@@ -7,6 +7,10 @@ import numpy as np
 from cleanvision.imagelab import Imagelab
 from examples.custom_issue_manager import CustomIssueManager
 
+from cleanvision.issue_managers.image_property_issue_manager import (
+    compute_scores_wrapper,
+)
+
 # to suppress plt.show()
 from unittest.mock import patch
 import matplotlib.pyplot as plt
@@ -174,3 +178,9 @@ def test_jobs(monkeypatch, generate_n_image_files):
     monkeypatch.setattr(plt, "show", lambda: None)
     imagelab = Imagelab(data_path=generate_n_image_files)
     imagelab.find_issues(n_jobs=1)
+
+
+@pytest.mark.usefixtures("generate_single_image_file")
+def test_compute_scores(generate_single_image_file):
+    args = {"to_compute": ["dark", "light"], "path": generate_single_image_file}
+    _ = compute_scores_wrapper(args)
