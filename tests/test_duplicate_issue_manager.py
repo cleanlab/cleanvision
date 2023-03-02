@@ -216,9 +216,5 @@ def test_get_hash():
     assert hash is not None
 
     # Test calling function with not a real hash
-    try:
+    with pytest.raises(ValueError, match="not supported"):
         get_hash(img, {"hash_type": "fake_hash"})
-    except Exception as e:
-        assert "not supported" in str(e)
-        with pytest.raises(ValueError) as e:
-            get_hash(img, {"hash_type": "fake_hash"})
