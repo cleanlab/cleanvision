@@ -3,21 +3,22 @@ import multiprocessing
 from typing import Any, Dict, List, Optional
 
 import imagehash
+import numpy as np
 import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
 from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.utils.base_issue_manager import IssueManager
-from cleanvision.utils.constants import SETS, DUPLICATE
+from cleanvision.utils.constants import SETS, DUPLICATE, MAX_PROCS
 from cleanvision.utils.utils import get_max_n_jobs, get_is_issue_colname
-from cleanvision.utils.constants import MAX_PROCS
 
 
 def get_hash(image: Image, params: Dict[str, Any]) -> str:
     hash_type, hash_size = params["hash_type"], params.get("hash_size", None)
     if hash_type == "md5":
-        return hashlib.md5(image.tobytes()).hexdigest()
+        pixels = np.asarray(image)
+        return hashlib.md5(pixels.tobytes()).hexdigest()
     elif hash_type == "whash":
         return str(imagehash.whash(image, hash_size=hash_size))
     elif hash_type == "phash":
@@ -57,11 +58,10 @@ class DuplicateIssueManager(IssueManager):
     def get_default_params(self) -> Dict[str, Any]:
         return {
             IssueType.EXACT_DUPLICATES.value: {"hash_type": "md5"},
-            IssueType.NEAR_DUPLICATES.value: {"hash_type": "whash", "hash_size": 8},
+            IssueType.NEAR_DUPLICATES.value: {"hash_type": "phash", "hash_size": 8},
         }
 
     def update_params(self, params: Dict[str, Any]) -> None:
-        self.params = self.get_default_params()
         for issue_type in self.params:
             non_none_params = {
                 k: v for k, v in params.get(issue_type, {}).items() if v is not None
