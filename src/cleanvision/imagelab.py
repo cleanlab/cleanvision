@@ -422,19 +422,24 @@ class Imagelab:
         issue_summary = self.issue_summary[
             self.issue_summary["issue_type"].isin(filtered_issue_types[:num_report])
         ]
-        print("Issues found in order of severity in the dataset\n")
-        self._pprint_issue_summary(issue_summary)
-        if issue_types is None and num_report < len(filtered_issue_types):
-            print(
-                f"{len(filtered_issue_types) - num_report} more issues found in the dataset. To view them increase verbosity or check imagelab.issue_summary."
-            )
+        if len(issue_summary) > 0:
+            print("Issues found in order of severity in the dataset\n")
+            self._pprint_issue_summary(issue_summary)
+            if issue_types is None and num_report < len(filtered_issue_types):
+                print(
+                    f"{len(filtered_issue_types) - num_report} more issues found in the dataset. To view them increase verbosity or check imagelab.issue_summary."
+                )
 
-        self.visualize(
-            issue_types=filtered_issue_types[:num_report],
-            num_images=(
-                report_args["examples_per_issue"] if num_images is None else num_images
-            ),
-        )
+            self.visualize(
+                issue_types=filtered_issue_types[:num_report],
+                num_images=(
+                    report_args["examples_per_issue"]
+                    if num_images is None
+                    else num_images
+                ),
+            )
+        else:
+            print("No issues found.")
 
     def _pprint_issue_summary(self, issue_summary: pd.DataFrame) -> None:
         issue_summary_copy = issue_summary.copy()
@@ -572,6 +577,8 @@ class Imagelab:
 
         """
         if issue_types:
+            if len(issue_types) == 0:
+                raise ValueError("issue_types list is empty")
             for issue_type in issue_types:
                 self._visualize(issue_type, num_images, cell_size)
         else:
