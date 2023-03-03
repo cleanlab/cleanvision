@@ -1,16 +1,15 @@
+# to suppress plt.show()
+import matplotlib.pyplot as plt
+import numpy as np
 import pytest
 from PIL import Image
-import numpy as np
 
 from cleanvision.imagelab import Imagelab
-from examples.custom_issue_manager import CustomIssueManager
-
+from cleanvision.issue_managers.image_property import BrightnessProperty
 from cleanvision.issue_managers.image_property_issue_manager import (
     compute_scores_wrapper,
 )
-
-# to suppress plt.show()
-import matplotlib.pyplot as plt
+from examples.custom_issue_manager import CustomIssueManager
 
 
 def generate_image(arr=None):
@@ -94,11 +93,7 @@ def test_example1(capsys, monkeypatch, generate_n_image_files):
     # imagelab.visualize(image_files=blurry_images)  # visualize the given image files
 
     # === Test miscellaneous extra information about datasset
-    assert list(imagelab.info.keys()) == [
-        "statistics",
-        "exact_duplicates",
-        "near_duplicates",
-    ]
+    assert set(imagelab.info.keys()) == set(DEFAULT_ISSUE_TYPES + ["statistics"])
     for key in ["color_space", "entropy", "brightness", "blurriness", "aspect_ratio"]:
         assert key in list(imagelab.info["statistics"].keys())
 
@@ -174,5 +169,13 @@ def test_jobs(monkeypatch, generate_n_image_files):
 
 @pytest.mark.usefixtures("generate_single_image_file")
 def test_compute_scores(generate_single_image_file):
-    args = {"to_compute": ["dark", "light"], "path": generate_single_image_file}
+    image_properties = {
+        "dark": BrightnessProperty("dark"),
+        "light": BrightnessProperty("light"),
+    }
+    args = {
+        "to_compute": ["dark", "light"],
+        "path": generate_single_image_file,
+        "image_properties": image_properties,
+    }
     _ = compute_scores_wrapper(args)
