@@ -106,3 +106,7 @@ This repo uses [EditorConfig](https://editorconfig.org/) to keep code style
 consistent across editors and IDEs. You can install a plugin for your editor,
 and then your editor will automatically ensure that indentation and line
 endings match the project style.
+
+## Contributing to cleanvision docs
+
+The docs for this repo are hosted by readthedocs.io and can be found [here](https://cleanvision.readthedocs.io/en/latest/). If you want your recent changes pushed to master be visible then go to the [project page](https://readthedocs.org/projects/cleanvision/) and `build` latest version. If you want to see how a specific branch output looks, activate the branch in `version` tab and then `build` that branch.
