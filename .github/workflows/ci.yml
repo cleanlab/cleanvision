@@ -18,8 +18,10 @@ jobs:
       - name: Setup python environment
         run: ./.github/scripts/setup_python_env.sh
         shell: bash
+      - name: Install cleanvision
+        run: pip install -e .
       - name: Test with coverage
-        run: pytest --verbose --cov=cleanvision --cov-config .coveragerc --cov-report=xml tests/
+        run: pytest --verbose --cov=src/cleanvision/ --cov-config .coveragerc --cov-report=xml tests/
       - uses: codecov/codecov-action@v3
   typecheck:
     name: Type check
@@ -52,10 +54,9 @@ jobs:
         run: pip install flake8
       - name: Lint with flake8
         run: flake8 --ignore=E501,E722,E401,W503 src tests --count --show-source --statistics
-  pull-request-links:
-    name: Readthedocs build
+  nblint:
+    name: Lint Notebooks
     runs-on: ubuntu-latest
     steps:
-      - uses: readthedocs/actions/preview@v1
-        with:
-          project-slug: "cleanvision"
+      - uses: actions/checkout@v3
+      - uses: cleanlab/nblint-action@v1

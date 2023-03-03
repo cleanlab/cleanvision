@@ -1,7 +1,11 @@
 import pytest
+from PIL import Image
 
 from cleanvision.issue_managers import IssueType
-from cleanvision.issue_managers.duplicate_issue_manager import DuplicateIssueManager
+from cleanvision.issue_managers.duplicate_issue_manager import (
+    DuplicateIssueManager,
+    get_hash,
+)
 
 EXACT = IssueType.EXACT_DUPLICATES.value
 NEAR = IssueType.NEAR_DUPLICATES.value
@@ -198,3 +202,19 @@ class TestDuplicateIssueManager:
         expected_duplicate_sets.sort()
         for s1, s2 in zip(duplicate_sets, expected_duplicate_sets):
             assert set(s1) == set(s2)
+
+
+def test_get_hash():
+    img = Image.new("RGB", (200, 200), (255, 0, 0))
+    hash = get_hash(img, {"hash_type": "md5"})
+    assert hash is not None
+
+    hash = get_hash(img, {"hash_type": "whash", "hash_size": 2})
+    assert hash is not None
+
+    hash = get_hash(img, {"hash_type": "phash", "hash_size": 2})
+    assert hash is not None
+
+    # Test calling function with not a real hash
+    with pytest.raises(ValueError, match="not supported"):
+        get_hash(img, {"hash_type": "fake_hash"})
