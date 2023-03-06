@@ -198,11 +198,11 @@ class ImagePropertyIssueManager(IssueManager):
                     dark_issue_scores = self.image_properties[
                         IssueType.DARK.value
                     ].get_scores(
-                        raw_scores=all_info_df[
+                        all_info_df[
                             self.image_properties[IssueType.DARK.value].score_columns
                         ],
+                        IssueType.DARK.value,
                         **self.params[IssueType.DARK.value],
-                        issue_type=IssueType.DARK.value,
                     )
                     is_dark_issue = self.image_properties[
                         IssueType.DARK.value
@@ -219,9 +219,7 @@ class ImagePropertyIssueManager(IssueManager):
                 score_columns = agg_computations[score_column_names]
 
             issue_scores = self.image_properties[issue_type].get_scores(
-                raw_scores=score_columns,
-                **self.params[issue_type],
-                issue_type=issue_type,
+                score_columns, issue_type, **self.params[issue_type]
             )
             is_issue = self.image_properties[issue_type].mark_issue(
                 issue_scores, self.params[issue_type].get("threshold"), issue_type

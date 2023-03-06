@@ -147,7 +147,7 @@ class BrightnessProperty(ImageProperty):
         issue_type: str,
         **kwargs: Any,
     ) -> pd.DataFrame:
-        super().get_scores(**kwargs)
+        super().get_scores(raw_scores, issue_type, **kwargs)
         assert raw_scores is not None  # all values are between 0 and 1
         scores = pd.DataFrame(index=raw_scores.index)
 
@@ -185,9 +185,8 @@ class AspectRatioProperty(ImageProperty):
         raw_scores: pd.DataFrame,
         issue_type: str,
         **kwargs: Any,
-    ) -> pd.Series:
-        super().get_scores(**kwargs)
-        assert raw_scores is not None
+    ) -> pd.DataFrame:
+        super().get_scores(raw_scores, issue_type, **kwargs)
         scores = pd.DataFrame(index=raw_scores.index)
         scores[get_score_colname(issue_type)] = raw_scores[self.score_columns[0]]
         return scores
@@ -221,7 +220,7 @@ class EntropyProperty(ImageProperty):
         normalizing_factor: float = 1.0,
         **kwargs: Any,
     ) -> pd.DataFrame:
-        super().get_scores(**kwargs)
+        super().get_scores(raw_scores, issue_type, **kwargs)
         assert raw_scores is not None
         scores = pd.DataFrame(index=raw_scores.index)
         scores_data = normalizing_factor * raw_scores[self.score_columns[0]]
@@ -263,7 +262,7 @@ class BlurrinessProperty(ImageProperty):
         normalizing_factor: float = 1.0,
         **kwargs: Any,
     ) -> pd.DataFrame:
-        super().get_scores(**kwargs)
+        super().get_scores(raw_scores, issue_type, **kwargs)
         assert raw_scores is not None
         only_blur_scores = 1 - np.exp(-1 * raw_scores[self.name] * normalizing_factor)
         is_dark = raw_scores[get_is_issue_colname(IssueType.DARK.value)].astype("int")
@@ -303,7 +302,7 @@ class ColorSpaceProperty(ImageProperty):
         issue_type: str,
         **kwargs: Any,
     ) -> pd.DataFrame:
-        super().get_scores(**kwargs)
+        super().get_scores(raw_scores, issue_type, **kwargs)
         assert raw_scores is not None
         scores = pd.DataFrame(index=raw_scores.index)
         scores[get_score_colname(issue_type)] = [
