@@ -66,15 +66,12 @@ class TestImagePropertyIssueManager:
         assert issue_manager.params == expected_params
 
     @pytest.mark.parametrize(
-        "issue_types, imagelab_info, expected_defer_set",
+        "issue_types, agg_computations, expected_defer_set",
         [
-            ([DARK, LIGHT, BLURRY], {"statistics": {}}, {LIGHT}),
+            ([DARK, LIGHT, BLURRY], pd.DataFrame(), {LIGHT}),
             (
                 [DARK, LIGHT, BLURRY],
-                {
-                    "statistics": {"brightness": []},
-                    "dark": {"perc_99": pd.Series(), "perc_5": pd.Series()},
-                },
+                pd.DataFrame(columns=["brightness_perc_99", "brightness_perc_5"]),
                 {DARK, LIGHT},
             ),
         ],
@@ -84,7 +81,7 @@ class TestImagePropertyIssueManager:
         ],
     )
     def test_get_defer_set(
-        self, issue_types, imagelab_info, expected_defer_set, issue_manager
+        self, issue_types, agg_computations, expected_defer_set, issue_manager
     ):
         """Tests image_property_issue_manager._get_defer_set(). Cases covered:
         1. If two issue types use the same image property, skip one
@@ -100,5 +97,5 @@ class TestImagePropertyIssueManager:
         -------
 
         """
-        defer_set = issue_manager._get_defer_set(issue_types, imagelab_info)
+        defer_set = issue_manager._get_defer_set(issue_types, agg_computations)
         assert defer_set == expected_defer_set

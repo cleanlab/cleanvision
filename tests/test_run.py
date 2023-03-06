@@ -179,3 +179,12 @@ def test_compute_scores(generate_single_image_file):
         "image_properties": image_properties,
     }
     _ = compute_scores_wrapper(args)
+
+
+@pytest.mark.usefixtures("generate_n_image_files")
+def test_example5(monkeypatch, generate_n_image_files):
+    monkeypatch.setattr(plt, "show", lambda: None)
+    imagelab = Imagelab(data_path=generate_n_image_files)
+    imagelab.find_issues({"blurry": {}})
+    imagelab.find_issues({"dark": {}})
+    imagelab.report()

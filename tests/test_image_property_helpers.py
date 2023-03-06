@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import pytest
 from PIL import Image
 
@@ -12,6 +13,7 @@ from cleanvision.issue_managers.image_property import (
     calc_blurriness,
     get_edges,
 )
+from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
 
 
 @pytest.mark.parametrize(
@@ -115,15 +117,19 @@ class TestBrightnessHelper:
     @pytest.mark.parametrize(
         "scores,threshold,expected_mark",
         [
-            [0.23, 0.4, [True]],
-            [0.6, 0.5, [False]],
             [
-                np.array([0.1, 0.2, 0.3, 0.4]),
+                pd.DataFrame(
+                    data={get_score_colname("fake_issue"): [0.1, 0.2, 0.3, 0.4]}
+                ),
                 0.3,
-                np.array([True, True, False, False]),
+                pd.DataFrame(
+                    data={
+                        get_is_issue_colname("fake_issue"): [True, True, False, False]
+                    }
+                ),
             ],
         ],
     )
     def test_mark_issue(self, image_property, scores, threshold, expected_mark):
-        mark = image_property.mark_issue(np.array(scores), threshold)
+        mark = image_property.mark_issue(scores, threshold, "fake_issue")
         assert all(mark == expected_mark)

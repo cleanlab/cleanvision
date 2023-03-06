@@ -190,10 +190,30 @@ class ImagePropertyIssueManager(IssueManager):
         for issue_type in issue_types:
             score_column_names = self.image_properties[issue_type].score_columns
 
-            # todo: remove hacky way
+            # todo: this is hacky
             if issue_type == IssueType.BLURRY.value:
                 all_info_df = agg_computations.join(self.issues)
+                if not set(score_column_names).issubset(all_info_df.columns):
+                    dark_issue_scores = self.image_properties[
+                        IssueType.DARK.value
+                    ].get_scores(
+                        raw_scores=all_info_df[
+                            self.image_properties[IssueType.DARK.value].score_columns
+                        ],
+                        **self.params[IssueType.DARK.value],
+                        issue_type=IssueType.DARK.value,
+                    )
+                    is_dark_issue = self.image_properties[
+                        IssueType.DARK.value
+                    ].mark_issue(
+                        dark_issue_scores,
+                        self.params[IssueType.DARK.value].get("threshold"),
+                        IssueType.DARK.value,
+                    )
+                    all_info_df = all_info_df.join(dark_issue_scores)
+                    all_info_df = all_info_df.join(is_dark_issue)
                 score_columns = all_info_df[score_column_names]
+
             else:
                 score_columns = agg_computations[score_column_names]
 
