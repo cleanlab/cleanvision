@@ -247,7 +247,8 @@ class ImagePropertyIssueManager(IssueManager):
         for key in info.keys():
             if key in IMAGE_PROPERTY_ISSUE_TYPES_LIST + ["statistics"]:
                 for col in info[key]:
-                    agg_computations = agg_computations.join(info[key][col])
+                    if col not in agg_computations:
+                        agg_computations = agg_computations.join(info[key][col])
         return agg_computations
 
     def aggregate(self, results: List[Dict[str, Any]]) -> pd.DataFrame:
