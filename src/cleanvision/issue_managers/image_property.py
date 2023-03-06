@@ -41,7 +41,9 @@ class ImageProperty(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_scores(self, **kwargs: Any) -> Any:
+    def get_scores(
+        self, raw_scores: pd.DataFrame, issue_type: str, **kwargs: Any
+    ) -> Any:
         self.check_params(**kwargs)
         return
 
@@ -141,8 +143,7 @@ class BrightnessProperty(ImageProperty):
 
     def get_scores(
         self,
-        *,
-        raw_scores: Optional[pd.DataFrame] = None,
+        raw_scores: pd.DataFrame,
         issue_type: str,
         **kwargs: Any,
     ) -> pd.DataFrame:
@@ -181,9 +182,8 @@ class AspectRatioProperty(ImageProperty):
 
     def get_scores(
         self,
-        *,
-        raw_scores: Optional[pd.Series] = None,
-        issue_type,
+        raw_scores: pd.DataFrame,
+        issue_type: str,
         **kwargs: Any,
     ) -> pd.Series:
         super().get_scores(**kwargs)
@@ -216,10 +216,9 @@ class EntropyProperty(ImageProperty):
 
     def get_scores(
         self,
-        *,
-        raw_scores: Optional[pd.DataFrame] = None,
-        normalizing_factor: float = 1.0,
+        raw_scores: pd.DataFrame,
         issue_type: str,
+        normalizing_factor: float = 1.0,
         **kwargs: Any,
     ) -> pd.DataFrame:
         super().get_scores(**kwargs)
@@ -237,7 +236,7 @@ def calc_blurriness(image: Image) -> float:
     assert isinstance(
         blurriness, float
     )  # ImageStat.Stat returns float but no typestub for package
-    return np.sqrt(blurriness)
+    return np.sqrt(blurriness)  # type:ignore
 
 
 class BlurrinessProperty(ImageProperty):
@@ -259,10 +258,9 @@ class BlurrinessProperty(ImageProperty):
 
     def get_scores(
         self,
-        *,
-        raw_scores: Optional[pd.DataFrame] = None,
-        normalizing_factor: float = 1.0,
+        raw_scores: pd.DataFrame,
         issue_type: str,
+        normalizing_factor: float = 1.0,
         **kwargs: Any,
     ) -> pd.DataFrame:
         super().get_scores(**kwargs)
@@ -301,9 +299,7 @@ class ColorSpaceProperty(ImageProperty):
 
     def get_scores(
         self,
-        *,
-        raw_scores: Optional[pd.Series] = None,
-        normalizing_factor: float = 1.0,
+        raw_scores: pd.DataFrame,
         issue_type: str,
         **kwargs: Any,
     ) -> pd.DataFrame:

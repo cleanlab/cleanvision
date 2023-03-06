@@ -100,7 +100,7 @@ class ImagePropertyIssueManager(IssueManager):
 
         return defer_set
 
-    def _get_additional_to_compute_set(self, issue_types):
+    def _get_additional_to_compute_set(self, issue_types: List[str]) -> List[str]:
         additional_set = []
         if (
             IssueType.BLURRY.value in issue_types
@@ -181,11 +181,13 @@ class ImagePropertyIssueManager(IssueManager):
         self.update_summary()
         return
 
-    def _get_dependency_sorted(self, issue_types):
+    def _get_dependency_sorted(self, issue_types: List[str]) -> List[str]:
         # todo: remove this hacky way, add an ordering
         return sorted(issue_types, reverse=True)
 
-    def update_issues(self, agg_computations: pd.DataFrame, issue_types) -> None:
+    def update_issues(
+        self, agg_computations: pd.DataFrame, issue_types: List[str]
+    ) -> None:
         for issue_type in issue_types:
             score_column_names = self.image_properties[issue_type].score_columns
 
@@ -227,7 +229,9 @@ class ImagePropertyIssueManager(IssueManager):
             self.issues = self.issues.join(issue_scores)
             self.issues = self.issues.join(is_issue)
 
-    def _get_prev_computations(self, filepaths, info):
+    def _get_prev_computations(
+        self, filepaths: List[str], info: Dict[str, Any]
+    ) -> pd.DataFrame:
         agg_computations = pd.DataFrame(index=filepaths)
         for key in info.keys():
             if key in IMAGE_PROPERTY_ISSUE_TYPES_LIST + ["statistics"]:

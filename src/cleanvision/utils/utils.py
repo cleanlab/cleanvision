@@ -3,6 +3,8 @@ import multiprocessing
 import os
 from typing import Dict, List, Any
 
+import pandas as pd
+
 # psutil is a package used to count physical cores for multiprocessing
 # This package is not necessary, because we can always fall back to logical cores as the default
 try:
@@ -103,7 +105,9 @@ def get_score_colname(issue_type: str) -> str:
     return f"{issue_type}_score"
 
 
-def update_df(df, new_df, overwrite=True):
+def update_df(
+    df: pd.DataFrame, new_df: pd.DataFrame, overwrite: bool = True
+) -> pd.DataFrame:
     columns_to_update, new_columns = [], []
     for column in new_df.columns:
         if column in df.columns:
