@@ -15,9 +15,12 @@ from cleanvision.issue_managers.image_property import (
     ImageProperty,
 )
 from cleanvision.utils.base_issue_manager import IssueManager
-from cleanvision.utils.constants import IMAGE_PROPERTY
-from cleanvision.utils.constants import MAX_PROCS
-from cleanvision.utils.utils import get_max_n_jobs, get_is_issue_colname
+from cleanvision.utils.constants import (
+    IMAGE_PROPERTY,
+    MAX_PROCS,
+    IMAGE_PROPERTY_ISSUE_TYPES_LIST,
+)
+from cleanvision.utils.utils import get_max_n_jobs, get_is_issue_colname, update_df
 
 
 def compute_scores(
@@ -27,7 +30,7 @@ def compute_scores(
     results: Dict[str, Any] = {}
     results["path"] = path
     for issue_type in to_compute:
-        results[issue_type] = properties[issue_type].calculate(image)
+        results = {**results, **properties[issue_type].calculate(image)}
     return results
 
 
@@ -59,7 +62,7 @@ class ImagePropertyIssueManager(IssueManager):
                 "threshold": 0.3,
                 "normalizing_factor": 0.1,
             },
-            IssueType.BLURRY.value: {"threshold": 0.13, "normalizing_factor": 0.001},
+            IssueType.BLURRY.value: {"threshold": 0.15, "normalizing_factor": 0.01},
             IssueType.GRAYSCALE.value: {},
         }
 
@@ -81,28 +84,30 @@ class ImagePropertyIssueManager(IssueManager):
         }
 
     def _get_defer_set(
-        self, issue_types: List[str], imagelab_info: Dict[str, Any]
+        self, issue_types: List[str], agg_computations: pd.DataFrame
     ) -> Set[str]:
         defer_set = set()
 
         # Add precomputed issues to defer set
         for issue_type in issue_types:
-            score_column = self.image_properties[issue_type].score_column
-            if score_column in imagelab_info["statistics"]:
+            score_columns = self.image_properties[issue_type].score_columns
+            if set(score_columns).issubset(agg_computations.columns):
                 defer_set.add(issue_type)
-            elif (
-                issue_type == IssueType.DARK.value
-                or issue_type == IssueType.LIGHT.value
-            ):
-                if score_column in imagelab_info.get(
-                    IssueType.LIGHT.value, {}
-                ) or score_column in imagelab_info.get(IssueType.DARK.value, {}):
-                    defer_set.add(issue_type)
 
         # Add issues using same property
         if {IssueType.LIGHT.value, IssueType.DARK.value}.issubset(set(issue_types)):
             defer_set.add(IssueType.LIGHT.value)
+
         return defer_set
+
+    def _get_additional_to_compute_set(self, issue_types):
+        additional_set = []
+        if (
+            IssueType.BLURRY.value in issue_types
+            and IssueType.DARK.value not in issue_types
+        ):
+            additional_set.append(IssueType.DARK.value)
+        return additional_set
 
     def find_issues(
         self,
@@ -119,13 +124,20 @@ class ImagePropertyIssueManager(IssueManager):
         assert filepaths is not None
 
         self.issue_types = list(params.keys())
+        self.issues = pd.DataFrame(index=filepaths)
+        additional_set = self._get_additional_to_compute_set(self.issue_types)
+
         self.update_params(params)
 
-        defer_set = self._get_defer_set(self.issue_types, imagelab_info)
+        agg_computations = self._get_prev_computations(filepaths, imagelab_info)
+        defer_set = self._get_defer_set(
+            self.issue_types + additional_set, agg_computations
+        )
 
-        to_be_computed = list(set(self.issue_types).difference(defer_set))
-
-        agg_computations = {}
+        to_be_computed = list(
+            set(self.issue_types + additional_set).difference(defer_set)
+        )
+        new_computations = pd.DataFrame(index=filepaths)
         if to_be_computed:
             if n_jobs is None:
                 n_jobs = get_max_n_jobs()
@@ -158,99 +170,80 @@ class ImagePropertyIssueManager(IssueManager):
 
                 results = sorted(results, key=lambda r: r["path"])  # type:ignore
 
-            agg_computations = self.aggregate_comp(results, to_be_computed)
+            new_computations = self.aggregate(results)
 
-        # update info
-        self.update_info(agg_computations, imagelab_info)
+        agg_computations = update_df(agg_computations, new_computations)
 
-        scores = self.compute_scores()
+        ordered_issue_types = self._get_dependency_sorted(self.issue_types)
 
-        self.update_issues(scores, filepaths)
+        self.update_issues(agg_computations, ordered_issue_types)
+        self.update_info(agg_computations)
         self.update_summary()
         return
 
-    def update_issues(self, scores: Dict[str, pd.Series], filepaths: List[str]) -> None:
-        self.issues = pd.DataFrame(index=filepaths)
-        for issue_type in self.issue_types:
-            self.issues = self.issues.join(
-                scores[issue_type].rename(f"{issue_type}_score")
+    def _get_dependency_sorted(self, issue_types):
+        # todo: remove this hacky way, add an ordering
+        return sorted(issue_types, reverse=True)
+
+    def update_issues(self, agg_computations: pd.DataFrame, issue_types) -> None:
+
+        for issue_type in issue_types:
+            score_column_names = self.image_properties[issue_type].score_columns
+
+            # todo: remove hacky way
+            if issue_type == IssueType.BLURRY.value:
+                all_info_df = agg_computations.join(self.issues)
+                score_columns = all_info_df[score_column_names]
+            else:
+                score_columns = agg_computations[score_column_names]
+
+            issue_scores = self.image_properties[issue_type].get_scores(
+                raw_scores=score_columns,
+                **self.params[issue_type],
+                issue_type=issue_type,
             )
             is_issue = self.image_properties[issue_type].mark_issue(
-                scores[issue_type], self.params[issue_type].get("threshold")
+                issue_scores, self.params[issue_type].get("threshold"), issue_type
             )
-            self.issues = self.issues.join(
-                is_issue.rename(get_is_issue_colname(issue_type))  # type: ignore
-            )
+            self.issues = self.issues.join(issue_scores)
+            self.issues = self.issues.join(is_issue)
 
-    def compute_scores(self) -> Dict[str, pd.Series]:
-        scores = {}
-        for issue_type in self.issue_types:
-            score_column = self.image_properties[issue_type].score_column
-            if score_column in self.info["statistics"]:
-                values = self.info["statistics"][score_column]
-            else:
-                values = self.info[issue_type][score_column]
-
-            scores[issue_type] = self.image_properties[issue_type].get_scores(
-                raw_scores=values, **self.params[issue_type]
-            )
-        return scores
-
-    def aggregate_comp(
-        self, results: List[Dict[str, Any]], issue_types: List[str]
-    ) -> Dict[str, pd.DataFrame]:
-        agg_computations: Dict[str, List[Dict[str, Any]]] = {
-            issue_type: [] for issue_type in issue_types
-        }
-        paths = []
-        for result in results:
-            paths.append(result["path"])
-            for issue_type in issue_types:
-                agg_computations[issue_type].append(result[issue_type])
-        for issue_type in issue_types:
-            agg_computations[issue_type] = pd.DataFrame(
-                agg_computations[issue_type], index=paths
-            )
+    def _get_prev_computations(self, filepaths, info):
+        agg_computations = pd.DataFrame(index=filepaths)
+        for key in info.keys():
+            if key in IMAGE_PROPERTY_ISSUE_TYPES_LIST + ["statistics"]:
+                for col in info[key]:
+                    agg_computations = agg_computations.join(info[key][col])
         return agg_computations
 
-    def update_info(
-        self, agg_computations: Dict[str, pd.DataFrame], imagelab_info: Dict[str, Any]
-    ) -> None:
+    def aggregate(self, results: List[Dict[str, Any]]) -> pd.DataFrame:
+        agg_computations = pd.DataFrame(results)
+        agg_computations = agg_computations.set_index("path")
+        return agg_computations
+
+    def update_info(self, agg_computations: pd.DataFrame) -> None:
+        property_names = {
+            issue_type: self.image_properties[issue_type].name
+            for issue_type in self.issue_types
+        }
+        issue_columns = {
+            issue_type: [
+                col
+                for col in agg_computations.columns
+                if col.startswith(property_names[issue_type] + "_")
+            ]
+            for issue_type in self.issue_types
+        }
+
         for issue_type in self.issue_types:
-            property_name = self.image_properties[issue_type].name
-            if issue_type in agg_computations:
-                comp = agg_computations[issue_type]
-                self.info[issue_type] = {}
-
-                for column_name in comp.columns:
-                    if column_name == property_name:
-                        self.info["statistics"][property_name] = comp[property_name]
-                    else:
-                        self.info[issue_type][column_name] = comp[column_name]
-            else:
-                if property_name not in self.info["statistics"]:
-                    self.info["statistics"][property_name] = imagelab_info[
-                        "statistics"
-                    ][property_name]
-                self.info[issue_type] = imagelab_info.get(issue_type, {})
-
-        # todo: revisit when there are more issues using same properties like light and dark
-        if (
-            IssueType.LIGHT.value in self.issue_types
-            and not self.info[IssueType.LIGHT.value]
-        ):
-            self.info[IssueType.LIGHT.value] = {
-                **imagelab_info.get(IssueType.DARK.value, {}),
-                **self.info.get(IssueType.DARK.value, {}),
-            }
-        if (
-            IssueType.DARK.value in self.issue_types
-            and not self.info[IssueType.DARK.value]
-        ):
-            self.info[IssueType.DARK.value] = {
-                **imagelab_info.get(IssueType.LIGHT.value, {}),
-                **self.info.get(IssueType.LIGHT.value, {}),
-            }
+            self.info["statistics"][property_names[issue_type]] = agg_computations[
+                property_names[issue_type]
+            ]
+            self.info[issue_type] = (
+                agg_computations[issue_columns[issue_type]]
+                if len(issue_columns[issue_type]) > 0
+                else {}
+            )
 
     def update_summary(self) -> None:
         summary_dict = {}

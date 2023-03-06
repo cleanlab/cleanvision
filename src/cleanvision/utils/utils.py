@@ -101,3 +101,17 @@ def get_is_issue_colname(issue_type: str) -> str:
 
 def get_score_colname(issue_type: str) -> str:
     return f"{issue_type}_score"
+
+
+def update_df(df, new_df, overwrite=True):
+    columns_to_update, new_columns = [], []
+    for column in new_df.columns:
+        if column in df.columns:
+            columns_to_update.append(column)
+        else:
+            new_columns.append(column)
+    if overwrite:
+        for column_name in columns_to_update:
+            df[column_name] = new_df[column_name]
+    df = df.join(new_df[new_columns], how="left")
+    return df
