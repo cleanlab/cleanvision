@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Union, overload
+from typing import List, Dict, Any, Union, overload, Optional
 
 import numpy as np
 import pandas as pd
@@ -22,10 +22,8 @@ class ImageProperty(ABC):
     def check_params(**kwargs: Any) -> None:
         allowed_kwargs: Dict[str, Any] = {
             "image": Image,
-            "scores": pd.DataFrame,
+            "dark_issue_data": pd.DataFrame,
             "threshold": float,
-            "raw_scores": pd.DataFrame,
-            "issue_type": str,
         }
 
         for name, value in kwargs.items():
@@ -246,11 +244,7 @@ class BlurrinessProperty(ImageProperty):
         return self._score_columns
 
     def __init__(self) -> None:
-        self._score_columns = [
-            self.name,
-            get_is_issue_colname(IssueType.DARK.value),
-            get_score_colname(IssueType.DARK.value),
-        ]
+        self._score_columns = [self.name, "brightness_perc_99"]
 
     def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
         return {self.name: calc_blurriness(image)}
@@ -259,14 +253,17 @@ class BlurrinessProperty(ImageProperty):
         self,
         raw_scores: pd.DataFrame,
         issue_type: str,
+        dark_issue_data: Optional[pd.DataFrame] = None,
         normalizing_factor: float = 1.0,
         **kwargs: Any,
     ) -> pd.DataFrame:
         super().get_scores(raw_scores, issue_type, **kwargs)
-        assert raw_scores is not None
+        assert dark_issue_data is not None
         only_blur_scores = 1 - np.exp(-1 * raw_scores[self.name] * normalizing_factor)
-        is_dark = raw_scores[get_is_issue_colname(IssueType.DARK.value)].astype("int")
-        dark_score = raw_scores[get_score_colname(IssueType.DARK.value)]
+        is_dark = dark_issue_data[get_is_issue_colname(IssueType.DARK.value)].astype(
+            "int"
+        )
+        dark_score = dark_issue_data[get_score_colname(IssueType.DARK.value)]
         blur_scores = np.minimum(only_blur_scores + is_dark * (1 - dark_score), 1)
         scores = pd.DataFrame(index=raw_scores.index)
         scores[get_score_colname(issue_type)] = blur_scores

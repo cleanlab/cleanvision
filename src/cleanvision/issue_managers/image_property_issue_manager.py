@@ -20,7 +20,12 @@ from cleanvision.utils.constants import (
     MAX_PROCS,
     IMAGE_PROPERTY_ISSUE_TYPES_LIST,
 )
-from cleanvision.utils.utils import get_max_n_jobs, get_is_issue_colname, update_df
+from cleanvision.utils.utils import (
+    get_max_n_jobs,
+    get_is_issue_colname,
+    update_df,
+    get_score_colname,
+)
 
 
 def compute_scores(
@@ -62,7 +67,7 @@ class ImagePropertyIssueManager(IssueManager):
                 "threshold": 0.3,
                 "normalizing_factor": 0.1,
             },
-            IssueType.BLURRY.value: {"threshold": 0.15, "normalizing_factor": 0.01},
+            IssueType.BLURRY.value: {"threshold": 0.11, "normalizing_factor": 0.01},
             IssueType.GRAYSCALE.value: {},
         }
 
@@ -126,17 +131,14 @@ class ImagePropertyIssueManager(IssueManager):
         self.issue_types = list(params.keys())
         self.issues = pd.DataFrame(index=filepaths)
         additional_set = self._get_additional_to_compute_set(self.issue_types)
+        self.issue_types = self.issue_types + additional_set
 
         self.update_params(params)
 
         agg_computations = self._get_prev_computations(filepaths, imagelab_info)
-        defer_set = self._get_defer_set(
-            self.issue_types + additional_set, agg_computations
-        )
+        defer_set = self._get_defer_set(self.issue_types, agg_computations)
 
-        to_be_computed = list(
-            set(self.issue_types + additional_set).difference(defer_set)
-        )
+        to_be_computed = list(set(self.issue_types).difference(defer_set))
         new_computations = pd.DataFrame(index=filepaths)
         if to_be_computed:
             if n_jobs is None:
@@ -190,15 +192,18 @@ class ImagePropertyIssueManager(IssueManager):
     ) -> None:
         for issue_type in issue_types:
             score_column_names = self.image_properties[issue_type].score_columns
+            score_columns = agg_computations[score_column_names]
 
             # todo: this is hacky
             if issue_type == IssueType.BLURRY.value:
-                all_info_df = agg_computations.join(self.issues)
-                if not set(score_column_names).issubset(all_info_df.columns):
+                if not {
+                    get_is_issue_colname(IssueType.DARK.value),
+                    get_score_colname(IssueType.DARK.value),
+                }.issubset(self.issues):
                     dark_issue_scores = self.image_properties[
                         IssueType.DARK.value
                     ].get_scores(
-                        all_info_df[
+                        agg_computations[
                             self.image_properties[IssueType.DARK.value].score_columns
                         ],
                         IssueType.DARK.value,
@@ -211,16 +216,24 @@ class ImagePropertyIssueManager(IssueManager):
                         self.params[IssueType.DARK.value].get("threshold"),
                         IssueType.DARK.value,
                     )
-                    all_info_df = all_info_df.join(dark_issue_scores)
-                    all_info_df = all_info_df.join(is_dark_issue)
-                score_columns = all_info_df[score_column_names]
-
+                else:
+                    dark_issue_scores = self.issues[
+                        [get_score_colname(IssueType.DARK.value)]
+                    ]
+                    is_dark_issue = self.issues[
+                        [get_is_issue_colname(IssueType.DARK.value)]
+                    ]
+                issue_scores = self.image_properties[issue_type].get_scores(
+                    score_columns,
+                    issue_type,
+                    **self.params[issue_type],
+                    dark_issue_data=dark_issue_scores.join(is_dark_issue),
+                )
             else:
-                score_columns = agg_computations[score_column_names]
+                issue_scores = self.image_properties[issue_type].get_scores(
+                    score_columns, issue_type, **self.params[issue_type]
+                )
 
-            issue_scores = self.image_properties[issue_type].get_scores(
-                score_columns, issue_type, **self.params[issue_type]
-            )
             is_issue = self.image_properties[issue_type].mark_issue(
                 issue_scores, self.params[issue_type].get("threshold"), issue_type
             )
