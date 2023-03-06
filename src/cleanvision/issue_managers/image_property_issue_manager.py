@@ -186,7 +186,6 @@ class ImagePropertyIssueManager(IssueManager):
         return sorted(issue_types, reverse=True)
 
     def update_issues(self, agg_computations: pd.DataFrame, issue_types) -> None:
-
         for issue_type in issue_types:
             score_column_names = self.image_properties[issue_type].score_columns
 
