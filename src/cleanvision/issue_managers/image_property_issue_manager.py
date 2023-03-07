@@ -190,6 +190,16 @@ class ImagePropertyIssueManager(IssueManager):
     def update_issues(
         self, agg_computations: pd.DataFrame, issue_types: List[str]
     ) -> None:
+        """Updates `self.issues` with score and is_issue columns
+
+        Parameters
+        ----------
+        agg_computations: pd.DataFrame
+            This dataframe contains all computed properties like blurriness, brightness as columns for each image
+            that are required for computing issue scores.
+        issue_types: List[str]
+            List of issue types for which to update `self.issues`
+        """
         for issue_type in issue_types:
             score_column_names = self.image_properties[issue_type].score_columns
             score_columns = agg_computations[score_column_names]
