@@ -89,8 +89,9 @@ class TestImagePropertyIssueManager:
         Parameters
         ----------
         issue_types: Given list of issue types
-        imagelab_info: imagelab info parameter
-        defer_set: expected defer set
+        agg_computations: This dataframe contains all computed properties like blurriness, brightness
+            as columns for each image that are required for computing issue scores.
+        expected_defer_set: expected defer set
         issue_manager: instance of ImagePropertyIssueManager
 
         Returns
