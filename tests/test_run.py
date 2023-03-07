@@ -191,6 +191,6 @@ def test_example5(monkeypatch, generate_n_image_files):
     # Also test the reverse direction:
     # TODO: this direction maybe can be made faster since blurry-check depends on dark-score
     imagelab = Imagelab(data_path=generate_n_image_files)
-    imagelab.find_issues({"dark": {}})    
+    imagelab.find_issues({"dark": {}})
     imagelab.find_issues({"blurry": {}})
     imagelab.report()
