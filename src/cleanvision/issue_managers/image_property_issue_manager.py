@@ -267,6 +267,14 @@ class ImagePropertyIssueManager(IssueManager):
         return agg_computations
 
     def update_info(self, agg_computations: pd.DataFrame) -> None:
+        """Updates `self.info` using computed properties
+
+        Parameters
+        ----------
+        agg_computations: pd.DataFrame
+            This dataframe contains all computed properties like blurriness, brightness as columns for each image
+            that are required for computing issue scores.
+        """
         property_names = {
             issue_type: self.image_properties[issue_type].name
             for issue_type in self.issue_types
