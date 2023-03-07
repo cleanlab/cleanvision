@@ -205,7 +205,13 @@ class ImagePropertyIssueManager(IssueManager):
             score_columns = agg_computations[score_column_names]
 
             # todo: this is hacky
+            # Only blurry issue is dependent on another issue (in this case dark) for computing scores.
+            # This if else block handles this special case.
             if issue_type == IssueType.BLURRY.value:
+                # In the case when blurry scores need to be computed
+                # dark_score and is_dark_issue can be retrieved from one of these two places
+                # 1. self.issues
+                # 2. recomputed using brightness_perc_99 info present in agg_computations.
                 dark_issue = IssueType.DARK.value
                 if not {
                     get_is_issue_colname(dark_issue),
