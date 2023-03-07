@@ -29,6 +29,7 @@ from cleanvision.utils.utils import (
     deep_update_dict,
     get_is_issue_colname,
     get_score_colname,
+    update_df,
 )
 from cleanvision.utils.viz_manager import VizManager
 
@@ -282,15 +283,7 @@ class Imagelab:
         )
 
     def _update_issues(self, issue_manager_issues: pd.DataFrame) -> None:
-        columns_to_update, new_columns = [], []
-        for column in issue_manager_issues.columns:
-            if column in self.issues.columns:
-                columns_to_update.append(column)
-            else:
-                new_columns.append(column)
-        for column_name in columns_to_update:
-            self.issues[column_name] = issue_manager_issues[column_name]
-        self.issues = self.issues.join(issue_manager_issues[new_columns], how="left")
+        self.issues = update_df(self.issues, issue_manager_issues)
 
     def _get_issue_type_groups(
         self, issue_types_with_params: Dict[str, Any]

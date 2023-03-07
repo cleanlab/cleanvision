@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional, Union, overload
+from typing import List, Dict, Any, Union, overload, Optional
 
 import numpy as np
 import pandas as pd
@@ -7,6 +7,7 @@ from PIL import ImageStat, ImageFilter
 from PIL.Image import Image
 
 from cleanvision.issue_managers import IssueType
+from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
 
 
 class ImageProperty(ABC):
@@ -14,16 +15,15 @@ class ImageProperty(ABC):
 
     @property
     @abstractmethod
-    def score_column(self) -> str:
+    def score_columns(self) -> List[str]:
         pass
 
     @staticmethod
     def check_params(**kwargs: Any) -> None:
         allowed_kwargs: Dict[str, Any] = {
             "image": Image,
-            "scores": pd.Series,
+            "dark_issue_data": pd.DataFrame,
             "threshold": float,
-            "raw_scores": pd.Series,
         }
 
         for name, value in kwargs.items():
@@ -39,15 +39,20 @@ class ImageProperty(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_scores(self, **kwargs: Any) -> Any:
+    def get_scores(
+        self, raw_scores: pd.DataFrame, issue_type: str, **kwargs: Any
+    ) -> Any:
         self.check_params(**kwargs)
         return
 
-    @staticmethod
     def mark_issue(
-        scores: "np.ndarray[Any, Any]", threshold: float
-    ) -> "np.ndarray[Any, Any]":
-        return scores < threshold
+        self, scores: pd.DataFrame, threshold: float, issue_type: str
+    ) -> pd.DataFrame:
+        is_issue = pd.DataFrame(index=scores.index)
+        is_issue[get_is_issue_colname(issue_type)] = (
+            scores[get_score_colname(issue_type)] < threshold
+        )
+        return is_issue
 
 
 def calc_avg_brightness(image: Image) -> float:
@@ -114,34 +119,43 @@ class BrightnessProperty(ImageProperty):
     name: str = "brightness"
 
     @property
-    def score_column(self) -> str:
-        return self._score_column
+    def score_columns(self) -> List[str]:
+        return self._score_columns
 
     def __init__(self, issue_type: str) -> None:
         self.issue_type = issue_type
-        self._score_column = (
-            "perc_99" if self.issue_type == IssueType.DARK.value else "perc_5"
-        )
+        self._score_columns = [
+            "brightness_perc_99"
+            if self.issue_type == IssueType.DARK.value
+            else "brightness_perc_5"
+        ]
 
     def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
         percentiles = [1, 5, 10, 15, 90, 95, 99]
         perc_values = calc_percentile_brightness(image, percentiles=percentiles)
-        raw_values = {f"perc_{p}": value for p, value in zip(percentiles, perc_values)}
+        raw_values = {
+            f"brightness_perc_{p}": value for p, value in zip(percentiles, perc_values)
+        }
         raw_values[self.name] = calc_avg_brightness(image)
         return raw_values
 
     def get_scores(
         self,
-        *,
-        raw_scores: Optional[pd.Series] = None,
+        raw_scores: pd.DataFrame,
+        issue_type: str,
         **kwargs: Any,
-    ) -> pd.Series:
-        super().get_scores(**kwargs)
+    ) -> pd.DataFrame:
+        super().get_scores(raw_scores, issue_type, **kwargs)
         assert raw_scores is not None  # all values are between 0 and 1
-        if self.issue_type == IssueType.DARK.value:
-            return raw_scores
+        scores = pd.DataFrame(index=raw_scores.index)
+
+        if issue_type == IssueType.DARK.value:
+            scores[get_score_colname(issue_type)] = raw_scores[self.score_columns[0]]
         else:
-            return 1 - raw_scores
+            scores[get_score_colname(issue_type)] = (
+                1 - raw_scores[self.score_columns[0]]
+            )
+        return scores
 
 
 def calc_aspect_ratio(image: Image) -> float:
@@ -155,24 +169,25 @@ class AspectRatioProperty(ImageProperty):
     name: str = "aspect_ratio"
 
     @property
-    def score_column(self) -> str:
-        return self._score_column
+    def score_columns(self) -> List[str]:
+        return self._score_columns
 
     def __init__(self) -> None:
-        self._score_column = self.name
+        self._score_columns = [self.name]
 
     def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
         return {self.name: calc_aspect_ratio(image)}
 
     def get_scores(
         self,
-        *,
-        raw_scores: Optional[pd.Series] = None,
+        raw_scores: pd.DataFrame,
+        issue_type: str,
         **kwargs: Any,
-    ) -> pd.Series:
-        super().get_scores(**kwargs)
-        assert raw_scores is not None
-        return raw_scores
+    ) -> pd.DataFrame:
+        super().get_scores(raw_scores, issue_type, **kwargs)
+        scores = pd.DataFrame(index=raw_scores.index)
+        scores[get_score_colname(issue_type)] = raw_scores[self.score_columns[0]]
+        return scores
 
 
 def calc_entropy(image: Image) -> float:
@@ -187,27 +202,28 @@ class EntropyProperty(ImageProperty):
     name: str = "entropy"
 
     @property
-    def score_column(self) -> str:
-        return self._score_column
+    def score_columns(self) -> List[str]:
+        return self._score_columns
 
     def __init__(self) -> None:
-        self._score_column = self.name
+        self._score_columns = [self.name]
 
     def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
         return {self.name: calc_entropy(image)}
 
     def get_scores(
         self,
-        *,
-        raw_scores: Optional[pd.Series] = None,
+        raw_scores: pd.DataFrame,
+        issue_type: str,
         normalizing_factor: float = 1.0,
         **kwargs: Any,
-    ) -> pd.Series:
-        super().get_scores(**kwargs)
+    ) -> pd.DataFrame:
+        super().get_scores(raw_scores, issue_type, **kwargs)
         assert raw_scores is not None
-
-        scores: "np.ndarray[Any, Any]" = normalizing_factor * raw_scores
-        scores[scores > 1] = 1
+        scores = pd.DataFrame(index=raw_scores.index)
+        scores_data = normalizing_factor * raw_scores[self.score_columns[0]]
+        scores_data[scores_data > 1] = 1
+        scores[get_score_colname(issue_type)] = scores_data
         return scores
 
 
@@ -217,32 +233,40 @@ def calc_blurriness(image: Image) -> float:
     assert isinstance(
         blurriness, float
     )  # ImageStat.Stat returns float but no typestub for package
-    return blurriness
+    return np.sqrt(blurriness)  # type:ignore
 
 
 class BlurrinessProperty(ImageProperty):
     name = "blurriness"
 
     @property
-    def score_column(self) -> str:
-        return self._score_column
+    def score_columns(self) -> List[str]:
+        return self._score_columns
 
     def __init__(self) -> None:
-        self._score_column = self.name
+        self._score_columns = [self.name, "brightness_perc_99"]
 
     def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
         return {self.name: calc_blurriness(image)}
 
     def get_scores(
         self,
-        *,
-        raw_scores: Optional[pd.Series] = None,
+        raw_scores: pd.DataFrame,
+        issue_type: str,
+        dark_issue_data: Optional[pd.DataFrame] = None,
         normalizing_factor: float = 1.0,
         **kwargs: Any,
-    ) -> pd.Series:
-        super().get_scores(**kwargs)
-        assert raw_scores is not None
-        scores = 1 - np.exp(-1 * raw_scores * normalizing_factor)
+    ) -> pd.DataFrame:
+        super().get_scores(raw_scores, issue_type, **kwargs)
+        assert dark_issue_data is not None
+        only_blur_scores = 1 - np.exp(-1 * raw_scores[self.name] * normalizing_factor)
+        is_dark = dark_issue_data[get_is_issue_colname(IssueType.DARK.value)].astype(
+            "int"
+        )
+        dark_score = dark_issue_data[get_score_colname(IssueType.DARK.value)]
+        blur_scores = np.minimum(only_blur_scores + is_dark * (1 - dark_score), 1)
+        scores = pd.DataFrame(index=raw_scores.index)
+        scores[get_score_colname(issue_type)] = blur_scores
         return scores
 
 
@@ -260,33 +284,37 @@ class ColorSpaceProperty(ImageProperty):
     name = "color_space"
 
     @property
-    def score_column(self) -> str:
-        return self._score_column
+    def score_columns(self) -> List[str]:
+        return self._score_columns
 
     def __init__(self) -> None:
-        self._score_column = self.name
+        self._score_columns = [self.name]
 
     def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
         return {self.name: calc_color_space(image)}
 
     def get_scores(
         self,
-        *,
-        raw_scores: Optional[pd.Series] = None,
-        normalizing_factor: float = 1.0,
+        raw_scores: pd.DataFrame,
+        issue_type: str,
         **kwargs: Any,
-    ) -> pd.Series:
-        super().get_scores(**kwargs)
+    ) -> pd.DataFrame:
+        super().get_scores(raw_scores, issue_type, **kwargs)
         assert raw_scores is not None
-        scores = raw_scores.apply(lambda mode: 0 if mode == "L" else 1)
+        scores = pd.DataFrame(index=raw_scores.index)
+        scores[get_score_colname(issue_type)] = [
+            0 if x == "L" else 1 for x in raw_scores[self.score_columns[0]]
+        ]
         return scores
 
-    @staticmethod
     def mark_issue(
-        scores: "np.ndarray[Any, Any]", threshold: float
-    ) -> "np.ndarray[Any, Any]":
-        issues: "np.ndarray[Any, Any]" = 1 - scores
-        return issues.astype("bool")
+        self, scores: pd.DataFrame, threshold: float, issue_type: str
+    ) -> pd.DataFrame:
+        is_issue = pd.DataFrame(index=scores.index)
+        is_issue[get_is_issue_colname(issue_type)] = (
+            1 - scores[get_score_colname(issue_type)]
+        ).astype("bool")
+        return is_issue
 
 
 def get_image_mode(image: Image) -> str:
