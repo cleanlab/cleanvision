@@ -206,33 +206,28 @@ class ImagePropertyIssueManager(IssueManager):
 
             # todo: this is hacky
             if issue_type == IssueType.BLURRY.value:
+                dark_issue = IssueType.DARK.value
                 if not {
-                    get_is_issue_colname(IssueType.DARK.value),
-                    get_score_colname(IssueType.DARK.value),
+                    get_is_issue_colname(dark_issue),
+                    get_score_colname(dark_issue),
                 }.issubset(self.issues):
-                    dark_issue_scores = self.image_properties[
-                        IssueType.DARK.value
-                    ].get_scores(
-                        agg_computations[
-                            self.image_properties[IssueType.DARK.value].score_columns
-                        ],
-                        IssueType.DARK.value,
-                        **self.params[IssueType.DARK.value],
+                    dark_score_columns = agg_computations[
+                        self.image_properties[dark_issue].score_columns
+                    ]
+                    dark_property = self.image_properties[dark_issue]
+
+                    dark_issue_scores = dark_property.get_scores(
+                        dark_score_columns, dark_issue, **self.params[dark_issue]
                     )
-                    is_dark_issue = self.image_properties[
-                        IssueType.DARK.value
-                    ].mark_issue(
+                    is_dark_issue = dark_property.mark_issue(
                         dark_issue_scores,
-                        self.params[IssueType.DARK.value].get("threshold"),
-                        IssueType.DARK.value,
+                        self.params[dark_issue].get("threshold"),
+                        dark_issue,
                     )
                 else:
-                    dark_issue_scores = self.issues[
-                        [get_score_colname(IssueType.DARK.value)]
-                    ]
-                    is_dark_issue = self.issues[
-                        [get_is_issue_colname(IssueType.DARK.value)]
-                    ]
+                    dark_issue_scores = self.issues[[get_score_colname(dark_issue)]]
+                    is_dark_issue = self.issues[[get_is_issue_colname(dark_issue)]]
+
                 issue_scores = self.image_properties[issue_type].get_scores(
                     score_columns,
                     issue_type,
