@@ -108,6 +108,10 @@ def get_score_colname(issue_type: str) -> str:
 def update_df(
     df: pd.DataFrame, new_df: pd.DataFrame, overwrite: bool = True
 ) -> pd.DataFrame:
+    """ Updates `df` with columns of `new_df` (must have same number of rows).
+          New columns in `new_df` not present in `df` are appended as extra columns.
+          Columns in `df` that are present in `new_df` have their values overwritten if ``overwrite==True``.
+    """
     columns_to_update, new_columns = [], []
     for column in new_df.columns:
         if column in df.columns:
