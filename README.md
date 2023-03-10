@@ -7,7 +7,21 @@ CleanVision automatically detects various issues in image datasets, such as imag
 blurry, over/under-exposed, etc. This data-centric AI package is designed as a quick first step for any computer vision
 project to find problems in your dataset, which you may want to address before applying machine learning.
 
+CleanVision currently detects issues in the raw images themselves, and can be useful for any machine learning task (classification, segmentation, object detection, pose estimation, keypoint detection, etc). To detect issues in the labels of your image data, you can instead use [cleanlab](https://github.com/cleanlab/cleanlab/).
 
+
+|   | Issue Type       | Description                                               | Issue Key        | Example                                      |
+|---|------------------|-----------------------------------------------------------|------------------|----------------------------------------------|
+| 1 | Dark             | Irregularly dark images                                   | dark             | ![](docs/readme_images/dark.jpg)             |
+| 2 | Blurry           | Blurry or out of focus images                             | blurry           | ![](docs/readme_images/blurry.png)           |
+| 3 | Grayscale        | Images lacking color                                      | grayscale        | ![](docs/readme_images/grayscale.png)        |
+| 4 | Low Information  | Images lacking much information (e.g. stick figure image) | low_information  | ![](docs/readme_images/low_information.jpg)  |
+| 5 | Odd Aspect Ratio | Unusual aspect ratio (i.e. overly skinny/wide)            | odd_aspect_ratio | ![](docs/readme_images/odd_aspect_ratio.png) |
+| 6 | Light            | Too bright or mostly white images                         | light            | ![](docs/readme_images/light.jpg)            |
+| 7 | Exact Duplicates | Images that are exact duplicates of each other            | exact_duplicates | ![](docs/readme_images/exact_duplicates.png) |
+| 8 | Near Duplicates  | Images that are visually identical to each other          | near_duplicates  | ![](docs/readme_images/near_duplicates.png)  |
+
+The **Issue Key** column above specifies the name for each type of issue in the CleanVision code. Use these string names to specify: which types of issues should be considered or what non-default parameter values to use when checking for certain issues.
 ## Quickstart
 
 Using CleanVision to audit your image data is as simple as running the code below:
@@ -51,25 +65,9 @@ wget -nc
 ```
 
 
-## Issues in image data
 
-At the moment this package is a work in progress (expect sharp edges!) and can detect the following types of issues:
 
-|   | Issue Type       | Description                                                                             | Issue Key        | Example                                      |
-|---|------------------|-----------------------------------------------------------------------------------------|------------------|----------------------------------------------|
-| 1 | Dark             | Images that are irregularly dark                                                        | dark             | ![](docs/readme_images/dark.jpg)             |
-| 2 | Blurry           | Images that are blurry or out of focus                                                  | blurry           | ![](docs/readme_images/blurry.png)           |
-| 3 | Grayscale        | Images that are grayscale (lacking color)                                               | grayscale        | ![](docs/readme_images/grayscale.png)        |
-| 4 | Low Information  | Images that lack much information (e.g. a completely black image with a few white dots) | low_information  | ![](docs/readme_images/low_information.jpg)  |
-| 5 | Odd Aspect Ratio | Images with an unusual aspect ratio (i.e. overly skinny/wide)                           | odd_aspect_ratio | ![](docs/readme_images/odd_aspect_ratio.png) |
-| 6 | Light            | Images that are too bright/washed out in the dataset                                    | light            | ![](docs/readme_images/light.jpg)            |
-| 7 | Exact Duplicates | Images that are exact duplicates of each other                                          | exact_duplicates | ![](docs/readme_images/exact_duplicates.png) |
-| 8 | Near Duplicates  | Images that are almost visually identical to each other                                 | near_duplicates  | ![](docs/readme_images/near_duplicates.png)  |
-
-The **Issue Key** column above specifies the name for each type of issue in the CleanVision code. Use these string names to specify: which types of issues should be considered or what non-default parameter values to use when checking for certain issues.
-
-CleanVision currently detects issues in the raw images themselves, and can be useful for any machine learning task (classification, segmentation, object detection, pose estimation, keypoint detection, etc). To detect issues in the labels of your image data, you can instead use [cleanlab](https://github.com/cleanlab/cleanlab/).
-
+At the moment this package is a work in progress (expect sharp edges!).
 Feel free to submit any found bugs or desired functionality as an [issue][issue]!
 
 
