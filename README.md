@@ -57,8 +57,8 @@ imagelab.report(issue_types=issue_types)
 
 - [Tutorial notebook](https://github.com/cleanlab/cleanvision/blob/main/examples/demo.ipynb)
 - [Example notebooks](https://github.com/cleanlab/cleanvision-examples)
-- [Documentation](https://cleanvision.readthedocs.io/)
 - [Example script](https://github.com/cleanlab/cleanvision/blob/main/examples/run.py)
+- [Documentation](https://cleanvision.readthedocs.io/)
 
 ## Issue types detected by CleanVision
 
