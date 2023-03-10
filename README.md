@@ -46,7 +46,7 @@ More on how to get started with CleanVision:
 Example image dataset you can run this library on can be downloaded using:
 
 ```python
-wget - nc
+wget -nc
 'https://cleanlab-public.s3.amazonaws.com/CleanVision/image_files.zip'
 ```
 
