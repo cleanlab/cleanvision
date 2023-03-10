@@ -65,9 +65,9 @@ imagelab.report(issue_types=issue_types)
 |-----|------------------|-----------------------------------------------------------|------------------|----------------------------------------------|
 | 1   | Dark             | Irregularly dark images                                   | dark             | ![](docs/readme_images/dark.jpg)             |
 | 2   | Blurry           | Blurry or out of focus images                             | blurry           | ![](docs/readme_images/blurry.png)           |
-| 3   | Grayscale        | Images lacking color                                      | grayscale        | ![](docs/readme_images/grayscale.png)        |
+| 3   | Grayscale        | Images lacking color                                      | grayscale        | ![](docs/readme_images/grayscale.jpg)        |
 | 4   | Low Information  | Images lacking much information (e.g. stick figure image) | low_information  | ![](docs/readme_images/low_information.jpg)  |
-| 5   | Odd Aspect Ratio | Unusual aspect ratio (i.e. overly skinny/wide)            | odd_aspect_ratio | ![](docs/readme_images/odd_aspect_ratio.png) |
+| 5   | Odd Aspect Ratio | Unusual aspect ratio (i.e. overly skinny/wide)            | odd_aspect_ratio | ![](docs/readme_images/odd_aspect_ratio.jpg) |
 | 6   | Light            | Too bright or mostly white images                         | light            | ![](docs/readme_images/light.jpg)            |
 | 7   | Exact Duplicates | Images that are exact duplicates of each other            | exact_duplicates | ![](docs/readme_images/exact_duplicates.png) |
 | 8   | Near Duplicates  | Images that are visually identical to each other          | near_duplicates  | ![](docs/readme_images/near_duplicates.png)  |
