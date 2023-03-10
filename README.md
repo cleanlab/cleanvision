@@ -2,9 +2,8 @@
 
 # CleanVision
 
-
 CleanVision automatically detects potential issues in image datasets like blurry, under/over-exposed, (near) duplicate
-images, etc. This data-centric AI package is a quick first step for any computer vision project to find problems in a
+images. This data-centric AI package is a quick first step for any computer vision project to find problems in a
 dataset, which you may want to address before applying machine learning. The package is designed to be easy to use and
 requires only a few lines of code to get started.
 
@@ -60,7 +59,7 @@ imagelab.report(issue_types=issue_types)
 - [Documentation](https://cleanvision.readthedocs.io/)
 - [Example script](https://github.com/cleanlab/cleanvision/blob/main/examples/run.py)
 
-## List of Issues detected by CleanVision
+## Issue types detected by CleanVision
 
 |     | Issue Type       | Description                                               | Issue Key        | Example                                      |
 |-----|------------------|-----------------------------------------------------------|------------------|----------------------------------------------|
@@ -74,9 +73,9 @@ imagelab.report(issue_types=issue_types)
 | 8   | Near Duplicates  | Images that are visually identical to each other          | near_duplicates  | ![](docs/readme_images/near_duplicates.png)  |
 
 This package currently detects issues in the raw images themselves, making it a useful tool for any machine learning
-task such as
-classification, segmentation, object detection, pose estimation, keypoint detection, image generation, etc. To detect
-issues in the labels of your image data, you can instead
+task such as classification, segmentation, object detection, pose estimation, keypoint detection, image generation.
+
+To detect issues in the labels of your image data, you can instead
 use [cleanlab](https://github.com/cleanlab/cleanlab/).
 
 At the moment this package is a work in progress (expect sharp edges!).
