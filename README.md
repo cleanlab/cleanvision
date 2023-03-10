@@ -1,13 +1,12 @@
 [//]: # (![]&#40;https://raw.githubusercontent.com/cleanlab/assets/master/cleanlab/cleanvision_logo_open_source_transparent.png&#41;)
 
 # CleanVision
+<img width="1200" alt="Screen Shot 2023-03-10 at 10 23 33 AM" src="https://user-images.githubusercontent.com/10901697/224394144-bb0e1c85-6851-4828-bcd2-4ed234270a78.png">
 
 CleanVision automatically detects potential issues in image datasets like blurry, under/over-exposed, (near) duplicate
 images. This data-centric AI package is a quick first step for any computer vision project to find problems in a
 dataset, which you may want to address before applying machine learning. The package is designed to be easy to use and
 requires only a few lines of code to get started.
-
-<img width="1200" alt="Screen Shot 2023-03-10 at 10 23 33 AM" src="https://user-images.githubusercontent.com/10901697/224394144-bb0e1c85-6851-4828-bcd2-4ed234270a78.png">
 
 [![Read the Docs](https://readthedocs.org/projects/cleanvision/badge/?version=latest)](https://cleanvision.readthedocs.io/en/latest/)
 [![codecov](https://codecov.io/github/cleanlab/cleanvision/branch/main/graph/badge.svg?token=y1N6MluN9H)](https://codecov.io/gh/cleanlab/cleanvision)
