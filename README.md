@@ -1,41 +1,34 @@
-![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanlab/cleanvision_logo_open_source_transparent.png)
+[//]: # (![]&#40;https://raw.githubusercontent.com/cleanlab/assets/master/cleanlab/cleanvision_logo_open_source_transparent.png&#41;)
+
+# CleanVision
 
 [![Read the Docs](https://readthedocs.org/projects/cleanvision/badge/?version=latest)](https://cleanvision.readthedocs.io/en/latest/)
- [![codecov](https://codecov.io/github/cleanlab/cleanvision/branch/main/graph/badge.svg?token=y1N6MluN9H)](https://codecov.io/gh/cleanlab/cleanvision)
+[![codecov](https://codecov.io/github/cleanlab/cleanvision/branch/main/graph/badge.svg?token=y1N6MluN9H)](https://codecov.io/gh/cleanlab/cleanvision)
 
-CleanVision automatically detects various issues in image datasets, such as images that are: (near) duplicates,
-blurry, over/under-exposed, etc. This data-centric AI package is designed as a quick first step for any computer vision
-project to find problems in your dataset, which you may want to address before applying machine learning. It currently detects issues in the raw images themselves, and can be useful for any machine learning task (classification, segmentation, object detection, pose estimation, keypoint detection, image generation, etc).
-The list of all issues detected by CleanVision can be found in the table below.
+CleanVision automatically detects potential issues in image datasets like blurry, under/over-exposed, (near) duplicate
+images,
+etc. This data-centric AI package is designed as a quick first step for any computer vision project to find problems in
+dataset, which you may want to address before applying machine learning. The package is designed to be easy to use and
+requires only a few lines of code to get started.
 
+## Installation
 
-|   | Issue Type       | Description                                               | Issue Key        | Example                                      |
-|---|------------------|-----------------------------------------------------------|------------------|----------------------------------------------|
-| 1 | Dark             | Irregularly dark images                                   | dark             | ![](docs/readme_images/dark.jpg)             |
-| 2 | Blurry           | Blurry or out of focus images                             | blurry           | ![](docs/readme_images/blurry.png)           |
-| 3 | Grayscale        | Images lacking color                                      | grayscale        | ![](docs/readme_images/grayscale.png)        |
-| 4 | Low Information  | Images lacking much information (e.g. stick figure image) | low_information  | ![](docs/readme_images/low_information.jpg)  |
-| 5 | Odd Aspect Ratio | Unusual aspect ratio (i.e. overly skinny/wide)            | odd_aspect_ratio | ![](docs/readme_images/odd_aspect_ratio.png) |
-| 6 | Light            | Too bright or mostly white images                         | light            | ![](docs/readme_images/light.jpg)            |
-| 7 | Exact Duplicates | Images that are exact duplicates of each other            | exact_duplicates | ![](docs/readme_images/exact_duplicates.png) |
-| 8 | Near Duplicates  | Images that are visually identical to each other          | near_duplicates  | ![](docs/readme_images/near_duplicates.png)  |
-
-
-## Quickstart
-Using CleanVision to audit your image data is as simple as following these steps.
-
-1. Download the example dataset or use one of your own.
-
-```python
-wget -nc 'https://cleanlab-public.s3.amazonaws.com/CleanVision/image_files.zip'
-```
-
-2. Install `cleanvision` package
 ```shell
 pip install git+https://github.com/cleanlab/cleanvision.git
 ```
 
-3. Run these 4 lines of code
+## Quickstart
+
+Using CleanVision to audit your image data is as simple as following these steps.
+
+1. Download the example dataset or use one of your own.
+
+```shell
+wget -nc 'https://cleanlab-public.s3.amazonaws.com/CleanVision/image_files.zip'
+```
+
+2. Run CleanVision
+
 ```python
 from cleanvision.imagelab import Imagelab
 
@@ -49,8 +42,8 @@ imagelab.find_issues()
 imagelab.report()
 ```
 
-3. This step is optional. You can also specify specific issues instead of checking for all issues.
-The **Issue Key** column in the table above specifies the name for each type of issue in the CleanVision code. Use these string names to specify which types of issues should be checked.
+3. CleanVision diagnoses many types of issues, but you can also check for only specific issues.
+
 ```python
 issue_types = {"dark": {}, "blurry": {}}
 
@@ -60,13 +53,31 @@ imagelab.find_issues(issue_types=issue_types)
 imagelab.report(issue_types=issue_types)
 ```
 
-## More on how to use CleanVision
+## More resources on how to use CleanVision
+
 - [Tutorial notebook](https://github.com/cleanlab/cleanvision/blob/main/examples/demo.ipynb)
+- [Example notebooks](https://github.com/cleanlab/cleanvision-examples)
 - [Documentation](https://cleanvision.readthedocs.io/)
 - [Example script](https://github.com/cleanlab/cleanvision/blob/main/examples/run.py)
 
-To detect issues in the labels of your image data, you can instead use [cleanlab](https://github.com/cleanlab/cleanlab/).
+## List of Issues detected by CleanVision
 
+|     | Issue Type       | Description                                               | Issue Key        | Example                                      |
+|-----|------------------|-----------------------------------------------------------|------------------|----------------------------------------------|
+| 1   | Dark             | Irregularly dark images                                   | dark             | ![](docs/readme_images/dark.jpg)             |
+| 2   | Blurry           | Blurry or out of focus images                             | blurry           | ![](docs/readme_images/blurry.png)           |
+| 3   | Grayscale        | Images lacking color                                      | grayscale        | ![](docs/readme_images/grayscale.png)        |
+| 4   | Low Information  | Images lacking much information (e.g. stick figure image) | low_information  | ![](docs/readme_images/low_information.jpg)  |
+| 5   | Odd Aspect Ratio | Unusual aspect ratio (i.e. overly skinny/wide)            | odd_aspect_ratio | ![](docs/readme_images/odd_aspect_ratio.png) |
+| 6   | Light            | Too bright or mostly white images                         | light            | ![](docs/readme_images/light.jpg)            |
+| 7   | Exact Duplicates | Images that are exact duplicates of each other            | exact_duplicates | ![](docs/readme_images/exact_duplicates.png) |
+| 8   | Near Duplicates  | Images that are visually identical to each other          | near_duplicates  | ![](docs/readme_images/near_duplicates.png)  |
+
+This package currently detects issues in the raw images themselves, making it a useful tool for any machine learning
+task such as
+classification, segmentation, object detection, pose estimation, keypoint detection, image generation, etc. To detect
+issues in the labels of your image data, you can instead
+use [cleanlab](https://github.com/cleanlab/cleanlab/).
 
 At the moment this package is a work in progress (expect sharp edges!).
 Feel free to submit any found bugs or desired functionality as an [issue][issue]!
