@@ -29,7 +29,7 @@ imagelab.report()
 CleanVision diagnoses many types of issues, but you can also check for only specific issues:
 
 ```python
-issue_types = {"light": {}, "blurry": {}}
+issue_types = {"dark": {}, "blurry": {}}
 
 imagelab.find_issues(issue_types)
 
@@ -55,16 +55,16 @@ wget -nc
 
 At the moment this package is a work in progress (expect sharp edges!) and can detect the following types of issues:
 
-|     | Issue Type      | Description                                                                                  | Issue Key        |
-|-----|------------------|----------------------------------------------------------------------------------------------|------------------|
-| 1   | Light            | Images that are too bright/washed out in the dataset                                         | light            |
-| 2   | Dark             | Images that are irregularly dark                                                             | dark             |
-| 3   | Odd Aspect Ratio | Images with an unusual aspect ratio (i.e. overly skinny/wide)                                                       | odd_aspect_ratio |
-| 4   | Exact Duplicates | Images that are exact duplicates of each other                          | exact_duplicates |
-| 5   | Near Duplicates  | Images that are almost visually identical to each other                                 | near_duplicates  |
-| 6   | Blurry           | Images that are blurry or out of focus                                                  | blurry           |
-| 7   | Grayscale        | Images that are grayscale (lacking color)                                                            | grayscale        |
-| 8   | Low Information  | Images that lack much information (e.g. a completely black image with a few white dots) | low_information  |
+|   | Issue Type       | Description                                                                             | Issue Key        | Example                                      |
+|---|------------------|-----------------------------------------------------------------------------------------|------------------|----------------------------------------------|
+| 1 | Dark             | Images that are irregularly dark                                                        | dark             | ![](docs/readme_images/dark.jpg)             |
+| 2 | Blurry           | Images that are blurry or out of focus                                                  | blurry           | ![](docs/readme_images/blurry.png)           |
+| 3 | Grayscale        | Images that are grayscale (lacking color)                                               | grayscale        | ![](docs/readme_images/grayscale.png)        |
+| 4 | Low Information  | Images that lack much information (e.g. a completely black image with a few white dots) | low_information  | ![](docs/readme_images/low_information.jpg)  |
+| 5 | Odd Aspect Ratio | Images with an unusual aspect ratio (i.e. overly skinny/wide)                           | odd_aspect_ratio | ![](docs/readme_images/odd_aspect_ratio.png) |
+| 6 | Light            | Images that are too bright/washed out in the dataset                                    | light            | ![](docs/readme_images/light.jpg)            |
+| 7 | Exact Duplicates | Images that are exact duplicates of each other                                          | exact_duplicates | ![](docs/readme_images/exact_duplicates.png) |
+| 8 | Near Duplicates  | Images that are almost visually identical to each other                                 | near_duplicates  | ![](docs/readme_images/near_duplicates.png)  |
 
 The **Issue Key** column above specifies the name for each type of issue in the CleanVision code. Use these string names to specify: which types of issues should be considered or what non-default parameter values to use when checking for certain issues.
 
