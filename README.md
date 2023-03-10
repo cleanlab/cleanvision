@@ -5,9 +5,8 @@
 
 CleanVision automatically detects various issues in image datasets, such as images that are: (near) duplicates,
 blurry, over/under-exposed, etc. This data-centric AI package is designed as a quick first step for any computer vision
-project to find problems in your dataset, which you may want to address before applying machine learning.
-
-CleanVision currently detects issues in the raw images themselves, and can be useful for any machine learning task (classification, segmentation, object detection, pose estimation, keypoint detection, etc). To detect issues in the labels of your image data, you can instead use [cleanlab](https://github.com/cleanlab/cleanlab/).
+project to find problems in your dataset, which you may want to address before applying machine learning. It currently detects issues in the raw images themselves, and can be useful for any machine learning task (classification, segmentation, object detection, pose estimation, keypoint detection, image generation, etc).
+The list of all issues detected by CleanVision can be found in the table below.
 
 
 |   | Issue Type       | Description                                               | Issue Key        | Example                                      |
@@ -21,17 +20,27 @@ CleanVision currently detects issues in the raw images themselves, and can be us
 | 7 | Exact Duplicates | Images that are exact duplicates of each other            | exact_duplicates | ![](docs/readme_images/exact_duplicates.png) |
 | 8 | Near Duplicates  | Images that are visually identical to each other          | near_duplicates  | ![](docs/readme_images/near_duplicates.png)  |
 
-The **Issue Key** column above specifies the name for each type of issue in the CleanVision code. Use these string names to specify: which types of issues should be considered or what non-default parameter values to use when checking for certain issues.
-## Quickstart
 
-Using CleanVision to audit your image data is as simple as running the code below:
+## Quickstart
+Using CleanVision to audit your image data is as simple as following these steps.
+
+1. Download the example dataset or use one of your own.
 
 ```python
+wget -nc 'https://cleanlab-public.s3.amazonaws.com/CleanVision/image_files.zip'
+```
 
+2. Install `cleanvision` package
+```shell
+pip install git+https://github.com/cleanlab/cleanvision.git
+```
+
+3. Run these 4 lines of code
+```python
 from cleanvision.imagelab import Imagelab
 
 # Specify path to folder containing the image files in your dataset
-imagelab = Imagelab(path)
+imagelab = Imagelab("path_to_dataset")
 
 # Automatically check for a predefined list of issues within your dataset
 imagelab.find_issues()
@@ -40,36 +49,27 @@ imagelab.find_issues()
 imagelab.report()
 ```
 
-CleanVision diagnoses many types of issues, but you can also check for only specific issues:
-
+3. This step is optional. You can also specify specific issues instead of checking for all issues.
+The **Issue Key** column in the table above specifies the name for each type of issue in the CleanVision code. Use these string names to specify which types of issues should be checked.
 ```python
 issue_types = {"dark": {}, "blurry": {}}
 
-imagelab.find_issues(issue_types)
+imagelab.find_issues(issue_types=issue_types)
 
 # Produce a report with only the specified issue_types
-imagelab.report(issue_types.keys())
+imagelab.report(issue_types=issue_types)
 ```
 
-More on how to get started with CleanVision:
-
-- [Example script](https://github.com/cleanlab/cleanvision/blob/main/examples/run.py)
-- [Jupyter notebook tutorial](https://github.com/cleanlab/cleanvision/blob/main/examples/demo.ipynb)
+## More on how to use CleanVision
+- [Tutorial notebook](https://github.com/cleanlab/cleanvision/blob/main/examples/demo.ipynb)
 - [Documentation](https://cleanvision.readthedocs.io/)
+- [Example script](https://github.com/cleanlab/cleanvision/blob/main/examples/run.py)
 
-Example image dataset you can run this library on can be downloaded using:
-
-```python
-wget -nc
-'https://cleanlab-public.s3.amazonaws.com/CleanVision/image_files.zip'
-```
-
-
+To detect issues in the labels of your image data, you can instead use [cleanlab](https://github.com/cleanlab/cleanlab/).
 
 
 At the moment this package is a work in progress (expect sharp edges!).
 Feel free to submit any found bugs or desired functionality as an [issue][issue]!
-
 
 ## Join our community
 
