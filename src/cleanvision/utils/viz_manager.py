@@ -48,10 +48,11 @@ def plot_image_grid(
             for j in range(ncols):
                 idx = i * ncols + j
                 if idx >= len(filepaths):
-                    break
+                    axes[i, j].axis("off")
+                    continue
                 set_image_on_axes(filepaths[idx], axes[i, j], titles[idx])
             if idx >= len(filepaths):
-                break
+                axes[i, j].axis("off")
     elif ncols > 1:
         for i in range(ncols):
             if i < len(filepaths):
