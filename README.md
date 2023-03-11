@@ -67,7 +67,7 @@ task such as: classification, segmentation, object detection, pose estimation, k
 To detect issues in the labels of your image data, you can instead
 use the [cleanlab](https://github.com/cleanlab/cleanlab/) package.
 
-Given any collection of image files (most [formats](https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html) are supported), CleanVision can detect the following types of issues:
+Given any collection of image files (most [formats](https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html) supported), CleanVision can detect the following types of issues:
 
 |     | Issue Type       | Description                                               | Issue Key        | Example                                      |
 |-----|------------------|-----------------------------------------------------------|------------------|----------------------------------------------|
