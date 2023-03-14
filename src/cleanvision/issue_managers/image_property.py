@@ -1,15 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Union, overload, Optional
 
-import PIL
 import numpy as np
 import pandas as pd
 from PIL import ImageStat, ImageFilter
 from PIL.Image import Image
 
 from cleanvision.issue_managers import IssueType
-from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
 from cleanvision.utils.constants import MAX_RESOLUTION_FOR_BLURRY_DETECTION
+from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
 
 
 class ImageProperty(ABC):
@@ -229,7 +228,7 @@ class EntropyProperty(ImageProperty):
         return scores
 
 
-def calc_blurriness(image: Image, max_resolution) -> float:
+def calc_blurriness(image: Image, max_resolution: int) -> float:
     ratio = max(image.width, image.height) / max_resolution
     if ratio > 1:
         low_rs = image.resize((int(image.width // ratio), int(image.height // ratio)))
