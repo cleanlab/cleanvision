@@ -62,16 +62,16 @@ imagelab.report(issue_types=issue_types)
 
 ## Issue types detected by CleanVision
 
-|     | Issue Type       | Description                                               | Issue Key        | Example                                      |
-|-----|------------------|-----------------------------------------------------------|------------------|----------------------------------------------|
-| 1   | Dark             | Irregularly dark images                                   | dark             | ![](docs/readme_images/dark.jpg)             |
-| 2   | Blurry           | Blurry or out of focus images                             | blurry           | ![](docs/readme_images/blurry.png)           |
-| 3   | Grayscale        | Images lacking color                                      | grayscale        | ![](docs/readme_images/grayscale.jpg)        |
-| 4   | Low Information  | Images lacking much information (e.g. stick figure image) | low_information  | ![](docs/readme_images/low_information.jpg)  |
-| 5   | Odd Aspect Ratio | Unusual aspect ratio (i.e. overly skinny/wide)            | odd_aspect_ratio | ![](docs/readme_images/odd_aspect_ratio.jpg) |
-| 6   | Light            | Too bright or mostly white images                         | light            | ![](docs/readme_images/light.jpg)            |
-| 7   | Exact Duplicates | Images that are exact duplicates of each other            | exact_duplicates | ![](docs/readme_images/exact_duplicates.png) |
-| 8   | Near Duplicates  | Images that are visually identical to each other          | near_duplicates  | ![](docs/readme_images/near_duplicates.png)  |
+|     | Issue Type       | Description                                               | Issue Key        | Example                                                                    |
+|-----|------------------|-----------------------------------------------------------|------------------|----------------------------------------------------------------------------|
+| 1   | Dark             | Irregularly dark images                                   | dark             | ![](https://raw.githubusercontent.com/cleanlab/assets/cleanvision-images/cleanvision/example_issue_images/dark.jpg) |
+| 2   | Blurry           | Blurry or out of focus images                             | blurry           | ![](https://raw.githubusercontent.com/cleanlab/assets/cleanvision-images/cleanvision/example_issue_images/blurry.png)                                         |
+| 3   | Grayscale        | Images lacking color                                      | grayscale        | ![](https://raw.githubusercontent.com/cleanlab/assets/cleanvision-images/cleanvision/example_issue_images/grayscale.jpg)                                      |
+| 4   | Low Information  | Images lacking much information (e.g. stick figure image) | low_information  | ![](https://raw.githubusercontent.com/cleanlab/assets/cleanvision-images/cleanvision/example_issue_images/low_information.jpg)                                |
+| 5   | Odd Aspect Ratio | Unusual aspect ratio (i.e. overly skinny/wide)            | odd_aspect_ratio | ![](https://raw.githubusercontent.com/cleanlab/assets/cleanvision-images/cleanvision/example_issue_images/odd_aspect_ratio.jpg)                               |
+| 6   | Light            | Too bright or mostly white images                         | light            | ![](https://raw.githubusercontent.com/cleanlab/assets/cleanvision-images/cleanvision/example_issue_images/light.jpg)                                          |
+| 7   | Exact Duplicates | Images that are exact duplicates of each other            | exact_duplicates | ![](https://raw.githubusercontent.com/cleanlab/assets/cleanvision-images/cleanvision/example_issue_images/exact_duplicates.png)                               |
+| 8   | Near Duplicates  | Images that are visually identical to each other          | near_duplicates  | ![](https://raw.githubusercontent.com/cleanlab/assets/cleanvision-images/cleanvision/example_issue_images/near_duplicates.png)                                |
 
 This package currently detects issues in the raw images themselves, making it a useful tool for any machine learning
 task such as classification, segmentation, object detection, pose estimation, keypoint detection, image generation.
