@@ -316,6 +316,7 @@ class Imagelab:
     def _filter_report(
         self, issue_types: List[str], max_prevalence: float
     ) -> List[str]:
+        """Filters issues by max_prevalence in the dataset."""
         issue_summary = self.issue_summary[
             self.issue_summary["issue_type"].isin(issue_types)
         ]
@@ -397,11 +398,13 @@ class Imagelab:
         if issue_types:
             issue_types_to_report = issue_types
         else:
+            # Remove issues with zero images from the report
             non_zero_issue_types = self.issue_summary[
                 self.issue_summary["num_images"] > 0
             ]["issue_type"].tolist()
             issue_types_to_report = non_zero_issue_types
 
+        # filter issues based on max_prevalence in the dataset
         filtered_issue_types = self._filter_report(
             issue_types_to_report, report_args["max_prevalence"]
         )
