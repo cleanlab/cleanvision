@@ -7,6 +7,7 @@ from PIL import ImageStat, ImageFilter
 from PIL.Image import Image
 
 from cleanvision.issue_managers import IssueType
+from cleanvision.utils.constants import MAX_RESOLUTION_FOR_BLURRY_DETECTION
 from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
 
 
@@ -227,8 +228,13 @@ class EntropyProperty(ImageProperty):
         return scores
 
 
-def calc_blurriness(image: Image) -> float:
-    edges = get_edges(image)
+def calc_blurriness(image: Image, max_resolution: int) -> float:
+    ratio = max(image.width, image.height) / max_resolution
+    if ratio > 1:
+        low_rs = image.resize((int(image.width // ratio), int(image.height // ratio)))
+    else:
+        low_rs = image
+    edges = get_edges(low_rs)
     blurriness = ImageStat.Stat(edges).var[0]
     assert isinstance(
         blurriness, float
@@ -244,10 +250,11 @@ class BlurrinessProperty(ImageProperty):
         return self._score_columns
 
     def __init__(self) -> None:
-        self._score_columns = [self.name, "brightness_perc_99"]
+        self._score_columns = [self.name]
+        self.max_resolution = MAX_RESOLUTION_FOR_BLURRY_DETECTION
 
     def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
-        return {self.name: calc_blurriness(image)}
+        return {self.name: calc_blurriness(image, self.max_resolution)}
 
     def get_scores(
         self,

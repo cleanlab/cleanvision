@@ -47,7 +47,7 @@ def test_calc_entropy():
 def test_calc_bluriness():
     img = Image.new("RGB", (200, 200), (255, 0, 0))
     edges = get_edges(img)
-    blurriness = calc_blurriness(img)
+    blurriness = calc_blurriness(img, 512)
     assert isinstance(edges, Image.Image)
     assert isinstance(blurriness, float)
 
