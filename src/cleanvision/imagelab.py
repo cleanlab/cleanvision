@@ -99,7 +99,9 @@ class Imagelab:
         if self._num_images == 0:
             raise ValueError("No images found in the specified path")
         self.info: Dict[str, Any] = {"statistics": {}}
-        self.issue_summary: pd.DataFrame = pd.DataFrame(columns=["issue_type"])
+        self.issue_summary: pd.DataFrame = pd.DataFrame(
+            columns=["issue_type", "num_images"]
+        )
         self.issues: pd.DataFrame = pd.DataFrame(index=self._filepaths)
         self._issue_types: List[str] = []
         self._issue_managers: Dict[str, IssueManager] = {}
@@ -134,7 +136,6 @@ class Imagelab:
         """
         return {
             "visualize_num_images_per_row": 4,
-            "report_num_top_issues_values": [5, 7, 10, len(self._issue_types)],
             "report_examples_per_issue_values": [4, 8, 16, 32],
             "report_max_prevalence": 0.5,
             "default_issue_types": [
@@ -315,6 +316,7 @@ class Imagelab:
     def _filter_report(
         self, issue_types: List[str], max_prevalence: float
     ) -> List[str]:
+        """Filters issues by max_prevalence in the dataset."""
         issue_summary = self.issue_summary[
             self.issue_summary["issue_type"].isin(issue_types)
         ]
@@ -333,9 +335,6 @@ class Imagelab:
         self, verbosity: int, user_supplied_args: Dict[str, Any]
     ) -> Dict[str, Any]:
         report_args = {
-            "num_top_issues": self._config["report_num_top_issues_values"][
-                verbosity - 1
-            ],
             "max_prevalence": self._config["report_max_prevalence"],
             "examples_per_issue": self._config["report_examples_per_issue_values"][
                 verbosity - 1
@@ -399,32 +398,26 @@ class Imagelab:
         if issue_types:
             issue_types_to_report = issue_types
         else:
+            # Remove issues with zero images from the report
             non_zero_issue_types = self.issue_summary[
                 self.issue_summary["num_images"] > 0
             ]["issue_type"].tolist()
             issue_types_to_report = non_zero_issue_types
 
+        # filter issues based on max_prevalence in the dataset
         filtered_issue_types = self._filter_report(
             issue_types_to_report, report_args["max_prevalence"]
         )
 
-        num_report = (
-            report_args["num_top_issues"] if issue_types is None else len(issue_types)
-        )
-
         issue_summary = self.issue_summary[
-            self.issue_summary["issue_type"].isin(filtered_issue_types[:num_report])
+            self.issue_summary["issue_type"].isin(filtered_issue_types)
         ]
         if len(issue_summary) > 0:
             print("Issues found in order of severity in the dataset\n")
             self._pprint_issue_summary(issue_summary)
-            if issue_types is None and num_report < len(filtered_issue_types):
-                print(
-                    f"{len(filtered_issue_types) - num_report} more issues found in the dataset. To view them increase verbosity or check imagelab.issue_summary."
-                )
 
             self.visualize(
-                issue_types=filtered_issue_types[:num_report],
+                issue_types=filtered_issue_types,
                 num_images=(
                     report_args["examples_per_issue"]
                     if num_images is None
