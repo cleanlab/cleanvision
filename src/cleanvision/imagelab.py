@@ -588,7 +588,7 @@ class Imagelab:
                 )
 
     # Todo: Improve mypy dict typechecking so this does not return any
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> Any:
         """Returns statistics on images like brightness, color space, aspect ratio"""
         return self.info["statistics"]
 
