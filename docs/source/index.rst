@@ -59,7 +59,6 @@ More on how to get started with CleanVision:
 
 
 .. toctree::
-   :hidden:
    :maxdepth: 1
    :caption: Getting Started
 
@@ -67,15 +66,10 @@ More on how to get started with CleanVision:
 .. _api-reference:
 
 .. toctree::
-   :hidden:
    :maxdepth: 5
    :caption: API Reference
    :name: _api_reference
 
    cleanvision/imagelab
-   cleanvision/issue_managers/image_property
-   cleanvision/issue_managers/image_property_issue_manager
-   cleanvision/issue_managers/duplicate_issue_manager
-   cleanvision/utils/base_issue_manager
-   cleanvision/utils/viz_manager
-   cleanvision/utils/utils
+
+
