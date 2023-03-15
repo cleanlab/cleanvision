@@ -31,7 +31,7 @@ Run CleanVision to audit the images.
 from cleanvision.imagelab import Imagelab
 
 # Specify path to folder containing the image files in your dataset
-imagelab = Imagelab("path_to_dataset")
+imagelab = Imagelab(data_path="FOLDER_WITH_IMAGES/")
 
 # Automatically check for a predefined list of issues within your dataset
 imagelab.find_issues()
