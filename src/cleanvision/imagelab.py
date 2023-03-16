@@ -589,7 +589,7 @@ class Imagelab:
 
     # Todo: Improve mypy dict typechecking so this does not return any
     def get_stats(self) -> Any:
-        """Returns statistics on images like brightness, color space, aspect ratio"""
+        """Returns dict of statistics computed from images when auditing the data such as: brightness, color space, aspect ratio, etc."""
         return self.info["statistics"]
 
     def save(self, path: str, force: bool = False) -> None:
