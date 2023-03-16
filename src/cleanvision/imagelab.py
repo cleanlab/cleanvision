@@ -372,7 +372,7 @@ class Imagelab:
             Maximum number of images to show for issue type reported. These are examples of the top-most severe instances of the issue in your dataset.
 
         verbosity : int, {1, 2, 3, 4}
-            Increasing verbosity increases the detail of the report. Set this to 0 to report less information, or to 4 to report the most information.
+            Increasing verbosity increases the detail of the report. Set this to 1 to report less information, or to 4 to report the most information.
 
         Examples
         --------
@@ -526,7 +526,7 @@ class Imagelab:
 
         num_images : int, optional
             Number of images to visualize from the dataset.
-            These are randomly selected if `issue_types` is ``None``.
+            These images are randomly selected if `issue_types` is ``None``.
             If `issue_types` is given, then this is the number of images for each issue type to visualize
             (images representing top-most severe instances of this issue will be shown).
             If `image_files` is given, this argument is ignored.
@@ -589,6 +589,7 @@ class Imagelab:
 
     # Todo: Improve mypy dict typechecking so this does not return any
     def get_stats(self) -> Any:
+        """Returns dict of statistics computed from images when auditing the data such as: brightness, color space, aspect ratio, etc."""
         return self.info["statistics"]
 
     def save(self, path: str, force: bool = False) -> None:
@@ -601,7 +602,7 @@ class Imagelab:
         path : str
             Path to folder where this Imagelab instance will be saved on disk.
 
-        allow_overwrite: bool, default=False
+        force: bool, default=False
             If set to True, any existing files at `path` will be overwritten.
 
         Raises
