@@ -71,15 +71,14 @@ In any collection of image files (most [formats](https://pillow.readthedocs.io/e
 
 |     | Issue Type       | Description                                               | Issue Key        | Example                                                                                                                         |
 |-----|------------------|-----------------------------------------------------------|------------------|---------------------------------------------------------------------------------------------------------------------------------|
-| 1   | Dark             | Irregularly dark images                                   | dark             | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/dark.jpg)                         |
-| 2   | Blurry           | Blurry or out of focus images                             | blurry           | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/blurry.png)           |
-| 3   | Grayscale        | Images lacking color                                      | grayscale        | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/grayscale.jpg)        |
-| 4   | Low Information  | Images lacking much information (pixel value distribution has low entropy) | low_information  | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/low_information.jpg)  |
-| 5   | Odd Aspect Ratio | Unusual aspect ratio (i.e. overly skinny/wide)            | odd_aspect_ratio | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/odd_aspect_ratio.jpg) |
-| 6   | Light            | Too bright or mostly white images                         | light            | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/light.jpg)            |
-| 7   | Exact Duplicates | Images that are exact duplicates of each other            | exact_duplicates | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/exact_duplicates.png) |
-| 8   | Near Duplicates  | Images that are visually identical to each other          | near_duplicates  | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/near_duplicates.png)  |
-
+| 1   | Exact Duplicates | Images that are exact duplicates of each other            | exact_duplicates | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/exact_duplicates.png) |
+| 2   | Near Duplicates  | Images that are visually almost identical          | near_duplicates  | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/near_duplicates.png)  |
+| 3   | Blurry           | Images where details are fuzzy (out of focus)                             | blurry           | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/blurry.png)           |
+| 4   | Low Information  | Images lacking content (little entropy in pixel values) | low_information  | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/low_information.jpg)  |
+| 5   | Dark             | Irregularly dark images (perhaps *under*exposed)                                   | dark             | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/dark.jpg)                         |
+| 6   | Light            | Irregularly bright/white images (perhaps *over*exposed)                       | light            | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/light.jpg)            |
+| 7   | Grayscale        | Images lacking color                                      | grayscale        | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/grayscale.jpg)        |
+| 8   | Odd Aspect Ratio | Unusual aspect ratio (overly skinny/wide images)            | odd_aspect_ratio | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/odd_aspect_ratio.jpg) |
 
 This package is still a work in progress, so expect sharp edges.
 Feel free to submit any found bugs or desired functionality as an [issue][issue]!
