@@ -53,7 +53,7 @@ imagelab.report(issue_types=issue_types)
 
 ## More resources on how to use CleanVision
 
-- [Tutorial notebook](https://github.com/cleanlab/cleanvision/blob/main/examples/demo.ipynb)
+- [Tutorial notebook](https://github.com/cleanlab/cleanvision-examples/blob/main/tutorial.ipynb)
 - [Example script](https://github.com/cleanlab/cleanvision/blob/main/examples/run.py)
 - [Additional example notebooks](https://github.com/cleanlab/cleanvision-examples)
 - [Documentation](https://cleanvision.readthedocs.io/)

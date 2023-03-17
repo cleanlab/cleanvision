@@ -54,11 +54,13 @@ CleanVision diagnoses many types of issues, but you can also check for only spec
 
 More on how to get started with CleanVision:
 
-- `example script <https://github.com/cleanlab/cleanvision/blob/main/examples/run.py>`_
-- `jupyter notebook demo <https://github.com/cleanlab/cleanvision/blob/main/examples/demo.ipynb>`_
+- `Jupyter notebook tutorial <https://github.com/cleanlab/cleanvision-examples/blob/main/tutorial.ipynb>`_
+- `Example Python script <https://github.com/cleanlab/cleanvision/blob/main/examples/run.py>`_
+- `Additional example notebooks <https://github.com/cleanlab/cleanvision-examples>`_
 
 
 .. toctree::
+   :hidden:
    :maxdepth: 1
    :caption: Getting Started
 
@@ -66,6 +68,7 @@ More on how to get started with CleanVision:
 .. _api-reference:
 
 .. toctree::
+   :hidden:
    :maxdepth: 5
    :caption: API Reference
    :name: _api_reference
