@@ -31,7 +31,7 @@ def set_image_on_axes(path: str, ax: matplotlib.axes.Axes, title: str) -> None:
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
     ax.set_title(title, fontsize=7)
-    ax.imshow(image, cmap=cmap)
+    ax.imshow(image, cmap=cmap, vmin=0, vmax=255)
 
 
 def plot_image_grid(
