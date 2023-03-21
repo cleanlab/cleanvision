@@ -14,7 +14,7 @@ CleanVision is super simple -- run the same couple lines of Python code to audit
 ## Installation
 
 ```shell
-pip install git+https://github.com/cleanlab/cleanvision.git
+pip install cleanvision
 ```
 
 ## Quickstart
