@@ -81,8 +81,8 @@ More on how to get started with CleanVision:
 
    Jupyter Notebook Tutorial <https://colab.research.google.com/github/cleanlab/cleanvision/blob/main/examples/tutorial.ipynb>
    Example Python Script <https://github.com/cleanlab/cleanvision/blob/main/examples/run.py>
-   Additional Example Notebooks <https://github.com/cleanlab/cleanvision-examples>
-   How to contribute <https://github.com/cleanlab/cleanvision/blob/main/CONTRIBUTING.md>
+   More Example Notebooks <https://github.com/cleanlab/cleanvision-examples>
+   How To Contribute <https://github.com/cleanlab/cleanvision/blob/main/CONTRIBUTING.md>
 
 .. toctree::
    :caption: Links
