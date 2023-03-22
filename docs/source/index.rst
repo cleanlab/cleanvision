@@ -75,4 +75,19 @@ More on how to get started with CleanVision:
 
    cleanvision/imagelab
 
+.. toctree::
+   :caption: Guides
+   :hidden:
 
+   Quickstart Tutorial Notebook <https://colab.research.google.com/github/cleanlab/cleanvision/blob/main/examples/tutorial.ipynb>
+   Example Python Script <https://github.com/cleanlab/cleanvision/blob/main/examples/run.py>
+   More Example Notebooks <https://github.com/cleanlab/cleanvision-examples>
+   How To Contribute <https://github.com/cleanlab/cleanvision/blob/main/CONTRIBUTING.md>
+
+.. toctree::
+   :caption: Links
+   :hidden:
+
+   Website <https://cleanlab.ai/>
+   GitHub <https://github.com/cleanlab/cleanvision.git>
+   PyPI <https://pypi.org/project/cleanvision/>
