@@ -88,6 +88,6 @@ More on how to get started with CleanVision:
    :caption: Links
    :hidden:
 
-   Website <https://cleanvision.readthedocs.io/en/latest/>
+   Website <https://cleanlab.ai/>
    GitHub <https://github.com/cleanlab/cleanvision.git>
    PyPI <https://pypi.org/project/cleanvision/>
