@@ -79,7 +79,7 @@ More on how to get started with CleanVision:
    :caption: Guides
    :hidden:
 
-   Jupyter Notebook Tutorial <https://colab.research.google.com/github/cleanlab/cleanvision/blob/main/examples/tutorial.ipynb>
+   Quickstart Tutorial Notebook <https://colab.research.google.com/github/cleanlab/cleanvision/blob/main/examples/tutorial.ipynb>
    Example Python Script <https://github.com/cleanlab/cleanvision/blob/main/examples/run.py>
    More Example Notebooks <https://github.com/cleanlab/cleanvision-examples>
    How To Contribute <https://github.com/cleanlab/cleanvision/blob/main/CONTRIBUTING.md>
