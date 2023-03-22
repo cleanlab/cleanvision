@@ -17,11 +17,19 @@ to find problems in your dataset, which you may want to address before applying 
 Installation
 ============
 
-To install cleanvision using pip:
+To install the latest stable version (recommended):
 
 .. code-block:: console
 
    $ pip install cleanvision
+
+
+To install the bleeding-edge developer version:
+
+.. code-block:: console
+
+   $ pip install git+https://github.com/cleanlab/cleanvision.git
+
 
 Quickstart
 ===========
