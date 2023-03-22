@@ -17,11 +17,19 @@ to find problems in your dataset, which you may want to address before applying 
 Installation
 ============
 
-To install cleanvision using pip:
+To install the latest stable version (recommended):
 
 .. code-block:: console
 
    $ pip install cleanvision
+
+
+To install the bleeding-edge developer version:
+
+.. code-block:: console
+
+   $ pip install git+https://github.com/cleanlab/cleanvision.git
+
 
 Quickstart
 ===========
@@ -79,7 +87,7 @@ More on how to get started with CleanVision:
    :caption: Guides
    :hidden:
 
-   Quickstart Tutorial Notebook <https://colab.research.google.com/github/cleanlab/cleanvision/blob/main/examples/tutorial.ipynb>
+   Tutorial Notebook <https://colab.research.google.com/github/cleanlab/cleanvision/blob/main/examples/tutorial.ipynb>
    Example Python Script <https://github.com/cleanlab/cleanvision/blob/main/examples/run.py>
    More Example Notebooks <https://github.com/cleanlab/cleanvision-examples>
    How To Contribute <https://github.com/cleanlab/cleanvision/blob/main/CONTRIBUTING.md>
