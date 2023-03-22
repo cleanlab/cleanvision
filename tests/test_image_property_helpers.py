@@ -3,6 +3,7 @@ import pandas as pd
 import pytest
 from PIL import Image
 
+import cleanvision
 from cleanvision.issue_managers import IssueType
 from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
@@ -76,43 +77,43 @@ class TestBrightnessHelper:
         assert isinstance(image_property, BrightnessProperty)
         assert hasattr(image_property, "issue_type")
 
-    @pytest.mark.skip(reason="Needs to be updated")
+    def test_calculate(self, image_property, monkeypatch):
+        image = Image.new("RGB", (2, 3))
+
+        def mock_perc_brightness(image, percentiles):
+            return np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7])
+
+        def mock_avg_brightness(image):
+            return 0.1
+
+        monkeypatch.setattr(
+            cleanvision.issue_managers.image_property,
+            "calc_percentile_brightness",
+            mock_perc_brightness,
+        )
+        monkeypatch.setattr(
+            cleanvision.issue_managers.image_property,
+            "calc_avg_brightness",
+            mock_avg_brightness,
+        )
+
+        raw_values = image_property.calculate(image)
+        assert raw_values["brightness_perc_15"] == 0.4
+        assert raw_values["brightness"] == 0.1
+
     @pytest.mark.parametrize(
-        "mock_mean,expected_output",
-        [
-            [[100], 0.39216],
-            [[100, 200, 50], 0.68172],
-        ],
-        ids=["gray", "rgb"],
+        "issue_type, expected_output",
+        [("light", [0.5, 0.7, 0.1, 0.9, 0.8]), ("dark", [0.5, 0.3, 0.9, 0.1, 0.2])],
     )
-    def test_calculate(self, image_property, monkeypatch, mock_mean, expected_output):
-        from PIL import ImageStat
+    def test_get_scores(self, image_property, issue_type, expected_output):
+        raw_values = [0.5, 0.3, 0.9, 0.1, 0.2]
+        raw_scores = pd.DataFrame(
+            {"brightness_perc_5": raw_values, "brightness_perc_99": raw_values}
+        )
+        expected_scores = pd.DataFrame({get_score_colname(issue_type): expected_output})
 
-        class MockStat:
-            def __init__(self, *args, **kwargs):
-                pass
-
-            @property
-            def mean(self):
-                return mock_mean
-
-        monkeypatch.setattr(ImageStat, "Stat", MockStat)
-
-        cur_bright = image_property.calculate("my_image")
-        assert cur_bright == pytest.approx(expected=expected_output, abs=1e-5)
-
-    @pytest.mark.skip(reason="Needs to be updated")
-    def test_normalize(self, image_property, monkeypatch):
-        raw_scores = [0.5, 0.3, 1.0, 1.2, 0.9, 0.1, 0.2]
-        expected_output = np.array([0.5, 0.3, 1.0, 1.0, 0.9, 0.1, 0.2])
-
-        with monkeypatch.context() as m:
-            m.setattr(image_property, "issue_type", IssueType.DARK)
-            normalized_scores = image_property.get_scores(raw_scores=raw_scores)
-            assert all(normalized_scores == expected_output)
-
-        normalized_scores = image_property.get_scores(raw_scores=raw_scores)
-        assert all(normalized_scores == 1 - expected_output)
+        scores = image_property.get_scores(raw_scores, issue_type)
+        pd.testing.assert_frame_equal(scores, expected_scores)
 
     @pytest.mark.parametrize(
         "scores,threshold,expected_mark",
