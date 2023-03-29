@@ -21,8 +21,6 @@ TYPES: List[str] = [
     "*.jp2",
     "*.TIFF",
     "*.WebP",
-    "*.PNG",
-    "*.JPEG",
     "*.png",
 ]  # filetypes supported by PIL
 
