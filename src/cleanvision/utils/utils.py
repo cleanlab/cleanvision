@@ -5,6 +5,8 @@ from typing import Dict, List, Any
 
 import pandas as pd
 
+from cleanvision.utils.constants import IMAGE_FILE_EXTENSIONS
+
 # psutil is a package used to count physical cores for multiprocessing
 # This package is not necessary, because we can always fall back to logical cores as the default
 try:
@@ -13,18 +15,6 @@ try:
     PSUTIL_EXISTS = True
 except ImportError:  # pragma: no cover
     PSUTIL_EXISTS = False
-
-TYPES: List[str] = [
-    "*.jpg",
-    "*.jpeg",
-    "*.gif",
-    "*.jp2",
-    "*.TIFF",
-    "*.WebP",
-    "*.PNG",
-    "*.JPEG",
-    "*.png",
-]  # filetypes supported by PIL
 
 
 def get_max_n_jobs() -> int:
@@ -63,15 +53,17 @@ def get_filepaths(
     abs_dir_path = os.path.abspath(dir_path)
     print(f"Reading images from {abs_dir_path}")
     filepaths = []
-    for type in TYPES:
+    for ext in IMAGE_FILE_EXTENSIONS:
         filetype_images = glob.glob(
-            os.path.join(abs_dir_path, "**", type), recursive=True
+            os.path.join(abs_dir_path, "**", ext), recursive=True
         )
         if len(filetype_images) == 0:
             continue
         filepaths += filetype_images
 
-    return sorted(filepaths)  # sort image names alphabetically and numerically
+    # glob.glob is case-insensitive in Windows and picks up the same file twice while looking for *.png and *.PNG.
+    unique_filepaths = list(set(filepaths))
+    return sorted(unique_filepaths)  # sort image names alphabetically and numerically
 
 
 def deep_update_dict(d: Dict[str, Any], u: Dict[str, Any]) -> Dict[str, Any]:
