@@ -4,17 +4,26 @@ on:
     branches: [ main ]
   pull_request:
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  test:
+    name: "Test: Python ${{ matrix.python }} on ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11" ]
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        python:
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python }}
       - name: Setup python environment
         run: ./.github/scripts/setup_python_env.sh
         shell: bash
