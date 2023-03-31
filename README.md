@@ -83,6 +83,8 @@ In any collection of image files (most [formats](https://pillow.readthedocs.io/e
 This package is still a work in progress, so expect sharp edges.
 Feel free to submit any found bugs or desired functionality as an [issue][issue]!
 
+CleanVision supports Linux, macOS, and Windows and runs on Python 3.7+.
+
 ## Join our community
 
 * The best place to learn is [our Slack community](https://cleanlab.ai/slack). Join the discussion there to see how
@@ -103,7 +105,7 @@ Feel free to submit any found bugs or desired functionality as an [issue][issue]
 
 ## License
 
-Copyright (c) 2017-2023 Cleanlab Inc.
+Copyright (c) 2017 Cleanlab Inc.
 
 cleanvision is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public
 License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
