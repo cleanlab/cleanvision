@@ -28,21 +28,16 @@ def get_hash(image: Image, params: Dict[str, Any]) -> str:
 
 
 def compute_hash(
-    path: str, to_compute: List[str], params: Dict[str, Any]
+    index, image, to_compute: List[str], params: Dict[str, Any]
 ) -> Dict[str, Any]:
-    image = Image.open(path)
-    result = {}
-    result["path"] = path
+    result = {"index": index}
     for issue_type in to_compute:
         result[issue_type] = get_hash(image, params[issue_type])
     return result
 
 
-def compute_hash_wrapper(arg: Dict[str, Any]) -> Dict[str, Any]:
-    path = arg["path"]
-    to_compute = arg["to_compute"]
-    params = arg["params"]
-    return compute_hash(path, to_compute, params)
+def compute_hash_wrapper(args: Dict[str, Any]) -> Dict[str, Any]:
+    return compute_hash(**args)
 
 
 @register_issue_manager(DUPLICATE)
@@ -97,7 +92,7 @@ class DuplicateIssueManager(IssueManager):
         self,
         *,
         params: Optional[Dict[str, Any]] = None,
-        filepaths: Optional[List[str]] = None,
+        dataset,
         imagelab_info: Optional[Dict[str, Any]] = None,
         n_jobs: Optional[int] = None,
         **kwargs: Any,
@@ -105,7 +100,7 @@ class DuplicateIssueManager(IssueManager):
         super().find_issues(**kwargs)
         assert params is not None
         assert imagelab_info is not None
-        assert filepaths is not None
+        assert dataset is not None
 
         self.issue_types = list(params.keys())
         self.update_params(params)
@@ -120,12 +115,17 @@ class DuplicateIssueManager(IssueManager):
 
         results: List[Any] = []
         if n_jobs == 1:
-            for path in tqdm(filepaths):
-                results.append(compute_hash(path, to_compute, self.params))
+            for index, image in tqdm(dataset):
+                results.append(compute_hash(index, image, to_compute, self.params))
         else:
             args = [
-                {"path": path, "to_compute": to_compute, "params": self.params}
-                for path in filepaths
+                {
+                    "index": index,
+                    "image": image,
+                    "to_compute": to_compute,
+                    "params": self.params,
+                }
+                for index, image in dataset
             ]
             chunksize = max(1, len(args) // MAX_PROCS)
             with multiprocessing.Pool(n_jobs) as p:
@@ -134,20 +134,22 @@ class DuplicateIssueManager(IssueManager):
                         p.imap_unordered(
                             compute_hash_wrapper, args, chunksize=chunksize
                         ),
-                        total=len(filepaths),
+                        total=len(dataset),
                     )
                 )
-            results = sorted(results, key=lambda r: r["path"])  # type:ignore
+            results = sorted(results, key=lambda r: r["index"])
 
         for result in results:
             for issue_type in to_compute:
                 hash_str = result[issue_type]
                 if hash_str in issue_type_hash_mapping[issue_type]:
-                    issue_type_hash_mapping[issue_type][hash_str].append(result["path"])
+                    issue_type_hash_mapping[issue_type][hash_str].append(
+                        result["index"]
+                    )
                 else:
-                    issue_type_hash_mapping[issue_type][hash_str] = [result["path"]]
+                    issue_type_hash_mapping[issue_type][hash_str] = [result["index"]]
 
-        self.issues = pd.DataFrame(index=filepaths)
+        self.issues = pd.DataFrame(index=dataset.index)
         self._update_info(self.issue_types, issue_type_hash_mapping, imagelab_info)
         self._update_issues()
         self._update_summary()

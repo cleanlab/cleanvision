@@ -27,6 +27,7 @@ class IssueManager(ABC):
     def check_params(**kwargs: Any) -> None:
         allowed_kwargs: Dict[str, Any] = {
             "params": Dict[str, Any],
+            # todo: change
             "filepaths": List[str],
             "imagelab_info": Dict[str, Any],
             "n_jobs": int,

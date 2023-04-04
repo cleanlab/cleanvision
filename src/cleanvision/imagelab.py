@@ -11,6 +11,12 @@ from typing import List, Dict, Any, Optional, Tuple, TypeVar, Type
 import numpy as np
 import pandas as pd
 
+from cleanvision.dataset.dataset import (
+    FolderDataset,
+    FilePathDataset,
+    HFDataset,
+    TorchDataset,
+)
 from cleanvision.issue_managers import (
     IssueType,
     IssueManagerFactory,
@@ -92,38 +98,50 @@ class Imagelab:
     """
 
     def __init__(
-        self, data_path: Optional[str] = None, filepaths: Optional[List[str]] = None
+        self,
+        data_path: Optional[str] = None,
+        filepaths: Optional[List[str]] = None,
+        hf_dataset=None,
+        image_key=None,
+        torchvision_dataset=None,
     ) -> None:
-        self._filepaths = self._get_filepaths(data_path, filepaths)
-        self._num_images: int = len(self._filepaths)
-        if self._num_images == 0:
-            raise ValueError("No images found in the specified path")
+        self._dataset = self._build_dataset(
+            data_path, filepaths, hf_dataset, image_key, torchvision_dataset
+        )
+        if len(self._dataset) == 0:
+            raise ValueError("No images found in the dataset specified")
         self.info: Dict[str, Any] = {"statistics": {}}
         self.issue_summary: pd.DataFrame = pd.DataFrame(
             columns=["issue_type", "num_images"]
         )
-        self.issues: pd.DataFrame = pd.DataFrame(index=self._filepaths)
+
+        self.issues: pd.DataFrame = pd.DataFrame(index=self._dataset.index)
         self._issue_types: List[str] = []
         self._issue_managers: Dict[str, IssueManager] = {}
+
         # can be loaded from a file later
         self._config: Dict[str, Any] = self._set_default_config()
         self._path = ""
 
-    def _get_filepaths(
-        self, data_path: Optional[str], filepaths: Optional[List[str]]
-    ) -> List[str]:
-        if (data_path is None and filepaths is None) or (
-            data_path is not None and filepaths is not None
-        ):
-            raise ValueError(
-                "Please specify one of data_path or filepaths to check for issues."
+    def _build_dataset(
+        self, data_path, filepaths, hf_dataset, image_key, torchvision_dataset
+    ):
+        is_data_folder = 1 if data_path else 0
+        is_file_path = 1 if filepaths else 0
+        is_hf_dataset = 1 if hf_dataset and image_key else 0
+        is_tv_dataset = 1 if torchvision_dataset else 0
+        if is_data_folder + is_file_path + is_hf_dataset != 1:
+            print(
+                "Please specify one of data_path, filepaths, (hf_dataset, image_key) or torchvision_dataset to check for issues."
             )
-        filepaths = []
         if data_path:
-            filepaths = get_filepaths(data_path)
-        elif filepaths:
-            filepaths = filepaths
-        return filepaths
+            return FolderDataset(data_path)
+        elif is_file_path:
+            return FilePathDataset(filepaths)
+        elif is_hf_dataset:
+            return HFDataset(hf_dataset, image_key)
+        elif is_tv_dataset:
+            return TorchDataset(torchvision_dataset)
 
     def _set_default_config(self) -> Dict[str, Any]:
         """Sets default values for various config variables used in Imagelab class
@@ -251,7 +269,7 @@ class Imagelab:
             issue_manager = self._issue_managers[issue_type_group]
             issue_manager.find_issues(
                 params=params,
-                filepaths=self._filepaths,
+                dataset=self._dataset,
                 imagelab_info=self.info,
                 n_jobs=n_jobs,
             )
@@ -322,7 +340,7 @@ class Imagelab:
         ]
         issue_to_report = []
         for row in issue_summary.itertuples(index=False):
-            if getattr(row, "num_images") / self._num_images < max_prevalence:
+            if getattr(row, "num_images") / len(self._dataset) < max_prevalence:
                 issue_to_report.append(getattr(row, "issue_type"))
             else:
                 print(
@@ -467,17 +485,21 @@ class Imagelab:
 
             scores = sorted_df.head(num_images)[get_score_colname(issue_type)]
             titles = [f"score : {x:.4f}" for x in scores]
-            paths = scores.index.tolist()
-            if paths:
+            indices = scores.index.tolist()
+            images = [self._dataset[i] for i in indices]
+            if images:
                 VizManager.individual_images(
-                    filepaths=paths,
+                    images=images,
                     titles=titles,
                     ncols=self._config["visualize_num_images_per_row"],
                     cell_size=cell_size,
                 )
 
         elif viz_name == "image_sets":
-            image_sets = list(self.info[issue_type][SETS][:num_images])
+            image_set_indices = list(self.info[issue_type][SETS][:num_images])
+            image_sets = []
+            for indices in image_set_indices:
+                image_sets.append([self._dataset[index] for index in indices])
 
             sets_str = "sets" if len(image_sets) > 1 else "set"
             if len(image_sets) < num_images:
@@ -489,7 +511,10 @@ class Imagelab:
                     f"\nTop {num_images} {sets_str} of images with {issue_type} issue"
                 )
 
-            title_sets = [[path.split("/")[-1] for path in s] for s in image_sets]
+            title_sets = [
+                [self._dataset.get_name(index) for index in s]
+                for s in image_set_indices
+            ]
 
             if image_sets:
                 VizManager.image_sets(
