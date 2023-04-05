@@ -1,6 +1,6 @@
 import hashlib
 import multiprocessing
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import imagehash
 import numpy as np
@@ -8,6 +8,7 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
+from cleanvision.dataset.dataset import Dataset
 from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import SETS, DUPLICATE, MAX_PROCS
@@ -28,7 +29,10 @@ def get_hash(image: Image, params: Dict[str, Any]) -> str:
 
 
 def compute_hash(
-    index, image, to_compute: List[str], params: Dict[str, Any]
+    index: Union[str, int],
+    image: Image.Image,
+    to_compute: List[str],
+    params: Dict[str, Any],
 ) -> Dict[str, Any]:
     result = {"index": index}
     for issue_type in to_compute:
@@ -92,7 +96,7 @@ class DuplicateIssueManager(IssueManager):
         self,
         *,
         params: Optional[Dict[str, Any]] = None,
-        dataset,
+        dataset: Dataset,
         imagelab_info: Optional[Dict[str, Any]] = None,
         n_jobs: Optional[int] = None,
         **kwargs: Any,
@@ -113,7 +117,7 @@ class DuplicateIssueManager(IssueManager):
         if n_jobs is None:
             n_jobs = get_max_n_jobs()
 
-        results: List[Any] = []
+        results = []
         if n_jobs == 1:
             for index, image in tqdm(dataset):
                 results.append(compute_hash(index, image, to_compute, self.params))
@@ -137,6 +141,7 @@ class DuplicateIssueManager(IssueManager):
                         total=len(dataset),
                     )
                 )
+            # results.sort(key=lambda r: r["index"])
             results = sorted(results, key=lambda r: r["index"])
 
         for result in results:
@@ -149,7 +154,7 @@ class DuplicateIssueManager(IssueManager):
                 else:
                     issue_type_hash_mapping[issue_type][hash_str] = [result["index"]]
 
-        self.issues = pd.DataFrame(index=dataset.index)
+        self.issues = pd.DataFrame(index=dataset.index_list)
         self._update_info(self.issue_types, issue_type_hash_mapping, imagelab_info)
         self._update_issues()
         self._update_summary()

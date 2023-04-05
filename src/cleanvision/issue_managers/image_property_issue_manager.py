@@ -1,9 +1,11 @@
 import multiprocessing
-from typing import Dict, Any, List, Set, Optional
+from typing import Dict, Any, List, Set, Optional, Union
 
 import pandas as pd
+from PIL import Image
 from tqdm import tqdm
 
+from cleanvision.dataset.dataset import Dataset
 from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
@@ -28,7 +30,10 @@ from cleanvision.utils.utils import (
 
 
 def compute_scores(
-    index, image, to_compute: List[str], image_properties: Dict[str, ImageProperty]
+    index: Union[str, int],
+    image: Image.Image,
+    to_compute: List[str],
+    image_properties: Dict[str, ImageProperty],
 ) -> Dict[str, Any]:
     results = {"index": index}
     for issue_type in to_compute:
@@ -112,7 +117,7 @@ class ImagePropertyIssueManager(IssueManager):
         self,
         *,
         params: Optional[Dict[str, Any]] = None,
-        dataset=None,
+        dataset: Optional[Dataset] = None,
         imagelab_info: Optional[Dict[str, Any]] = None,
         n_jobs: Optional[int] = None,
         **kwargs: Any,
@@ -123,21 +128,21 @@ class ImagePropertyIssueManager(IssueManager):
         assert dataset is not None
 
         self.issue_types = list(params.keys())
-        self.issues = pd.DataFrame(index=dataset.index)
+        self.issues = pd.DataFrame(index=dataset.index_list)
         additional_set = self._get_additional_to_compute_set(self.issue_types)
         self.issue_types = self.issue_types + additional_set
 
         self.update_params(params)
 
         # todo: compute using index
-        agg_computations = pd.DataFrame(index=dataset.index)
+        agg_computations = pd.DataFrame(index=dataset.index_list)
         agg_computations = self._add_prev_computations(agg_computations, imagelab_info)
 
         defer_set = self._get_defer_set(self.issue_types, agg_computations)
 
         to_be_computed = list(set(self.issue_types).difference(defer_set))
 
-        new_computations = pd.DataFrame(index=dataset.index)
+        new_computations = pd.DataFrame(index=dataset.index_list)
         if to_be_computed:
             if n_jobs is None:
                 n_jobs = get_max_n_jobs()
@@ -254,7 +259,7 @@ class ImagePropertyIssueManager(IssueManager):
             self.issues = self.issues.join(is_issue)
 
     def _add_prev_computations(
-        self, agg_computations, info: Dict[str, Any]
+        self, agg_computations: pd.DataFrame, info: Dict[str, Any]
     ) -> pd.DataFrame:
         for key in info.keys():
             if key in IMAGE_PROPERTY_ISSUE_TYPES_LIST + ["statistics"]:

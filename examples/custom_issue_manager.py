@@ -8,6 +8,7 @@ from tqdm import tqdm
 from cleanvision.issue_managers import register_issue_manager
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
+from cleanvision.dataset.dataset import Dataset
 
 ISSUE_NAME = "custom"
 
@@ -57,7 +58,7 @@ class CustomIssueManager(IssueManager):
         self,
         *,
         params: Optional[Dict[str, Any]] = None,
-        dataset: Optional[List[str]] = None,
+        dataset: Optional[Dataset] = None,
         imagelab_info: Optional[Dict[str, Any]] = None,
         **kwargs: Any,
     ) -> None:
@@ -72,7 +73,7 @@ class CustomIssueManager(IssueManager):
         for index, image in tqdm(dataset):
             raw_scores.append(self.calculate_mean_pixel_value(image))
 
-        self.issues = pd.DataFrame(index=dataset.index)
+        self.issues = pd.DataFrame(index=dataset.index_list)
         scores = self.get_scores(raw_scores)
         self.issues[get_score_colname(self.issue_name)] = scores
         self.issues[get_is_issue_colname(self.issue_name)] = self.mark_issue(

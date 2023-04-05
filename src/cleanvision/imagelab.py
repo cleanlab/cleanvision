@@ -7,11 +7,14 @@ but advanced users can get extra flexibility via the code in other CleanVision m
 import os
 import pickle
 from typing import List, Dict, Any, Optional, Tuple, TypeVar, Type
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
+from PIL import Image
 
 from cleanvision.dataset.dataset import (
+    Dataset,
     FolderDataset,
     FilePathDataset,
     HFDataset,
@@ -31,13 +34,16 @@ from cleanvision.utils.constants import (
     SETS,
 )
 from cleanvision.utils.utils import (
-    get_filepaths,
     deep_update_dict,
     get_is_issue_colname,
     get_score_colname,
     update_df,
 )
 from cleanvision.utils.viz_manager import VizManager
+
+if TYPE_CHECKING:
+    import datasets
+    import torch
 
 __all__ = ["Imagelab"]
 
@@ -101,9 +107,9 @@ class Imagelab:
         self,
         data_path: Optional[str] = None,
         filepaths: Optional[List[str]] = None,
-        hf_dataset=None,
-        image_key=None,
-        torchvision_dataset=None,
+        hf_dataset: Optional[datasets.Dataset] = None,
+        image_key: Optional[str] = None,
+        torchvision_dataset: Optional[torch.utils.data.Dataset] = None,
     ) -> None:
         self._dataset = self._build_dataset(
             data_path, filepaths, hf_dataset, image_key, torchvision_dataset
@@ -124,8 +130,13 @@ class Imagelab:
         self._path = ""
 
     def _build_dataset(
-        self, data_path, filepaths, hf_dataset, image_key, torchvision_dataset
-    ):
+        self,
+        data_path: Optional[str] = None,
+        filepaths: Optional[List[str]] = None,
+        hf_dataset: Optional[datasets.Dataset] = None,
+        image_key: Optional[str] = None,
+        torchvision_dataset: Optional[torch.utils.data.Dataset] = None,
+    ) -> Dataset:
         is_data_folder = 1 if data_path else 0
         is_file_path = 1 if filepaths else 0
         is_hf_dataset = 1 if hf_dataset and image_key else 0
@@ -140,7 +151,7 @@ class Imagelab:
             return FilePathDataset(filepaths)
         elif is_hf_dataset:
             return HFDataset(hf_dataset, image_key)
-        elif is_tv_dataset:
+        else:
             return TorchDataset(torchvision_dataset)
 
     def _set_default_config(self) -> Dict[str, Any]:
@@ -485,7 +496,7 @@ class Imagelab:
 
             scores = sorted_df.head(num_images)[get_score_colname(issue_type)]
             titles = [f"score : {x:.4f}" for x in scores]
-            indices = scores.index.tolist()
+            indices = scores.index_list.tolist()
             images = [self._dataset[i] for i in indices]
             if images:
                 VizManager.individual_images(
@@ -592,21 +603,35 @@ class Imagelab:
                 raise ValueError("issue_types list is empty")
             for issue_type in issue_types:
                 self._visualize(issue_type, num_images, cell_size)
+        elif image_files:
+            # todo: write test
+            if len(image_files) == 0:
+                raise ValueError("image_files list is empty.")
+            images = [Image.open(path) for path in image_files]
+            titles = [path.split("/")[-1] for path in image_files]
+            VizManager.individual_images(
+                images,
+                titles,
+                ncols=self._config["visualize_num_images_per_row"],
+                cell_size=cell_size,
+            )
         else:
+            # todo: write test
+            print("Some sample image from the dataset.")
             if image_files is None:
-                image_files = list(
+                image_indices = list(
                     np.random.choice(
-                        self._filepaths,
-                        min(num_images, self._num_images),
+                        len(self._dataset),
+                        min(
+                            num_images, len(self._dataset)
+                        ),  # in case the len(dataset) < 4
                         replace=False,
                     )
                 )
-            elif len(image_files) == 0:
-                raise ValueError("image_files list is empty.")
-            if image_files:
-                titles = [path.split("/")[-1] for path in image_files]
+                images = [self._dataset[i] for i in image_indices]
+                titles = [self._dataset.get_name(i) for i in image_indices]
                 VizManager.individual_images(
-                    image_files,
+                    images,
                     titles,
                     ncols=self._config["visualize_num_images_per_row"],
                     cell_size=cell_size,

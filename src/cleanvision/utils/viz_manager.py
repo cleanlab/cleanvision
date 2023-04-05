@@ -3,18 +3,23 @@ from typing import List, Tuple
 import math
 import matplotlib.axes
 import matplotlib.pyplot as plt
+from PIL import Image
 
 
 class VizManager:
     @staticmethod
     def individual_images(
-        images, titles: List[str], ncols: int, cell_size: Tuple[int, int]
+        images: List[Image.Image],
+        titles: List[str],
+        ncols: int,
+        cell_size: Tuple[int, int],
     ) -> None:
+        """Plots a list of images in a grid."""
         plot_image_grid(images, titles, ncols, cell_size)
 
     @staticmethod
     def image_sets(
-        image_sets: List[List[str]],
+        image_sets: List[List[Image.Image]],
         title_sets: List[List[str]],
         ncols: int,
         cell_size: Tuple[int, int],
@@ -24,7 +29,7 @@ class VizManager:
             plot_image_grid(s, title_sets[i], ncols, cell_size)
 
 
-def set_image_on_axes(image, ax: matplotlib.axes.Axes, title: str) -> None:
+def set_image_on_axes(image: Image.Image, ax: matplotlib.axes.Axes, title: str) -> None:
     cmap = "gray" if image.mode == "L" else None
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
@@ -33,7 +38,7 @@ def set_image_on_axes(image, ax: matplotlib.axes.Axes, title: str) -> None:
 
 
 def plot_image_grid(
-    images: List[str], titles: List[str], ncols: int, cell_size: Tuple[int, int]
+    images: List[Image.Image], titles: List[str], ncols: int, cell_size: Tuple[int, int]
 ) -> None:
     nrows = math.ceil(len(images) / ncols)
     ncols = min(ncols, len(images))
