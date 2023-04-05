@@ -121,12 +121,19 @@ class Imagelab:
         )
 
         self.issues: pd.DataFrame = pd.DataFrame(index=self._dataset.index)
+        self._add_metadata()
         self._issue_types: List[str] = []
         self._issue_managers: Dict[str, IssueManager] = {}
 
         # can be loaded from a file later
         self._config: Dict[str, Any] = self._set_default_config()
         self._path = ""
+
+    def _add_metadata(self):
+        if "path" in self._dataset.metadata:
+            path_df = pd.DataFrame(index=self._dataset.index)
+            path_df["image_path"] = self._dataset.metadata["path"]
+            self.issues = self.issues.join(path_df)
 
     def _build_dataset(
         self,
@@ -616,7 +623,7 @@ class Imagelab:
             )
         else:
             # todo: write test
-            print("Some sample image from the dataset.")
+            print("Sample images from the dataset.")
             if image_files is None:
                 image_indices = list(
                     np.random.choice(
