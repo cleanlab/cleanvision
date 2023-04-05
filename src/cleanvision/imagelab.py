@@ -16,7 +16,6 @@ from PIL import Image
 from cleanvision.dataset.dataset import (
     Dataset,
     FolderDataset,
-    FilePathDataset,
     HFDataset,
     TorchDataset,
 )
@@ -107,9 +106,9 @@ class Imagelab:
         self,
         data_path: Optional[str] = None,
         filepaths: Optional[List[str]] = None,
-        hf_dataset: Optional[datasets.Dataset] = None,
+        hf_dataset: Optional["datasets.Dataset"] = None,
         image_key: Optional[str] = None,
-        torchvision_dataset: Optional[torch.utils.data.Dataset] = None,
+        torchvision_dataset: Optional["torch.utils.data.Dataset"] = None,
     ) -> None:
         self._dataset = self._build_dataset(
             data_path, filepaths, hf_dataset, image_key, torchvision_dataset
@@ -133,9 +132,9 @@ class Imagelab:
         self,
         data_path: Optional[str] = None,
         filepaths: Optional[List[str]] = None,
-        hf_dataset: Optional[datasets.Dataset] = None,
+        hf_dataset: Optional["datasets.Dataset"] = None,
         image_key: Optional[str] = None,
-        torchvision_dataset: Optional[torch.utils.data.Dataset] = None,
+        torchvision_dataset: Optional["torch.utils.data.Dataset"] = None,
     ) -> Dataset:
         is_data_folder = 1 if data_path else 0
         is_file_path = 1 if filepaths else 0

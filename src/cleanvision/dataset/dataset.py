@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, TypeVar, Optional, Self
+from typing import TYPE_CHECKING, List, Optional, Self
 
 from PIL import Image
 
@@ -8,14 +8,12 @@ if TYPE_CHECKING:
     import datasets
     import torch
 
-TDataset = TypeVar("TDataset", bound="Dataset")
-
 
 class Dataset:
     """This class is used for managing different kinds of data formats provided by user"""
 
     def __init__(self) -> None:
-        self._set_index()
+        self.index = []
         self.metadata = {}
 
     def _set_index(self) -> None:
@@ -39,10 +37,11 @@ class Dataset:
 
 
 class HFDataset(Dataset):
-    def __init__(self, hf_dataset: datasets.Dataset, image_key: str):
+    def __init__(self, hf_dataset: "datasets.Dataset", image_key: str):
         super().__init__()
         self._data = hf_dataset
         self._image_key = image_key
+        self._set_index()
 
     def __len__(self) -> int:
         return len(self._data)
@@ -73,6 +72,7 @@ class FolderDataset(Dataset):
         assert data_folder is not None or filepaths is not None
         self._filepaths = get_filepaths(data_folder) if data_folder else filepaths
         self.metadata["path"] = self._filepaths.copy()
+        self._set_index()
 
     def __len__(self) -> int:
         return len(self._filepaths)
@@ -97,13 +97,14 @@ class FolderDataset(Dataset):
 
 
 class TorchDataset(Dataset):
-    def __init__(self, torch_dataset: torch.utils.data.Dataset) -> None:
+    def __init__(self, torch_dataset: "torch.utils.data.Dataset") -> None:
         super().__init__()
         self._data = torch_dataset
         # todo: catch errors
         for i, obj in enumerate(torch_dataset[0]):
             if isinstance(obj, Image.Image):
                 self._image_idx = i
+        self._set_index()
 
     def __len__(self) -> int:
         return len(self._data)
