@@ -5,3 +5,5 @@ pre-commit
 pytest
 pytest-cov
 pytest-lazy-fixture
+datasets>=2.7.0
+torchvision>=0.12.0
