@@ -145,9 +145,9 @@ class Imagelab:
                 "Please specify one of data_path, filepaths, (hf_dataset, image_key) or torchvision_dataset to check for issues."
             )
         if data_path:
-            return FolderDataset(data_path)
+            return FolderDataset(data_folder=data_path)
         elif is_file_path:
-            return FilePathDataset(filepaths)
+            return FolderDataset(filepaths=filepaths)
         elif is_hf_dataset:
             return HFDataset(hf_dataset, image_key)
         else:
