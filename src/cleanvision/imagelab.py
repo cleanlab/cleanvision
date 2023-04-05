@@ -140,7 +140,7 @@ class Imagelab:
         is_file_path = 1 if filepaths else 0
         is_hf_dataset = 1 if hf_dataset and image_key else 0
         is_tv_dataset = 1 if torchvision_dataset else 0
-        if is_data_folder + is_file_path + is_hf_dataset != 1:
+        if is_data_folder + is_file_path + is_hf_dataset + is_tv_dataset != 1:
             print(
                 "Please specify one of data_path, filepaths, (hf_dataset, image_key) or torchvision_dataset to check for issues."
             )
