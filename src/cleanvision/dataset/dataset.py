@@ -1,4 +1,6 @@
-from typing import TYPE_CHECKING, List, Optional, Self
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, List, Optional
 
 from PIL import Image
 
@@ -25,7 +27,7 @@ class Dataset:
     def __getitem__(self, item: int) -> Image.Image:
         raise NotImplementedError
 
-    def __iter__(self) -> Self:
+    def __iter__(self) -> Dataset:
         self._idx = 0
         return self
 
