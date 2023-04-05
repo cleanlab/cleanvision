@@ -25,6 +25,9 @@ class Dataset:
     def __next__(self):
         raise NotImplementedError
 
+    def __hash__(self):
+        raise NotImplementedError
+
     def get_name(self, index):
         raise NotImplementedError
 

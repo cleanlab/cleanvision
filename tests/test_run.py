@@ -175,7 +175,8 @@ def test_compute_scores(generate_single_image_file):
     }
     args = {
         "to_compute": ["dark", "light"],
-        "path": generate_single_image_file,
+        "index": 0,
+        "image": Image.new("RGB", (100, 100)),
         "image_properties": image_properties,
     }
     _ = compute_scores_wrapper(args)

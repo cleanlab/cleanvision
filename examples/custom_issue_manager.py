@@ -57,23 +57,22 @@ class CustomIssueManager(IssueManager):
         self,
         *,
         params: Optional[Dict[str, Any]] = None,
-        filepaths: Optional[List[str]] = None,
+        dataset: Optional[List[str]] = None,
         imagelab_info: Optional[Dict[str, Any]] = None,
         **kwargs: Any,
     ) -> None:
         super().find_issues(**kwargs)
         assert params is not None
         assert imagelab_info is not None
-        assert filepaths is not None
+        assert dataset is not None
 
         self.update_params(params)
 
         raw_scores = []
-        for path in tqdm(filepaths):
-            image = Image.open(path)
+        for index, image in tqdm(dataset):
             raw_scores.append(self.calculate_mean_pixel_value(image))
 
-        self.issues = pd.DataFrame(index=filepaths)
+        self.issues = pd.DataFrame(index=dataset.index)
         scores = self.get_scores(raw_scores)
         self.issues[get_score_colname(self.issue_name)] = scores
         self.issues[get_is_issue_colname(self.issue_name)] = self.mark_issue(

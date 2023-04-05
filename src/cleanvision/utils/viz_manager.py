@@ -14,12 +14,12 @@ class VizManager:
 
     @staticmethod
     def image_sets(
-        filepath_sets: List[List[str]],
+        image_sets: List[List[str]],
         title_sets: List[List[str]],
         ncols: int,
         cell_size: Tuple[int, int],
     ) -> None:
-        for i, s in enumerate(filepath_sets):
+        for i, s in enumerate(image_sets):
             print(f"Set: {i}")
             plot_image_grid(s, title_sets[i], ncols, cell_size)
 

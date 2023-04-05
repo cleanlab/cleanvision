@@ -686,11 +686,12 @@ class Imagelab:
         with open(object_file, "rb") as f:
             imagelab: TImagelab = pickle.load(f)
 
-        if data_path is not None:
-            filepaths = get_filepaths(data_path)
-            if set(filepaths) != set(imagelab._filepaths):
-                raise ValueError(
-                    "Absolute path of image(s) has changed in the dataset. Cannot load Imagelab."
-                )
+        # todo: use hash for validating
+        # if data_path is not None:
+        #     filepaths = get_filepaths(data_path)
+        #     if set(filepaths) != set(imagelab._filepaths):
+        #         raise ValueError(
+        #             "Absolute path of image(s) has changed in the dataset. Cannot load Imagelab."
+        #         )
         print("Successfully loaded Imagelab")
         return imagelab
