@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Union, Tuple, List, TypeVar
+from typing import TYPE_CHECKING, List, TypeVar, Optional, Self
 
 from PIL import Image
 
@@ -15,7 +15,8 @@ class Dataset:
     """This class is used for managing different kinds of data formats provided by user"""
 
     def __init__(self) -> None:
-        self.index_list = None
+        self._set_index()
+        self.metadata = {}
 
     def _set_index(self) -> None:
         raise NotImplementedError
@@ -23,17 +24,17 @@ class Dataset:
     def __len__(self) -> int:
         raise NotImplementedError
 
-    def __getitem__(self, index: Union[str, int]) -> Image.Image:
+    def __getitem__(self, item: int) -> Image.Image:
         raise NotImplementedError
 
-    def __iter__(self) -> TDataset:
+    def __iter__(self) -> Self:
         self._idx = 0
         return self
 
-    def __next__(self) -> Tuple[Union[str, int], Image.Image]:
+    def __next__(self) -> Image.Image:
         raise NotImplementedError
 
-    def get_name(self, index: Union[str, int]) -> str:
+    def get_name(self, index: int) -> str:
         raise NotImplementedError
 
 
@@ -42,83 +43,59 @@ class HFDataset(Dataset):
         super().__init__()
         self._data = hf_dataset
         self._image_key = image_key
-        self._set_index()
 
     def __len__(self) -> int:
         return len(self._data)
 
-    def __getitem__(self, index: Union[str, int]) -> Image.Image:
-        return self._data[index][self._image_key]
+    def __getitem__(self, item: int) -> Image.Image:
+        return self._data[item][self._image_key]
 
-    def __next__(self) -> Tuple[int, Image.Image]:
+    def __next__(self) -> Image.Image:
         if self._idx >= len(self._data):
             raise StopIteration
         # todo : catch reading image errors
-        index, image = self._idx, self._data[self._idx][self._image_key]
+        image = self._data[self._idx][self._image_key]
         self._idx += 1
-        return index, image
+        return image
 
     def _set_index(self) -> None:
-        self.index_list: List[Union[str, int]] = [i for i in range(len(self._data))]
+        self.index = [i for i in range(len(self._data))]
 
-    def get_name(self, index: Union[str, int]) -> str:
-        return f"idx: {index}"
+    def get_name(self, item: int) -> str:
+        return f"idx: {item}"
 
 
 class FolderDataset(Dataset):
-    def __init__(self, data_folder: str) -> None:
+    def __init__(
+        self, data_folder: Optional[str] = None, filepaths: Optional[List[str]] = None
+    ) -> None:
         super().__init__()
-        self._filepaths = get_filepaths(data_folder)
-        self._set_index()
+        assert data_folder is not None or filepaths is not None
+        self._filepaths = get_filepaths(data_folder) if data_folder else filepaths
+        self.metadata["path"] = self._filepaths.copy()
 
     def __len__(self) -> int:
         return len(self._filepaths)
 
-    def __getitem__(self, index: Union[str, int]) -> Image.Image:
-        return Image.open(index)
+    def __getitem__(self, item: int) -> Image.Image:
+        path = self._filepaths[item]
+        return Image.open(path)
 
-    def __next__(self) -> Tuple[str, Image.Image]:
+    def __next__(self) -> Image.Image:
         if self._idx >= len(self._filepaths):
             raise StopIteration
-        index, image = self._filepaths[self._idx], Image.open(
-            self._filepaths[self._idx]
-        )
+        image = Image.open(self._filepaths[self._idx])
         self._idx += 1
-        return index, image
+        return image
 
     def _set_index(self) -> None:
-        self.index_list = self._filepaths.copy()
+        self.index = [i for i in range(len(self._filepaths))]
 
-    def get_name(self, index: Union[str, int]) -> str:
-        return index.split("/")[-1]
-
-
-class FilePathDataset(Dataset):
-    def __init__(self, filepaths: List[str]) -> None:
-        super().__init__()
-        self._filepaths = filepaths
-        self._set_index()
-
-    def __len__(self) -> int:
-        return len(self._filepaths)
-
-    def __getitem__(self, index: Union[str, int]) -> Image.Image:
-        return Image.open(index)
-
-    def __next__(self) -> Tuple[str, Image.Image]:
-        if self._idx >= len(self._filepaths):
-            raise StopIteration
-        index, image = self._filepaths[self._idx], Image.open(
-            self._filepaths[self._idx]
-        )
-        self._idx += 1
-        return index, image
-
-    def _set_index(self) -> None:
-        self.index_list = self._filepaths.copy()
+    def get_name(self, item: int) -> str:
+        path = self._filepaths[item]
+        return path.split("/")[-1]
 
 
-# todo
 class TorchDataset(Dataset):
     def __init__(self, torch_dataset: torch.utils.data.Dataset) -> None:
         super().__init__()
@@ -127,24 +104,23 @@ class TorchDataset(Dataset):
         for i, obj in enumerate(torch_dataset[0]):
             if isinstance(obj, Image.Image):
                 self._image_idx = i
-        self._set_index()
 
     def __len__(self) -> int:
         return len(self._data)
 
-    def __getitem__(self, index: Union[str, int]) -> Image.Image:
-        return self._data[index][self._image_idx]
+    def __getitem__(self, item: int) -> Image.Image:
+        return self._data[item][self._image_idx]
 
-    def __next__(self) -> Tuple[int, Image.Image]:
+    def __next__(self) -> Image.Image:
         if self._idx >= len(self._data):
             raise StopIteration
         # todo : catch reading image errors
-        index, image = self._idx, self._data[self._idx][self._image_idx]
+        image = self._data[self._idx][self._image_idx]
         self._idx += 1
-        return index, image
+        return image
 
-    def get_name(self, index: Union[str, int]) -> str:
+    def get_name(self, index: int) -> str:
         return f"idx: {index}"
 
     def _set_index(self) -> None:
-        self.index_list = [i for i in range(len(self._data))]
+        self.index = [i for i in range(len(self._data))]
