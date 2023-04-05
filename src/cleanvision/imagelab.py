@@ -42,7 +42,7 @@ from cleanvision.utils.viz_manager import VizManager
 
 if TYPE_CHECKING:
     import datasets
-    import torch
+    from torchvision.datasets.vision import VisionDataset
 
 __all__ = ["Imagelab"]
 
@@ -108,7 +108,7 @@ class Imagelab:
         filepaths: Optional[List[str]] = None,
         hf_dataset: Optional["datasets.Dataset"] = None,
         image_key: Optional[str] = None,
-        torchvision_dataset: Optional["torch.utils.data.Dataset"] = None,
+        torchvision_dataset: Optional["VisionDataset"] = None,
     ) -> None:
         self._dataset = self._build_dataset(
             data_path, filepaths, hf_dataset, image_key, torchvision_dataset
@@ -129,7 +129,7 @@ class Imagelab:
         self._config: Dict[str, Any] = self._set_default_config()
         self._path = ""
 
-    def _add_metadata(self):
+    def _add_metadata(self) -> None:
         if "path" in self._dataset.metadata:
             path_df = pd.DataFrame(index=self._dataset.index)
             path_df["image_path"] = self._dataset.metadata["path"]
@@ -141,24 +141,20 @@ class Imagelab:
         filepaths: Optional[List[str]] = None,
         hf_dataset: Optional["datasets.Dataset"] = None,
         image_key: Optional[str] = None,
-        torchvision_dataset: Optional["torch.utils.data.Dataset"] = None,
+        torchvision_dataset: Optional["VisionDataset"] = None,
     ) -> Dataset:
-        is_data_folder = 1 if data_path else 0
-        is_file_path = 1 if filepaths else 0
-        is_hf_dataset = 1 if hf_dataset and image_key else 0
-        is_tv_dataset = 1 if torchvision_dataset else 0
-        if is_data_folder + is_file_path + is_hf_dataset + is_tv_dataset != 1:
-            print(
-                "Please specify one of data_path, filepaths, (hf_dataset, image_key) or torchvision_dataset to check for issues."
-            )
         if data_path:
             return FolderDataset(data_folder=data_path)
-        elif is_file_path:
+        elif filepaths:
             return FolderDataset(filepaths=filepaths)
-        elif is_hf_dataset:
+        elif hf_dataset and image_key:
             return HFDataset(hf_dataset, image_key)
-        else:
+        elif torchvision_dataset:
             return TorchDataset(torchvision_dataset)
+        else:
+            raise ValueError(
+                "Please specify one of data_path, filepaths, (hf_dataset, image_key) or torchvision_dataset to check for issues."
+            )
 
     def _set_default_config(self) -> Dict[str, Any]:
         """Sets default values for various config variables used in Imagelab class

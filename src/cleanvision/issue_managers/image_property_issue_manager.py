@@ -34,14 +34,14 @@ def compute_scores(
     image: Image.Image,
     to_compute: List[str],
     image_properties: Dict[str, ImageProperty],
-) -> Dict[str, Any]:
-    results = {"index": index}
+) -> Dict[str, Union[str, int, float]]:
+    result: Dict[str, Union[int, str, float]] = {"index": index}
     for issue_type in to_compute:
-        results = {**results, **image_properties[issue_type].calculate(image)}
-    return results
+        result = {**result, **image_properties[issue_type].calculate(image)}
+    return result
 
 
-def compute_scores_wrapper(args: Dict[str, Any]) -> Dict[str, Any]:
+def compute_scores_wrapper(args: Dict[str, Any]) -> Dict[str, Union[float, str, int]]:
     return compute_scores(**args)
 
 
@@ -146,7 +146,7 @@ class ImagePropertyIssueManager(IssueManager):
             if n_jobs is None:
                 n_jobs = get_max_n_jobs()
 
-            results: List[Any] = []
+            results: List[Dict[str, Union[int, float, str]]] = []
             if n_jobs == 1:
                 # todo: change loop based on hf_dataset, iterate over index
                 for i, image in tqdm(enumerate(dataset)):
@@ -174,7 +174,7 @@ class ImagePropertyIssueManager(IssueManager):
                         )
                     )
 
-                results = sorted(results, key=lambda r: r["index"])  # type:ignore
+                results = sorted(results, key=lambda r: r["index"])
 
             new_computations = self._aggregate(results)
 

@@ -96,7 +96,7 @@ class DuplicateIssueManager(IssueManager):
         self,
         *,
         params: Optional[Dict[str, Any]] = None,
-        dataset: Dataset,
+        dataset: Optional[Dataset] = None,
         imagelab_info: Optional[Dict[str, Any]] = None,
         n_jobs: Optional[int] = None,
         **kwargs: Any,
@@ -117,7 +117,7 @@ class DuplicateIssueManager(IssueManager):
         if n_jobs is None:
             n_jobs = get_max_n_jobs()
 
-        results = []
+        results: List[Dict[str, Union[str, int]]] = []
         if n_jobs == 1:
             for i, image in tqdm(enumerate(dataset)):
                 results.append(compute_hash(i, image, to_compute, self.params))
@@ -141,7 +141,7 @@ class DuplicateIssueManager(IssueManager):
                         total=len(dataset),
                     )
                 )
-            # results.sort(key=lambda r: r["index"])
+
             results = sorted(results, key=lambda r: r["index"])
 
         for result in results:

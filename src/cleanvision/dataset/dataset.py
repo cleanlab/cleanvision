@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional
+from collections.abc import Sized
+from typing import TYPE_CHECKING, List, Optional, Union, Dict
 
 from PIL import Image
 
@@ -8,15 +9,15 @@ from cleanvision.utils.utils import get_filepaths
 
 if TYPE_CHECKING:
     import datasets
-    import torch
+    from torchvision.datasets.vision import VisionDataset
 
 
-class Dataset:
+class Dataset(Sized):
     """This class is used for managing different kinds of data formats provided by user"""
 
     def __init__(self) -> None:
-        self.index = []
-        self.metadata = {}
+        self.index: List[int] = []
+        self.metadata: Dict[str, Union[List[str]]] = {}
 
     def _set_index(self) -> None:
         raise NotImplementedError
@@ -71,8 +72,11 @@ class FolderDataset(Dataset):
         self, data_folder: Optional[str] = None, filepaths: Optional[List[str]] = None
     ) -> None:
         super().__init__()
-        assert data_folder is not None or filepaths is not None
-        self._filepaths = get_filepaths(data_folder) if data_folder else filepaths
+        if data_folder:
+            self._filepaths = get_filepaths(data_folder)
+        else:
+            assert filepaths is not None
+            self._filepaths = filepaths
         self.metadata["path"] = self._filepaths.copy()
         self._set_index()
 
@@ -99,7 +103,7 @@ class FolderDataset(Dataset):
 
 
 class TorchDataset(Dataset):
-    def __init__(self, torch_dataset: "torch.utils.data.Dataset") -> None:
+    def __init__(self, torch_dataset: "VisionDataset") -> None:
         super().__init__()
         self._data = torch_dataset
         # todo: catch errors
