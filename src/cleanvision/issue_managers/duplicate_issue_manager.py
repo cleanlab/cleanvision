@@ -119,17 +119,17 @@ class DuplicateIssueManager(IssueManager):
 
         results = []
         if n_jobs == 1:
-            for index, image in tqdm(dataset):
-                results.append(compute_hash(index, image, to_compute, self.params))
+            for i, image in tqdm(enumerate(dataset)):
+                results.append(compute_hash(i, image, to_compute, self.params))
         else:
             args = [
                 {
-                    "index": index,
+                    "index": i,
                     "image": image,
                     "to_compute": to_compute,
                     "params": self.params,
                 }
-                for index, image in dataset
+                for i, image in enumerate(dataset)
             ]
             chunksize = max(1, len(args) // MAX_PROCS)
             with multiprocessing.Pool(n_jobs) as p:
@@ -154,7 +154,7 @@ class DuplicateIssueManager(IssueManager):
                 else:
                     issue_type_hash_mapping[issue_type][hash_str] = [result["index"]]
 
-        self.issues = pd.DataFrame(index=dataset.index_list)
+        self.issues = pd.DataFrame(index=dataset.index)
         self._update_info(self.issue_types, issue_type_hash_mapping, imagelab_info)
         self._update_issues()
         self._update_summary()

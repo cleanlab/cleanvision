@@ -495,7 +495,7 @@ class Imagelab:
 
             scores = sorted_df.head(num_images)[get_score_colname(issue_type)]
             titles = [f"score : {x:.4f}" for x in scores]
-            indices = scores.index_list.tolist()
+            indices = scores.index.tolist()
             images = [self._dataset[i] for i in indices]
             if images:
                 VizManager.individual_images(

@@ -128,21 +128,20 @@ class ImagePropertyIssueManager(IssueManager):
         assert dataset is not None
 
         self.issue_types = list(params.keys())
-        self.issues = pd.DataFrame(index=dataset.index_list)
+        self.issues = pd.DataFrame(index=dataset.index)
         additional_set = self._get_additional_to_compute_set(self.issue_types)
         self.issue_types = self.issue_types + additional_set
 
         self.update_params(params)
 
-        # todo: compute using index
-        agg_computations = pd.DataFrame(index=dataset.index_list)
+        agg_computations = pd.DataFrame(index=dataset.index)
         agg_computations = self._add_prev_computations(agg_computations, imagelab_info)
 
         defer_set = self._get_defer_set(self.issue_types, agg_computations)
 
         to_be_computed = list(set(self.issue_types).difference(defer_set))
 
-        new_computations = pd.DataFrame(index=dataset.index_list)
+        new_computations = pd.DataFrame(index=dataset.index)
         if to_be_computed:
             if n_jobs is None:
                 n_jobs = get_max_n_jobs()
@@ -150,21 +149,19 @@ class ImagePropertyIssueManager(IssueManager):
             results: List[Any] = []
             if n_jobs == 1:
                 # todo: change loop based on hf_dataset, iterate over index
-                for index, image in tqdm(dataset):
+                for i, image in tqdm(enumerate(dataset)):
                     results.append(
-                        compute_scores(
-                            index, image, to_be_computed, self.image_properties
-                        )
+                        compute_scores(i, image, to_be_computed, self.image_properties)
                     )
             else:
                 args = [
                     {
-                        "index": index,
+                        "index": i,
                         "image": image,
                         "to_compute": to_be_computed,
                         "image_properties": self.image_properties,
                     }
-                    for index, image in dataset
+                    for i, image in enumerate(dataset)
                 ]
                 chunksize = max(1, len(args) // MAX_PROCS)
                 with multiprocessing.Pool(n_jobs) as p:
