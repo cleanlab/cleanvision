@@ -63,6 +63,7 @@ imagelab.report(issue_types=issue_types)
 - [Example script](https://github.com/cleanlab/cleanvision/blob/main/examples/run.py) that can be run with: `python examples/run.py --path <FOLDER_WITH_IMAGES>`
 - [Additional example notebooks](https://github.com/cleanlab/cleanvision-examples)
 - [Documentation](https://cleanvision.readthedocs.io/)
+- [Blog Post](https://cleanlab.ai/blog/cleanvision/)
 
 ## *Clean* your data for better Computer *Vision*
 
