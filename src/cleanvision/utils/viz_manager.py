@@ -57,9 +57,8 @@ def plot_image_grid(
             if idx >= len(images):
                 break
     elif ncols > 1:
-        for i in range(ncols):
-            if i < len(images):
-                set_image_on_axes(images[i], axes[i], titles[i])
+        for i in range(min(ncols, len(images))):
+            set_image_on_axes(images[i], axes[i], titles[i])
     else:
         set_image_on_axes(images[0], axes, titles[0])
     plt.show()
