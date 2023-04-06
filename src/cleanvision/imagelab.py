@@ -130,10 +130,8 @@ class Imagelab:
         self._path = ""
 
     def _add_metadata(self) -> None:
-        if "path" in self._dataset.metadata:
-            path_df = pd.DataFrame(index=self._dataset.index)
-            path_df["image_path"] = self._dataset.metadata["path"]
-            self.issues = self.issues.join(path_df)
+        if "index_to_path" in self._dataset.metadata:
+            self.issues = self.issues.join(self._dataset.metadata["index_to_path"])
 
     def _build_dataset(
         self,

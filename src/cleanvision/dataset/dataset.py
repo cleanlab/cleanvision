@@ -4,7 +4,7 @@ from collections.abc import Sized
 from typing import TYPE_CHECKING, List, Optional, Union, Dict
 
 from PIL import Image
-
+import pandas as pd
 from cleanvision.utils.utils import get_filepaths
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -77,8 +77,8 @@ class FolderDataset(Dataset):
         else:
             assert filepaths is not None
             self._filepaths = filepaths
-        self.metadata["path"] = self._filepaths.copy()
         self._set_index()
+        self.metadata["index_to_path"] = pd.DataFrame(self._filepaths, index=self.index)
 
     def __len__(self) -> int:
         return len(self._filepaths)

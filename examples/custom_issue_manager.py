@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -40,7 +40,7 @@ class CustomIssueManager(IssueManager):
         gray_image = image.convert("L")
         return np.mean(np.array(gray_image))
 
-    def get_scores(self, raw_scores: List[float]) -> pd.DataFrame:
+    def get_scores(self, raw_scores: List[float]) -> "np.ndarray[Any, Any]":
         scores = np.array(raw_scores)
         return scores / 255.0
 
