@@ -7,13 +7,13 @@ from PIL import Image
 
 from cleanvision.utils.utils import get_filepaths
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     import datasets
     from torchvision.datasets.vision import VisionDataset
 
 
 class Dataset(Sized):
-    """This class is used for managing different kinds of data formats provided by user"""
+    """This is a wrapper class for handling different types of datasets like local data folder, hugginface and torchvision."""
 
     def __init__(self) -> None:
         self.index: List[int] = []

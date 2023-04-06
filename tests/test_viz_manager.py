@@ -16,7 +16,7 @@ class TestVizManager:
         [
             ([Image.new("L", (100, 100))], ["image_title"]),
             ([Image.new("L", (100, 100))] * 2, ["image_title"] * 4),
-            ([Image.new("L", (100, 100))] * 6, ["image_title"] * 6),
+            ([Image.new("L", (100, 100))] * 6, ["imaxge_title"] * 6),
         ],
         ids=["plot single image", "plot <=4 images", "plt > 4 images"],
     )
