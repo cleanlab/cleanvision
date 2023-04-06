@@ -1,7 +1,10 @@
 # to suppress plt.show()
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+import torchvision
 from PIL import Image
 from datasets import load_dataset
 
@@ -11,7 +14,6 @@ from cleanvision.issue_managers.image_property_issue_manager import (
     compute_scores_wrapper,
 )
 from examples.custom_issue_manager import CustomIssueManager
-import torchvision
 
 
 @pytest.fixture()
@@ -217,3 +219,17 @@ def test_torch_dataset_run(generate_n_image_files):
     imagelab = Imagelab(torchvision_dataset=torch_ds)
     imagelab.find_issues()
     imagelab.report()
+
+
+@pytest.mark.usefixtures("set_plt_show")
+def test_visualize_sample_images(generate_n_image_files):
+    imagelab = Imagelab(data_path=generate_n_image_files)
+    imagelab.visualize()
+
+
+@pytest.mark.usefixtures("set_plt_show")
+def test_visualize_given_imagefiles(generate_n_image_files):
+    imagelab = Imagelab(data_path=generate_n_image_files)
+    files = os.listdir(generate_n_image_files / "class_0")
+    filepaths = [os.path.join(generate_n_image_files / "class_0", f) for f in files]
+    imagelab.visualize(image_files=filepaths)
