@@ -31,10 +31,10 @@ if __name__ == "__main__":
     )  # visualize images that have specific issues
 
     # Get all images with blurry issue type
-    blurry_images = imagelab.issues[
-        imagelab.issues["is_blurry_issue"] == True
-    ].index_list.to_list()
-    imagelab.visualize(image_files=blurry_images)  # visualize the given image files
+    blurry_images = imagelab.issues[imagelab.issues["is_blurry_issue"] == True]
+    imagelab.visualize(
+        image_files=blurry_images["image_path"].tolist()[:4]
+    )  # visualize the given image files
 
     # Miscellaneous extra information about dataset and its issues
     print(list(imagelab.info.keys()), "\n")

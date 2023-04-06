@@ -619,7 +619,7 @@ class Imagelab:
             )
         else:
             # todo: write test
-            print("Sample images from the dataset.")
+            print("Sample images from the dataset")
             if image_files is None:
                 image_indices = list(
                     np.random.choice(
