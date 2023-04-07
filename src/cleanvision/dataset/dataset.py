@@ -13,7 +13,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 class Dataset(Sized):
-    """This is a wrapper class for handling different types of datasets like local data folder, hugginface and torchvision."""
+    """This is a wrapper class for handling different types of datasets like local data folder, hugging face and torchvision."""
 
     def __init__(self) -> None:
         self.index: List[int] = []
