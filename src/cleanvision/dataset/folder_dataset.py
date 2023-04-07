@@ -20,7 +20,9 @@ class FolderDataset(Dataset):
             assert filepaths is not None
             self._filepaths = filepaths
         self._set_index()
-        self.metadata["index_to_path"] = pd.DataFrame(self._filepaths, index=self.index)
+        self.metadata["index_to_path"] = pd.DataFrame(
+            {"image_path": self._filepaths}, index=self.index
+        )
 
     def __len__(self) -> int:
         return len(self._filepaths)
@@ -42,3 +44,6 @@ class FolderDataset(Dataset):
     def get_name(self, item: int) -> str:
         path = self._filepaths[item]
         return path.split("/")[-1]
+
+    def get_index_to_path_mapping(self):
+        return {i: path for i, path in enumerate(self._filepaths)}

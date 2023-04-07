@@ -39,3 +39,6 @@ class TorchDataset(Dataset):
 
     def _set_index(self) -> None:
         self.index = [i for i in range(len(self._data))]
+
+    def get_index_to_path_mapping(self):
+        return ValueError("Index to path mapping does not exist for this dataset.")

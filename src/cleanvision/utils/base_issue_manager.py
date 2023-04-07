@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List
-from cleanvision.dataset.dataset import Dataset
+from typing import Dict, Any
+
 import pandas as pd
+
+from cleanvision.dataset import Dataset
 
 
 class IssueManager(ABC):

@@ -36,3 +36,6 @@ class HFDataset(Dataset):
 
     def get_name(self, item: int) -> str:
         return f"idx: {item}"
+
+    def get_index_to_path_mapping(self):
+        return ValueError("Index to path mapping does not exist for this dataset.")
