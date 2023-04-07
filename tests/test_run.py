@@ -212,7 +212,6 @@ def test_hf_dataset_run(generate_n_image_files):
     imagelab = Imagelab(hf_dataset=hf_dataset, image_key="image")
     imagelab.find_issues()
     imagelab.report()
-    print(imagelab.issues.columns)
     assert len(imagelab.issues.columns) == 14
     assert len(imagelab.issues) == N_CLASSES * IMAGES_PER_CLASS
 
