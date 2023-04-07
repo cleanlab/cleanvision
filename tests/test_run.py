@@ -15,6 +15,9 @@ from cleanvision.issue_managers.image_property_issue_manager import (
 )
 from examples.custom_issue_manager import CustomIssueManager
 
+IMAGES_PER_CLASS = 10
+N_CLASSES = 4
+
 
 @pytest.fixture()
 def set_plt_show(monkeypatch):
@@ -40,13 +43,11 @@ def generate_single_image_file(tmpdir_factory, img_name="img.png", arr=None):
 @pytest.fixture(scope="session")
 def generate_n_image_files(tmp_path_factory):
     """Generates n temporary images for testing and returns dir of images"""
-    images_per_class = 10
-    n_classes = 4
     tmp_image_dir = tmp_path_factory.mktemp("data")
-    for i in range(n_classes):
+    for i in range(N_CLASSES):
         class_dir = tmp_image_dir / f"class_{i}"
         class_dir.mkdir()
-        for j in range(images_per_class):
+        for j in range(IMAGES_PER_CLASS):
             img = generate_image()
             img_name = f"image_{j}.png"
             fn = class_dir / img_name
@@ -211,6 +212,9 @@ def test_hf_dataset_run(generate_n_image_files):
     imagelab = Imagelab(hf_dataset=hf_dataset, image_key="image")
     imagelab.find_issues()
     imagelab.report()
+    print(imagelab.issues.columns)
+    assert len(imagelab.issues.columns) == 14
+    assert len(imagelab.issues) == N_CLASSES * IMAGES_PER_CLASS
 
 
 @pytest.mark.usefixtures("set_plt_show")
@@ -219,6 +223,8 @@ def test_torch_dataset_run(generate_n_image_files):
     imagelab = Imagelab(torchvision_dataset=torch_ds)
     imagelab.find_issues()
     imagelab.report()
+    assert len(imagelab.issues.columns) == 14
+    assert len(imagelab.issues) == N_CLASSES * IMAGES_PER_CLASS
 
 
 @pytest.mark.usefixtures("set_plt_show")
