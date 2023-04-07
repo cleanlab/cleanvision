@@ -13,12 +13,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-from cleanvision.dataset.dataset import (
-    Dataset,
-    FolderDataset,
-    HFDataset,
-    TorchDataset,
-)
+from cleanvision.dataset.dataset import Dataset, build_dataset
 from cleanvision.issue_managers import (
     IssueType,
     IssueManagerFactory,
@@ -110,7 +105,7 @@ class Imagelab:
         image_key: Optional[str] = None,
         torchvision_dataset: Optional["VisionDataset"] = None,
     ) -> None:
-        self._dataset = self._build_dataset(
+        self._dataset = build_dataset(
             data_path, filepaths, hf_dataset, image_key, torchvision_dataset
         )
         if len(self._dataset) == 0:

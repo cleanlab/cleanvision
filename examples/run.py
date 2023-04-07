@@ -116,6 +116,9 @@ if __name__ == "__main__":
 
     Run cleanvision on torchvision dataset
     """
+
+    from torchvision.datasets import CIFAR10
+
     torch_dataset = CIFAR10("./", train=False, download=True)
     imagelab = Imagelab(torchvision_dataset=torch_dataset)
     imagelab.find_issues()
