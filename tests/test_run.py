@@ -14,6 +14,7 @@ from cleanvision.issue_managers.image_property_issue_manager import (
     compute_scores_wrapper,
 )
 from examples.custom_issue_manager import CustomIssueManager
+from cleanvision.dataset.folder_dataset import FolderDataset
 
 IMAGES_PER_CLASS = 10
 N_CLASSES = 4
@@ -177,6 +178,7 @@ def test_jobs(generate_n_image_files):
 
 
 def test_compute_scores(generate_single_image_file):
+    dataset = FolderDataset(filepaths=[generate_single_image_file])
     image_properties = {
         "dark": BrightnessProperty("dark"),
         "light": BrightnessProperty("light"),
@@ -184,7 +186,7 @@ def test_compute_scores(generate_single_image_file):
     args = {
         "to_compute": ["dark", "light"],
         "index": 0,
-        "image": Image.new("RGB", (100, 100)),
+        "dataset": dataset,
         "image_properties": image_properties,
     }
     _ = compute_scores_wrapper(args)
