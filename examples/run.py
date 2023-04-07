@@ -101,8 +101,11 @@ if __name__ == "__main__":
     """
     Example 4
 
-    Run cleanvision on hugging face dataset
+    Run cleanvision on a Hugging Face dataset
     """
+
+    from datasets import load_dataset
+
     hf_dataset = load_dataset("cifar10", split="test")
     imagelab = Imagelab(hf_dataset=hf_dataset, image_key="img")
     imagelab.find_issues()
