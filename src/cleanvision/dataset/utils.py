@@ -1,11 +1,15 @@
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 from cleanvision.dataset import Dataset
 from cleanvision.dataset.folder_dataset import FolderDataset
 from cleanvision.dataset.hf_dataset import HFDataset
 from cleanvision.dataset.torch_dataset import TorchDataset
+
+if TYPE_CHECKING:
+    import datasets
+    from torchvision.datasets.vision import VisionDataset
 
 
 def build_dataset(

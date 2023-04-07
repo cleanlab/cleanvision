@@ -129,27 +129,6 @@ class Imagelab:
         if "index_to_path" in self._dataset.metadata:
             self.issues = self.issues.join(self._dataset.metadata["index_to_path"])
 
-    def _build_dataset(
-        self,
-        data_path: Optional[str] = None,
-        filepaths: Optional[List[str]] = None,
-        hf_dataset: Optional["datasets.Dataset"] = None,
-        image_key: Optional[str] = None,
-        torchvision_dataset: Optional["VisionDataset"] = None,
-    ) -> Dataset:
-        if data_path:
-            return FolderDataset(data_folder=data_path)
-        elif filepaths:
-            return FolderDataset(filepaths=filepaths)
-        elif hf_dataset and image_key:
-            return HFDataset(hf_dataset, image_key)
-        elif torchvision_dataset:
-            return TorchDataset(torchvision_dataset)
-        else:
-            raise ValueError(
-                "Please specify one of data_path, filepaths, (hf_dataset, image_key) or torchvision_dataset to check for issues."
-            )
-
     def _set_default_config(self) -> Dict[str, Any]:
         """Sets default values for various config variables used in Imagelab class
         The naming convention for methods is {method_name}_{config_variable_name}
