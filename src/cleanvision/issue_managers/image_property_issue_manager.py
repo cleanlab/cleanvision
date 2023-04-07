@@ -29,7 +29,7 @@ from cleanvision.utils.utils import (
 
 
 def compute_scores(
-    index: Union[str, int],
+    index: int,
     dataset: Dataset,
     to_compute: List[str],
     image_properties: Dict[str, ImageProperty],

@@ -22,12 +22,8 @@ class Dataset(Sized):
     def __getitem__(self, item: int) -> Image.Image:
         raise NotImplementedError
 
-    def __iter__(self) -> Dataset:
-        self._idx = 0
-        return self
-
-    def __next__(self) -> Image.Image:
+    def get_name(self, index: int) -> str:
         raise NotImplementedError
 
-    def get_name(self, index: int) -> str:
+    def get_index_to_path_mapping(self) -> Dict[int, str]:
         raise NotImplementedError

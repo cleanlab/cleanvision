@@ -29,19 +29,19 @@ def get_hash(image: Image, params: Dict[str, Any]) -> str:
 
 
 def compute_hash(
-    index: Union[str, int],
+    index: int,
     dataset: Dataset,
     to_compute: List[str],
     params: Dict[str, Any],
-) -> Dict[str, Any]:
+) -> Dict[str, Union[str, int]]:
     image = dataset[index]
-    result = {"index": index}
+    result: Dict[str, Union[str, int]] = {"index": index}
     for issue_type in to_compute:
         result[issue_type] = get_hash(image, params[issue_type])
     return result
 
 
-def compute_hash_wrapper(args: Dict[str, Any]) -> Dict[str, Any]:
+def compute_hash_wrapper(args: Dict[str, Any]) -> Dict[str, Union[str, int]]:
     return compute_hash(**args)
 
 
