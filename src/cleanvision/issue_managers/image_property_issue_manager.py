@@ -2,7 +2,6 @@ import multiprocessing
 from typing import Dict, Any, List, Set, Optional, Union
 
 import pandas as pd
-from PIL import Image
 from tqdm import tqdm
 
 from cleanvision.dataset import Dataset
@@ -31,10 +30,11 @@ from cleanvision.utils.utils import (
 
 def compute_scores(
     index: Union[str, int],
-    image: Image.Image,
+    dataset: Dataset,
     to_compute: List[str],
     image_properties: Dict[str, ImageProperty],
 ) -> Dict[str, Union[str, int, float]]:
+    image = dataset[index]
     result: Dict[str, Union[int, str, float]] = {"index": index}
     for issue_type in to_compute:
         result = {**result, **image_properties[issue_type].calculate(image)}
@@ -148,20 +148,21 @@ class ImagePropertyIssueManager(IssueManager):
 
             results: List[Dict[str, Union[int, float, str]]] = []
             if n_jobs == 1:
-                # todo: change loop based on hf_dataset, iterate over index
-                for i, image in tqdm(enumerate(dataset)):
+                for idx in tqdm(dataset.index):
                     results.append(
-                        compute_scores(i, image, to_be_computed, self.image_properties)
+                        compute_scores(
+                            idx, dataset, to_be_computed, self.image_properties
+                        )
                     )
             else:
                 args = [
                     {
-                        "index": i,
-                        "image": image,
+                        "index": idx,
+                        "dataset": dataset,
                         "to_compute": to_be_computed,
                         "image_properties": self.image_properties,
                     }
-                    for i, image in enumerate(dataset)
+                    for idx in dataset.index
                 ]
                 chunksize = max(1, len(args) // MAX_PROCS)
                 with multiprocessing.Pool(n_jobs) as p:

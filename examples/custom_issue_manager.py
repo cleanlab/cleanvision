@@ -68,7 +68,8 @@ class CustomIssueManager(IssueManager):
         self.update_params(params)
 
         raw_scores = []
-        for i, image in tqdm(enumerate(dataset)):
+        for idx in tqdm(dataset.index):
+            image = dataset[idx]
             raw_scores.append(self.calculate_mean_pixel_value(image))
 
         score_colname = get_score_colname(self.issue_name)

@@ -30,10 +30,11 @@ def get_hash(image: Image, params: Dict[str, Any]) -> str:
 
 def compute_hash(
     index: Union[str, int],
-    image: Image.Image,
+    dataset: Dataset,
     to_compute: List[str],
     params: Dict[str, Any],
 ) -> Dict[str, Any]:
+    image = dataset[index]
     result = {"index": index}
     for issue_type in to_compute:
         result[issue_type] = get_hash(image, params[issue_type])
@@ -119,17 +120,17 @@ class DuplicateIssueManager(IssueManager):
 
         results: List[Dict[str, Union[str, int]]] = []
         if n_jobs == 1:
-            for i, image in tqdm(enumerate(dataset)):
-                results.append(compute_hash(i, image, to_compute, self.params))
+            for idx in tqdm(dataset.index):
+                results.append(compute_hash(idx, dataset, to_compute, self.params))
         else:
             args = [
                 {
-                    "index": i,
-                    "image": image,
+                    "index": idx,
+                    "dataset": dataset,
                     "to_compute": to_compute,
                     "params": self.params,
                 }
-                for i, image in enumerate(dataset)
+                for idx in dataset.index
             ]
             chunksize = max(1, len(args) // MAX_PROCS)
             with multiprocessing.Pool(n_jobs) as p:
