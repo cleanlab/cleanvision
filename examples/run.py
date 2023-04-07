@@ -1,8 +1,5 @@
 import argparse
 
-from datasets import load_dataset
-from torchvision.datasets import CIFAR10
-
 from cleanvision.imagelab import Imagelab
 
 if __name__ == "__main__":
