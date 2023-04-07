@@ -1,8 +1,5 @@
 import argparse
 
-from datasets import load_dataset
-from torchvision.datasets import CIFAR10
-
 from cleanvision.imagelab import Imagelab
 
 if __name__ == "__main__":
@@ -104,7 +101,7 @@ if __name__ == "__main__":
     """
     Example 4
 
-    Run cleanvision on huggingface dataset
+    Run cleanvision on hugging face dataset
     """
     hf_dataset = load_dataset("cifar10", split="test")
     imagelab = Imagelab(hf_dataset=hf_dataset, image_key="img")
