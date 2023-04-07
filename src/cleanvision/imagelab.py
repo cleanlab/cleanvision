@@ -13,7 +13,8 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-from cleanvision.dataset.dataset import Dataset, build_dataset
+from cleanvision.dataset import Dataset
+from cleanvision.dataset.utils import build_dataset
 from cleanvision.issue_managers import (
     IssueType,
     IssueManagerFactory,

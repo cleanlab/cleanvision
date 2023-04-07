@@ -5,7 +5,7 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
-from cleanvision.dataset.dataset import Dataset
+from cleanvision.dataset import Dataset
 from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
