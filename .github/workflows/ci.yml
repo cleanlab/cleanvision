@@ -4,6 +4,19 @@ on:
     branches: [ main ]
   pull_request:
 jobs:
+  optional-dependencies:
+    name: "Check installation of optional dependencies"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+    steps:
+      - run: |
+          pip install -e ".[pytorch,huggingface]"
+          python -c "import datasets, torchvision"
   test:
     name: "Test: Python ${{ matrix.python }} on ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
@@ -27,8 +40,6 @@ jobs:
       - name: Setup python environment
         run: ./.github/scripts/setup_python_env.sh
         shell: bash
-      - name: Install cleanvision
-        run: pip install -e .
       - name: Test with coverage
         run: pytest --verbose --cov=src/cleanvision/ --cov-config .coveragerc --cov-report=xml tests/
       - uses: codecov/codecov-action@v3
@@ -69,3 +80,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: cleanlab/nblint-action@v1
+
+
