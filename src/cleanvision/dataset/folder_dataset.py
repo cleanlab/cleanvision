@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Optional, Dict, Union
+from typing import List, Optional, Union
 
 import pandas as pd
 from PIL import Image
