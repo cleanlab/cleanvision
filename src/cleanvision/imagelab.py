@@ -58,6 +58,15 @@ class Imagelab:
         Issue checks will be run on this list of image paths specified in `filepaths`.
         Specifying only one of `data_path` or `filepaths`.
 
+    hf_dataset: datasets.Dataset
+        Hugging Face dataset with images in PIL format
+
+    image_key: str
+        key for Image object in the Hugging Face `dataset.features`
+
+    torchvision_dataset: torchvision.datasets.vision.VisionDataset
+        torchvision dataset with images in PIL format
+
     Attributes
     ----------
     issues : pd.DataFrame
