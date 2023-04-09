@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import pytest
 from PIL import Image
 
@@ -6,10 +5,6 @@ from cleanvision.utils.viz_manager import VizManager
 
 
 class TestVizManager:
-    @pytest.fixture()
-    def set_plt_show(self, monkeypatch):
-        monkeypatch.setattr(plt, "show", lambda: None)
-
     @pytest.mark.usefixtures("set_plt_show")
     @pytest.mark.parametrize(
         ("images", "titles"),
