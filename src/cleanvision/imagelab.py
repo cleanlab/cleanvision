@@ -689,6 +689,3 @@ class Imagelab:
         #         )
         print("Successfully loaded Imagelab")
         return imagelab
-
-    def get_index_to_path_mapping(self) -> Dict[int, str]:
-        return self._dataset.get_index_to_path_mapping()
