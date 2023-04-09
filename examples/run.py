@@ -29,9 +29,8 @@ if __name__ == "__main__":
 
     # Get all images with blurry issue type
     blurry_images = imagelab.issues.query("is_blurry_issue")
-    imagelab.visualize(
-        image_files=blurry_images["image_path"].tolist()[:4]
-    )  # visualize the given image files
+    # visualize the given image files
+    imagelab.visualize(image_files=blurry_images.index.tolist()[:4])
 
     # Miscellaneous extra information about dataset and its issues
     print(list(imagelab.info.keys()), "\n")
