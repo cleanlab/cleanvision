@@ -111,7 +111,7 @@ if __name__ == "__main__":
     imagelab.report()
 
     """
-    Example 4
+    Example 5
 
     Run cleanvision on torchvision dataset
     """
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     imagelab.report()
 
     """
-    Example 5
+    Example 6
 
     This example demonstrates creating your own custom issue and using Imagelab to detect this additional issue type, along with the default set of issues
     """
