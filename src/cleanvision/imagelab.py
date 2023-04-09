@@ -116,17 +116,12 @@ class Imagelab:
         )
 
         self.issues: pd.DataFrame = pd.DataFrame(index=self._dataset.index)
-        self._add_metadata()
         self._issue_types: List[str] = []
         self._issue_managers: Dict[str, IssueManager] = {}
 
         # can be loaded from a file later
         self._config: Dict[str, Any] = self._set_default_config()
         self._path = ""
-
-    def _add_metadata(self) -> None:
-        if "index_to_path" in self._dataset.metadata:
-            self.issues = self.issues.join(self._dataset.metadata["index_to_path"])
 
     def _set_default_config(self) -> Dict[str, Any]:
         """Sets default values for various config variables used in Imagelab class

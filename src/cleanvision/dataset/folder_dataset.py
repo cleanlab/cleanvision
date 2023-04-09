@@ -36,6 +36,3 @@ class FolderDataset(Dataset):
     def get_name(self, item: Union[int, str]) -> str:
         assert isinstance(item, str)
         return item.split("/")[-1]
-
-    def get_index_to_path_mapping(self) -> Dict[int, str]:
-        return {i: path for i, path in enumerate(self._filepaths)}

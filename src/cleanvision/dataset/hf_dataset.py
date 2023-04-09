@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, Union
+from typing import TYPE_CHECKING, Union
 
 from PIL import Image
 
@@ -33,6 +33,3 @@ class HFDataset(Dataset):
 
     def get_name(self, item: Union[int, str]) -> str:
         return f"idx: {item}"
-
-    def get_index_to_path_mapping(self) -> Dict[int, str]:
-        raise ValueError("Index to path mapping does not exist for this dataset.")

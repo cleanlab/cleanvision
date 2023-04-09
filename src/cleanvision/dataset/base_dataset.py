@@ -24,6 +24,3 @@ class Dataset(Sized):
 
     def get_name(self, index: Union[int, str]) -> str:
         raise NotImplementedError
-
-    def get_index_to_path_mapping(self) -> Dict[int, str]:
-        raise NotImplementedError

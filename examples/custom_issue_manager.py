@@ -5,7 +5,7 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
-from cleanvision.dataset import Dataset
+from cleanvision.dataset.base_dataset import Dataset
 from cleanvision.issue_managers import register_issue_manager
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
