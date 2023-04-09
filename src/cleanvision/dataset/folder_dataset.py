@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Union
 
 import pandas as pd
 from PIL import Image
 
-from cleanvision.dataset import Dataset
+from cleanvision.dataset.base_dataset import Dataset
 from cleanvision.utils.utils import get_filepaths
 
 
@@ -27,16 +27,15 @@ class FolderDataset(Dataset):
     def __len__(self) -> int:
         return len(self._filepaths)
 
-    def __getitem__(self, item: int) -> Image.Image:
-        path = self._filepaths[item]
-        return Image.open(path)
+    def __getitem__(self, item: Union[int, str]) -> Image.Image:
+        return Image.open(item)
 
     def _set_index(self) -> None:
-        self.index = [i for i in range(len(self._filepaths))]
+        self.index = [path for path in self._filepaths]
 
-    def get_name(self, item: int) -> str:
-        path = self._filepaths[item]
-        return path.split("/")[-1]
+    def get_name(self, item: Union[int, str]) -> str:
+        assert isinstance(item, str)
+        return item.split("/")[-1]
 
     def get_index_to_path_mapping(self) -> Dict[int, str]:
         return {i: path for i, path in enumerate(self._filepaths)}

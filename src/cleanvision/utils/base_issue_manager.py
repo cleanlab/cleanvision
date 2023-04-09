@@ -3,7 +3,7 @@ from typing import Dict, Any
 
 import pandas as pd
 
-from cleanvision.dataset import Dataset
+from cleanvision.dataset.base_dataset import Dataset
 
 
 class IssueManager(ABC):

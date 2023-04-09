@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Union
 
 from PIL import Image
 
-from cleanvision.dataset import Dataset
+from cleanvision.dataset.base_dataset import Dataset
 
 if TYPE_CHECKING:  # pragma: no cover
     from torchvision.datasets.vision import VisionDataset
@@ -23,10 +23,10 @@ class TorchDataset(Dataset):
     def __len__(self) -> int:
         return len(self._data)
 
-    def __getitem__(self, item: int) -> Image.Image:
+    def __getitem__(self, item: Union[int, str]) -> Image.Image:
         return self._data[item][self._image_idx]
 
-    def get_name(self, index: int) -> str:
+    def get_name(self, index: Union[int, str]) -> str:
         return f"idx: {index}"
 
     def _set_index(self) -> None:

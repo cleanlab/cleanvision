@@ -595,7 +595,7 @@ class Imagelab:
             if image_files is None:
                 image_indices = list(
                     np.random.choice(
-                        len(self._dataset),
+                        self._dataset.index,
                         min(
                             num_images, len(self._dataset)
                         ),  # in case the len(dataset) < 4

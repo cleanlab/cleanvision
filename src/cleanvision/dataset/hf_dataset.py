@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Union
 
 from PIL import Image
 
-from cleanvision.dataset import Dataset
+from cleanvision.dataset.base_dataset import Dataset
 
 if TYPE_CHECKING:  # pragma: no cover
     import datasets
@@ -25,13 +25,13 @@ class HFDataset(Dataset):
     def __len__(self) -> int:
         return len(self._data)
 
-    def __getitem__(self, item: int) -> Image.Image:
+    def __getitem__(self, item: Union[int, str]) -> Image.Image:
         return self._data[item][self._image_key]
 
     def _set_index(self) -> None:
         self.index = [i for i in range(len(self._data))]
 
-    def get_name(self, item: int) -> str:
+    def get_name(self, item: Union[int, str]) -> str:
         return f"idx: {item}"
 
     def get_index_to_path_mapping(self) -> Dict[int, str]:

@@ -4,7 +4,7 @@ from typing import Dict, Any, List, Set, Optional, Union
 import pandas as pd
 from tqdm import tqdm
 
-from cleanvision.dataset import Dataset
+from cleanvision.dataset.base_dataset import Dataset
 from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
