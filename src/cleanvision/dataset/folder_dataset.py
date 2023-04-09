@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import List, Optional, Union
 
-import pandas as pd
 from PIL import Image
 
 from cleanvision.dataset.base_dataset import Dataset
@@ -20,9 +19,6 @@ class FolderDataset(Dataset):
             assert filepaths is not None
             self._filepaths = filepaths
         self._set_index()
-        self.metadata["index_to_path"] = pd.DataFrame(
-            {"image_path": self._filepaths}, index=self.index
-        )
 
     def __len__(self) -> int:
         return len(self._filepaths)
