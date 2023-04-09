@@ -8,13 +8,13 @@ import torchvision
 from PIL import Image
 from datasets import load_dataset
 
+from cleanvision.dataset.folder_dataset import FolderDataset
 from cleanvision.imagelab import Imagelab
 from cleanvision.issue_managers.image_property import BrightnessProperty
 from cleanvision.issue_managers.image_property_issue_manager import (
     compute_scores_wrapper,
 )
 from examples.custom_issue_manager import CustomIssueManager
-from cleanvision.dataset.folder_dataset import FolderDataset
 
 IMAGES_PER_CLASS = 10
 N_CLASSES = 4
@@ -185,7 +185,7 @@ def test_compute_scores(generate_single_image_file):
     }
     args = {
         "to_compute": ["dark", "light"],
-        "index": 0,
+        "index": generate_single_image_file,
         "dataset": dataset,
         "image_properties": image_properties,
     }
@@ -240,3 +240,14 @@ def test_visualize_given_imagefiles(generate_n_image_files):
     files = os.listdir(generate_n_image_files / "class_0")
     filepaths = [os.path.join(generate_n_image_files / "class_0", f) for f in files]
     imagelab.visualize(image_files=filepaths)
+
+
+@pytest.mark.usefixtures("set_plt_show")
+def test_filepath_dataset_run(generate_n_image_files):
+    files = os.listdir(generate_n_image_files / "class_0")
+    filepaths = [os.path.join(generate_n_image_files / "class_0", f) for f in files]
+    imagelab = Imagelab(filepaths=filepaths)
+    imagelab.find_issues()
+    imagelab.report()
+    assert len(imagelab.issues.columns) == 14
+    assert len(imagelab.issues) == IMAGES_PER_CLASS
