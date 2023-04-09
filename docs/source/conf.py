@@ -33,7 +33,11 @@ extensions = [
 ]
 
 templates_path = ["_templates"]
-exclude_patterns = ["cleanvision/issue_managers/*", "cleanvision/utils/*"]
+exclude_patterns = [
+    "cleanvision/issue_managers/*",
+    "cleanvision/utils/*",
+    "cleanvision/dataset/*",
+]
 
 # --------- Autodoc configuration --------------------------------------------
 
