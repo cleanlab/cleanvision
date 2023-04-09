@@ -29,5 +29,5 @@ def build_dataset(
         return TorchDataset(torchvision_dataset)
     else:
         raise ValueError(
-            "Please specify one of data_path, filepaths, (hf_dataset, image_key) or torchvision_dataset to check for issues."
+            "You must specify some argument among the following: `data_path`, `filepaths`, (`hf_dataset`, `image_key`), `torchvision_dataset`"
         )
