@@ -14,7 +14,12 @@ class HFDataset(Dataset):
     def __init__(self, hf_dataset: "datasets.Dataset", image_key: str):
         super().__init__()
         self._data = hf_dataset
-        self._image_key = image_key
+        if image_key in hf_dataset.features:
+            self._image_key = image_key
+        else:
+            raise ValueError(
+                "Please specify the right image_key for this dataset. It can be found in dataset.features dict."
+            )
         self._set_index()
 
     def __len__(self) -> int:
