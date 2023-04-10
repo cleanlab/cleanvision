@@ -77,13 +77,13 @@ More on how to get started with CleanVision:
 
 .. toctree::
    :hidden:
-   :maxdepth: 5
+   :maxdepth: 3
    :caption: API Reference
    :name: _api_reference
 
    cleanvision/imagelab
-   cleanvision/issue_managers
-   cleanvision/utils
+   cleanvision/issue_managers/index
+   cleanvision/utils/index
 
 .. toctree::
    :caption: Guides
@@ -98,7 +98,6 @@ More on how to get started with CleanVision:
    :caption: Links
    :hidden:
 
+   Website <https://cleanlab.ai/>
    GitHub <https://github.com/cleanlab/cleanvision.git>
    PyPI <https://pypi.org/project/cleanvision/>
-   Website <https://cleanlab.ai/>
-   Slack <https://cleanlab.ai/slack>
