@@ -65,7 +65,7 @@ class Imagelab:
         key for Image object in the Hugging Face `dataset.features`
 
     torchvision_dataset: torchvision.datasets.vision.VisionDataset
-        torchvision dataset with images in PIL format
+        torchvision dataset where each individual  example is a tuple containing exactly one image in PIL format.
 
     Attributes
     ----------
