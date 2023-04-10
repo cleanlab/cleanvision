@@ -12,7 +12,7 @@ if __name__ == "__main__":
     """
     Example 1
 
-    This example demonstrates the default cleanvision workflow to detect various types of issues in an image dataset.
+    This example demonstrates the default CleanVision workflow to detect various types of issues in an image dataset.
     """
 
     imagelab = Imagelab(data_path=dataset_path)  # initialize imagelab
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     """
     Example 2
 
-    This example demonstrates using cleanvision to:
+    This example demonstrates using CleanVision to:
     1. Check data for specific types of issues
     2. Incrementally detect additional types of issues with  existing Imagelab
     3. Specify non-default parameter to use when detecting a particular issue type (e.g. a different threshold)
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     """
     Example 3
 
-    This example demonstrates using cleanvision to:
+    This example demonstrates using CleanVision to:
     1. Check for all default issue types, overriding some parameters for a particular issue type from their default values.
     2. Change the verbosity of generated report to see more details
     3. Ignore issues occurring in more than x% of images in the dataset
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     """
     Example 4
 
-    Run cleanvision on a Hugging Face dataset
+    Run CleanVision on a Hugging Face dataset
     """
 
     from datasets import load_dataset
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     """
     Example 5
 
-    Run cleanvision on torchvision dataset
+    Run CleanVision on torchvision dataset
     """
 
     from torchvision.datasets import CIFAR10
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     """
     Example 6
 
-    This example demonstrates creating your own custom issue and using Imagelab to detect this additional issue type, along with the default set of issues
+    This example demonstrates creating your own custom issue and using CleanVision to detect this additional issue type, along with the default set of issues
     """
     # Run imagelab on custom issue
     from custom_issue_manager import CustomIssueManager
