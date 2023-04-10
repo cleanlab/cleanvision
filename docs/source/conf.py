@@ -2,9 +2,9 @@
 #
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
+import datetime
 import os
 import sys
-import datetime
 
 sys.path.insert(0, os.path.abspath("../../src/"))
 # -- Project information -----------------------------------------------------
@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.abspath("../../src/"))
 
 project = "cleanvision"
 copyright = f"{datetime.datetime.now().year}, Cleanlab Inc."
-author = "Cleanlab"
+author = "Cleanlab Inc."
 release = "2023"
 
 # -- General configuration ---------------------------------------------------
@@ -33,11 +33,8 @@ extensions = [
 ]
 
 templates_path = ["_templates"]
-exclude_patterns = [
-    "cleanvision/issue_managers/*",
-    "cleanvision/utils/*",
-    "cleanvision/dataset/*",
-]
+
+exclude_patterns = []
 
 # --------- Autodoc configuration --------------------------------------------
 
