@@ -77,11 +77,13 @@ More on how to get started with CleanVision:
 
 .. toctree::
    :hidden:
-   :maxdepth: 5
+   :maxdepth: 3
    :caption: API Reference
    :name: _api_reference
 
    cleanvision/imagelab
+   cleanvision/issue_managers/index
+   cleanvision/utils/index
 
 .. toctree::
    :caption: Guides
