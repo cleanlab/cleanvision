@@ -18,9 +18,20 @@ CleanVision is super simple -- run the same couple lines of Python code to audit
 [![Cleanlab Studio](https://raw.githubusercontent.com/cleanlab/assets/master/shields/cl-studio-shield.svg)](https://cleanlab.ai/studio/?utm_source=github&utm_medium=readme&utm_campaign=clostostudio)
 
 ## Installation
-
+For running CleanVision on a dataset with images that exists locally use
 ```shell
 pip install cleanvision
+```
+
+For running CleanVision on a HuggingFace or a Torchvision dataset use
+```shell
+pip install "cleanvision[huggingface]"
+pip install "cleanvision[pytorch]"
+```
+
+For installing CleanVision with all optional dependencies
+```shell
+pip install "cleanvision[pytorch,huggingface]"
 ```
 
 ## Quickstart
@@ -31,7 +42,7 @@ Download an example dataset (optional). Or just use any collection of image file
 wget -nc 'https://cleanlab-public.s3.amazonaws.com/CleanVision/image_files.zip'
 ```
 
-Run CleanVision to audit the images.
+1. Run CleanVision to audit the images.
 
 ```python
 from cleanvision.imagelab import Imagelab
@@ -46,7 +57,7 @@ imagelab.find_issues()
 imagelab.report()
 ```
 
-CleanVision diagnoses many types of issues, but you can also check for only specific issues.
+2. CleanVision diagnoses many types of issues, but you can also check for only specific issues.
 
 ```python
 issue_types = {"dark": {}, "blurry": {}}
@@ -57,9 +68,45 @@ imagelab.find_issues(issue_types=issue_types)
 imagelab.report(issue_types=issue_types)
 ```
 
+3. Run CleanVision on a Hugging Face dataset
+```python
+from datasets import load_dataset, concatenate_datasets
+
+# Download and concatenate different splits
+dataset_dict = load_dataset("cifar10")
+dataset = concatenate_datasets([d for d in dataset_dict.values()])
+
+# Specify the key for Image feature in dataset.features in `image_key` argument
+imagelab = Imagelab(hf_dataset=dataset, image_key="img")
+
+imagelab.find_issues()
+
+imagelab.report()
+```
+
+3. Run CleanVision on a Torchvision dataset
+```python
+from torchvision.datasets import CIFAR10
+from torch.utils.data import ConcatDataset
+
+# Download and concatenate train set and test set
+train_set = CIFAR10(root="./")
+test_set = CIFAR10(root="./", train=False)
+dataset = ConcatDataset([train_set, test_set])
+
+
+imagelab = Imagelab(torchvision_dataset=dataset)
+
+imagelab.find_issues()
+
+imagelab.report()
+```
+
 ## More resources on how to use CleanVision
 
 - [Tutorial notebook](https://github.com/cleanlab/cleanvision-examples/blob/main/tutorial.ipynb)
+- [Notebook for running CleanVision on a HuggingFace Dataset](https://github.com/cleanlab/cleanvision-examples/blob/main/huggingface_dataset.ipynb)
+- [Notebook for running CleanVision on a Torchvision Dataset](https://github.com/cleanlab/cleanvision-examples/blob/main/torchvision_dataset.ipynb)
 - [Example script](https://github.com/cleanlab/cleanvision/blob/main/examples/run.py) that can be run with: `python examples/run.py --path <FOLDER_WITH_IMAGES>`
 - [Additional example notebooks](https://github.com/cleanlab/cleanvision-examples)
 - [Documentation](https://cleanvision.readthedocs.io/)
