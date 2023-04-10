@@ -72,7 +72,7 @@ imagelab.report(issue_types=issue_types)
 ```python
 from datasets import load_dataset, concatenate_datasets
 
-# Download and concatenate different splits
+# Download data and merge different splits into one big dataset
 dataset_dict = load_dataset("cifar10")
 dataset = concatenate_datasets([d for d in dataset_dict.values()])
 

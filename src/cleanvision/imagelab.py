@@ -59,13 +59,14 @@ class Imagelab:
         Specifying only one of `data_path` or `filepaths`.
 
     hf_dataset: datasets.Dataset
-        Hugging Face dataset with images in PIL format
+        Hugging Face dataset with images in PIL format accessible via some key in ``hf_dataset.features``.
 
     image_key: str
-        key for Image object in the Hugging Face `dataset.features`
+        Key used to access images within the Hugging Face `dataset.features` object. For many datasets, this key is just called "image".
+        This argument must be specified if you provide a Hugging Face dataset; for other types of dataset this argument has no effect.
 
     torchvision_dataset: torchvision.datasets.vision.VisionDataset
-        torchvision dataset with images in PIL format
+        torchvision dataset where each individual  example is a tuple containing exactly one image in PIL format.
 
     Attributes
     ----------
