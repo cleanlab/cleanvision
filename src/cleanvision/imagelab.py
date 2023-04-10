@@ -59,7 +59,7 @@ class Imagelab:
         Specifying only one of `data_path` or `filepaths`.
 
     hf_dataset: datasets.Dataset
-        Hugging Face dataset with images in PIL format
+        Hugging Face dataset with images in PIL format accessible via some key in ``hf_dataset.features``.
 
     image_key: str
         Key used to access images within the Hugging Face `dataset.features` object. For many datasets, this key is just called "image".
