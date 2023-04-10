@@ -36,8 +36,7 @@ templates_path = ["_templates"]
 
 exclude_patterns = ["cleanvision/issue_managers/*", "cleanvision/utils/*"]
 
-exclude_patterns = [
-]
+exclude_patterns = []
 
 # --------- Autodoc configuration --------------------------------------------
 
