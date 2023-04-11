@@ -7,7 +7,7 @@ from cleanvision.dataset.folder_dataset import FolderDataset
 from cleanvision.dataset.hf_dataset import HFDataset
 from cleanvision.dataset.torch_dataset import TorchDataset
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     import datasets
     from torchvision.datasets.vision import VisionDataset
 
