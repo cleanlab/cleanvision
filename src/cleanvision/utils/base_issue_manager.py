@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 import pandas as pd
+
+from cleanvision.dataset.base_dataset import Dataset
 
 
 class IssueManager(ABC):
@@ -27,7 +29,7 @@ class IssueManager(ABC):
     def check_params(**kwargs: Any) -> None:
         allowed_kwargs: Dict[str, Any] = {
             "params": Dict[str, Any],
-            "filepaths": List[str],
+            "dataset": Dataset,
             "imagelab_info": Dict[str, Any],
             "n_jobs": int,
         }

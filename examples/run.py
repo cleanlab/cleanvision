@@ -12,12 +12,12 @@ if __name__ == "__main__":
     """
     Example 1
 
-    This example demonstrates the default Imagelab workflow to detect various types of issues in an image dataset.
+    This example demonstrates the default CleanVision workflow to detect various types of issues in an image dataset.
     """
 
     imagelab = Imagelab(data_path=dataset_path)  # initialize imagelab
     imagelab.list_default_issue_types()  # list default checks
-    imagelab.visualize()  # visualize random images in dataset
+    imagelab.visualize()  # visualize sample images from the dataset
 
     imagelab.find_issues()  # Find issues in the dataset
     imagelab.report()
@@ -28,10 +28,9 @@ if __name__ == "__main__":
     )  # visualize images that have specific issues
 
     # Get all images with blurry issue type
-    blurry_images = imagelab.issues[
-        imagelab.issues["is_blurry_issue"] == True
-    ].index.to_list()
-    imagelab.visualize(image_files=blurry_images)  # visualize the given image files
+    blurry_images = imagelab.issues.query("is_blurry_issue")
+    # visualize the given image files
+    imagelab.visualize(image_files=blurry_images.index.tolist()[:4])
 
     # Miscellaneous extra information about dataset and its issues
     print(list(imagelab.info.keys()), "\n")
@@ -41,11 +40,11 @@ if __name__ == "__main__":
     """
     Example 2
 
-    This example demonstrates using Imagelab to:
+    This example demonstrates using CleanVision to:
     1. Check data for specific types of issues
     2. Incrementally detect additional types of issues with  existing Imagelab
-    3. Specify nondefault parameter to use when detecting a particular issue type (e.g. a different threshold)
-    4. Save and load Imagelab to file
+    3. Specify non-default parameter to use when detecting a particular issue type (e.g. a different threshold)
+    4. Save and load Imagelab instance to file
     5. Report only specific issue types
     """
 
@@ -71,7 +70,7 @@ if __name__ == "__main__":
     """
     Example 3
 
-    This example demonstrates using Imagelab to:
+    This example demonstrates using CleanVision to:
     1. Check for all default issue types, overriding some parameters for a particular issue type from their default values.
     2. Change the verbosity of generated report to see more details
     3. Ignore issues occurring in more than x% of images in the dataset
@@ -101,7 +100,35 @@ if __name__ == "__main__":
     """
     Example 4
 
-    This example demonstrates creating your own custom issue and using Imagelab to detect this additional issue type, along with the default set of issues
+    Run CleanVision on a Hugging Face dataset
+    """
+
+    from datasets import load_dataset
+
+    hf_dataset = load_dataset("cifar10", split="test")
+    imagelab = Imagelab(hf_dataset=hf_dataset, image_key="img")
+    imagelab.find_issues()
+    imagelab.report()
+
+    """
+    Example 5
+
+    Run CleanVision on torchvision dataset
+    """
+
+    from torchvision.datasets import CIFAR10
+
+    torch_dataset = CIFAR10("./", train=False, download=True)
+    imagelab = Imagelab(torchvision_dataset=torch_dataset)
+
+    # We set n_jobs=1 as CleanVision parallelization may interfere with torch data loaders.
+    imagelab.find_issues(n_jobs=1)
+    imagelab.report()
+
+    """
+    Example 6
+
+    This example demonstrates creating your own custom issue and using CleanVision to detect this additional issue type, along with the default set of issues
     """
     # Run imagelab on custom issue
     from custom_issue_manager import CustomIssueManager

@@ -50,7 +50,7 @@ def get_filepaths(
         Sorted list of image filepaths, note that all paths in this list are absolute paths
     """
 
-    abs_dir_path = os.path.abspath(dir_path)
+    abs_dir_path = os.path.abspath(os.path.expanduser(dir_path))
     print(f"Reading images from {abs_dir_path}")
     filepaths = []
     for ext in IMAGE_FILE_EXTENSIONS:

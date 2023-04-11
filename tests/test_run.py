@@ -1,9 +1,10 @@
-# to suppress plt.show()
-import matplotlib.pyplot as plt
-import numpy as np
-import pytest
-from PIL import Image
+import os
 
+import pytest
+import torchvision
+from datasets import load_dataset
+
+from cleanvision.dataset.folder_dataset import FolderDataset
 from cleanvision.imagelab import Imagelab
 from cleanvision.issue_managers.image_property import BrightnessProperty
 from cleanvision.issue_managers.image_property_issue_manager import (
@@ -12,40 +13,9 @@ from cleanvision.issue_managers.image_property_issue_manager import (
 from examples.custom_issue_manager import CustomIssueManager
 
 
-def generate_image(arr=None):
-    if arr is None:
-        arr = np.random.randint(low=0, high=256, size=(300, 300, 3), dtype=np.uint8)
-    img = Image.fromarray(arr, mode="RGB")
-    return img
-
-
-@pytest.fixture(scope="session")
-def generate_single_image_file(tmpdir_factory, img_name="img.png", arr=None):
-    """Generates a single temporary image for testing"""
-    img = generate_image(arr)
-    fn = tmpdir_factory.mktemp("data").join(img_name)
-    img.save(str(fn))
-    return str(fn)
-
-
-@pytest.fixture(scope="session")
-def generate_n_image_files(tmpdir_factory, n=40):
-    """Generates n temporary images for testing and returns dir of images"""
-    filename_list = []
-    tmp_image_dir = tmpdir_factory.mktemp("data")
-    for i in range(n):
-        img = generate_image()
-        img_name = f"{i}.png"
-        fn = tmp_image_dir.join(img_name)
-        img.save(str(fn))
-        filename_list.append(str(fn))
-    return str(tmp_image_dir)
-
-
-@pytest.mark.usefixtures("generate_n_image_files")
-def test_example1(capsys, monkeypatch, generate_n_image_files):
-    monkeypatch.setattr(plt, "show", lambda: None)
-    imagelab = Imagelab(data_path=generate_n_image_files)  # initialize imagelab
+@pytest.mark.usefixtures("set_plt_show")
+def test_example1(capsys, generate_local_dataset):
+    imagelab = Imagelab(data_path=generate_local_dataset)  # initialize imagelab
     imagelab.list_default_issue_types()  # list default checks
 
     # ==== Test list_default_issue_types() lists all default isssue types====
@@ -98,21 +68,20 @@ def test_example1(capsys, monkeypatch, generate_n_image_files):
         assert key in list(imagelab.info["statistics"].keys())
 
 
-@pytest.mark.usefixtures("generate_n_image_files")
-def test_example2(monkeypatch, generate_n_image_files):
-    monkeypatch.setattr(plt, "show", lambda: None)
-    imagelab = Imagelab(data_path=generate_n_image_files)  # initialize imagelab
+@pytest.mark.usefixtures("set_plt_show")
+def test_example2(generate_local_dataset, tmp_path):
+    imagelab = Imagelab(data_path=generate_local_dataset)  # initialize imagelab
     issue_types = {"near_duplicates": {}}
     imagelab.find_issues(issue_types)
     imagelab.report()
-    save_folder = generate_n_image_files + "/T_save_folder/"
+    save_folder = tmp_path / "T_save_folder/"
 
     imagelab.save(
         save_folder
     )  # optional, just included to show how to save/load this as a file
 
     # Check for additional types of issues using existing Imagelab
-    imagelab = Imagelab.load(save_folder, generate_n_image_files)
+    imagelab = Imagelab.load(save_folder, generate_local_dataset)
     issue_types = {"light": {}, "low_information": {}}
     imagelab.find_issues(issue_types)
     imagelab.report()
@@ -123,10 +92,9 @@ def test_example2(monkeypatch, generate_n_image_files):
     imagelab.report(issue_types=issue_types.keys())  # report only specific issues
 
 
-@pytest.mark.usefixtures("generate_n_image_files")
-def test_example3(monkeypatch, generate_n_image_files):
-    monkeypatch.setattr(plt, "show", lambda: None)
-    imagelab = Imagelab(data_path=generate_n_image_files)
+@pytest.mark.usefixtures("set_plt_show")
+def test_example3(generate_local_dataset):
+    imagelab = Imagelab(data_path=generate_local_dataset)
     imagelab.find_issues()
     imagelab.report(["near_duplicates"])
 
@@ -147,10 +115,9 @@ def test_example3(monkeypatch, generate_n_image_files):
     imagelab.visualize(issue_types=["light"], num_images=8, cell_size=(3, 3))
 
 
-@pytest.mark.usefixtures("generate_n_image_files")
-def test_example4(monkeypatch, generate_n_image_files):
-    monkeypatch.setattr(plt, "show", lambda: None)
-    imagelab = Imagelab(data_path=generate_n_image_files)
+@pytest.mark.usefixtures("set_plt_show")
+def test_example4(generate_local_dataset):
+    imagelab = Imagelab(data_path=generate_local_dataset)
     issue_name = CustomIssueManager.issue_name
     imagelab.list_possible_issue_types()
 
@@ -161,36 +128,83 @@ def test_example4(monkeypatch, generate_n_image_files):
     imagelab.report()
 
 
-def test_jobs(monkeypatch, generate_n_image_files):
-    monkeypatch.setattr(plt, "show", lambda: None)
-    imagelab = Imagelab(data_path=generate_n_image_files)
+@pytest.mark.usefixtures("set_plt_show")
+def test_jobs(generate_local_dataset):
+    imagelab = Imagelab(data_path=generate_local_dataset)
     imagelab.find_issues(n_jobs=1)
 
 
-@pytest.mark.usefixtures("generate_single_image_file")
 def test_compute_scores(generate_single_image_file):
+    dataset = FolderDataset(filepaths=[generate_single_image_file])
     image_properties = {
         "dark": BrightnessProperty("dark"),
         "light": BrightnessProperty("light"),
     }
     args = {
         "to_compute": ["dark", "light"],
-        "path": generate_single_image_file,
+        "index": generate_single_image_file,
+        "dataset": dataset,
         "image_properties": image_properties,
     }
     _ = compute_scores_wrapper(args)
 
 
-@pytest.mark.usefixtures("generate_n_image_files")
-def test_example5(monkeypatch, generate_n_image_files):
-    monkeypatch.setattr(plt, "show", lambda: None)
-    imagelab = Imagelab(data_path=generate_n_image_files)
+@pytest.mark.usefixtures("set_plt_show")
+def test_example5(generate_local_dataset):
+    imagelab = Imagelab(data_path=generate_local_dataset)
     imagelab.find_issues({"blurry": {}})
     imagelab.find_issues({"dark": {}})
     imagelab.report()
     # Also test the reverse direction:
     # TODO: this direction maybe can be made faster since blurry-check depends on dark-score
-    imagelab = Imagelab(data_path=generate_n_image_files)
+    imagelab = Imagelab(data_path=generate_local_dataset)
     imagelab.find_issues({"dark": {}})
     imagelab.find_issues({"blurry": {}})
     imagelab.report()
+
+
+@pytest.mark.usefixtures("set_plt_show")
+def test_hf_dataset_run(generate_local_dataset, n_classes, images_per_class):
+    hf_dataset = load_dataset(
+        "imagefolder", data_dir=generate_local_dataset, split="train"
+    )
+    imagelab = Imagelab(hf_dataset=hf_dataset, image_key="image")
+    imagelab.find_issues()
+    imagelab.report()
+    assert len(imagelab.issues.columns) == 14
+    assert len(imagelab.issues) == n_classes * images_per_class
+
+
+@pytest.mark.usefixtures("set_plt_show")
+def test_torch_dataset_run(generate_local_dataset, n_classes, images_per_class):
+    torch_ds = torchvision.datasets.ImageFolder(root=generate_local_dataset)
+    imagelab = Imagelab(torchvision_dataset=torch_ds)
+    imagelab.find_issues()
+    imagelab.report()
+    assert len(imagelab.issues.columns) == 14
+    assert len(imagelab.issues) == n_classes * images_per_class
+
+
+@pytest.mark.usefixtures("set_plt_show")
+def test_visualize_sample_images(generate_local_dataset):
+    imagelab = Imagelab(data_path=generate_local_dataset)
+    imagelab.visualize()
+
+
+@pytest.mark.usefixtures("set_plt_show")
+def test_visualize_given_imagefiles(generate_local_dataset):
+    imagelab = Imagelab(data_path=generate_local_dataset)
+    files = os.listdir(generate_local_dataset / "class_0")
+    filepaths = [os.path.join(generate_local_dataset / "class_0", f) for f in files]
+    imagelab.visualize(image_files=filepaths)
+
+
+@pytest.mark.usefixtures("set_plt_show")
+def test_filepath_dataset_run(generate_local_dataset, images_per_class):
+    files = os.listdir(generate_local_dataset / "class_0")
+    filepaths = [os.path.join(generate_local_dataset / "class_0", f) for f in files]
+    imagelab = Imagelab(filepaths=filepaths)
+    imagelab.find_issues()
+    imagelab.report()
+    assert len(imagelab.issues.columns) == 14
+    assert len(imagelab.issues) == images_per_class

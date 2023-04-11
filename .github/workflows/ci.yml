@@ -27,8 +27,6 @@ jobs:
       - name: Setup python environment
         run: ./.github/scripts/setup_python_env.sh
         shell: bash
-      - name: Install cleanvision
-        run: pip install -e .
       - name: Test with coverage
         run: pytest --verbose --cov=src/cleanvision/ --cov-config .coveragerc --cov-report=xml tests/
       - uses: codecov/codecov-action@v3

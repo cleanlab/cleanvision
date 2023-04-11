@@ -18,3 +18,5 @@ coverage.xml
 results/
 image_files*
 
+# datasets
+cifar*

@@ -18,7 +18,6 @@ CleanVision is super simple -- run the same couple lines of Python code to audit
 [![Cleanlab Studio](https://raw.githubusercontent.com/cleanlab/assets/master/shields/cl-studio-shield.svg)](https://cleanlab.ai/studio/?utm_source=github&utm_medium=readme&utm_campaign=clostostudio)
 
 ## Installation
-
 ```shell
 pip install cleanvision
 ```
@@ -31,7 +30,7 @@ Download an example dataset (optional). Or just use any collection of image file
 wget -nc 'https://cleanlab-public.s3.amazonaws.com/CleanVision/image_files.zip'
 ```
 
-Run CleanVision to audit the images.
+1. Run CleanVision to audit the images.
 
 ```python
 from cleanvision.imagelab import Imagelab
@@ -46,7 +45,7 @@ imagelab.find_issues()
 imagelab.report()
 ```
 
-CleanVision diagnoses many types of issues, but you can also check for only specific issues.
+2. CleanVision diagnoses many types of issues, but you can also check for only specific issues.
 
 ```python
 issue_types = {"dark": {}, "blurry": {}}
@@ -57,9 +56,12 @@ imagelab.find_issues(issue_types=issue_types)
 imagelab.report(issue_types=issue_types)
 ```
 
+
 ## More resources on how to use CleanVision
 
 - [Tutorial notebook](https://github.com/cleanlab/cleanvision-examples/blob/main/tutorial.ipynb)
+- [Notebook for running CleanVision on a HuggingFace Dataset](https://github.com/cleanlab/cleanvision-examples/blob/main/huggingface_dataset.ipynb)
+- [Notebook for running CleanVision on a Torchvision Dataset](https://github.com/cleanlab/cleanvision-examples/blob/main/torchvision_dataset.ipynb)
 - [Example script](https://github.com/cleanlab/cleanvision/blob/main/examples/run.py) that can be run with: `python examples/run.py --path <FOLDER_WITH_IMAGES>`
 - [Additional example notebooks](https://github.com/cleanlab/cleanvision-examples)
 - [Documentation](https://cleanvision.readthedocs.io/)

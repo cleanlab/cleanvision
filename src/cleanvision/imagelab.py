@@ -7,10 +7,13 @@ but advanced users can get extra flexibility via the code in other CleanVision m
 import os
 import pickle
 from typing import List, Dict, Any, Optional, Tuple, TypeVar, Type
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
+from PIL import Image
 
+from cleanvision.dataset.utils import build_dataset
 from cleanvision.issue_managers import (
     IssueType,
     IssueManagerFactory,
@@ -25,13 +28,16 @@ from cleanvision.utils.constants import (
     SETS,
 )
 from cleanvision.utils.utils import (
-    get_filepaths,
     deep_update_dict,
     get_is_issue_colname,
     get_score_colname,
     update_df,
 )
 from cleanvision.utils.viz_manager import VizManager
+
+if TYPE_CHECKING:  # pragma: no cover
+    import datasets
+    from torchvision.datasets.vision import VisionDataset
 
 __all__ = ["Imagelab"]
 
@@ -40,7 +46,14 @@ TImagelab = TypeVar("TImagelab", bound="Imagelab")
 
 
 class Imagelab:
-    """A single class to find all types of issues in image datasets. Imagelab detects issues in the raw image files themselves and thus can be useful in most computer vision tasks.
+    """A single class to find all types of issues in image datasets.
+    Imagelab detects issues in any image dataset and thus can be useful in most computer vision tasks including
+    supervised and unsupervised training.
+    Imagelab supports various formats for datasets: local folder containing images, a list of image
+    filepaths, HuggingFace dataset and Torchvision dataset.
+    Specify only one of these arguments: `data_path`, `filepaths`, (`hf_dataset`, `image_key`), `torchvision_dataset`
+
+
 
     Parameters
     ----------
@@ -50,7 +63,16 @@ class Imagelab:
 
     filepaths: List[str], optional
         Issue checks will be run on this list of image paths specified in `filepaths`.
-        Specifying only one of `data_path` or `filepaths`.
+
+    hf_dataset: datasets.Dataset
+        Hugging Face dataset with images in PIL format accessible via some key in ``hf_dataset.features``.
+
+    image_key: str
+        Key used to access images within the Hugging Face `dataset.features` object. For many datasets, this key is just called "image".
+        This argument must be specified if you provide a Hugging Face dataset; for other types of dataset this argument has no effect.
+
+    torchvision_dataset: torchvision.datasets.vision.VisionDataset
+        torchvision dataset where each individual  example is a tuple containing exactly one image in PIL format.
 
     Attributes
     ----------
@@ -92,38 +114,30 @@ class Imagelab:
     """
 
     def __init__(
-        self, data_path: Optional[str] = None, filepaths: Optional[List[str]] = None
+        self,
+        data_path: Optional[str] = None,
+        filepaths: Optional[List[str]] = None,
+        hf_dataset: Optional["datasets.Dataset"] = None,
+        image_key: Optional[str] = None,
+        torchvision_dataset: Optional["VisionDataset"] = None,
     ) -> None:
-        self._filepaths = self._get_filepaths(data_path, filepaths)
-        self._num_images: int = len(self._filepaths)
-        if self._num_images == 0:
-            raise ValueError("No images found in the specified path")
+        self._dataset = build_dataset(
+            data_path, filepaths, hf_dataset, image_key, torchvision_dataset
+        )
+        if len(self._dataset) == 0:
+            raise ValueError("No images found in the dataset specified")
         self.info: Dict[str, Any] = {"statistics": {}}
         self.issue_summary: pd.DataFrame = pd.DataFrame(
             columns=["issue_type", "num_images"]
         )
-        self.issues: pd.DataFrame = pd.DataFrame(index=self._filepaths)
+
+        self.issues: pd.DataFrame = pd.DataFrame(index=self._dataset.index)
         self._issue_types: List[str] = []
         self._issue_managers: Dict[str, IssueManager] = {}
+
         # can be loaded from a file later
         self._config: Dict[str, Any] = self._set_default_config()
         self._path = ""
-
-    def _get_filepaths(
-        self, data_path: Optional[str], filepaths: Optional[List[str]]
-    ) -> List[str]:
-        if (data_path is None and filepaths is None) or (
-            data_path is not None and filepaths is not None
-        ):
-            raise ValueError(
-                "Please specify one of data_path or filepaths to check for issues."
-            )
-        filepaths = []
-        if data_path:
-            filepaths = get_filepaths(data_path)
-        elif filepaths:
-            filepaths = filepaths
-        return filepaths
 
     def _set_default_config(self) -> Dict[str, Any]:
         """Sets default values for various config variables used in Imagelab class
@@ -251,7 +265,7 @@ class Imagelab:
             issue_manager = self._issue_managers[issue_type_group]
             issue_manager.find_issues(
                 params=params,
-                filepaths=self._filepaths,
+                dataset=self._dataset,
                 imagelab_info=self.info,
                 n_jobs=n_jobs,
             )
@@ -322,7 +336,7 @@ class Imagelab:
         ]
         issue_to_report = []
         for row in issue_summary.itertuples(index=False):
-            if getattr(row, "num_images") / self._num_images < max_prevalence:
+            if getattr(row, "num_images") / len(self._dataset) < max_prevalence:
                 issue_to_report.append(getattr(row, "issue_type"))
             else:
                 print(
@@ -467,17 +481,21 @@ class Imagelab:
 
             scores = sorted_df.head(num_images)[get_score_colname(issue_type)]
             titles = [f"score : {x:.4f}" for x in scores]
-            paths = scores.index.tolist()
-            if paths:
+            indices = scores.index.tolist()
+            images = [self._dataset[i] for i in indices]
+            if images:
                 VizManager.individual_images(
-                    filepaths=paths,
+                    images=images,
                     titles=titles,
                     ncols=self._config["visualize_num_images_per_row"],
                     cell_size=cell_size,
                 )
 
         elif viz_name == "image_sets":
-            image_sets = list(self.info[issue_type][SETS][:num_images])
+            image_set_indices = list(self.info[issue_type][SETS][:num_images])
+            image_sets = []
+            for indices in image_set_indices:
+                image_sets.append([self._dataset[index] for index in indices])
 
             sets_str = "sets" if len(image_sets) > 1 else "set"
             if len(image_sets) < num_images:
@@ -489,7 +507,10 @@ class Imagelab:
                     f"\nTop {num_images} {sets_str} of images with {issue_type} issue"
                 )
 
-            title_sets = [[path.split("/")[-1] for path in s] for s in image_sets]
+            title_sets = [
+                [self._dataset.get_name(index) for index in s]
+                for s in image_set_indices
+            ]
 
             if image_sets:
                 VizManager.image_sets(
@@ -567,21 +588,35 @@ class Imagelab:
                 raise ValueError("issue_types list is empty")
             for issue_type in issue_types:
                 self._visualize(issue_type, num_images, cell_size)
+        elif image_files:
+            # todo: write test
+            if len(image_files) == 0:
+                raise ValueError("image_files list is empty.")
+            images = [Image.open(path) for path in image_files]
+            titles = [path.split("/")[-1] for path in image_files]
+            VizManager.individual_images(
+                images,
+                titles,
+                ncols=self._config["visualize_num_images_per_row"],
+                cell_size=cell_size,
+            )
         else:
+            # todo: write test
+            print("Sample images from the dataset")
             if image_files is None:
-                image_files = list(
+                image_indices = list(
                     np.random.choice(
-                        self._filepaths,
-                        min(num_images, self._num_images),
+                        self._dataset.index,
+                        min(
+                            num_images, len(self._dataset)
+                        ),  # in case the len(dataset) < 4
                         replace=False,
                     )
                 )
-            elif len(image_files) == 0:
-                raise ValueError("image_files list is empty.")
-            if image_files:
-                titles = [path.split("/")[-1] for path in image_files]
+                images = [self._dataset[i] for i in image_indices]
+                titles = [self._dataset.get_name(i) for i in image_indices]
                 VizManager.individual_images(
-                    image_files,
+                    images,
                     titles,
                     ncols=self._config["visualize_num_images_per_row"],
                     cell_size=cell_size,
@@ -661,11 +696,12 @@ class Imagelab:
         with open(object_file, "rb") as f:
             imagelab: TImagelab = pickle.load(f)
 
-        if data_path is not None:
-            filepaths = get_filepaths(data_path)
-            if set(filepaths) != set(imagelab._filepaths):
-                raise ValueError(
-                    "Absolute path of image(s) has changed in the dataset. Cannot load Imagelab."
-                )
+        # todo: use hash for validating
+        # if data_path is not None:
+        #     filepaths = get_filepaths(data_path)
+        #     if set(filepaths) != set(imagelab._filepaths):
+        #         raise ValueError(
+        #             "Absolute path of image(s) has changed in the dataset. Cannot load Imagelab."
+        #         )
         print("Successfully loaded Imagelab")
         return imagelab

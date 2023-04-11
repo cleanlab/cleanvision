@@ -1,10 +1,10 @@
 import multiprocessing
-from typing import Dict, Any, List, Set, Optional
+from typing import Dict, Any, List, Set, Optional, Union
 
 import pandas as pd
-from PIL import Image
 from tqdm import tqdm
 
+from cleanvision.dataset.base_dataset import Dataset
 from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
@@ -29,21 +29,20 @@ from cleanvision.utils.utils import (
 
 
 def compute_scores(
-    path: str, to_compute: List[str], properties: Dict[str, ImageProperty]
-) -> Dict[str, Any]:
-    image = Image.open(path)
-    results: Dict[str, Any] = {}
-    results["path"] = path
+    index: int,
+    dataset: Dataset,
+    to_compute: List[str],
+    image_properties: Dict[str, ImageProperty],
+) -> Dict[str, Union[str, int, float]]:
+    image = dataset[index]
+    result: Dict[str, Union[int, str, float]] = {"index": index}
     for issue_type in to_compute:
-        results = {**results, **properties[issue_type].calculate(image)}
-    return results
+        result = {**result, **image_properties[issue_type].calculate(image)}
+    return result
 
 
-def compute_scores_wrapper(arg: Dict[str, Any]) -> Dict[str, Any]:
-    to_compute = arg["to_compute"]
-    path = arg["path"]
-    properties = arg["image_properties"]
-    return compute_scores(path, to_compute, properties)
+def compute_scores_wrapper(args: Dict[str, Any]) -> Dict[str, Union[float, str, int]]:
+    return compute_scores(**args)
 
 
 # Combined all issues which are to be detected using image properties under one class to save time on loading image
@@ -118,7 +117,7 @@ class ImagePropertyIssueManager(IssueManager):
         self,
         *,
         params: Optional[Dict[str, Any]] = None,
-        filepaths: Optional[List[str]] = None,
+        dataset: Optional[Dataset] = None,
         imagelab_info: Optional[Dict[str, Any]] = None,
         n_jobs: Optional[int] = None,
         **kwargs: Any,
@@ -126,38 +125,44 @@ class ImagePropertyIssueManager(IssueManager):
         super().find_issues(**kwargs)
         assert params is not None
         assert imagelab_info is not None
-        assert filepaths is not None
+        assert dataset is not None
 
         self.issue_types = list(params.keys())
-        self.issues = pd.DataFrame(index=filepaths)
+        self.issues = pd.DataFrame(index=dataset.index)
         additional_set = self._get_additional_to_compute_set(self.issue_types)
         self.issue_types = self.issue_types + additional_set
 
         self.update_params(params)
 
-        agg_computations = self._get_prev_computations(filepaths, imagelab_info)
+        agg_computations = pd.DataFrame(index=dataset.index)
+        agg_computations = self._add_prev_computations(agg_computations, imagelab_info)
+
         defer_set = self._get_defer_set(self.issue_types, agg_computations)
 
         to_be_computed = list(set(self.issue_types).difference(defer_set))
-        new_computations = pd.DataFrame(index=filepaths)
+
+        new_computations = pd.DataFrame(index=dataset.index)
         if to_be_computed:
             if n_jobs is None:
                 n_jobs = get_max_n_jobs()
 
-            results: List[Any] = []
+            results: List[Dict[str, Union[int, float, str]]] = []
             if n_jobs == 1:
-                for path in tqdm(filepaths):
+                for idx in tqdm(dataset.index):
                     results.append(
-                        compute_scores(path, to_be_computed, self.image_properties)
+                        compute_scores(
+                            idx, dataset, to_be_computed, self.image_properties
+                        )
                     )
             else:
                 args = [
                     {
+                        "index": idx,
+                        "dataset": dataset,
                         "to_compute": to_be_computed,
-                        "path": path,
                         "image_properties": self.image_properties,
                     }
-                    for i, path in enumerate(filepaths)
+                    for idx in dataset.index
                 ]
                 chunksize = max(1, len(args) // MAX_PROCS)
                 with multiprocessing.Pool(n_jobs) as p:
@@ -166,13 +171,13 @@ class ImagePropertyIssueManager(IssueManager):
                             p.imap_unordered(
                                 compute_scores_wrapper, args, chunksize=chunksize
                             ),
-                            total=len(filepaths),
+                            total=len(dataset),
                         )
                     )
 
-                results = sorted(results, key=lambda r: r["path"])  # type:ignore
+                results = sorted(results, key=lambda r: r["index"])
 
-            new_computations = self.aggregate(results)
+            new_computations = self._aggregate(results)
 
         agg_computations = update_df(agg_computations, new_computations)
 
@@ -251,10 +256,9 @@ class ImagePropertyIssueManager(IssueManager):
             self.issues = self.issues.join(issue_scores)
             self.issues = self.issues.join(is_issue)
 
-    def _get_prev_computations(
-        self, filepaths: List[str], info: Dict[str, Any]
+    def _add_prev_computations(
+        self, agg_computations: pd.DataFrame, info: Dict[str, Any]
     ) -> pd.DataFrame:
-        agg_computations = pd.DataFrame(index=filepaths)
         for key in info.keys():
             if key in IMAGE_PROPERTY_ISSUE_TYPES_LIST + ["statistics"]:
                 for col in info[key]:
@@ -262,9 +266,9 @@ class ImagePropertyIssueManager(IssueManager):
                         agg_computations = agg_computations.join(info[key][col])
         return agg_computations
 
-    def aggregate(self, results: List[Dict[str, Any]]) -> pd.DataFrame:
+    def _aggregate(self, results: List[Dict[str, Any]]) -> pd.DataFrame:
         agg_computations = pd.DataFrame(results)
-        agg_computations = agg_computations.set_index("path")
+        agg_computations = agg_computations.set_index("index")
         return agg_computations
 
     def update_info(self, agg_computations: pd.DataFrame) -> None:

@@ -5,6 +5,7 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
+from cleanvision.dataset.base_dataset import Dataset
 from cleanvision.issue_managers import register_issue_manager
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
@@ -39,13 +40,11 @@ class CustomIssueManager(IssueManager):
         gray_image = image.convert("L")
         return np.mean(np.array(gray_image))
 
-    def get_scores(self, raw_scores: "np.ndarray[Any, Any]") -> "np.ndarray[Any, Any]":
+    def get_scores(self, raw_scores: List[float]) -> "np.ndarray[Any, Any]":
         scores = np.array(raw_scores)
         return scores / 255.0
 
-    def mark_issue(
-        self, scores: "np.ndarray[Any, Any]", threshold: float
-    ) -> "np.ndarray[Any, Any]":
+    def mark_issue(self, scores: pd.Series, threshold: float) -> pd.Series:
         return scores < threshold
 
     def update_summary(self, summary_dict: Dict[str, Any]) -> None:
@@ -57,28 +56,37 @@ class CustomIssueManager(IssueManager):
         self,
         *,
         params: Optional[Dict[str, Any]] = None,
-        filepaths: Optional[List[str]] = None,
+        dataset: Optional[Dataset] = None,
         imagelab_info: Optional[Dict[str, Any]] = None,
         **kwargs: Any,
     ) -> None:
         super().find_issues(**kwargs)
         assert params is not None
         assert imagelab_info is not None
-        assert filepaths is not None
+        assert dataset is not None
 
         self.update_params(params)
 
         raw_scores = []
-        for path in tqdm(filepaths):
-            image = Image.open(path)
+        for idx in tqdm(dataset.index):
+            image = dataset[idx]
             raw_scores.append(self.calculate_mean_pixel_value(image))
 
-        self.issues = pd.DataFrame(index=filepaths)
-        scores = self.get_scores(raw_scores)
-        self.issues[get_score_colname(self.issue_name)] = scores
-        self.issues[get_is_issue_colname(self.issue_name)] = self.mark_issue(
-            scores, self.params["threshold"]
+        score_colname = get_score_colname(self.issue_name)
+        is_issue_colname = get_is_issue_colname(self.issue_name)
+
+        scores = pd.DataFrame(index=dataset.index)
+        scores[score_colname] = self.get_scores(raw_scores)
+
+        is_issue = pd.DataFrame(index=dataset.index)
+        is_issue[is_issue_colname] = self.mark_issue(
+            scores[score_colname], self.params["threshold"]
         )
+
+        self.issues = pd.DataFrame(index=dataset.index)
+        self.issues = self.issues.join(scores)
+        self.issues = self.issues.join(is_issue)
+
         self.info[self.issue_name] = {"PixelValue": raw_scores}
         summary_dict = self._compute_summary(
             self.issues[get_is_issue_colname(self.issue_name)]
