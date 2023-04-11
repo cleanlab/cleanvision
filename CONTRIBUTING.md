@@ -7,7 +7,8 @@ own ideas or addressing [existing issues][issues].
 
 If you are unsure or confused about anything, please go ahead and submit your
 issue or pull request anyways! We appreciate all contributions, and we'll do
-our best to incorporate your feedback or code into CleanVision.
+our best to incorporate your feedback or code into CleanVision. 
+You can also chat with our developers in [Slack](https://cleanlab.ai/slack).
 
 Detailed contributing instructions can be found in the [Development Guide](DEVELOPMENT.md), please read this carefully!
 
