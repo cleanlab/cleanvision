@@ -57,39 +57,6 @@ imagelab.find_issues(issue_types=issue_types)
 imagelab.report(issue_types=issue_types)
 ```
 
-3. Run CleanVision on a Hugging Face dataset
-```python
-from datasets import load_dataset, concatenate_datasets
-
-# Download data and merge different splits into one big dataset
-dataset_dict = load_dataset("cifar10")
-dataset = concatenate_datasets([d for d in dataset_dict.values()])
-
-# Specify the key for Image feature in dataset.features in `image_key` argument
-imagelab = Imagelab(hf_dataset=dataset, image_key="img")
-
-imagelab.find_issues()
-
-imagelab.report()
-```
-
-3. Run CleanVision on a Torchvision dataset
-```python
-from torchvision.datasets import CIFAR10
-from torch.utils.data import ConcatDataset
-
-# Download and concatenate train set and test set
-train_set = CIFAR10(root="./")
-test_set = CIFAR10(root="./", train=False)
-dataset = ConcatDataset([train_set, test_set])
-
-
-imagelab = Imagelab(torchvision_dataset=dataset)
-
-imagelab.find_issues()
-
-imagelab.report()
-```
 
 ## More resources on how to use CleanVision
 
