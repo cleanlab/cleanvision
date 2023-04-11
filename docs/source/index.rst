@@ -104,14 +104,15 @@ Quickstart
     from torch.utils.data import ConcatDataset
 
     # Download and concatenate train set and test set
-    train_set = CIFAR10(root="./")
-    test_set = CIFAR10(root="./", train=False)
+    train_set = CIFAR10(root="./", download=True)
+    test_set = CIFAR10(root="./", train=False, download=True)
     dataset = ConcatDataset([train_set, test_set])
 
 
     imagelab = Imagelab(torchvision_dataset=dataset)
 
-    imagelab.find_issues()
+    # Setting n_jobs=1 as CleanVision parallelization may interfere with torch data loaders.
+    imagelab.find_issues(n_jobs=1)
 
     imagelab.report()
 

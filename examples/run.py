@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     imagelab = Imagelab(data_path=dataset_path)  # initialize imagelab
     imagelab.list_default_issue_types()  # list default checks
-    imagelab.visualize()  # visualize random images in dataset
+    imagelab.visualize()  # visualize sample images from the dataset
 
     imagelab.find_issues()  # Find issues in the dataset
     imagelab.report()
@@ -120,7 +120,9 @@ if __name__ == "__main__":
 
     torch_dataset = CIFAR10("./", train=False, download=True)
     imagelab = Imagelab(torchvision_dataset=torch_dataset)
-    imagelab.find_issues()
+
+    # Setting n_jobs=1 as CleanVision parallelization may interfere with torch data loaders.
+    imagelab.find_issues(n_jobs=1)
     imagelab.report()
 
     """
