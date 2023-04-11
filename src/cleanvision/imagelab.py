@@ -46,7 +46,13 @@ TImagelab = TypeVar("TImagelab", bound="Imagelab")
 
 
 class Imagelab:
-    """A single class to find all types of issues in image datasets. Imagelab detects issues in the raw image files themselves and thus can be useful in most computer vision tasks.
+    """A single class to find all types of issues in image datasets.
+    Imagelab detects issues in any image dataset and thus can be useful in most computer vision tasks including
+    supervised and unsupervised training.
+    Imagelab supports various formats for datasets: local `data_path` folder containing images, a list of image
+    filepaths, HuggingFace dataset and Torchvision dataset.
+
+
 
     Parameters
     ----------
@@ -56,7 +62,6 @@ class Imagelab:
 
     filepaths: List[str], optional
         Issue checks will be run on this list of image paths specified in `filepaths`.
-        Specifying only one of `data_path` or `filepaths`.
 
     hf_dataset: datasets.Dataset
         Hugging Face dataset with images in PIL format accessible via some key in ``hf_dataset.features``.
