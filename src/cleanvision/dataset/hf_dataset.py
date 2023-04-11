@@ -11,6 +11,8 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 class HFDataset(Dataset):
+    """Wrapper class to handle datasets loaded from Huggingface."""
+
     def __init__(self, hf_dataset: "datasets.Dataset", image_key: str):
         super().__init__()
         self._data = hf_dataset

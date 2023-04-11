@@ -11,6 +11,8 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 class TorchDataset(Dataset):
+    """Wrapper class to handle datasets loaded from torchvision."""
+
     def __init__(self, torch_dataset: "VisionDataset") -> None:
         super().__init__()
         self._data = torch_dataset

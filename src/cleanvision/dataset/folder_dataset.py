@@ -9,6 +9,8 @@ from cleanvision.utils.utils import get_filepaths
 
 
 class FolderDataset(Dataset):
+    """Wrapper class to handle datasets loaded from a local data folder"""
+
     def __init__(
         self, data_folder: Optional[str] = None, filepaths: Optional[List[str]] = None
     ) -> None:
