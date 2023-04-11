@@ -23,17 +23,6 @@ For running CleanVision on a dataset with images that exists locally use
 pip install cleanvision
 ```
 
-For running CleanVision on a HuggingFace or a Torchvision dataset use
-```shell
-pip install "cleanvision[huggingface]"
-pip install "cleanvision[pytorch]"
-```
-
-For installing CleanVision with all optional dependencies
-```shell
-pip install "cleanvision[pytorch,huggingface]"
-```
-
 ## Quickstart
 
 Download an example dataset (optional). Or just use any collection of image files you have.
