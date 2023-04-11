@@ -49,8 +49,9 @@ class Imagelab:
     """A single class to find all types of issues in image datasets.
     Imagelab detects issues in any image dataset and thus can be useful in most computer vision tasks including
     supervised and unsupervised training.
-    Imagelab supports various formats for datasets: local `data_path` folder containing images, a list of image
+    Imagelab supports various formats for datasets: local folder containing images, a list of image
     filepaths, HuggingFace dataset and Torchvision dataset.
+    Specify only one of these arguments: `data_path`, `filepaths`, (`hf_dataset`, `image_key`), `torchvision_dataset`
 
 
 
