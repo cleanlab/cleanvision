@@ -1,8 +1,3 @@
-.. cleanvision documentation master file, created by
-sphinx-quickstart on Thu Feb  2 13:55:53 2023.
-You can adapt this file completely to your liking, but it should at least
-contain the root `toctree` directive.
-
 .. image:: https://raw.githubusercontent.com/cleanlab/assets/master/cleanlab/cleanvision_logo_open_source_transparent.png
   :width: 800
   :alt: CleanVision
