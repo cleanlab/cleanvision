@@ -18,7 +18,6 @@ CleanVision is super simple -- run the same couple lines of Python code to audit
 [![Cleanlab Studio](https://raw.githubusercontent.com/cleanlab/assets/master/shields/cl-studio-shield.svg)](https://cleanlab.ai/studio/?utm_source=github&utm_medium=readme&utm_campaign=clostostudio)
 
 ## Installation
-For running CleanVision on a dataset with images that exists locally use
 ```shell
 pip install cleanvision
 ```
