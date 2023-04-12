@@ -25,13 +25,13 @@ class CustomIssueManager(IssueManager):
 
     def __init__(self) -> None:
         super().__init__()
-        self.params = self.get_default_params()
+        self.params = self._get_default_params()
 
-    def get_default_params(self) -> Dict[str, Any]:
+    def _get_default_params(self) -> Dict[str, Any]:
         return {"threshold": 0.4}
 
-    def update_params(self, params: Dict[str, Any]) -> None:
-        self.params = self.get_default_params()
+    def _update_params(self, params: Dict[str, Any]) -> None:
+        self.params = self._get_default_params()
         non_none_params = {k: v for k, v in params.items() if v is not None}
         self.params = {**self.params, **non_none_params}
 
@@ -65,7 +65,7 @@ class CustomIssueManager(IssueManager):
         assert imagelab_info is not None
         assert dataset is not None
 
-        self.update_params(params)
+        self._update_params(params)
 
         raw_scores = []
         for idx in tqdm(dataset.index):

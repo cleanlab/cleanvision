@@ -54,10 +54,10 @@ class ImagePropertyIssueManager(IssueManager):
     def __init__(self) -> None:
         super().__init__()
         self.issue_types: List[str] = []
-        self.params = self.get_default_params()
+        self.params = self._get_default_params()
         self.image_properties = self._get_image_properties()
 
-    def get_default_params(self) -> Dict[str, Any]:
+    def _get_default_params(self) -> Dict[str, Any]:
         return {
             IssueType.DARK.value: {"threshold": 0.37},
             IssueType.LIGHT.value: {"threshold": 0.05},
@@ -70,7 +70,7 @@ class ImagePropertyIssueManager(IssueManager):
             IssueType.GRAYSCALE.value: {},
         }
 
-    def update_params(self, params: Dict[str, Any]) -> None:
+    def _update_params(self, params: Dict[str, Any]) -> None:
         for issue_type in self.params:
             non_none_params = {
                 k: v for k, v in params.get(issue_type, {}).items() if v is not None
@@ -132,7 +132,7 @@ class ImagePropertyIssueManager(IssueManager):
         additional_set = self._get_additional_to_compute_set(self.issue_types)
         self.issue_types = self.issue_types + additional_set
 
-        self.update_params(params)
+        self._update_params(params)
 
         agg_computations = pd.DataFrame(index=dataset.index)
         agg_computations = self._add_prev_computations(agg_computations, imagelab_info)

@@ -47,7 +47,7 @@ class TestDuplicateIssueManager:
         1. If no params are specified for an issue_type, default params are used
         2. If params are specified, those specific params are updated, for the remaining ones default values are used
         """
-        issue_manager.update_params(params)
+        issue_manager._update_params(params)
         assert issue_manager.params == expected_params
 
     @pytest.mark.parametrize(

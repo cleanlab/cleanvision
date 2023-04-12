@@ -62,7 +62,7 @@ class TestImagePropertyIssueManager:
         issue_manager: instance of ImagePropertyIssueManager
 
         """
-        issue_manager.update_params(params)
+        issue_manager._update_params(params)
         assert issue_manager.params == expected_params
 
     @pytest.mark.parametrize(
