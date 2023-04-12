@@ -9,6 +9,7 @@ from PIL import Image
 from tqdm import tqdm
 
 from cleanvision.dataset.base_dataset import Dataset
+from cleanvision.dataset.torch_dataset import TorchDataset
 from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import SETS, DUPLICATE, MAX_PROCS
@@ -117,6 +118,8 @@ class DuplicateIssueManager(IssueManager):
 
         if n_jobs is None:
             n_jobs = get_max_n_jobs()
+        if isinstance(dataset, TorchDataset):
+            n_jobs = 1
 
         results: List[Dict[str, Union[str, int]]] = []
         if n_jobs == 1:

@@ -5,6 +5,8 @@ import pandas as pd
 from tqdm import tqdm
 
 from cleanvision.dataset.base_dataset import Dataset
+
+from cleanvision.dataset.torch_dataset import TorchDataset
 from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
@@ -145,6 +147,8 @@ class ImagePropertyIssueManager(IssueManager):
         if to_be_computed:
             if n_jobs is None:
                 n_jobs = get_max_n_jobs()
+            if isinstance(dataset, TorchDataset):
+                n_jobs = 1
 
             results: List[Dict[str, Union[int, float, str]]] = []
             if n_jobs == 1:
