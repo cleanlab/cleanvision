@@ -47,6 +47,18 @@ def compute_hash_wrapper(args: Dict[str, Any]) -> Dict[str, Union[str, int]]:
 
 @register_issue_manager(DUPLICATE)
 class DuplicateIssueManager(IssueManager):
+    """Checks for exact and near duplicates in images.
+
+    Attributes
+    ----------
+    issue_name: str
+        Name of the issue that issue manager handles
+    visualization: str
+        Type of visualization for issues detected by `DuplicateIssueManager`
+
+
+    """
+
     issue_name: str = DUPLICATE
     visualization: str = "image_sets"
 
