@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
+from cleanvision.dataset.torch_dataset import TorchDataset
 from cleanvision.dataset.utils import build_dataset
 from cleanvision.issue_managers import (
     IssueType,
@@ -32,6 +33,7 @@ from cleanvision.utils.utils import (
     get_is_issue_colname,
     get_score_colname,
     update_df,
+    get_max_n_jobs,
 )
 from cleanvision.utils.viz_manager import VizManager
 
@@ -259,6 +261,12 @@ class Imagelab:
         # set issue managers
         issue_type_groups = self._get_issue_type_groups(to_compute_issues_with_params)
         self._set_issue_managers(issue_type_groups)
+
+        # set number of jobs for parallelizing computation
+        if n_jobs is None:
+            n_jobs = get_max_n_jobs()
+            if isinstance(self._dataset, TorchDataset):
+                n_jobs = 1
 
         # find issues
         for issue_type_group, params in issue_type_groups.items():

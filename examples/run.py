@@ -121,8 +121,7 @@ if __name__ == "__main__":
     torch_dataset = CIFAR10("./", train=False, download=True)
     imagelab = Imagelab(torchvision_dataset=torch_dataset)
 
-    # We set n_jobs=1 as CleanVision parallelization may interfere with torch data loaders.
-    imagelab.find_issues(n_jobs=1)
+    imagelab.find_issues()
     imagelab.report()
 
     """
