@@ -143,7 +143,6 @@ class ImagePropertyIssueManager(IssueManager):
 
         new_computations = pd.DataFrame(index=dataset.index)
         if to_be_computed:
-
             results: List[Dict[str, Union[int, float, str]]] = []
             if n_jobs == 1:
                 for idx in tqdm(dataset.index):
