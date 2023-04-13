@@ -5,8 +5,6 @@ import pandas as pd
 from tqdm import tqdm
 
 from cleanvision.dataset.base_dataset import Dataset
-
-from cleanvision.dataset.torch_dataset import TorchDataset
 from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
@@ -23,7 +21,6 @@ from cleanvision.utils.constants import (
     IMAGE_PROPERTY_ISSUE_TYPES_LIST,
 )
 from cleanvision.utils.utils import (
-    get_max_n_jobs,
     get_is_issue_colname,
     update_df,
     get_score_colname,
@@ -128,6 +125,7 @@ class ImagePropertyIssueManager(IssueManager):
         assert params is not None
         assert imagelab_info is not None
         assert dataset is not None
+        assert n_jobs is not None
 
         self.issue_types = list(params.keys())
         self.issues = pd.DataFrame(index=dataset.index)
@@ -145,10 +143,6 @@ class ImagePropertyIssueManager(IssueManager):
 
         new_computations = pd.DataFrame(index=dataset.index)
         if to_be_computed:
-            if n_jobs is None:
-                n_jobs = get_max_n_jobs()
-            if isinstance(dataset, TorchDataset):
-                n_jobs = 1
 
             results: List[Dict[str, Union[int, float, str]]] = []
             if n_jobs == 1:

@@ -9,11 +9,10 @@ from PIL import Image
 from tqdm import tqdm
 
 from cleanvision.dataset.base_dataset import Dataset
-from cleanvision.dataset.torch_dataset import TorchDataset
 from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import SETS, DUPLICATE, MAX_PROCS
-from cleanvision.utils.utils import get_max_n_jobs, get_is_issue_colname
+from cleanvision.utils.utils import get_is_issue_colname
 
 
 def get_hash(image: Image, params: Dict[str, Any]) -> str:
@@ -107,6 +106,7 @@ class DuplicateIssueManager(IssueManager):
         assert params is not None
         assert imagelab_info is not None
         assert dataset is not None
+        assert n_jobs is not None
 
         self.issue_types = list(params.keys())
         self.update_params(params)
@@ -115,11 +115,6 @@ class DuplicateIssueManager(IssueManager):
         issue_type_hash_mapping: Dict[str, Any] = {
             issue_type: {} for issue_type in to_compute
         }
-
-        if n_jobs is None:
-            n_jobs = get_max_n_jobs()
-        if isinstance(dataset, TorchDataset):
-            n_jobs = 1
 
         results: List[Dict[str, Union[str, int]]] = []
         if n_jobs == 1:
