@@ -1,5 +1,6 @@
 Issue Managers
 ==============
+Contains modules for managing data issues of a particular type in Imagelab.
 
 .. automodule:: cleanvision.issue_managers
    :autosummary:

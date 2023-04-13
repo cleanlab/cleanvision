@@ -49,12 +49,12 @@ class IssueManager(ABC):
         return
 
     @abstractmethod
-    def get_default_params(self) -> Dict[str, Any]:
+    def _get_default_params(self) -> Dict[str, Any]:
         """Returns default params to be used by the issue_manager"""
         raise NotImplementedError
 
     @abstractmethod
-    def update_params(self, params: Dict[str, Any]) -> None:
+    def _update_params(self, params: Dict[str, Any]) -> None:
         """Sets params for an issue manager. Default params will be overridden by user provided params"""
         raise NotImplementedError
 

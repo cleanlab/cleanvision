@@ -47,21 +47,23 @@ def compute_hash_wrapper(args: Dict[str, Any]) -> Dict[str, Union[str, int]]:
 
 @register_issue_manager(DUPLICATE)
 class DuplicateIssueManager(IssueManager):
+    """Checks for exact and near duplicates in images."""
+
     issue_name: str = DUPLICATE
     visualization: str = "image_sets"
 
     def __init__(self) -> None:
         super().__init__()
         self.issue_types: List[str] = []
-        self.params = self.get_default_params()
+        self.params = self._get_default_params()
 
-    def get_default_params(self) -> Dict[str, Any]:
+    def _get_default_params(self) -> Dict[str, Any]:
         return {
             IssueType.EXACT_DUPLICATES.value: {"hash_type": "md5"},
             IssueType.NEAR_DUPLICATES.value: {"hash_type": "phash", "hash_size": 8},
         }
 
-    def update_params(self, params: Dict[str, Any]) -> None:
+    def _update_params(self, params: Dict[str, Any]) -> None:
         for issue_type in self.params:
             non_none_params = {
                 k: v for k, v in params.get(issue_type, {}).items() if v is not None
@@ -102,6 +104,27 @@ class DuplicateIssueManager(IssueManager):
         n_jobs: Optional[int] = None,
         **kwargs: Any,
     ) -> None:
+        """Finds exact and near duplicates in the images
+
+        Parameters
+        ----------
+        params: Dict[str, Any], optional
+            Dict of custom hyperparameters for checking duplicate issues. Default value is empty.
+        dataset: Dataset
+            Dataset object on which to run the duplicate checks
+        imagelab_info: Dict[str, Any]
+            imagelab.info dict containing computations for reuse
+        n_jobs: int
+            Number of processing threads used by multiprocessing.
+            Default None sets to the number of cores on your CPU (physical cores if you have psutil package installed, otherwise logical cores).
+            Set this to 1 to disable parallel processing (if its causing issues). Windows users may see a speed-up with n_jobs=1.
+            For :py:class:`TorchDataset` this is set to 1.
+        kwargs: Any
+
+        Returns
+        -------
+
+        """
         super().find_issues(**kwargs)
         assert params is not None
         assert imagelab_info is not None
@@ -109,7 +132,7 @@ class DuplicateIssueManager(IssueManager):
         assert n_jobs is not None
 
         self.issue_types = list(params.keys())
-        self.update_params(params)
+        self._update_params(params)
 
         to_compute = self._get_issue_types_to_compute(self.issue_types, imagelab_info)
         issue_type_hash_mapping: Dict[str, Any] = {
