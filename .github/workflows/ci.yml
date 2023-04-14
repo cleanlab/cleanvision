@@ -4,9 +4,9 @@ on:
     branches: [ main ]
   pull_request:
 jobs:
-  test:
+  test-ubuntu:
     name: "Test: Python ${{ matrix.python }} on ${{ matrix.os }}"
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         os:
@@ -24,12 +24,40 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
-      - name: Setup python environment
-        run: ./.github/scripts/setup_python_env.sh
+      - name: Install dependencies
+        run: pip install --upgrade pip pytest pytest-cov -e ".[pytorch, huggingface]"
         shell: bash
       - name: Test with coverage
         run: pytest --verbose --cov=src/cleanvision/ --cov-config .coveragerc --cov-report=xml tests/
       - uses: codecov/codecov-action@v3
+#  test-notebooks:
+#    name: "Test jupyter notebooks"
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: actions/setup-python@v4
+#        with:
+#          python-version: '3.11'
+#      - uses: actions/cache@v2
+#        with:
+#          path: ~/.cache/pip
+#          key: ${{ hashFiles('pyproject.toml') }}-${{ hashFiles('requirements-dev.txt') }}
+#      - name: Setup python environment
+#        run: |
+#          python -m pip install --upgrade pip
+#          pip install -e ".[pytorch, huggingface]"
+#          pip install jupyterlab
+#      - name: Find and Replace
+#        uses: jacobtomlinson/gha-find-replace@v3
+#        with:
+#          find: '%!pip install *'
+#          replace: " "
+#          include: tutorials/*.ipynb
+#      - run: |
+#          jupyter nbconvert --ExecutePreprocessor.kernel_name=python3 --to html --execute tutorials/huggingface_dataset.ipynb
+#          jupyter nbconvert --ExecutePreprocessor.kernel_name=python3 --to html --execute tutorials/torchvision_dataset.ipynb
+#          jupyter nbconvert --ExecutePreprocessor.kernel_name=python3 --to html --execute tutorials/tutorial.ipynb
+
   typecheck:
     name: Type check
     runs-on: ubuntu-latest
@@ -38,9 +66,8 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      - name: Setup python environment
-        run: ./.github/scripts/setup_python_env.sh
-        shell: bash
+      - name: Install dependencies
+        run: pip install --upgrade pip mypy -e ".[pytorch, huggingface]"
       - name: Type check
         run: mypy --strict --install-types --non-interactive src
   fmt:
