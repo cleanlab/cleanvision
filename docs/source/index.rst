@@ -140,6 +140,16 @@ More on how to get started with CleanVision:
    cleanvision/utils/index
 
 .. toctree::
+   :hidden:
+   :maxdepth: 3
+   :caption: Tutorials
+
+   tutorials/tutorial.ipynb
+   tutorials/torchvision_dataset.ipynb
+   tutorials/huggingface_dataset.ipynb
+   
+
+.. toctree::
    :caption: Guides
    :hidden:
 

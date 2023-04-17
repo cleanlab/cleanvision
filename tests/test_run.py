@@ -10,7 +10,7 @@ from cleanvision.issue_managers.image_property import BrightnessProperty
 from cleanvision.issue_managers.image_property_issue_manager import (
     compute_scores_wrapper,
 )
-from tutorials.custom_issue_manager import CustomIssueManager
+from docs.source.tutorials.custom_issue_manager import CustomIssueManager
 
 
 @pytest.mark.usefixtures("set_plt_show")
