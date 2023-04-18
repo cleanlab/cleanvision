@@ -12,4 +12,5 @@ numpy
 matplotlib
 tqdm
 imagehash
+ipykernel
 
