@@ -113,11 +113,10 @@ Quickstart
 
 More on how to get started with CleanVision:
 
-- `Tutorial Notebook <https://github.com/cleanlab/cleanvision-examples/blob/main/tutorial.ipynb>`_
-- `Run CleanVision on a HuggingFace dataset <https://github.com/cleanlab/cleanvision-examples/blob/main/huggingface_dataset.ipynb>`_
-- `Run CleanVision on a Torchvision dataset <https://github.com/cleanlab/cleanvision-examples/blob/main/torchvision_dataset.ipynb>`_
-- `Example Python script <https://github.com/cleanlab/cleanvision/blob/main/examples/run.py>`_
-- `Additional example notebooks <https://github.com/cleanlab/cleanvision-examples>`_
+- `Tutorial Notebooks <https://github.com/cleanlab/cleanvision-examples/blob/docs/source/tutorials>`_
+- `Example Python script <https://github.com/cleanlab/cleanvision/blob/main/docs/source/run.py>`_
+- `Example Notebooks <https://github.com/cleanlab/cleanvision-examples>`_
+- `How To Contribute <https://github.com/cleanlab/cleanvision/blob/main/CONTRIBUTING.md>`_
 
 
 .. toctree::
@@ -140,15 +139,13 @@ More on how to get started with CleanVision:
    cleanvision/utils/index
 
 .. toctree::
-   :caption: Guides
    :hidden:
+   :maxdepth: 3
+   :caption: Tutorials
 
-   Tutorial Notebook <https://colab.research.google.com/github/cleanlab/cleanvision/blob/main/examples/tutorial.ipynb>
-   HuggingFace Notebook <https://colab.research.google.com/github/cleanlab/cleanvision/blob/main/examples/huggingface_dataset.ipynb>
-   Torchvision Notebook <https://colab.research.google.com/github/cleanlab/cleanvision/blob/main/examples/torchvision_dataset.ipynb>
-   Example Python Script <https://github.com/cleanlab/cleanvision/blob/main/examples/run.py>
-   More Example Notebooks <https://github.com/cleanlab/cleanvision-examples>
-   How To Contribute <https://github.com/cleanlab/cleanvision/blob/main/CONTRIBUTING.md>
+   tutorials/tutorial.ipynb
+   tutorials/torchvision_dataset.ipynb
+   tutorials/huggingface_dataset.ipynb
 
 .. toctree::
    :caption: Links

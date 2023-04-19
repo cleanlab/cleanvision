@@ -32,6 +32,15 @@ extensions = [
     "sphinx_autodoc_typehints",
 ]
 
+
+# -- nbsphinx Configuration ---------------------------------------------------
+nbsphinx_execute_arguments = [
+    "--InlineBackend.figure_formats={'svg', 'pdf'}",
+    "--InlineBackend.rc=figure.dpi=96",
+]
+nbsphinx_allow_errors = False
+
+
 templates_path = ["_templates"]
 
 exclude_patterns = []
