@@ -23,7 +23,7 @@ jobs:
       - name: Build distributions
         run: python -m build
       - name: Publish package to PyPI
-        if: github.repository == 'cleanlab/cleanvision' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        if: github.repository == 'cleanlab/cleanvision' && github.event_name == 'release' && github.event.action == 'published'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
