@@ -1,16 +1,17 @@
 name: Build distribution
 
 on:
-  push:
+  workflow_run:
+    workflows: [ "CI" ]
     branches: [ main ]
-  pull_request:
+    types:
+      - completed
   release:
     types: [ published ]
 
 jobs:
-  test:
+  publish:
     runs-on: "ubuntu-latest"
-
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
@@ -23,7 +24,8 @@ jobs:
       - name: Build distributions
         run: python -m build
       - name: Publish package to PyPI
-        if: github.repository == 'cleanlab/cleanvision' && github.event_name == 'release' && github.event.action == 'published'
+        if: github.repository == 'cleanlab/cleanvision' && github.event.workflow_run.conclusion == 'success'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository-url: https://test.pypi.org/legacy/
