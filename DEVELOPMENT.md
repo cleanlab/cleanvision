@@ -109,7 +109,15 @@ endings match the project style.
 
 ## Merging PRs to the codebase
 
-The docs for this repo are hosted by readthedocs.io and can be found [here](https://cleanvision.readthedocs.io/en/latest/). 
+The docs for this repo are hosted by readthedocs.io and can be found [here](https://cleanvision.readthedocs.io/en/latest/).
 Currently, merged PRs *will not* update the docs -- you **need** to do this manually after merging a PR.
 To update docs, go to the [readthedocs project page](https://readthedocs.org/projects/cleanvision/) and `build` latest version.
 If you want to see how a specific branch output looks, activate the branch in `version` tab and then `build` that branch.
+
+
+## Publishing Release
+- Ensure all **Checks** are successful for your PR after getting approvals from other code maintainers.
+- Go to the Releases in the Github repo and draft a new release.
+- Create a new tag in the format `v{version}` corresponding to the version being released and click *Generate  release notes*.
+- Before publishing the release, ensure all checks are satisfied as the release on TestPypi and Pypi is automated and an error will result in publishing a new version.
+- Publish release.
