@@ -1,5 +1,6 @@
 name: Build and publish distribution
 
+# This workflow will be triggered whenever the CI workflow is triggered in main branch is completed or a release is published
 on:
   workflow_run:
     workflows: [ "CI" ]
@@ -24,13 +25,15 @@ jobs:
       - name: Build distributions
         run: python -m build
       - name: Publish package to PyPI
-        if: github.repository == 'cleanlab/cleanvision' && github.event.workflow_run.conclusion == 'success'
+        # This condition ensures the CI workflow in main branch was successful and this is indeed a release published action
+        if: github.repository == 'cleanlab/cleanvision' && github.event.workflow_run.conclusion == 'success' && github.event_name == 'release' && github.event.action == 'published'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository-url: https://test.pypi.org/legacy/
   publish:
     needs: [ publish-test ]
+    # This condition ensures publish-test succeeded before running this job
     if: needs.publish-test.result == 'success'
     runs-on: "ubuntu-latest"
     steps:
@@ -45,13 +48,15 @@ jobs:
       - name: Build distributions
         run: python -m build
       - name: Publish package to PyPI
-        if: github.repository == 'cleanlab/cleanvision' && github.event.workflow_run.conclusion == 'success'
+        # This condition ensures the CI workflow in main branch was successful and this is indeed a release published action
+        if: github.repository == 'cleanlab/cleanvision' && github.event.workflow_run.conclusion == 'success'  && github.event_name == 'release' && github.event.action == 'published'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
   bump-version:
     runs-on: "ubuntu-latest"
     needs: [publish]
+    # This condition ensures publish succeeded before running this job
     if: needs.publish.result == 'success'
     steps:
       - name: Checkout source
