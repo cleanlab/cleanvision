@@ -1,9 +1,6 @@
 name: Build and publish distribution
 
 on:
-  # todo: remove this push condition once tested on testpypi
-  push:
-    branches: [ main ]
   workflow_run:
     workflows: [ "CI" ]
     branches: [ main ]
