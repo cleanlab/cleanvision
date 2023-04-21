@@ -3,7 +3,7 @@ name: Build distribution
 on:
   # todo: remove this push condition once tested on testpypi
   push:
-    branches: : [ main ]
+    branches: [ main ]
   workflow_run:
     workflows: [ "CI" ]
     branches: [ main ]
