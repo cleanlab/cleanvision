@@ -113,8 +113,9 @@ The docs for this repo are hosted by readthedocs.io and can be found [here](http
 
 
 ## Publishing Release
-- Ensure all **Checks** are successful for your PR after getting approvals from other code maintainers.
+- Ensure all **Checks** are successful for your release related PR after getting approvals from other code maintainers.
+- Merge all release related PRs.
 - Go to the Releases in the Github repo and draft a new release.
 - Create a new tag in the format `v{version}` corresponding to the version being released and click *Generate  release notes*.
 - Before publishing the release, ensure all checks are satisfied as the release on TestPypi and Pypi is automated and an error will result in publishing a new version.
-- Publish release.
+- Publish release
