@@ -1,12 +1,6 @@
 name: Build and publish distribution
 
-# This workflow will be triggered whenever the CI workflow is triggered in main branch is completed or a release is published
 on:
-  workflow_run:
-    workflows: [ "CI" ]
-    branches: [ main ]
-    types:
-      - completed
   release:
     types: [ published ]
 
@@ -25,8 +19,7 @@ jobs:
       - name: Build distributions
         run: python -m build
       - name: Publish package to PyPI
-        # This condition ensures the CI workflow in main branch was successful and this is indeed a release published action
-        if: github.repository == 'cleanlab/cleanvision' && github.event.workflow_run.conclusion == 'success' && github.event_name == 'release' && github.event.action == 'published'
+        if: github.repository == 'cleanlab/cleanvision' && github.event_name == 'release' && github.event.action == 'published'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
@@ -48,8 +41,7 @@ jobs:
       - name: Build distributions
         run: python -m build
       - name: Publish package to PyPI
-        # This condition ensures the CI workflow in main branch was successful and this is indeed a release published action
-        if: github.repository == 'cleanlab/cleanvision' && github.event.workflow_run.conclusion == 'success'  && github.event_name == 'release' && github.event.action == 'published'
+        if: github.repository == 'cleanlab/cleanvision' && github.event_name == 'release' && github.event.action == 'published'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
