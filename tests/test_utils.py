@@ -28,7 +28,10 @@ class TestUtils:
             "no columns are common",
         ],
     )
-    def test_update_df(self, num_cols_old, num_cols_new, num_common_cols):
+    @pytest.mark.parametrize(
+        "overwrite", [True, False], ids=["overwrite=True", "overwrite=False"]
+    )
+    def test_update_df(self, num_cols_old, num_cols_new, num_common_cols, overwrite):
         num_rows = 5
 
         num_only_old_cols = num_cols_old - num_common_cols
@@ -50,15 +53,8 @@ class TestUtils:
         common_col_names = ["com" + str(x) for x in range(num_common_cols)]
         old_df[common_col_names] = np.random.rand(num_rows, num_common_cols)
         new_df[common_col_names] = np.random.rand(num_rows, num_common_cols)
-        print("old df ")
-        print(old_df)
-        print("new df")
-        print(new_df)
 
-        # testing overrite = True
-        updated_df = update_df(old_df, new_df, overwrite=True)
-        print("updated df with overwrite = True")
-        print(updated_df)
+        updated_df = update_df(old_df, new_df, overwrite=overwrite)
         assert updated_df.shape == (
             num_rows,
             num_cols_old + num_cols_new - num_common_cols,
@@ -69,24 +65,12 @@ class TestUtils:
         assert num_only_new_cols == 0 or updated_df[only_new_col_names].equals(
             new_df[only_new_col_names]
         )
-        assert num_common_cols == 0 or updated_df[common_col_names].equals(
-            new_df[common_col_names]
-        )
 
-        # testing overrite = False
-        updated_df = update_df(old_df, new_df, overwrite=False)
-        print("updated df with overwrite = False")
-        print(updated_df)
-        assert updated_df.shape == (
-            num_rows,
-            num_cols_old + num_cols_new - num_common_cols,
-        )
-        assert num_only_old_cols == 0 or updated_df[only_old_col_names].equals(
-            old_df[only_old_col_names]
-        )
-        assert num_only_new_cols == 0 or updated_df[only_new_col_names].equals(
-            new_df[only_new_col_names]
-        )
-        assert num_common_cols == 0 or updated_df[common_col_names].equals(
-            old_df[common_col_names]
-        )
+        if overwrite:
+            assert num_common_cols == 0 or updated_df[common_col_names].equals(
+                new_df[common_col_names]
+            )
+        else:
+            assert num_common_cols == 0 or updated_df[common_col_names].equals(
+                old_df[common_col_names]
+            )
