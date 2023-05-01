@@ -19,7 +19,7 @@ jobs:
       - name: Build distributions
         run: python -m build
       - name: Publish package to PyPI
-        if: github.repository == 'cleanlab/cleanvision' && github.event_name == 'release' && github.event.action == 'published'
+        if: github.repository == 'cleanlab/cleanvision'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
@@ -41,7 +41,7 @@ jobs:
       - name: Build distributions
         run: python -m build
       - name: Publish package to PyPI
-        if: github.repository == 'cleanlab/cleanvision' && github.event_name == 'release' && github.event.action == 'published'
+        if: github.repository == 'cleanlab/cleanvision'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
