@@ -15,6 +15,7 @@ class FolderDataset(Dataset):
         self, data_folder: Optional[str] = None, filepaths: Optional[List[str]] = None
     ) -> None:
         super().__init__()
+        self.path = data_folder
         if data_folder:
             self._filepaths = get_filepaths(data_folder)
         else:

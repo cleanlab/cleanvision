@@ -4,8 +4,6 @@ The methods in this module should suffice for most use-cases,
 but advanced users can get extra flexibility via the code in other CleanVision modules.
 """
 
-import os
-import pickle
 from typing import List, Dict, Any, Optional, Tuple, TypeVar, Type
 from typing import TYPE_CHECKING
 
@@ -13,6 +11,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
+import cleanvision
 from cleanvision.dataset.torch_dataset import TorchDataset
 from cleanvision.dataset.utils import build_dataset
 from cleanvision.issue_managers import (
@@ -28,6 +27,7 @@ from cleanvision.utils.constants import (
     DUPLICATE_ISSUE_TYPES_LIST,
     SETS,
 )
+from cleanvision.utils.serialize import _Serializer
 from cleanvision.utils.utils import (
     deep_update_dict,
     get_is_issue_colname,
@@ -139,7 +139,7 @@ class Imagelab:
 
         # can be loaded from a file later
         self._config: Dict[str, Any] = self._set_default_config()
-        self._path = ""
+        self.cleanvision_version = cleanvision.__version__
 
     def _set_default_config(self) -> Dict[str, Any]:
         """Sets default values for various config variables used in Imagelab class
@@ -655,26 +655,7 @@ class Imagelab:
         ValueError
             If `allow_overwrite` is set to False, and an existing path is specified for saving Imagelab instance.
         """
-        path_exists = os.path.exists(path)
-        if not path_exists:
-            os.mkdir(path)
-        else:
-            if force:
-                print(
-                    f"WARNING: Existing files will be overwritten by newly saved files at: {path}"
-                )
-            else:
-                raise FileExistsError("Please specify a new path or set force=True")
-
-        self._path = path
-        object_file = os.path.join(self._path, OBJECT_FILENAME)
-        with open(object_file, "wb") as f:
-            pickle.dump(self, f)
-
-        print(f"Saved Imagelab to folder: {path}")
-        print(
-            "The data path and dataset must be not be changed to maintain consistent state when loading this Imagelab"
-        )
+        _Serializer.serialize(path=path, imagelab=self, force=force)
 
     @classmethod
     def load(
@@ -697,19 +678,5 @@ class Imagelab:
         Imagelab
             Returns a saved instance of Imagelab
         """
-        if not os.path.exists(path):
-            raise ValueError(f"No folder found at specified path: {path}")
-
-        object_file = os.path.join(path, OBJECT_FILENAME)
-        with open(object_file, "rb") as f:
-            imagelab: TImagelab = pickle.load(f)
-
-        # todo: use hash for validating
-        # if data_path is not None:
-        #     filepaths = get_filepaths(data_path)
-        #     if set(filepaths) != set(imagelab._filepaths):
-        #         raise ValueError(
-        #             "Absolute path of image(s) has changed in the dataset. Cannot load Imagelab."
-        #         )
-        print("Successfully loaded Imagelab")
+        imagelab = _Serializer.deserialize(path)
         return imagelab
