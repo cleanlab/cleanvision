@@ -638,8 +638,8 @@ class Imagelab:
         return self.info["statistics"]
 
     def save(self, path: str, force: bool = False) -> None:
-        """Saves this ImageLab instance into a folder at the given path.
-        Your saved Imagelab should be loaded from the same version of the CleanVision package.
+        """Saves this ImageLab instance, :py:attr:`issues` and :py:attr:`issue_summary` into a folder at the given path.
+        Your saved Imagelab should be loaded from the same version of the CleanVision package to avoid inconsistencies.
         This method does not save your image files.
 
         Parameters
@@ -649,11 +649,6 @@ class Imagelab:
 
         force: bool, default=False
             If set to True, any existing files at `path` will be overwritten.
-
-        Raises
-        ------
-        ValueError
-            If `allow_overwrite` is set to False, and an existing path is specified for saving Imagelab instance.
         """
         _Serializer.serialize(path=path, imagelab=self, force=force)
 
@@ -663,15 +658,14 @@ class Imagelab:
     ) -> TImagelab:
         """Loads Imagelab from given path.
 
-
         Parameters
         ----------
         path : str
             Path to the saved Imagelab folder previously specified in :py:meth:`Imagelab.save` (not the individual pickle file).
         data_path : str
-            Path to image dataset previously used in Imagelab.
-            If the `data_path` is changed, Imagelab will not be loaded as some of its functionalities depend on it.
-            You should be using the same version of the CleanVision package previously used when saving the Imagelab.
+            Path to image dataset previously used in Imagelab, if your data exists locally as images in a folder.
+            If the `data_path` is changed, the code will break as Imagelab functionalities are dependent on it.
+            You should be using the same version of the CleanVision package previously used when saving the Imagelab,
 
         Returns
         -------
