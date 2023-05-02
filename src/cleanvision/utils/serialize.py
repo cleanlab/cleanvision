@@ -16,7 +16,7 @@ if TYPE_CHECKING:  # pragma: no cover
 # Constants:
 OBJECT_FILENAME = "imagelab.pkl"
 ISSUES_FILENAME = "issues.csv"
-ISSUE_SUMMARY_FILENAME = "summary.csv"
+ISSUE_SUMMARY_FILENAME = "issue_summary.csv"
 
 
 class _Serializer:
@@ -24,10 +24,10 @@ class _Serializer:
     def _save_issues(path: str, imagelab: Imagelab) -> None:
         """Saves the issues to disk."""
         issues_path = os.path.join(path, ISSUES_FILENAME)
-        imagelab.issues.to_csv(issues_path, index=False)
+        imagelab.issues.to_csv(issues_path)
 
         issue_summary_path = os.path.join(path, ISSUE_SUMMARY_FILENAME)
-        imagelab.issue_summary.to_csv(issue_summary_path, index=False)
+        imagelab.issue_summary.to_csv(issue_summary_path)
 
     @staticmethod
     def _validate_version(imagelab: Imagelab) -> None:
@@ -118,10 +118,10 @@ class _Serializer:
 
         # Load the issues from disk.
         issues_path = os.path.join(path, ISSUES_FILENAME)
-        imagelab.issues = pd.read_csv(issues_path)
+        imagelab.issues = pd.read_csv(issues_path, index_col=0)
 
         issue_summary_path = os.path.join(path, ISSUE_SUMMARY_FILENAME)
-        imagelab.issue_summary = pd.read_csv(issue_summary_path)
+        imagelab.issue_summary = pd.read_csv(issue_summary_path, index_col=0)
 
         print("Successfully loaded Imagelab")
         return imagelab
