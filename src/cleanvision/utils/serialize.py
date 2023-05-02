@@ -3,12 +3,12 @@ from __future__ import annotations
 import os
 import pickle
 import warnings
+from copy import deepcopy
 from typing import TYPE_CHECKING
 
 import pandas as pd
 
 import cleanvision
-from cleanvision.dataset.hf_dataset import HFDataset
 
 if TYPE_CHECKING:  # pragma: no cover
     from cleanvision.imagelab import Imagelab
@@ -54,6 +54,12 @@ class _Serializer:
 
         force : bool
             If True, will overwrite existing files at the specified path.
+
+        Raises
+        ------
+        FileExistsError
+            If `force` is set to False, and an existing path is specified for saving Imagelab instance.
+
         """
         path_exists = os.path.exists(path)
         if not path_exists:
@@ -68,9 +74,14 @@ class _Serializer:
         # Save the issues to disk.
         cls._save_issues(path=path, imagelab=imagelab)
 
+        # clear issues and issue_summary
+        imagelab_copy = deepcopy(imagelab)
+        imagelab_copy.issues = None
+        imagelab_copy.issue_summary = None
+
         # Save the imagelab object to disk.
         with open(os.path.join(path, OBJECT_FILENAME), "wb") as f:
-            pickle.dump(imagelab, f)
+            pickle.dump(imagelab_copy, f)
 
         print(f"Saved Imagelab to folder: {path}")
         print(
@@ -79,7 +90,23 @@ class _Serializer:
 
     @classmethod
     def deserialize(cls, path: str) -> Imagelab:
-        """Deserializes the imagelab object from disk."""
+        """Deserializes the imagelab object from disk.
+
+        Parameters
+        ----------
+        path: str
+            Path to the saved Imagelab folder previously specified in :py:meth:`_Serializer.serialize` (not the individual pickle file).
+
+        Returns
+        -------
+        Imagelab
+
+        Raises
+        ------
+        ValueError:
+            If the path specified for imagelab folder does not exist
+
+        """
 
         if not os.path.exists(path):
             raise ValueError(f"No folder found at specified path: {path}")
@@ -91,18 +118,10 @@ class _Serializer:
 
         # Load the issues from disk.
         issues_path = os.path.join(path, ISSUES_FILENAME)
-        if os.path.exists(issues_path):
-            imagelab.issues = pd.read_csv(issues_path)
-        else:
-            raise ValueError(f"Could not find {ISSUES_FILENAME} at specified path")
+        imagelab.issues = pd.read_csv(issues_path)
 
         issue_summary_path = os.path.join(path, ISSUE_SUMMARY_FILENAME)
-        if os.path.exists(issue_summary_path):
-            imagelab.issue_summary = pd.read_csv(issue_summary_path)
-        else:
-            raise ValueError(
-                f"Could not find {ISSUE_SUMMARY_FILENAME} at specified path"
-            )
+        imagelab.issue_summary = pd.read_csv(issue_summary_path)
 
         print("Successfully loaded Imagelab")
         return imagelab
