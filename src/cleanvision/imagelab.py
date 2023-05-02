@@ -3,6 +3,7 @@ Imagelab is the core class in CleanVision for finding all types of issues in an 
 The methods in this module should suffice for most use-cases,
 but advanced users can get extra flexibility via the code in other CleanVision modules.
 """
+from __future__ import annotations
 
 from typing import List, Dict, Any, Optional, Tuple, TypeVar, Type
 from typing import TYPE_CHECKING
@@ -655,7 +656,7 @@ class Imagelab:
     @classmethod
     def load(
         cls: Type[TImagelab], path: str, data_path: Optional[str] = None
-    ) -> TImagelab:
+    ) -> Imagelab:
         """Loads Imagelab from given path.
 
         Parameters

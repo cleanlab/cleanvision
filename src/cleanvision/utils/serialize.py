@@ -31,7 +31,7 @@ class _Serializer:
 
     @staticmethod
     def _validate_version(imagelab: Imagelab) -> None:
-        current_version = cleanvision.__version__  # type: ignore[attr-defined]
+        current_version = cleanvision.__version__
         imagelab_version = imagelab.cleanvision_version
         if current_version != imagelab_version:
             warnings.warn(
