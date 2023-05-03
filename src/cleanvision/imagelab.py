@@ -636,7 +636,7 @@ class Imagelab:
         return self.info["statistics"]
 
     def save(self, path: str, force: bool = False) -> None:
-        """Saves this ImageLab instance, :py:attr:`issues` and :py:attr:`issue_summary` into a folder at the given path.
+        """Saves this Imagelab instance, :py:attr:`issues` and :py:attr:`issue_summary` into a folder at the given path.
         Your saved Imagelab should be loaded from the same version of the CleanVision package to avoid inconsistencies.
         This method does not save your image files.
 
