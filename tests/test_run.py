@@ -101,6 +101,7 @@ def test_example3(generate_local_dataset):
     issue_types = {"near_duplicates": {"hash_type": "phash"}}
     imagelab.find_issues(issue_types)
     imagelab.report(issue_types=issue_types.keys())
+    imagelab.report(issue_types=issue_types.keys())
 
     # Customize report and visualize
 
