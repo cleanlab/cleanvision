@@ -5,8 +5,7 @@ but advanced users can get extra flexibility via the code in other CleanVision m
 """
 from __future__ import annotations
 
-from typing import List, Dict, Any, Optional, Tuple
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar, List, Dict, Any, Optional, Tuple, Type
 
 import numpy as np
 import pandas as pd
@@ -43,8 +42,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from torchvision.datasets.vision import VisionDataset
 
 __all__ = ["Imagelab"]
-
-OBJECT_FILENAME = "imagelab.pkl"
+TImagelab = TypeVar("TImagelab", bound="Imagelab")
 
 
 class Imagelab:
@@ -653,7 +651,9 @@ class Imagelab:
         _Serializer.serialize(path=path, imagelab=self, force=force)
 
     @classmethod
-    def load(cls: Imagelab, path: str, data_path: Optional[str] = None) -> Imagelab:
+    def load(
+        cls: Type[TImagelab], path: str, data_path: Optional[str] = None
+    ) -> Imagelab:
         """Loads Imagelab from given path.
 
         Parameters
