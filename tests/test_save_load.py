@@ -45,7 +45,7 @@ class TestImagelabSaveLoad:
     def test_load_file_does_not_exist(self, generate_local_dataset, tmp_path):
         save_folder = tmp_path / "T_save_folder/"
         with pytest.raises(ValueError):
-            imagelab = Imagelab.load(save_folder)
+            Imagelab.load(save_folder)
 
     def test_warning_raised_on_diff_version(
         self, generate_local_dataset, tmp_path, monkeypatch
