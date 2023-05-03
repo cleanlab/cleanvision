@@ -19,7 +19,7 @@ ISSUES_FILENAME = "issues.csv"
 ISSUE_SUMMARY_FILENAME = "issue_summary.csv"
 
 
-class _Serializer:
+class Serializer:
     @staticmethod
     def _save_issues(path: str, imagelab: Imagelab) -> None:
         """Saves the issues to disk."""

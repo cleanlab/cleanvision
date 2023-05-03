@@ -27,7 +27,7 @@ from cleanvision.utils.constants import (
     DUPLICATE_ISSUE_TYPES_LIST,
     SETS,
 )
-from cleanvision.utils.serialize import _Serializer
+from cleanvision.utils.serialize import Serializer
 from cleanvision.utils.utils import (
     deep_update_dict,
     get_is_issue_colname,
@@ -648,7 +648,7 @@ class Imagelab:
         force: bool, default=False
             If set to True, any existing files at `path` will be overwritten.
         """
-        _Serializer.serialize(path=path, imagelab=self, force=force)
+        Serializer.serialize(path=path, imagelab=self, force=force)
 
     @classmethod
     def load(
@@ -670,5 +670,5 @@ class Imagelab:
         Imagelab
             Returns a saved instance of Imagelab
         """
-        imagelab = _Serializer.deserialize(path)
+        imagelab = Serializer.deserialize(path)
         return imagelab
