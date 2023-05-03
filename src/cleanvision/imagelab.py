@@ -5,7 +5,7 @@ but advanced users can get extra flexibility via the code in other CleanVision m
 """
 from __future__ import annotations
 
-from typing import List, Dict, Any, Optional, Tuple, TypeVar, Type
+from typing import List, Dict, Any, Optional, Tuple
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -45,7 +45,6 @@ if TYPE_CHECKING:  # pragma: no cover
 __all__ = ["Imagelab"]
 
 OBJECT_FILENAME = "imagelab.pkl"
-TImagelab = TypeVar("TImagelab", bound="Imagelab")
 
 
 class Imagelab:
@@ -654,9 +653,7 @@ class Imagelab:
         _Serializer.serialize(path=path, imagelab=self, force=force)
 
     @classmethod
-    def load(
-        cls: Type[TImagelab], path: str, data_path: Optional[str] = None
-    ) -> Imagelab:
+    def load(cls: Imagelab, path: str, data_path: Optional[str] = None) -> Imagelab:
         """Loads Imagelab from given path.
 
         Parameters
@@ -666,7 +663,7 @@ class Imagelab:
         data_path : str
             Path to image dataset previously used in Imagelab, if your data exists locally as images in a folder.
             If the `data_path` is changed, the code will break as Imagelab functionalities are dependent on it.
-            You should be using the same version of the CleanVision package previously used when saving the Imagelab,
+            You should be using the same version of the CleanVision package previously used when saving Imagelab.
 
         Returns
         -------
