@@ -11,7 +11,7 @@ def get_version() -> str:
     else:
         import importlib_metadata
 
-        return importlib_metadata.version("cleanvision")
+        return importlib_metadata.version("cleanvision")  # type:ignore
 
 
 try:

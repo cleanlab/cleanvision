@@ -112,7 +112,7 @@ def calc_percentile_brightness(
         )  # np.sqrt(0.241 * r * r + 0.691 * g * g + 0.068 * b * b)
     else:
         pixel_brightness = imarr / 255.0
-    perc_values: "np.ndarray[Any, Any]" = np.percentile(pixel_brightness, percentiles)  # type: ignore
+    perc_values: "np.ndarray[Any, Any]" = np.percentile(pixel_brightness, percentiles)
     return perc_values
 
 
@@ -333,7 +333,7 @@ def get_image_mode(image: Image) -> str:
         imarr = np.asarray(image)
         if len(imarr.shape) == 2 or (
             len(imarr.shape) == 3
-            and (np.diff(imarr.reshape(-1, 3).T, axis=0) == 0).all()  # type: ignore
+            and (np.diff(imarr.reshape(-1, 3).T, axis=0) == 0).all()
         ):
             return "L"
         else:
