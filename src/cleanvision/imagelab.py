@@ -373,6 +373,7 @@ class Imagelab:
         issue_types: Optional[List[str]] = None,
         max_prevalence: Optional[float] = None,
         num_images: Optional[int] = None,
+        print_summary: bool = True,
         verbosity: int = 1,
     ) -> None:
         """Prints summary of the issues found in your dataset.
@@ -434,12 +435,14 @@ class Imagelab:
             self.issue_summary["issue_type"].isin(filtered_issue_types)
         ]
         if len(issue_summary) > 0:
-            print("Issues found in images in order of severity in the dataset\n")
-            self._pprint_issue_summary(issue_summary)
+            if print_summary:
+                print("Issues found in images in order of severity in the dataset\n")
+                self._pprint_issue_summary(issue_summary)
             for issue_type in filtered_issue_types:
                 print(f"{' ' + issue_type + ' images ':-^60}\n")
                 print(
                     f"Number of examples with this issue: {self.issues[get_is_issue_colname(issue_type)].sum()}\n"
+                    f"Examples representing most severe instances of this issue:\n"
                 )
                 self._visualize(
                     issue_type,
@@ -451,7 +454,8 @@ class Imagelab:
                     report_args["cell_size"],
                 )
         else:
-            print("No image issues found.")
+            if self.verbosity:
+                print("No issues found.")
 
     def _pprint_issue_summary(self, issue_summary: pd.DataFrame) -> None:
         issue_summary_copy = issue_summary.copy()
