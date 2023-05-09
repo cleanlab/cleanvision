@@ -129,7 +129,7 @@ class Imagelab:
         self.info: Dict[str, Any] = {"statistics": {}}
         self.issue_summary: pd.DataFrame = pd.DataFrame(
             columns=["issue_type", "num_images"]
-        )
+        ).astype({"issue_type": str, "num_images": np.int64})
 
         self.issues: pd.DataFrame = pd.DataFrame(index=self._dataset.index)
         self._issue_types: List[str] = []

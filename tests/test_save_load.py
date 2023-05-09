@@ -1,6 +1,8 @@
 import os
 
+import pandas as pd
 import pytest
+from pandas.testing import assert_frame_equal, assert_series_equal
 
 import cleanvision
 from cleanvision.imagelab import Imagelab
@@ -35,12 +37,30 @@ class TestImagelabSaveLoad:
 
     def test_load(self, generate_local_dataset, tmp_path):
         imagelab = Imagelab(data_path=generate_local_dataset)
+        imagelab.find_issues()
+
         save_folder = tmp_path / "T_save_folder/"
         imagelab.save(save_folder)
-        imagelab = Imagelab.load(save_folder)
-        assert imagelab is not None
-        assert imagelab.issues is not None
-        assert imagelab.issue_summary is not None
+
+        loaded_imagelab = Imagelab.load(save_folder)
+        assert loaded_imagelab is not None
+        assert_frame_equal(loaded_imagelab.issues, imagelab.issues)
+        assert_frame_equal(loaded_imagelab.issue_summary, imagelab.issue_summary)
+        self.compare_dict(loaded_imagelab.info, imagelab.info)
+
+    def compare_dict(self, a, b):
+        assert len(a) == len(b)
+        for k, v in a.items():
+            print(k)
+            assert k in b
+            if isinstance(v, dict):
+                self.compare_dict(v, b[k])
+            elif isinstance(v, pd.DataFrame):
+                assert_frame_equal(v, b[k])
+            elif isinstance(v, pd.Series):
+                assert_series_equal(v, b[k])
+            else:
+                assert v == b[k]
 
     def test_load_file_does_not_exist(self, generate_local_dataset, tmp_path):
         save_folder = tmp_path / "T_save_folder/"
