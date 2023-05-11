@@ -1,11 +1,8 @@
-import hashlib
 import multiprocessing
 from typing import Any, Dict, List, Optional, Union
 
-import imagehash
 import numpy as np
 import pandas as pd
-from PIL import Image
 from tqdm import tqdm
 
 from cleanvision.dataset.base_dataset import Dataset
