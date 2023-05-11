@@ -20,17 +20,8 @@ class TestSizeIssueManager:
 
     @pytest.mark.parametrize(
         "params,expected_params",
-        [
-            (
-                {},
-                {'size': {'ratio': 5.0}}
-            ),
-            (
-                {'ratio': 6.3},
-                {'size': {'ratio': 6.3}}
-            )
-        ],
-        ids=["use default","set params"],
+        [({}, {"size": {"ratio": 5.0}}), ({"ratio": 6.3}, {"size": {"ratio": 6.3}})],
+        ids=["use default", "set params"],
     )
     def test_set_params(self, params, expected_params, issue_manager):
         """Tests DuplicateIssueManager.set_params(). Cases covered:
@@ -45,31 +36,40 @@ class TestSizeIssueManager:
         [
             (
                 5.0,
-                (1700,1700,3), # h,w
+                (1700, 1700, 3),  # h,w
             ),
             (
-               5.0,
-               (1500, 1500, 3), # h,w
+                5.0,
+                (1500, 1500, 3),  # h,w
             ),
             (
                 3.0,
                 (1500, 1500, 3),  # h,w
             ),
             (
-               5.0,
-               (2000, 300, 3), # h,w
+                5.0,
+                (2000, 300, 3),  # h,w
             ),
             (
-               5.0,
-               (300, 2000, 3), # h,w
-            )
+                5.0,
+                (300, 2000, 3),  # h,w
+            ),
         ],
-        ids=["ratio 5 with width and height over 5","ratio 5 with width and height below 5","ratio 3 with width and height over 3","ratio 5 and 1 image with width over 5","ratio 5 and 1 image with height over 5"],
+        ids=[
+            "ratio 5 with width and height over 5",
+            "ratio 5 with width and height below 5",
+            "ratio 3 with width and height over 3",
+            "ratio 5 and 1 image with width over 5",
+            "ratio 5 and 1 image with height over 5",
+        ],
     )
-    def test_issues_larger(self,ratio,additional_image_size,generate_local_dataset_once,issue_manager):
+    def test_issues_larger(
+        self, ratio, additional_image_size, generate_local_dataset_once, issue_manager
+    ):
         # Add one with the size specified in the params to the 40 * 300x300 images
-        arr = np.random.randint(low=0, high=256, size=additional_image_size,
-                                dtype=np.uint8)  # Add one image with 10x width and height
+        arr = np.random.randint(
+            low=0, high=256, size=additional_image_size, dtype=np.uint8
+        )  # Add one image with 10x width and height
         img = Image.fromarray(arr, mode="RGB")
         img.save(Path(generate_local_dataset_once, "larger.png"))
         dataset = FolderDataset(generate_local_dataset_once)
@@ -79,15 +79,23 @@ class TestSizeIssueManager:
         avg_width = (40 * 300 + additional_image_size[1]) / 41.0
 
         # Check if with the specified ratio, the large one is out of bounds
-        height_issue_count = 1 if additional_image_size[0] > ratio*avg_height else 0
-        width_issue_count = 1 if additional_image_size[1] > ratio*avg_width else 0
+        height_issue_count = 1 if additional_image_size[0] > ratio * avg_height else 0
+        width_issue_count = 1 if additional_image_size[1] > ratio * avg_width else 0
 
-        issue_manager.find_issues(dataset=dataset,params={"ratio": ratio},imagelab_info={},n_jobs=1)
+        issue_manager.find_issues(
+            dataset=dataset, params={"ratio": ratio}, imagelab_info={}, n_jobs=1
+        )
         summary = issue_manager.summary
 
         # Assert num images in summary is right
-        assert summary[summary["issue_type"] == "width"]["num_images"].values[0] == width_issue_count
-        assert summary[summary["issue_type"] == "height"]["num_images"].values[0] == height_issue_count
+        assert (
+            summary[summary["issue_type"] == "width"]["num_images"].values[0]
+            == width_issue_count
+        )
+        assert (
+            summary[summary["issue_type"] == "height"]["num_images"].values[0]
+            == height_issue_count
+        )
 
         issues = issue_manager.issues
 
@@ -101,7 +109,8 @@ class TestSizeIssueManager:
         assert len(issues[issues["height_score_raw"] > ratio]) == height_issue_count
         assert len(issues[issues["width_score_raw"] > ratio]) == width_issue_count
 
+
 def test_get_size(generate_local_dataset_once):
     dataset = FolderDataset(generate_local_dataset_once)
     for idx in dataset.index:
-        assert get_size(idx, dataset) == {"index": idx,"height": 300, "width": 300}
+        assert get_size(idx, dataset) == {"index": idx, "height": 300, "width": 300}

@@ -12,9 +12,8 @@ from cleanvision.dataset.base_dataset import Dataset
 from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import SIZE, MAX_PROCS
-from cleanvision.utils.utils import get_is_issue_colname,get_score_colname
+from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
 from cleanvision.utils.constants import SIZE_ISSUE_TYPES_LIST
-
 
 
 def get_size(
@@ -44,15 +43,12 @@ class SizeIssueManager(IssueManager):
         self.params = self.get_default_params()
         self.means = {}
 
-    def get_default_params(self) -> Dict[str, Dict[str,float]]:
-        return {
-            IssueType.SIZE.value: {"ratio": 5.0}
-        }
+    def get_default_params(self) -> Dict[str, Dict[str, float]]:
+        return {IssueType.SIZE.value: {"ratio": 5.0}}
 
     def update_params(self, params: Dict[str, float]) -> None:
         if params:
             self.params[SIZE] = params
-
 
     def find_issues(
         self,
@@ -88,18 +84,16 @@ class SizeIssueManager(IssueManager):
             with multiprocessing.Pool(n_jobs) as p:
                 results = list(
                     tqdm(
-                        p.imap_unordered(
-                            get_size_wrapper, args, chunksize=chunksize
-                        ),
+                        p.imap_unordered(get_size_wrapper, args, chunksize=chunksize),
                         total=len(dataset),
                     )
                 )
 
         self.issues = pd.DataFrame.from_records(results)
-        self.issues.set_index("index",inplace=True)
+        self.issues.set_index("index", inplace=True)
 
         for issue_type in self.issue_types:
-            self.means[issue_type] =self.issues[issue_type].mean()
+            self.means[issue_type] = self.issues[issue_type].mean()
 
         self._update_issues()
         self._update_summary()
@@ -120,12 +114,20 @@ class SizeIssueManager(IssueManager):
     def _update_issues(self) -> None:
         for issue_type in self.issue_types:
             # Calculate image to mean ratio
-            self.issues[get_score_colname(issue_type)+"_raw"] = self.issues[issue_type].apply(
-                lambda x: x/self.means[issue_type]
-            )
+            self.issues[get_score_colname(issue_type) + "_raw"] = self.issues[
+                issue_type
+            ].apply(lambda x: x / self.means[issue_type])
 
             # Check where its out of the range.
-            self.issues[get_is_issue_colname(issue_type)] = np.where(self.issues[get_score_colname(issue_type)+"_raw"] > self.params[SIZE]["ratio"], True, False)
+            self.issues[get_is_issue_colname(issue_type)] = np.where(
+                self.issues[get_score_colname(issue_type) + "_raw"]
+                > self.params[SIZE]["ratio"],
+                True,
+                False,
+            )
 
             # Normalize the score between 0 and 1
-            self.issues[get_score_colname(issue_type)] = self.issues[get_score_colname(issue_type)+"_raw"] / self.params[SIZE]["ratio"]
+            self.issues[get_score_colname(issue_type)] = (
+                self.issues[get_score_colname(issue_type) + "_raw"]
+                / self.params[SIZE]["ratio"]
+            )
