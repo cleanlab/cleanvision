@@ -100,8 +100,12 @@ class TestSizeIssueManager:
         issues = issue_manager.issues
 
         # Assert is_width_issue and is_height_issue has the right count
-        assert len(issues[issues["is_height_issue"] == True]) == height_issue_count
-        assert len(issues[issues["is_width_issue"] == True]) == width_issue_count
+        assert (
+            len(issues[issues["is_height_issue"] == True]) == height_issue_count
+        )  # noqa: E712
+        assert (
+            len(issues[issues["is_width_issue"] == True]) == width_issue_count
+        )  # noqa: E712
 
         # Assert the right number of images is over the ratio*avg in the issues
         # The height_score_raw is (img_height / avg_height of all images)

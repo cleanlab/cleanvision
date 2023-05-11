@@ -18,7 +18,7 @@ def get_size(
     dataset: Dataset,
 ) -> Dict[str, Union[str, int]]:
     image = dataset[index]
-    result: Dict[str, Union[str, List[int]]] = {"index": index}
+    result: Dict[str, Union[str, int]] = {"index": index}
     size = image.size
     result["width"] = size[0]
     result["height"] = size[1]
@@ -38,7 +38,7 @@ class SizeIssueManager(IssueManager):
         super().__init__()
         self.issue_types: List[str] = []
         self.params = self.get_default_params()
-        self.means = {}
+        self.means: Dict[str, float] = {}
 
     def get_default_params(self) -> Dict[str, Dict[str, float]]:
         return {IssueType.SIZE.value: {"ratio": 5.0}}
