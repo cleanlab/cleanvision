@@ -24,8 +24,10 @@ from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import (
     IMAGE_PROPERTY,
     DUPLICATE,
+    SIZE,
     IMAGE_PROPERTY_ISSUE_TYPES_LIST,
     DUPLICATE_ISSUE_TYPES_LIST,
+SIZE_ISSUE_TYPES_LIST,
     SETS,
 )
 from cleanvision.utils.utils import (
@@ -163,6 +165,7 @@ class Imagelab:
                 IssueType.NEAR_DUPLICATES,
                 IssueType.BLURRY,
                 IssueType.GRAYSCALE,
+                IssueType.SIZE
             ],
         }
 
@@ -319,6 +322,8 @@ class Imagelab:
                 group_name = IMAGE_PROPERTY
             elif issue_type in DUPLICATE_ISSUE_TYPES_LIST:
                 group_name = DUPLICATE
+            elif issue_type in SIZE_ISSUE_TYPES_LIST:
+                group_name = SIZE
             else:
                 issue_type_groups[issue_type] = params
 
@@ -460,6 +465,8 @@ class Imagelab:
             return self._issue_managers[IMAGE_PROPERTY]
         elif issue_type_str in DUPLICATE_ISSUE_TYPES_LIST:
             return self._issue_managers[DUPLICATE]
+        elif issue_type_str in SIZE_ISSUE_TYPES_LIST:
+            return self._issue_managers[SIZE]
         else:
             return self._issue_managers[issue_type_str]
 
