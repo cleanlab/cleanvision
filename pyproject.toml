@@ -36,7 +36,8 @@ dependencies = [
     "tabulate>=0.8.3", # pandas optional dependency for .to_markdown()
     "imagehash>=4.2.0",
     "tqdm>=4.53.0",
-    "matplotlib>=3.4"
+    "matplotlib>=3.4",
+    "fsspec>=2023.5.0"
 ]
 
 [project.optional-dependencies]
