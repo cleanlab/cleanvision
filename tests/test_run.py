@@ -171,7 +171,7 @@ def test_hf_dataset_run(generate_local_dataset, n_classes, images_per_class):
     imagelab = Imagelab(hf_dataset=hf_dataset, image_key="image")
     imagelab.find_issues()
     imagelab.report()
-    assert len(imagelab.issues.columns) == 14
+    assert len(imagelab.issues.columns) == 22
     assert len(imagelab.issues) == n_classes * images_per_class
 
 
@@ -181,7 +181,7 @@ def test_torch_dataset_run(generate_local_dataset, n_classes, images_per_class):
     imagelab = Imagelab(torchvision_dataset=torch_ds)
     imagelab.find_issues()
     imagelab.report()
-    assert len(imagelab.issues.columns) == 14
+    assert len(imagelab.issues.columns) == 22
     assert len(imagelab.issues) == n_classes * images_per_class
 
 
@@ -206,5 +206,5 @@ def test_filepath_dataset_run(generate_local_dataset, images_per_class):
     imagelab = Imagelab(filepaths=filepaths)
     imagelab.find_issues()
     imagelab.report()
-    assert len(imagelab.issues.columns) == 14
+    assert len(imagelab.issues.columns) == 22
     assert len(imagelab.issues) == images_per_class
