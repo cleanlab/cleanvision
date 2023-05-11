@@ -2,6 +2,7 @@ from typing import List
 
 IMAGE_PROPERTY: str = "image_property"
 DUPLICATE: str = "duplicate"
+SIZE: str = "size"
 IMAGE_PROPERTY_ISSUE_TYPES_LIST: List[str] = [
     "dark",
     "light",
@@ -11,6 +12,7 @@ IMAGE_PROPERTY_ISSUE_TYPES_LIST: List[str] = [
     "grayscale",
 ]
 DUPLICATE_ISSUE_TYPES_LIST: List[str] = ["exact_duplicates", "near_duplicates"]
+SIZE_ISSUE_TYPES_LIST: List[str] = ["width", "height"]
 SETS: str = "sets"
 
 # max number of processes that can be forked/spawned for multiprocessing
