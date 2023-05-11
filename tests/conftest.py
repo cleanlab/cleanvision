@@ -47,12 +47,14 @@ def generate_local_dataset_base(tmp_path_factory, n_classes, images_per_class):
             img.save(fn)
     return tmp_image_dir
 
+
 @pytest.fixture(scope="session")
 def generate_local_dataset(tmp_path_factory, n_classes, images_per_class):
     """Generates n temporary images for testing and returns dir of images"""
-    return generate_local_dataset_base(tmp_path_factory,n_classes,images_per_class)
+    return generate_local_dataset_base(tmp_path_factory, n_classes, images_per_class)
+
 
 @pytest.fixture(scope="function")
 def generate_local_dataset_once(tmp_path_factory, n_classes, images_per_class):
     """Generates n temporary images for testing and returns dir of images"""
-    return generate_local_dataset_base(tmp_path_factory,n_classes,images_per_class)
+    return generate_local_dataset_base(tmp_path_factory, n_classes, images_per_class)
