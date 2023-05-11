@@ -6,6 +6,7 @@ from datasets import load_dataset
 from cleanvision.dataset.folder_dataset import FolderDataset
 from cleanvision.dataset.hf_dataset import HFDataset
 from cleanvision.dataset.torch_dataset import TorchDataset
+from cleanvision.dataset.fsspec_dataset import FSDataset
 from cleanvision.dataset.utils import build_dataset
 
 
@@ -45,3 +46,11 @@ class TestDataset:
         assert isinstance(dataset, TorchDataset)
         assert len(dataset.index) == n_classes * images_per_class
         assert isinstance(dataset.index[0], int)
+
+    def test_build_fsspec_dataset(
+        self, generate_local_dataset, n_classes, images_per_class
+    ):
+        dataset = build_dataset(fsspec_dataset=generate_local_dataset)
+        assert isinstance(dataset, FSDataset)
+        assert len(dataset.index) == n_classes * images_per_class
+        assert isinstance(dataset.index[0], str)

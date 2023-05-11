@@ -186,6 +186,15 @@ def test_torch_dataset_run(generate_local_dataset, n_classes, images_per_class):
 
 
 @pytest.mark.usefixtures("set_plt_show")
+def test_fsspec_dataset_run(generate_local_dataset, n_classes, images_per_class):
+    imagelab = Imagelab(fsspec_dataset=generate_local_dataset)
+    imagelab.find_issues()
+    imagelab.report()
+    assert len(imagelab.issues.columns) == 14
+    assert len(imagelab.issues) == n_classes * images_per_class
+
+
+@pytest.mark.usefixtures("set_plt_show")
 def test_visualize_sample_images(generate_local_dataset):
     imagelab = Imagelab(data_path=generate_local_dataset)
     imagelab.visualize()

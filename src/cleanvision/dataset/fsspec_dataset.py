@@ -7,6 +7,7 @@ from PIL import Image
 from cleanvision.utils.constants import IMAGE_FILE_EXTENSIONS
 from cleanvision.dataset.base_dataset import Dataset
 import fsspec
+import pathlib
 import os
 
 
@@ -21,6 +22,8 @@ class FSDataset(Dataset):
             # See: https://filesystem-spec.readthedocs.io/en/latest/api.html#other-known-implementations
             # contains a list of known implementations that may resolve through that url
             # they require adequate module to be installed
+            if isinstance(data_folder, pathlib.Path):  # tests pass Path object
+                data_folder = str(data_folder)
             self.fs, dataset_path = fsspec.core.url_to_fs(data_folder)
             self._filepaths = self.__get_filepaths(dataset_path)
         else:
