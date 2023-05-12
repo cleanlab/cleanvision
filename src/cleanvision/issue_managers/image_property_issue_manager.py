@@ -33,10 +33,11 @@ def compute_scores(
     to_compute: List[str],
     image_properties: Dict[str, ImageProperty],
 ) -> Dict[str, Union[str, int, float]]:
-    image = dataset[index]
     result: Dict[str, Union[int, str, float]] = {"index": index}
-    for issue_type in to_compute:
-        result = {**result, **image_properties[issue_type].calculate(image)}
+    image = dataset[index]
+    if image:
+        for issue_type in to_compute:
+            result = {**result, **image_properties[issue_type].calculate(image)}
     return result
 
 

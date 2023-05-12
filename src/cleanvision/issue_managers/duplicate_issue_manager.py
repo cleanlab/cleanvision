@@ -15,7 +15,7 @@ from cleanvision.utils.constants import SETS, DUPLICATE, MAX_PROCS
 from cleanvision.utils.utils import get_is_issue_colname
 
 
-def get_hash(image: Image, params: Dict[str, Any]) -> str:
+def get_hash(image: Image.Image, params: Dict[str, Any]) -> str:
     hash_type, hash_size = params["hash_type"], params.get("hash_size", None)
     if hash_type == "md5":
         pixels = np.asarray(image)
@@ -36,8 +36,9 @@ def compute_hash(
 ) -> Dict[str, Union[str, int]]:
     image = dataset[index]
     result: Dict[str, Union[str, int]] = {"index": index}
-    for issue_type in to_compute:
-        result[issue_type] = get_hash(image, params[issue_type])
+    if image:
+        for issue_type in to_compute:
+            result[issue_type] = get_hash(image, params[issue_type])
     return result
 
 
@@ -145,7 +146,7 @@ class DuplicateIssueManager(IssueManager):
 
         for result in results:
             for issue_type in to_compute:
-                hash_str = result[issue_type]
+                hash_str = result.get(issue_type, None)
                 if hash_str in issue_type_hash_mapping[issue_type]:
                     issue_type_hash_mapping[issue_type][hash_str].append(
                         result["index"]
