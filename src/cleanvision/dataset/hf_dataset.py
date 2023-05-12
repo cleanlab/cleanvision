@@ -33,6 +33,7 @@ class HFDataset(Dataset):
             return image
         except Exception as e:
             print(f"Could not load image at index: {item}", e)
+            return None
 
     def _set_index(self) -> None:
         self.index = [i for i in range(len(self._data))]
