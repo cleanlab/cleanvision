@@ -6,7 +6,7 @@ import imagehash
 import numpy as np
 import pandas as pd
 from PIL import Image
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 from cleanvision.dataset.base_dataset import Dataset
 from cleanvision.issue_managers import register_issue_manager, IssueType

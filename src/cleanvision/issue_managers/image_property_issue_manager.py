@@ -2,7 +2,7 @@ import multiprocessing
 from typing import Dict, Any, List, Set, Optional, Union
 
 import pandas as pd
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 from cleanvision.dataset.base_dataset import Dataset
 from cleanvision.issue_managers import register_issue_manager, IssueType
