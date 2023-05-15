@@ -2,7 +2,7 @@ import multiprocessing
 from typing import Dict, Any, List, Set, Optional, Union
 
 import pandas as pd
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 from cleanvision.dataset.base_dataset import Dataset
 from cleanvision.issue_managers import register_issue_manager, IssueType
@@ -33,10 +33,11 @@ def compute_scores(
     to_compute: List[str],
     image_properties: Dict[str, ImageProperty],
 ) -> Dict[str, Union[str, int, float]]:
-    image = dataset[index]
     result: Dict[str, Union[int, str, float]] = {"index": index}
-    for issue_type in to_compute:
-        result = {**result, **image_properties[issue_type].calculate(image)}
+    image = dataset[index]
+    if image:
+        for issue_type in to_compute:
+            result = {**result, **image_properties[issue_type].calculate(image)}
     return result
 
 

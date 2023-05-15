@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union, Optional
 
 from PIL import Image
 
@@ -27,8 +27,13 @@ class HFDataset(Dataset):
     def __len__(self) -> int:
         return len(self._data)
 
-    def __getitem__(self, item: Union[int, str]) -> Image.Image:
-        return self._data[item][self._image_key]
+    def __getitem__(self, item: Union[int, str]) -> Optional[Image.Image]:
+        try:
+            image = self._data[item][self._image_key]
+            return image
+        except Exception as e:
+            print(f"Could not load image at index: {item}", e)
+            return None
 
     def _set_index(self) -> None:
         self.index = [i for i in range(len(self._data))]
