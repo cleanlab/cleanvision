@@ -59,7 +59,7 @@ class ImagePropertyIssueManager(IssueManager):
 
     def get_default_params(self) -> Dict[str, Any]:
         return {
-            IssueType.DARK.value: {"threshold": 0.37},
+            IssueType.DARK.value: {"threshold": 0.32},
             IssueType.LIGHT.value: {"threshold": 0.05},
             IssueType.ODD_ASPECT_RATIO.value: {"threshold": 0.35},
             IssueType.LOW_INFORMATION.value: {
