@@ -230,10 +230,11 @@ class EntropyProperty(ImageProperty):
 
 def calc_blurriness(image: Image, max_resolution: int) -> float:
     ratio = max(image.width, image.height) / max_resolution
-    if ratio > 1:
-        low_rs = image.resize((int(image.width // ratio), int(image.height // ratio)))
-    else:
-        low_rs = image
+    # if ratio > 1:
+    #     low_rs = image.resize((int(image.width // ratio), int(image.height // ratio)))
+    # else:
+    #     low_rs = image
+    low_rs = image.resize((int(image.width // ratio), int(image.height // ratio)))
     edges = get_edges(low_rs)
     blurriness = ImageStat.Stat(edges).var[0]
     assert isinstance(
