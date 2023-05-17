@@ -529,6 +529,7 @@ class Imagelab:
     def visualize(
         self,
         image_files: Optional[List[str]] = None,
+        indices: Optional[List[str | int]] = None,
         issue_types: Optional[List[str]] = None,
         num_images: int = 4,
         cell_size: Tuple[int, int] = (2, 2),
@@ -600,6 +601,15 @@ class Imagelab:
                 raise ValueError("image_files list is empty.")
             images = [Image.open(path) for path in image_files]
             titles = [path.split("/")[-1] for path in image_files]
+            VizManager.individual_images(
+                images,
+                titles,
+                ncols=self._config["visualize_num_images_per_row"],
+                cell_size=cell_size,
+            )
+        elif indices:
+            images = [self._dataset[i] for i in indices]
+            titles = [self._dataset.get_name(i) for i in indices]
             VizManager.individual_images(
                 images,
                 titles,
