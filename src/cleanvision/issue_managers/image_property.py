@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Union, overload, Optional
+from typing import List, Dict, Any, Union, overload
 
 import numpy as np
 import pandas as pd
@@ -228,19 +228,14 @@ class EntropyProperty(ImageProperty):
         return scores
 
 
-def calc_blurriness(image: Image, max_resolution: int) -> float:
-    ratio = max(image.width, image.height) / max_resolution
-    # if ratio > 1:
-    #     low_rs = image.resize((int(image.width // ratio), int(image.height // ratio)))
-    # else:
-    #     low_rs = image
-    low_rs = image.resize((int(image.width // ratio), int(image.height // ratio)))
-    edges = get_edges(low_rs)
+def calc_blurriness(gray_image: Image) -> float:
+    edges = get_edges(gray_image)
     blurriness = ImageStat.Stat(edges).var[0]
-    assert isinstance(
-        blurriness, float
-    )  # ImageStat.Stat returns float but no typestub for package
     return np.sqrt(blurriness)  # type:ignore
+
+
+def calc_std_grayscale(gray_image: Image):
+    return np.std(gray_image.histogram())
 
 
 class BlurrinessProperty(ImageProperty):
@@ -251,35 +246,38 @@ class BlurrinessProperty(ImageProperty):
         return self._score_columns
 
     def __init__(self) -> None:
-        self._score_columns = [self.name]
+        self._score_columns = [self.name, "grayscale_std"]
         self.max_resolution = MAX_RESOLUTION_FOR_BLURRY_DETECTION
 
     def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
-        return {self.name: calc_blurriness(image, self.max_resolution)}
+        ratio = max(image.width, image.height) / MAX_RESOLUTION_FOR_BLURRY_DETECTION
+        resized_image = image.resize(
+            (int(image.width // ratio), int(image.height // ratio))
+        )
+        gray_image = resized_image.convert("L")
+        return {
+            self.name: calc_blurriness(gray_image),
+            "grayscale_std": calc_std_grayscale(gray_image),
+        }
 
     def get_scores(
         self,
         raw_scores: pd.DataFrame,
         issue_type: str,
-        dark_issue_data: Optional[pd.DataFrame] = None,
         normalizing_factor: float = 1.0,
         **kwargs: Any,
     ) -> pd.DataFrame:
         super().get_scores(raw_scores, issue_type, **kwargs)
-        assert dark_issue_data is not None
-        only_blur_scores = 1 - np.exp(-1 * raw_scores[self.name] * normalizing_factor)
-        is_dark = dark_issue_data[get_is_issue_colname(IssueType.DARK.value)].astype(
-            "int"
-        )
-        dark_score = dark_issue_data[get_score_colname(IssueType.DARK.value)]
-        blur_scores = np.minimum(only_blur_scores + is_dark * (1 - dark_score), 1)
+        blur_scores = 1 - np.exp(-1 * raw_scores[self.name] * normalizing_factor)
+        std_scores = 1 - np.exp(-1 * raw_scores["grayscale_std"] * normalizing_factor)
+        std_scores[std_scores <= 0.18] = 0
+
         scores = pd.DataFrame(index=raw_scores.index)
-        scores[get_score_colname(issue_type)] = blur_scores
+        scores[get_score_colname(issue_type)] = np.minimum(blur_scores + std_scores, 1)
         return scores
 
 
-def get_edges(image: Image) -> Image:
-    gray_image = image.convert("L")
+def get_edges(gray_image: Image) -> Image:
     edges = gray_image.filter(ImageFilter.FIND_EDGES)
     return edges
 
