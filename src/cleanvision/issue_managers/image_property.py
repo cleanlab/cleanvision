@@ -276,7 +276,7 @@ class BlurrinessProperty(ImageProperty):
         std_scores = 1 - np.exp(
             -1 * raw_scores["blurriness_grayscale_std"] * normalizing_factor
         )
-        std_scores[std_scores <= color_threshold] = 0
+        std_scores[std_scores <= 0.18] = 0
 
         scores = pd.DataFrame(index=raw_scores.index)
         scores[get_score_colname(issue_type)] = np.minimum(blur_scores + std_scores, 1)
