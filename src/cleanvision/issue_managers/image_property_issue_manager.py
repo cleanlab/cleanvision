@@ -65,7 +65,11 @@ class ImagePropertyIssueManager(IssueManager):
                 "threshold": 0.3,
                 "normalizing_factor": 0.1,
             },
-            IssueType.BLURRY.value: {"threshold": 0.17, "normalizing_factor": 0.01},
+            IssueType.BLURRY.value: {
+                "threshold": 0.29,
+                "normalizing_factor": 0.01,
+                "color_threshold": 0.18,
+            },
             IssueType.GRAYSCALE.value: {},
         }
 

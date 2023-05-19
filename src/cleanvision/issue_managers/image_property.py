@@ -231,11 +231,11 @@ class EntropyProperty(ImageProperty):
 def calc_blurriness(gray_image: Image) -> float:
     edges = get_edges(gray_image)
     blurriness = ImageStat.Stat(edges).var[0]
-    return np.sqrt(blurriness)  # type:ignore
+    return np.sqrt(blurriness) / (gray_image.width * gray_image.height)  # type:ignore
 
 
 def calc_std_grayscale(gray_image: Image):
-    return np.std(gray_image.histogram())
+    return np.std(gray_image.histogram()) / (gray_image.width * gray_image.height)
 
 
 class BlurrinessProperty(ImageProperty):
@@ -250,13 +250,13 @@ class BlurrinessProperty(ImageProperty):
         self.max_resolution = MAX_RESOLUTION_FOR_BLURRY_DETECTION
 
     def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
-        if max(image.width, image.height) > MAX_RESOLUTION_FOR_BLURRY_DETECTION:
-            ratio = max(image.width, image.height) / MAX_RESOLUTION_FOR_BLURRY_DETECTION
-            resized_image = image.resize(
-                (int(image.width // ratio), int(image.height // ratio))
-            )
-        else:
-            resized_image = image.copy()
+        # if max(image.width, image.height) > self.max_resolution:
+        #     ratio = max(image.width, image.height) / self.max_resolution
+        #     resized_image = image.resize(
+        #         (int(image.width // ratio), int(image.height // ratio))
+        #     )
+        # else:
+        resized_image = image.copy()
         gray_image = resized_image.convert("L")
         return {
             self.name: calc_blurriness(gray_image),
@@ -268,6 +268,7 @@ class BlurrinessProperty(ImageProperty):
         raw_scores: pd.DataFrame,
         issue_type: str,
         normalizing_factor: float = 1.0,
+        color_threshold: float = 1.0,
         **kwargs: Any,
     ) -> pd.DataFrame:
         super().get_scores(raw_scores, issue_type, **kwargs)
@@ -275,7 +276,7 @@ class BlurrinessProperty(ImageProperty):
         std_scores = 1 - np.exp(
             -1 * raw_scores["blurriness_grayscale_std"] * normalizing_factor
         )
-        std_scores[std_scores <= 0.18] = 0
+        std_scores[std_scores <= color_threshold] = 0
 
         scores = pd.DataFrame(index=raw_scores.index)
         scores[get_score_colname(issue_type)] = np.minimum(blur_scores + std_scores, 1)
