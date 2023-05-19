@@ -231,11 +231,11 @@ class EntropyProperty(ImageProperty):
 def calc_blurriness(gray_image: Image) -> float:
     edges = get_edges(gray_image)
     blurriness = ImageStat.Stat(edges).var[0]
-    return np.sqrt(blurriness) / (gray_image.width * gray_image.height)  # type:ignore
+    return np.sqrt(blurriness)  # type:ignore
 
 
 def calc_std_grayscale(gray_image: Image):
-    return np.std(gray_image.histogram()) / (gray_image.width * gray_image.height)
+    return np.std(gray_image.histogram())
 
 
 class BlurrinessProperty(ImageProperty):
