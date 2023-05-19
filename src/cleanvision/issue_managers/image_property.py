@@ -250,13 +250,10 @@ class BlurrinessProperty(ImageProperty):
         self.max_resolution = MAX_RESOLUTION_FOR_BLURRY_DETECTION
 
     def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
-        # if max(image.width, image.height) > self.max_resolution:
         ratio = max(image.width, image.height) / self.max_resolution
         resized_image = image.resize(
             (int(image.width // ratio), int(image.height // ratio))
         )
-        # else:
-        #     resized_image = image.copy()
         gray_image = resized_image.convert("L")
         return {
             self.name: calc_blurriness(gray_image),
@@ -276,7 +273,7 @@ class BlurrinessProperty(ImageProperty):
         std_scores = 1 - np.exp(
             -1 * raw_scores["blurriness_grayscale_std"] * normalizing_factor
         )
-        std_scores[std_scores <= 0.18] = 0
+        std_scores[std_scores <= color_threshold] = 0
 
         scores = pd.DataFrame(index=raw_scores.index)
         scores[get_score_colname(issue_type)] = np.minimum(blur_scores + std_scores, 1)
