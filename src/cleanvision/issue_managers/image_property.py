@@ -246,7 +246,7 @@ class BlurrinessProperty(ImageProperty):
         return self._score_columns
 
     def __init__(self) -> None:
-        self._score_columns = [self.name, "grayscale_std"]
+        self._score_columns = [self.name, "blurriness_grayscale_std"]
         self.max_resolution = MAX_RESOLUTION_FOR_BLURRY_DETECTION
 
     def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
@@ -257,7 +257,7 @@ class BlurrinessProperty(ImageProperty):
         gray_image = resized_image.convert("L")
         return {
             self.name: calc_blurriness(gray_image),
-            "grayscale_std": calc_std_grayscale(gray_image),
+            "blurriness_grayscale_std": calc_std_grayscale(gray_image),
         }
 
     def get_scores(
@@ -269,7 +269,9 @@ class BlurrinessProperty(ImageProperty):
     ) -> pd.DataFrame:
         super().get_scores(raw_scores, issue_type, **kwargs)
         blur_scores = 1 - np.exp(-1 * raw_scores[self.name] * normalizing_factor)
-        std_scores = 1 - np.exp(-1 * raw_scores["grayscale_std"] * normalizing_factor)
+        std_scores = 1 - np.exp(
+            -1 * raw_scores["blurriness_grayscale_std"] * normalizing_factor
+        )
         std_scores[std_scores <= 0.18] = 0
 
         scores = pd.DataFrame(index=raw_scores.index)
