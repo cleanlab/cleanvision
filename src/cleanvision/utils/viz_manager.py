@@ -45,6 +45,12 @@ def plot_image_grid(
     fig, axes = plt.subplots(
         nrows, ncols, figsize=(cell_size[0] * ncols, cell_size[1] * nrows)
     )
+
+    for i in range(len(images)):
+        title_width = len(titles[i]) * 0.09722
+        if title_width >= cell_size[0]:
+            titles[i] = titles[i][: math.ceil(cell_size[0] / 0.09722) - 1]
+
     if nrows > 1:
         idx = 0
         for i in range(nrows):
