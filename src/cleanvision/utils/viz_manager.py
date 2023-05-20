@@ -47,9 +47,12 @@ def plot_image_grid(
     )
 
     for i in range(len(images)):
-        title_width = len(titles[i]) * 0.09722
+        """Converts font size of 7 into inches"""
+        CHARACTER_SIZE_INCHES = 7 * (1 / 72)
+
+        title_width = len(titles[i]) * CHARACTER_SIZE_INCHES
         if title_width >= cell_size[0]:
-            titles[i] = titles[i][: math.ceil(cell_size[0] / 0.09722) - 1]
+            titles[i] = titles[i][: math.ceil(cell_size[0] / CHARACTER_SIZE_INCHES) - 1]
 
     if nrows > 1:
         idx = 0
