@@ -251,9 +251,12 @@ class BlurrinessProperty(ImageProperty):
 
     def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
         ratio = max(image.width, image.height) / self.max_resolution
-        resized_image = image.resize(
-            (int(image.width // ratio), int(image.height // ratio))
-        )
+        if ratio > 1:
+            resized_image = image.resize(
+                (int(image.width // ratio), int(image.height // ratio))
+            )
+        else:
+            resized_image = image.copy()
         gray_image = resized_image.convert("L")
         return {
             self.name: calc_blurriness(gray_image),
