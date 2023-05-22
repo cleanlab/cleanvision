@@ -161,6 +161,7 @@ class Imagelab:
                 IssueType.NEAR_DUPLICATES,
                 IssueType.BLURRY,
                 IssueType.GRAYSCALE,
+                IssueType.SIZE
             ],
         }
 
