@@ -29,7 +29,7 @@ def test_example1(capsys, generate_local_dataset):
         "near_duplicates",
         "blurry",
         "grayscale",
-        "size"
+        "size",
     ]
     captured = capsys.readouterr()
 
@@ -211,6 +211,7 @@ def test_filepath_dataset_run(generate_local_dataset, images_per_class):
     assert len(imagelab.issues.columns) == 16
     assert len(imagelab.issues) == images_per_class
 
+
 @pytest.mark.usefixtures("set_plt_show")
 def test_filepath_dataset_size_negative(generate_local_dataset_once, images_per_class):
     """
@@ -219,13 +220,14 @@ def test_filepath_dataset_size_negative(generate_local_dataset_once, images_per_
 
     """
     files = os.listdir(generate_local_dataset_once / "class_0")
-    filepaths = [os.path.join(generate_local_dataset_once / "class_0", f) for f in files]
+    filepaths = [
+        os.path.join(generate_local_dataset_once / "class_0", f) for f in files
+    ]
     imagelab = Imagelab(filepaths=filepaths)
     imagelab.find_issues()
     imagelab.report()
     assert len(imagelab.issues.columns) == 16
     assert len(imagelab.issues[imagelab.issues["is_size_issue"] == True]) == 0
-
 
 
 @pytest.mark.usefixtures("set_plt_show")
@@ -235,19 +237,20 @@ def test_filepath_dataset_size_to_large(generate_local_dataset_once, images_per_
     area*threshold(default 10),is_size_issue is set to True. In this example, the median area is 300x300 so 90000.
     An image with 950 x 950 has an area  of 902500 so its more than 10x larger and thus should be flagged.
     """
-    arr = np.random.randint(
-        low=0, high=256, size=(950,950,3), dtype=np.uint8
-    )
+    arr = np.random.randint(low=0, high=256, size=(950, 950, 3), dtype=np.uint8)
     img = Image.fromarray(arr, mode="RGB")
     img.save(Path(generate_local_dataset_once / "class_0" / "larger.png"))
 
     files = os.listdir(generate_local_dataset_once / "class_0")
-    filepaths = [os.path.join(generate_local_dataset_once / "class_0", f) for f in files]
+    filepaths = [
+        os.path.join(generate_local_dataset_once / "class_0", f) for f in files
+    ]
     imagelab = Imagelab(filepaths=filepaths)
     imagelab.find_issues()
     imagelab.report()
     assert len(imagelab.issues.columns) == 16
     assert len(imagelab.issues[imagelab.issues["is_size_issue"] == True]) == 1
+
 
 @pytest.mark.usefixtures("set_plt_show")
 def test_filepath_dataset_size_to_small(generate_local_dataset_once, images_per_class):
@@ -257,35 +260,48 @@ def test_filepath_dataset_size_to_small(generate_local_dataset_once, images_per_
     An image with 93 x 93 has an area  of 8649 so its more than 10x smaller and thus should be flagged.
     """
     arr = np.random.randint(
-        low=0, high=256, size=(93,93,3), dtype=np.uint8 # 30 x 30 pixel image should be detected
+        low=0,
+        high=256,
+        size=(93, 93, 3),
+        dtype=np.uint8,  # 30 x 30 pixel image should be detected
     )
     img = Image.fromarray(arr, mode="RGB")
     img.save(Path(generate_local_dataset_once / "class_0" / "smaller.png"))
 
     files = os.listdir(generate_local_dataset_once / "class_0")
-    filepaths = [os.path.join(generate_local_dataset_once / "class_0", f) for f in files]
+    filepaths = [
+        os.path.join(generate_local_dataset_once / "class_0", f) for f in files
+    ]
     imagelab = Imagelab(filepaths=filepaths)
     imagelab.find_issues()
     imagelab.report()
     assert len(imagelab.issues.columns) == 16
     assert len(imagelab.issues[imagelab.issues["is_size_issue"] == True]) == 1
 
+
 @pytest.mark.usefixtures("set_plt_show")
-def test_filepath_dataset_size_custom_threshold(generate_local_dataset_once, images_per_class):
+def test_filepath_dataset_size_custom_threshold(
+    generate_local_dataset_once, images_per_class
+):
     """
     With default threshold the small image would be flagged (See test_filepath_dataset_size_to_small). However,
      with a custom threshold of 11 instead of 10, the imaage is within the allowed range and should not be flagged.
     """
     arr = np.random.randint(
-        low=0, high=256, size=(93,93,3), dtype=np.uint8 # 30 x 30 pixel image should be detected
+        low=0,
+        high=256,
+        size=(93, 93, 3),
+        dtype=np.uint8,  # 30 x 30 pixel image should be detected
     )
     img = Image.fromarray(arr, mode="RGB")
     img.save(Path(generate_local_dataset_once / "class_0" / "smaller.png"))
 
     files = os.listdir(generate_local_dataset_once / "class_0")
-    filepaths = [os.path.join(generate_local_dataset_once / "class_0", f) for f in files]
+    filepaths = [
+        os.path.join(generate_local_dataset_once / "class_0", f) for f in files
+    ]
     imagelab = Imagelab(filepaths=filepaths)
     imagelab.find_issues({"size": {"threshold": 11.0}})
     imagelab.report()
-    assert len(imagelab.issues.columns) == 2 # Only size
+    assert len(imagelab.issues.columns) == 2  # Only size
     assert len(imagelab.issues[imagelab.issues["is_size_issue"] == True]) == 0

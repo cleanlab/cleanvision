@@ -291,6 +291,7 @@ def calc_image_area(image: Image) -> int:
     size = image.size
     return size[0] * size[1]
 
+
 class ColorSpaceProperty(ImageProperty):
     name = "color_space"
 
@@ -328,21 +329,6 @@ class ColorSpaceProperty(ImageProperty):
         return is_issue
 
 
-def get_image_mode(image: Image) -> str:
-    if image.mode:
-        image_mode = image.mode
-        assert isinstance(image_mode, str)
-        return image_mode
-    else:
-        imarr = np.asarray(image)
-        if len(imarr.shape) == 2 or (
-            len(imarr.shape) == 3
-            and (np.diff(imarr.reshape(-1, 3).T, axis=0) == 0).all()
-        ):
-            return "L"
-        else:
-            return "UNK"
-
 class SizeProperty(ImageProperty):
     name = "size"
 
@@ -365,7 +351,12 @@ class SizeProperty(ImageProperty):
         super().get_scores(raw_scores, issue_type, **kwargs)
         assert raw_scores is not None
         scores = pd.DataFrame(index=raw_scores.index)
-        scores[get_score_colname(issue_type)] = raw_scores[issue_type].apply(lambda x: 1.0/max(x / raw_scores[issue_type].median(),raw_scores[issue_type].median()/x))
+        scores[get_score_colname(issue_type)] = raw_scores[issue_type].apply(
+            lambda x: 1.0
+            / max(
+                x / raw_scores[issue_type].median(), raw_scores[issue_type].median() / x
+            )
+        )
         return scores
 
     def mark_issue(
@@ -373,8 +364,7 @@ class SizeProperty(ImageProperty):
     ) -> pd.DataFrame:
         is_issue = pd.DataFrame(index=scores.index)
         is_issue[get_is_issue_colname(issue_type)] = np.where(
-            scores[get_score_colname(issue_type)]
-            < 1.0/threshold,
+            scores[get_score_colname(issue_type)] < 1.0 / threshold,
             True,
             False,
         )

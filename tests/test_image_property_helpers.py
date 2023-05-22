@@ -45,6 +45,7 @@ def test_calc_entropy():
     entropy_score = calc_entropy(img)  # min(width/height,height/width)
     assert entropy_score == img.entropy()
 
+
 def test_calc_bluriness():
     img = Image.new("RGB", (200, 200), (255, 0, 0))
     edges = get_edges(img)

@@ -23,7 +23,6 @@ from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import (
     IMAGE_PROPERTY,
     DUPLICATE,
-    SIZE,
     IMAGE_PROPERTY_ISSUE_TYPES_LIST,
     DUPLICATE_ISSUE_TYPES_LIST,
     SETS,
@@ -162,7 +161,7 @@ class Imagelab:
                 IssueType.NEAR_DUPLICATES,
                 IssueType.BLURRY,
                 IssueType.GRAYSCALE,
-                IssueType.SIZE
+                IssueType.SIZE,
             ],
         }
 

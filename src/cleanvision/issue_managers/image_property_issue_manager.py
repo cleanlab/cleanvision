@@ -13,7 +13,7 @@ from cleanvision.issue_managers.image_property import (
     BlurrinessProperty,
     ColorSpaceProperty,
     ImageProperty,
-    SizeProperty
+    SizeProperty,
 )
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import (
