@@ -11,6 +11,7 @@ from cleanvision.issue_managers.image_property import (
     get_image_mode,
     calc_aspect_ratio,
     calc_entropy,
+    calc_image_area,
     calc_blurriness,
     get_edges,
 )
@@ -44,13 +45,18 @@ def test_calc_entropy():
     entropy_score = calc_entropy(img)  # min(width/height,height/width)
     assert entropy_score == img.entropy()
 
-
 def test_calc_bluriness():
     img = Image.new("RGB", (200, 200), (255, 0, 0))
     edges = get_edges(img)
     blurriness = calc_blurriness(img, 512)
     assert isinstance(edges, Image.Image)
     assert isinstance(blurriness, float)
+
+
+def test_calc_area():
+    img = Image.new("RGB", (200, 200), (255, 0, 0))
+    area = calc_image_area(img)  # img.size[0] * img.size[1]
+    assert area == 200 * 200
 
 
 @pytest.mark.parametrize(

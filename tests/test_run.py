@@ -1,9 +1,10 @@
 import os
-
+import numpy as np
+from PIL import Image
 import pytest
 import torchvision
 from datasets import load_dataset
-
+from pathlib import Path
 from cleanvision.dataset.folder_dataset import FolderDataset
 from cleanvision.imagelab import Imagelab
 from cleanvision.issue_managers.image_property import BrightnessProperty
@@ -28,6 +29,7 @@ def test_example1(capsys, generate_local_dataset):
         "near_duplicates",
         "blurry",
         "grayscale",
+        "size"
     ]
     captured = capsys.readouterr()
 
@@ -171,7 +173,7 @@ def test_hf_dataset_run(generate_local_dataset, n_classes, images_per_class):
     imagelab = Imagelab(hf_dataset=hf_dataset, image_key="image")
     imagelab.find_issues()
     imagelab.report()
-    assert len(imagelab.issues.columns) == 22
+    assert len(imagelab.issues.columns) == 16
     assert len(imagelab.issues) == n_classes * images_per_class
 
 
@@ -181,7 +183,7 @@ def test_torch_dataset_run(generate_local_dataset, n_classes, images_per_class):
     imagelab = Imagelab(torchvision_dataset=torch_ds)
     imagelab.find_issues()
     imagelab.report()
-    assert len(imagelab.issues.columns) == 22
+    assert len(imagelab.issues.columns) == 16
     assert len(imagelab.issues) == n_classes * images_per_class
 
 
@@ -206,5 +208,62 @@ def test_filepath_dataset_run(generate_local_dataset, images_per_class):
     imagelab = Imagelab(filepaths=filepaths)
     imagelab.find_issues()
     imagelab.report()
-    assert len(imagelab.issues.columns) == 22
+    assert len(imagelab.issues.columns) == 16
     assert len(imagelab.issues) == images_per_class
+
+@pytest.mark.usefixtures("set_plt_show")
+def test_filepath_dataset_size_negative(generate_local_dataset_once, images_per_class):
+    """
+
+    All images are same size, so no image should have an size issue
+
+    """
+    files = os.listdir(generate_local_dataset_once / "class_0")
+    filepaths = [os.path.join(generate_local_dataset_once / "class_0", f) for f in files]
+    imagelab = Imagelab(filepaths=filepaths)
+    imagelab.find_issues()
+    imagelab.report()
+    assert len(imagelab.issues.columns) == 16
+    assert len(imagelab.issues[imagelab.issues["is_size_issue"] == True]) == 0
+
+@pytest.mark.usefixtures("set_plt_show")
+def test_filepath_dataset_size_to_large(generate_local_dataset_once, images_per_class):
+    """
+    Size issue is definded based on the area of an image. If the area (width * height) is larger than the median
+    area*threshold(default 10),is_size_issue is set to True. In this example, the median area is 300x300 so 90000.
+    An image with 950 x 950 has an area  of 902500 so its more than 10x larger and thus should be flagged.
+    """
+    arr = np.random.randint(
+        low=0, high=256, size=(950,950,3), dtype=np.uint8
+    )
+    img = Image.fromarray(arr, mode="RGB")
+    img.save(Path(generate_local_dataset_once / "class_0" / "larger.png"))
+
+    files = os.listdir(generate_local_dataset_once / "class_0")
+    filepaths = [os.path.join(generate_local_dataset_once / "class_0", f) for f in files]
+    imagelab = Imagelab(filepaths=filepaths)
+    imagelab.find_issues()
+    imagelab.report()
+    assert len(imagelab.issues.columns) == 16
+    assert len(imagelab.issues[imagelab.issues["is_size_issue"] == True]) == 1
+
+@pytest.mark.usefixtures("set_plt_show")
+def test_filepath_dataset_size_to_small(generate_local_dataset_once, images_per_class):
+    """
+    Size issue is definded based on the area of an image. If the area (width * height) is larger than the median
+    area*threshold(default 10),is_size_issue is set to True. In this example, the median area is 300x300 so 90000.
+    An image with 93 x 93 has an area  of 8649 so its more than 10x smaller and thus should be flagged.
+    """
+    arr = np.random.randint(
+        low=0, high=256, size=(93,93,3), dtype=np.uint8 # 30 x 30 pixel image should be detected
+    )
+    img = Image.fromarray(arr, mode="RGB")
+    img.save(Path(generate_local_dataset_once / "class_0" / "smaller.png"))
+
+    files = os.listdir(generate_local_dataset_once / "class_0")
+    filepaths = [os.path.join(generate_local_dataset_once / "class_0", f) for f in files]
+    imagelab = Imagelab(filepaths=filepaths)
+    imagelab.find_issues()
+    imagelab.report()
+    assert len(imagelab.issues.columns) == 16
+    assert len(imagelab.issues[imagelab.issues["is_size_issue"] == True]) == 1

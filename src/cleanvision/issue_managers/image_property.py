@@ -287,6 +287,10 @@ def calc_color_space(image: Image) -> str:
     return get_image_mode(image)
 
 
+def calc_image_area(image: Image) -> int:
+    size = image.size
+    return size[0] * size[1]
+
 class ColorSpaceProperty(ImageProperty):
     name = "color_space"
 
@@ -321,6 +325,59 @@ class ColorSpaceProperty(ImageProperty):
         is_issue[get_is_issue_colname(issue_type)] = (
             1 - scores[get_score_colname(issue_type)]
         ).astype("bool")
+        return is_issue
+
+
+def get_image_mode(image: Image) -> str:
+    if image.mode:
+        image_mode = image.mode
+        assert isinstance(image_mode, str)
+        return image_mode
+    else:
+        imarr = np.asarray(image)
+        if len(imarr.shape) == 2 or (
+            len(imarr.shape) == 3
+            and (np.diff(imarr.reshape(-1, 3).T, axis=0) == 0).all()
+        ):
+            return "L"
+        else:
+            return "UNK"
+
+class SizeProperty(ImageProperty):
+    name = "size"
+
+    @property
+    def score_columns(self) -> List[str]:
+        return self._score_columns
+
+    def __init__(self) -> None:
+        self._score_columns = [self.name]
+
+    def calculate(self, image: Image) -> Dict[str, int]:
+        return {self.name: calc_image_area(image)}
+
+    def get_scores(
+        self,
+        raw_scores: pd.DataFrame,
+        issue_type: str,
+        **kwargs: Any,
+    ) -> pd.DataFrame:
+        super().get_scores(raw_scores, issue_type, **kwargs)
+        assert raw_scores is not None
+        scores = pd.DataFrame(index=raw_scores.index)
+        scores[get_score_colname(issue_type)] = raw_scores[issue_type].apply(lambda x: 1.0/max(x / raw_scores[issue_type].median(),raw_scores[issue_type].median()/x))
+        return scores
+
+    def mark_issue(
+        self, scores: pd.DataFrame, threshold: float, issue_type: str
+    ) -> pd.DataFrame:
+        is_issue = pd.DataFrame(index=scores.index)
+        is_issue[get_is_issue_colname(issue_type)] = np.where(
+            scores[get_score_colname(issue_type)]
+            < 1.0/threshold,
+            True,
+            False,
+        )
         return is_issue
 
 
