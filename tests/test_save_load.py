@@ -5,7 +5,7 @@ import pytest
 from pandas.testing import assert_frame_equal, assert_series_equal
 
 import cleanvision
-from cleanvision.imagelab import Imagelab
+from cleanvision import Imagelab
 
 
 class TestImagelabSaveLoad:

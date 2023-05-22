@@ -106,7 +106,7 @@ class Imagelab:
 
     .. code-block:: python
 
-        from cleanvision.imagelab import Imagelab
+        from cleanvision import Imagelab
         imagelab = Imagelab(data_path="FOLDER_WITH_IMAGES/")
         imagelab.find_issues()
         imagelab.report()
