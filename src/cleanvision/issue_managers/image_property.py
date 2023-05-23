@@ -287,9 +287,9 @@ def calc_color_space(image: Image) -> str:
     return get_image_mode(image)
 
 
-def calc_image_area(image: Image) -> int:
+def calc_image_area(image: Image) -> float:
     size = image.size
-    return size[0] * size[1]
+    return float(size[0] * size[1])
 
 
 class ColorSpaceProperty(ImageProperty):
@@ -339,7 +339,7 @@ class SizeProperty(ImageProperty):
     def __init__(self) -> None:
         self._score_columns = [self.name]
 
-    def calculate(self, image: Image) -> Dict[str, int]:
+    def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
         return {self.name: calc_image_area(image)}
 
     def get_scores(
