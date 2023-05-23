@@ -52,7 +52,8 @@ def plot_image_grid(
 
         title_width = len(titles[i]) * CHARACTER_SIZE_INCHES
         if title_width >= cell_size[0]:
-            titles[i] = titles[i][: math.ceil(cell_size[0] / CHARACTER_SIZE_INCHES) - 1]
+            chars_truncate = math.ceil(cell_size[0] / CHARACTER_SIZE_INCHES) - 4
+            titles[i] = titles[i][:chars_truncate] + "..."
 
     if nrows > 1:
         idx = 0
