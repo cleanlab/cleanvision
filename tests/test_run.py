@@ -225,7 +225,6 @@ def test_filepath_dataset_size_negative(generate_local_dataset_once, images_per_
     ]
     imagelab = Imagelab(filepaths=filepaths)
     imagelab.find_issues()
-    imagelab.report()
     assert len(imagelab.issues.columns) == 16
     assert len(imagelab.issues[imagelab.issues["is_size_issue"] == True]) == 0
 
@@ -247,7 +246,6 @@ def test_filepath_dataset_size_to_large(generate_local_dataset_once, images_per_
     ]
     imagelab = Imagelab(filepaths=filepaths)
     imagelab.find_issues()
-    imagelab.report()
     assert len(imagelab.issues.columns) == 16
     assert len(imagelab.issues[imagelab.issues["is_size_issue"] == True]) == 1
 
@@ -274,7 +272,6 @@ def test_filepath_dataset_size_to_small(generate_local_dataset_once, images_per_
     ]
     imagelab = Imagelab(filepaths=filepaths)
     imagelab.find_issues()
-    imagelab.report()
     assert len(imagelab.issues.columns) == 16
     assert len(imagelab.issues[imagelab.issues["is_size_issue"] == True]) == 1
 
@@ -302,6 +299,5 @@ def test_filepath_dataset_size_custom_threshold(
     ]
     imagelab = Imagelab(filepaths=filepaths)
     imagelab.find_issues({"size": {"threshold": 11.0}})
-    imagelab.report()
     assert len(imagelab.issues.columns) == 2  # Only size
     assert len(imagelab.issues[imagelab.issues["is_size_issue"] == True]) == 0
