@@ -526,6 +526,7 @@ class Imagelab:
                     cell_size=cell_size,
                 )
 
+    # todo: compress this code
     def visualize(
         self,
         image_files: Optional[List[str]] = None,
@@ -548,6 +549,12 @@ class Imagelab:
 
         image_files : List[str], optional
             List of filepaths for images to visualize.
+
+        indices: List[str|int], optional
+            List of indices of images in the dataset to visualize.
+            If the dataset is a local data_path, the indices are filepaths, which is also the index in `imagelab.issues` dataframe.
+            If the dataset is a huggingface or torchvision dataset, indices are of type int and corresponding to the indices in the dataset object.
+
 
         issue_types: List[str], optional
             List of issue types to visualize. For each type of issue, will show a few images representing the top-most severe instances of this issue in the dataset.
