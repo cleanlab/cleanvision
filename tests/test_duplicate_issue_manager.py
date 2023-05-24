@@ -1,3 +1,5 @@
+import numpy as np
+import pandas as pd
 import pytest
 from PIL import Image
 
@@ -6,6 +8,8 @@ from cleanvision.issue_managers.duplicate_issue_manager import (
     DuplicateIssueManager,
     get_hash,
 )
+from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
+
 
 EXACT = IssueType.EXACT_DUPLICATES.value
 NEAR = IssueType.NEAR_DUPLICATES.value
@@ -202,6 +206,35 @@ class TestDuplicateIssueManager:
         expected_duplicate_sets.sort()
         for s1, s2 in zip(duplicate_sets, expected_duplicate_sets):
             assert set(s1) == set(s2)
+
+    def test_update_issues(self, issue_manager, monkeypatch):
+        info = {
+            EXACT: {"sets": [[0, 1], [2, 3, 4]]},
+            NEAR: {"sets": [[5, 6], [7, 8, 9]]},
+        }
+        monkeypatch.setattr(issue_manager, "info", info)
+        monkeypatch.setattr(issue_manager, "issues", pd.DataFrame(index=range(11)))
+        monkeypatch.setattr(issue_manager, "issue_types", [EXACT, NEAR])
+
+        issue_manager._update_issues()
+
+        issues_df = issue_manager.issues
+        assert issues_df[get_is_issue_colname(EXACT)].sum() == 5
+        assert issues_df[get_is_issue_colname(NEAR)].sum() == 5
+
+        score_col = get_score_colname(EXACT)
+        assert (issues_df.loc[[0, 1], score_col] == 0.5).all() is True
+        assert np.isclose(
+            issues_df.loc[[2, 3, 4], score_col], np.array([0.33] * 3), rtol=0.1
+        ).all()
+        assert issues_df.loc[10, score_col] == 1
+
+        score_col = get_score_colname(NEAR)
+        assert (issues_df.loc[[5, 6], score_col] == 0.5).all() is True
+        assert np.isclose(
+            issues_df.loc[[7, 8, 9], score_col], np.array([0.33] * 3), rtol=0.1
+        ).all()
+        assert issues_df.loc[10, score_col] == 1
 
 
 def test_get_hash():
