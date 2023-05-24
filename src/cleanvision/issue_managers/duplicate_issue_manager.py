@@ -184,7 +184,9 @@ class DuplicateIssueManager(IssueManager):
         for issue_type in self.issue_types:
             score_col = get_score_colname(issue_type)
             for s in self.info[issue_type][SETS]:
-                score = 1.0 / len(s)  # will never be 0 because all images in this set are duplicated
+                score = 1.0 / len(
+                    s
+                )  # will never be 0 because all images in this set are duplicated
                 score_df.loc[s, score_col] = score
 
             self.issues = self.issues.join(score_df[[score_col]])
