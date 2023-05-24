@@ -137,7 +137,7 @@ class Imagelab:
 
         # can be loaded from a file later
         self._config: Dict[str, Any] = self._set_default_config()
-        self.cleanvision_version = cleanvision.__version__
+        self.cleanvision_version: str = cleanvision.__version__
 
     def _set_default_config(self) -> Dict[str, Any]:
         """Sets default values for various config variables used in Imagelab class
