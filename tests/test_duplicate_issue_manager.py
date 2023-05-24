@@ -223,14 +223,14 @@ class TestDuplicateIssueManager:
         assert issues_df[get_is_issue_colname(NEAR)].sum() == 5
 
         score_col = get_score_colname(EXACT)
-        assert (issues_df.loc[[0, 1], score_col] == 0.5).all() is True
+        assert (issues_df.loc[[0, 1], score_col] == 0.5).all()
         assert np.isclose(
             issues_df.loc[[2, 3, 4], score_col], np.array([0.33] * 3), rtol=0.1
         ).all()
         assert issues_df.loc[10, score_col] == 1
 
         score_col = get_score_colname(NEAR)
-        assert (issues_df.loc[[5, 6], score_col] == 0.5).all() is True
+        assert (issues_df.loc[[5, 6], score_col] == 0.5).all()
         assert np.isclose(
             issues_df.loc[[7, 8, 9], score_col], np.array([0.33] * 3), rtol=0.1
         ).all()
