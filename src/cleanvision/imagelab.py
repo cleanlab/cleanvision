@@ -498,9 +498,12 @@ class Imagelab:
                 )
 
         elif viz_name == "image_sets":
-            image_set_indices = list(self.info[issue_type][SETS][:num_images])
+            image_sets_indices = sorted(
+                self.info[issue_type][SETS], key=len, reverse=True
+            )
+            image_sets_indices = image_sets_indices[:num_images]
             image_sets = []
-            for indices in image_set_indices:
+            for indices in image_sets_indices:
                 image_sets.append([self._dataset[index] for index in indices])
 
             sets_str = "sets" if len(image_sets) > 1 else "set"
@@ -515,7 +518,7 @@ class Imagelab:
 
             title_sets = [
                 [self._dataset.get_name(index) for index in s]
-                for s in image_set_indices
+                for s in image_sets_indices
             ]
 
             if image_sets:
