@@ -234,8 +234,8 @@ def calc_blurriness(gray_image: Image) -> float:
     return np.sqrt(blurriness)  # type:ignore
 
 
-def calc_std_grayscale(gray_image: Image):
-    return np.std(gray_image.histogram())
+def calc_std_grayscale(gray_image: Image) -> float:
+    return np.std(gray_image.histogram())  # type: ignore
 
 
 class BlurrinessProperty(ImageProperty):
