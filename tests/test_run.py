@@ -5,7 +5,7 @@ import torchvision
 from datasets import load_dataset
 
 from cleanvision.dataset.folder_dataset import FolderDataset
-from cleanvision.imagelab import Imagelab
+from cleanvision import Imagelab
 from cleanvision.issue_managers.image_property import BrightnessProperty
 from cleanvision.issue_managers.image_property_issue_manager import (
     compute_scores_wrapper,

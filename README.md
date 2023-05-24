@@ -33,7 +33,7 @@ wget -nc 'https://cleanlab-public.s3.amazonaws.com/CleanVision/image_files.zip'
 1. Run CleanVision to audit the images.
 
 ```python
-from cleanvision.imagelab import Imagelab
+from cleanvision import Imagelab
 
 # Specify path to folder containing the image files in your dataset
 imagelab = Imagelab(data_path="FOLDER_WITH_IMAGES/")
