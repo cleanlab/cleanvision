@@ -639,7 +639,7 @@ class Imagelab:
                         replace=False,
                     )
                 )
-                images = [self._dataset[i] for i in image_indices]
+                images = [self._dataset[int(i)] for i in image_indices]
                 titles = [self._dataset.get_name(i) for i in image_indices]
                 VizManager.individual_images(
                     images,
