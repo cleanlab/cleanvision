@@ -46,14 +46,34 @@ def plot_image_grid(
         nrows, ncols, figsize=(cell_size[0] * ncols, cell_size[1] * nrows)
     )
 
-    for i in range(len(images)):
-        """Converts font size of 7 into inches"""
-        CHARACTER_SIZE_INCHES = 7 * (1 / 72)
+    """Converts font size of 7 into inches"""
+    CHARACTER_SIZE_INCHES = 7 * (1 / 72)
 
+    chars_allowed = math.ceil(cell_size[0] / CHARACTER_SIZE_INCHES) - 4
+
+    k1 = 1
+    while k1 <= chars_allowed and titles[0][:k1] == titles[1][:k1]:
+        k1 += 1
+    k2 = 1
+    while (
+        k2 <= chars_allowed
+        and titles[0][(len(titles[0]) - k2) :] == titles[1][(len(titles[1]) - k2) :]
+    ):
+        k2 += 1
+
+    if k1 > k2:
+        truncate_from_front = True
+    else:
+        truncate_from_front = False
+
+    for i in range(len(images)):
         title_width = len(titles[i]) * CHARACTER_SIZE_INCHES
         if title_width >= cell_size[0]:
-            chars_truncate = math.ceil(cell_size[0] / CHARACTER_SIZE_INCHES) - 4
-            titles[i] = titles[i][:chars_truncate] + "..."
+            titles[i] = (
+                ("..." + titles[i][len(titles[i]) - chars_allowed :])
+                if truncate_from_front
+                else (titles[i][:chars_allowed] + "...")
+            )
 
     if nrows > 1:
         idx = 0
