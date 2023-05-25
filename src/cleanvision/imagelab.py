@@ -106,7 +106,7 @@ class Imagelab:
 
     .. code-block:: python
 
-        from cleanvision.imagelab import Imagelab
+        from cleanvision import Imagelab
         imagelab = Imagelab(data_path="FOLDER_WITH_IMAGES/")
         imagelab.find_issues()
         imagelab.report()
@@ -137,7 +137,7 @@ class Imagelab:
 
         # can be loaded from a file later
         self._config: Dict[str, Any] = self._set_default_config()
-        self.cleanvision_version = cleanvision.__version__
+        self.cleanvision_version: str = cleanvision.__version__
 
     def _set_default_config(self) -> Dict[str, Any]:
         """Sets default values for various config variables used in Imagelab class
@@ -498,9 +498,12 @@ class Imagelab:
                 )
 
         elif viz_name == "image_sets":
-            image_set_indices = list(self.info[issue_type][SETS][:num_images])
+            image_sets_indices = sorted(
+                self.info[issue_type][SETS], key=len, reverse=True
+            )
+            image_sets_indices = image_sets_indices[:num_images]
             image_sets = []
-            for indices in image_set_indices:
+            for indices in image_sets_indices:
                 image_sets.append([self._dataset[index] for index in indices])
 
             sets_str = "sets" if len(image_sets) > 1 else "set"
@@ -515,7 +518,7 @@ class Imagelab:
 
             title_sets = [
                 [self._dataset.get_name(index) for index in s]
-                for s in image_set_indices
+                for s in image_sets_indices
             ]
 
             if image_sets:
@@ -526,9 +529,11 @@ class Imagelab:
                     cell_size=cell_size,
                 )
 
+    # todo: compress this code
     def visualize(
         self,
         image_files: Optional[List[str]] = None,
+        indices: Optional[List[str | int]] = None,
         issue_types: Optional[List[str]] = None,
         num_images: int = 4,
         cell_size: Tuple[int, int] = (2, 2),
@@ -547,6 +552,12 @@ class Imagelab:
 
         image_files : List[str], optional
             List of filepaths for images to visualize.
+
+        indices: List[str|int], optional
+            List of indices of images in the dataset to visualize.
+            If the dataset is a local data_path, the indices are filepaths, which is also the index in `imagelab.issues` dataframe.
+            If the dataset is a huggingface or torchvision dataset, indices are of type int and corresponding to the indices in the dataset object.
+
 
         issue_types: List[str], optional
             List of issue types to visualize. For each type of issue, will show a few images representing the top-most severe instances of this issue in the dataset.
@@ -600,6 +611,15 @@ class Imagelab:
                 raise ValueError("image_files list is empty.")
             images = [Image.open(path) for path in image_files]
             titles = [path.split("/")[-1] for path in image_files]
+            VizManager.individual_images(
+                images,
+                titles,
+                ncols=self._config["visualize_num_images_per_row"],
+                cell_size=cell_size,
+            )
+        elif indices:
+            images = [self._dataset[i] for i in indices]
+            titles = [self._dataset.get_name(i) for i in indices]
             VizManager.individual_images(
                 images,
                 titles,

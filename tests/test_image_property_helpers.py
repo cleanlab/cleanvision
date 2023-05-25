@@ -12,7 +12,6 @@ from cleanvision.issue_managers.image_property import (
     calc_aspect_ratio,
     calc_entropy,
     calc_blurriness,
-    get_edges,
 )
 from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
 
@@ -46,11 +45,9 @@ def test_calc_entropy():
 
 
 def test_calc_bluriness():
-    img = Image.new("RGB", (200, 200), (255, 0, 0))
-    edges = get_edges(img)
-    blurriness = calc_blurriness(img, 512)
-    assert isinstance(edges, Image.Image)
-    assert isinstance(blurriness, float)
+    gray_img = Image.new("RGB", (200, 200), (0, 0, 0)).convert("L")
+    blurriness = calc_blurriness(gray_img)
+    assert blurriness == 0
 
 
 @pytest.mark.parametrize(

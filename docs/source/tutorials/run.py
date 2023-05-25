@@ -1,6 +1,6 @@
 import argparse
 
-from cleanvision.imagelab import Imagelab
+from cleanvision import Imagelab
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Demonstrates how to use Imagelab")
