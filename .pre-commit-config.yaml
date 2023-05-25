@@ -14,5 +14,5 @@ repos:
     rev: 6.0.0
     hooks:
       - id: flake8
-        args: ['--ignore=E501,E722,E401,W503 src tests --count --show-source --statistics']
+        args: ['--ignore=E203,E501,E722,E401,W503 src tests --count --show-source --statistics']
 
