@@ -15,7 +15,7 @@ class IssueType(Enum):
     NEAR_DUPLICATES = "near_duplicates"
     BLURRY = "blurry"
     GRAYSCALE = "grayscale"
-    SIZE = "size"
+    ODD_SIZE = "odd_size"
 
 
 ISSUE_MANAGER_REGISTRY: Dict[str, Type[IssueManager]] = {}

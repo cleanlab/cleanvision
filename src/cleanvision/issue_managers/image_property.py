@@ -1,3 +1,4 @@
+import math
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Union, overload, Optional
 
@@ -287,9 +288,9 @@ def calc_color_space(image: Image) -> str:
     return get_image_mode(image)
 
 
-def calc_image_area(image: Image) -> float:
+def calc_image_area_sqrt(image: Image) -> float:
     size = image.size
-    return float(size[0] * size[1])
+    return math.sqrt(size[0] * size[1])
 
 
 class ColorSpaceProperty(ImageProperty):
@@ -329,8 +330,8 @@ class ColorSpaceProperty(ImageProperty):
         return is_issue
 
 
-class SizeProperty(ImageProperty):
-    name = "size"
+class OddSizeProperty(ImageProperty):
+    name = "odd_size"
 
     @property
     def score_columns(self) -> List[str]:
@@ -340,7 +341,7 @@ class SizeProperty(ImageProperty):
         self._score_columns = [self.name]
 
     def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
-        return {self.name: calc_image_area(image)}
+        return {self.name: calc_image_area_sqrt(image)}
 
     def get_scores(
         self,
