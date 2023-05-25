@@ -112,9 +112,7 @@ Quickstart
 
 
 More on how to get started with CleanVision:
-
-- `Tutorial Notebooks <https://github.com/cleanlab/cleanvision-examples/blob/docs/source/tutorials>`_
-- `Example Python script <https://github.com/cleanlab/cleanvision/blob/main/docs/source/run.py>`_
+- `Example Python script <https://github.com/cleanlab/cleanvision/blob/main/docs/source/tutorials/run.py>`_
 - `Example Notebooks <https://github.com/cleanlab/cleanvision-examples>`_
 - `How To Contribute <https://github.com/cleanlab/cleanvision/blob/main/CONTRIBUTING.md>`_
 
