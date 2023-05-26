@@ -5,6 +5,7 @@ but advanced users can get extra flexibility via the code in other CleanVision m
 """
 from __future__ import annotations
 
+import random
 from typing import TYPE_CHECKING, TypeVar, List, Dict, Any, Optional, Tuple, Type
 
 import numpy as np
@@ -629,15 +630,10 @@ class Imagelab:
         else:
             # todo: write test
             print("Sample images from the dataset")
+
             if image_files is None:
-                image_indices = list(
-                    np.random.choice(
-                        self._dataset.index,
-                        min(
-                            num_images, len(self._dataset)
-                        ),  # in case the len(dataset) < 4
-                        replace=False,
-                    )
+                image_indices = random.sample(
+                    self._dataset.index, min(num_images, len(self._dataset))
                 )
                 images = [self._dataset[i] for i in image_indices]
                 titles = [self._dataset.get_name(i) for i in image_indices]
