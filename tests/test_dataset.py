@@ -3,7 +3,6 @@ import os
 import torchvision
 from datasets import load_dataset
 
-from cleanvision.dataset.folder_dataset import FolderDataset
 from cleanvision.dataset.hf_dataset import HFDataset
 from cleanvision.dataset.torch_dataset import TorchDataset
 from cleanvision.dataset.fsspec_dataset import FSDataset
@@ -15,7 +14,7 @@ class TestDataset:
         self, generate_local_dataset, n_classes, images_per_class
     ):
         dataset = build_dataset(data_path=generate_local_dataset)
-        assert isinstance(dataset, FolderDataset)
+        assert isinstance(dataset, FSDataset)
         assert len(dataset.index) == n_classes * images_per_class
         assert isinstance(dataset.index[0], str)
 
@@ -23,7 +22,7 @@ class TestDataset:
         files = os.listdir(generate_local_dataset / "class_0")
         filepaths = [os.path.join(generate_local_dataset / "class_0", f) for f in files]
         dataset = build_dataset(filepaths=filepaths)
-        assert isinstance(dataset, FolderDataset)
+        assert isinstance(dataset, FSDataset)
         assert len(dataset.index) == images_per_class
         assert isinstance(dataset.index[0], str)
 
@@ -46,11 +45,3 @@ class TestDataset:
         assert isinstance(dataset, TorchDataset)
         assert len(dataset.index) == n_classes * images_per_class
         assert isinstance(dataset.index[0], int)
-
-    def test_build_fsspec_dataset(
-        self, generate_local_dataset, n_classes, images_per_class
-    ):
-        dataset = build_dataset(fsspec_dataset=generate_local_dataset)
-        assert isinstance(dataset, FSDataset)
-        assert len(dataset.index) == n_classes * images_per_class
-        assert isinstance(dataset.index[0], str)

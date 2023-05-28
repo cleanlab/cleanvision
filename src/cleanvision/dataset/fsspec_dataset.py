@@ -15,29 +15,35 @@ class FSDataset(Dataset):
     """Wrapper class to handle datasets loaded from a cloud-based data folder"""
 
     def __init__(
-        self, data_folder: Optional[str] = None, filepaths: Optional[List[str]] = None
+        self,
+        data_folder: Optional[str] = None,
+        filepaths: Optional[List[str]] = None,
+        storage_opts: Optional[dict] = {},
     ) -> None:
         super().__init__()
+        self.storage_opts = storage_opts
         if data_folder:
             # See: https://filesystem-spec.readthedocs.io/en/latest/api.html#other-known-implementations
             # contains a list of known implementations that may resolve through that url
             # they require adequate module to be installed
             if isinstance(data_folder, pathlib.Path):  # tests pass Path object
                 data_folder = str(data_folder)
-            self.fs, dataset_path = fsspec.core.url_to_fs(data_folder)
+            self.fs, dataset_path = fsspec.core.url_to_fs(
+                data_folder, **self.storage_opts
+            )
             self._filepaths = self.__get_filepaths(dataset_path)
         else:
             assert filepaths is not None
             self._filepaths = filepaths
             # here we assume all of the provided filepaths are from the same filesystem
-            self.fs, _ = fsspec.core.url_to_fs(self._filepaths[0])
+            self.fs, _ = fsspec.core.url_to_fs(self._filepaths[0], **self.storage_opts)
         self._set_index()
 
     def __len__(self) -> int:
         return len(self._filepaths)
 
     def __getitem__(self, item: Union[int, str]) -> Image.Image:
-        with self.fs.open(item, "rb") as f:
+        with self.fs.open(item, "rb", **self.storage_opts) as f:
             # avoid ops on the closed file, make a copy
             data = Image.open(f).copy()
         return data
@@ -60,7 +66,7 @@ class FSDataset(Dataset):
             # lower depths
             path_lower_level = os.path.join(dataset_path, "**", ext)
             for fs_path in (path_top_level, path_lower_level):
-                filetype_images = self.fs.glob(fs_path)
+                filetype_images = self.fs.glob(fs_path, **self.storage_opts)
                 if len(filetype_images) == 0:
                     continue
                 filepaths += filetype_images

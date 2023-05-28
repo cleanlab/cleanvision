@@ -120,7 +120,7 @@ class Imagelab:
         hf_dataset: Optional["datasets.Dataset"] = None,
         image_key: Optional[str] = None,
         torchvision_dataset: Optional["VisionDataset"] = None,
-        fsspec_dataset: Optional[str] = None,
+        storage_opts: Dict[str, Any] = {},
     ) -> None:
         self._dataset = build_dataset(
             data_path,
@@ -128,7 +128,7 @@ class Imagelab:
             hf_dataset,
             image_key,
             torchvision_dataset,
-            fsspec_dataset,
+            storage_opts=storage_opts,
         )
         if len(self._dataset) == 0:
             raise ValueError("No images found in the dataset specified")

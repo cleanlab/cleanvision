@@ -4,7 +4,7 @@ import pytest
 import torchvision
 from datasets import load_dataset
 
-from cleanvision.dataset.folder_dataset import FolderDataset
+from cleanvision.dataset.fsspec_dataset import FSDataset
 from cleanvision.imagelab import Imagelab
 from cleanvision.issue_managers.image_property import BrightnessProperty
 from cleanvision.issue_managers.image_property_issue_manager import (
@@ -135,7 +135,7 @@ def test_jobs(generate_local_dataset):
 
 
 def test_compute_scores(generate_single_image_file):
-    dataset = FolderDataset(filepaths=[generate_single_image_file])
+    dataset = FSDataset(filepaths=[generate_single_image_file])
     image_properties = {
         "dark": BrightnessProperty("dark"),
         "light": BrightnessProperty("light"),
@@ -179,15 +179,6 @@ def test_hf_dataset_run(generate_local_dataset, n_classes, images_per_class):
 def test_torch_dataset_run(generate_local_dataset, n_classes, images_per_class):
     torch_ds = torchvision.datasets.ImageFolder(root=generate_local_dataset)
     imagelab = Imagelab(torchvision_dataset=torch_ds)
-    imagelab.find_issues()
-    imagelab.report()
-    assert len(imagelab.issues.columns) == 14
-    assert len(imagelab.issues) == n_classes * images_per_class
-
-
-@pytest.mark.usefixtures("set_plt_show")
-def test_fsspec_dataset_run(generate_local_dataset, n_classes, images_per_class):
-    imagelab = Imagelab(fsspec_dataset=generate_local_dataset)
     imagelab.find_issues()
     imagelab.report()
     assert len(imagelab.issues.columns) == 14

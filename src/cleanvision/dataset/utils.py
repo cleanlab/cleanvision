@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import List, Optional, TYPE_CHECKING
 
 from cleanvision.dataset.base_dataset import Dataset
-from cleanvision.dataset.folder_dataset import FolderDataset
 from cleanvision.dataset.hf_dataset import HFDataset
 from cleanvision.dataset.torch_dataset import TorchDataset
 from cleanvision.dataset.fsspec_dataset import FSDataset
@@ -19,18 +18,16 @@ def build_dataset(
     hf_dataset: Optional["datasets.Dataset"] = None,
     image_key: Optional[str] = None,
     torchvision_dataset: Optional["VisionDataset"] = None,
-    fsspec_dataset: Optional[str] = None,
+    storage_opts: Optional[dict] = {},
 ) -> Dataset:
     if data_path:
-        return FolderDataset(data_folder=data_path)
+        return FSDataset(data_folder=data_path, storage_opts=storage_opts)
     elif filepaths:
-        return FolderDataset(filepaths=filepaths)
+        return FSDataset(filepaths=filepaths, storage_opts=storage_opts)
     elif hf_dataset and image_key:
         return HFDataset(hf_dataset, image_key)
     elif torchvision_dataset:
         return TorchDataset(torchvision_dataset)
-    elif fsspec_dataset:
-        return FSDataset(fsspec_dataset)
     else:
         raise ValueError(
             "You must specify some argument among the following: `data_path`, `filepaths`, (`hf_dataset`, `image_key`), `torchvision_dataset`"
