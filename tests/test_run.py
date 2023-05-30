@@ -173,7 +173,7 @@ def test_hf_dataset_run(generate_local_dataset, n_classes, images_per_class):
     imagelab = Imagelab(hf_dataset=hf_dataset, image_key="image")
     imagelab.find_issues()
     imagelab.report()
-    assert len(imagelab.issues.columns) == 16
+    assert len(imagelab.issues.columns) == 18
     assert len(imagelab.issues) == n_classes * images_per_class
 
 
@@ -183,7 +183,7 @@ def test_torch_dataset_run(generate_local_dataset, n_classes, images_per_class):
     imagelab = Imagelab(torchvision_dataset=torch_ds)
     imagelab.find_issues()
     imagelab.report()
-    assert len(imagelab.issues.columns) == 16
+    assert len(imagelab.issues.columns) == 18
     assert len(imagelab.issues) == n_classes * images_per_class
 
 
@@ -208,7 +208,7 @@ def test_filepath_dataset_run(generate_local_dataset, images_per_class):
     imagelab = Imagelab(filepaths=filepaths)
     imagelab.find_issues()
     imagelab.report()
-    assert len(imagelab.issues.columns) == 16
+    assert len(imagelab.issues.columns) == 18
     assert len(imagelab.issues) == images_per_class
 
 
@@ -225,7 +225,7 @@ def test_filepath_dataset_size_negative(generate_local_dataset_once, images_per_
     ]
     imagelab = Imagelab(filepaths=filepaths)
     imagelab.find_issues()
-    assert len(imagelab.issues.columns) == 16
+    assert len(imagelab.issues.columns) == 18
     assert len(imagelab.issues[imagelab.issues["is_odd_size_issue"]]) == 0
 
 
@@ -246,7 +246,7 @@ def test_filepath_dataset_size_to_large(generate_local_dataset_once, images_per_
     ]
     imagelab = Imagelab(filepaths=filepaths)
     imagelab.find_issues()
-    assert len(imagelab.issues.columns) == 16
+    assert len(imagelab.issues.columns) == 18
     assert len(imagelab.issues[imagelab.issues["is_odd_size_issue"]]) == 1
 
 
@@ -272,7 +272,7 @@ def test_filepath_dataset_size_to_small(generate_local_dataset_once, images_per_
     ]
     imagelab = Imagelab(filepaths=filepaths)
     imagelab.find_issues()
-    assert len(imagelab.issues.columns) == 16
+    assert len(imagelab.issues.columns) == 18
     assert len(imagelab.issues[imagelab.issues["is_odd_size_issue"]]) == 1
 
 

@@ -335,8 +335,8 @@ class ColorSpaceProperty(ImageProperty):
         return is_issue
 
 
-class OddSizeProperty(ImageProperty):
-    name = "odd_size"
+class SizeProperty(ImageProperty):
+    name = "size"
 
     @property
     def score_columns(self) -> List[str]:
@@ -357,10 +357,11 @@ class OddSizeProperty(ImageProperty):
         super().get_scores(raw_scores, issue_type, **kwargs)
         assert raw_scores is not None
         scores = pd.DataFrame(index=raw_scores.index)
-        scores[get_score_colname(issue_type)] = raw_scores[issue_type].apply(
+        scores[get_score_colname(issue_type)] = raw_scores[self.score_columns[0]].apply(
             lambda x: 1.0
             / max(
-                x / raw_scores[issue_type].median(), raw_scores[issue_type].median() / x
+                x / raw_scores[self.score_columns[0]].median(),
+                raw_scores[self.score_columns[0]].median() / x,
             )
         )
         return scores

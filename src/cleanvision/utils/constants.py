@@ -2,7 +2,7 @@ from typing import List
 
 IMAGE_PROPERTY: str = "image_property"
 DUPLICATE: str = "duplicate"
-SIZE: str = "size"
+
 IMAGE_PROPERTY_ISSUE_TYPES_LIST: List[str] = [
     "dark",
     "light",
