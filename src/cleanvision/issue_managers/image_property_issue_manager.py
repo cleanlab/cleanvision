@@ -13,6 +13,7 @@ from cleanvision.issue_managers.image_property import (
     BlurrinessProperty,
     ColorSpaceProperty,
     ImageProperty,
+    SizeProperty,
 )
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import (
@@ -71,6 +72,7 @@ class ImagePropertyIssueManager(IssueManager):
                 "color_threshold": 0.18,
             },
             IssueType.GRAYSCALE.value: {},
+            IssueType.ODD_SIZE.value: {"threshold": 10.0},
         }
 
     def update_params(self, params: Dict[str, Any]) -> None:
@@ -88,6 +90,7 @@ class ImagePropertyIssueManager(IssueManager):
             IssueType.LOW_INFORMATION.value: EntropyProperty(),
             IssueType.BLURRY.value: BlurrinessProperty(),
             IssueType.GRAYSCALE.value: ColorSpaceProperty(),
+            IssueType.ODD_SIZE.value: SizeProperty(),
         }
 
     def _get_defer_set(

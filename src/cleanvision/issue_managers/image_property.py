@@ -1,3 +1,4 @@
+import math
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Union, overload
 
@@ -292,6 +293,11 @@ def calc_color_space(image: Image) -> str:
     return get_image_mode(image)
 
 
+def calc_image_area_sqrt(image: Image) -> float:
+    size = image.size
+    return math.sqrt(size[0] * size[1])
+
+
 class ColorSpaceProperty(ImageProperty):
     name = "color_space"
 
@@ -326,6 +332,49 @@ class ColorSpaceProperty(ImageProperty):
         is_issue[get_is_issue_colname(issue_type)] = (
             1 - scores[get_score_colname(issue_type)]
         ).astype("bool")
+        return is_issue
+
+
+class SizeProperty(ImageProperty):
+    name = "size"
+
+    @property
+    def score_columns(self) -> List[str]:
+        return self._score_columns
+
+    def __init__(self) -> None:
+        self._score_columns = [self.name]
+
+    def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
+        return {self.name: calc_image_area_sqrt(image)}
+
+    def get_scores(
+        self,
+        raw_scores: pd.DataFrame,
+        issue_type: str,
+        **kwargs: Any,
+    ) -> pd.DataFrame:
+        super().get_scores(raw_scores, issue_type, **kwargs)
+        assert raw_scores is not None
+        scores = pd.DataFrame(index=raw_scores.index)
+        scores[get_score_colname(issue_type)] = raw_scores[self.score_columns[0]].apply(
+            lambda x: 1.0
+            / max(
+                x / raw_scores[self.score_columns[0]].median(),
+                raw_scores[self.score_columns[0]].median() / x,
+            )
+        )
+        return scores
+
+    def mark_issue(
+        self, scores: pd.DataFrame, threshold: float, issue_type: str
+    ) -> pd.DataFrame:
+        is_issue = pd.DataFrame(index=scores.index)
+        is_issue[get_is_issue_colname(issue_type)] = np.where(
+            scores[get_score_colname(issue_type)] < 1.0 / threshold,
+            True,
+            False,
+        )
         return is_issue
 
 
