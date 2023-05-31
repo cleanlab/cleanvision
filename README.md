@@ -78,16 +78,17 @@ use the [cleanlab](https://github.com/cleanlab/cleanlab/) package.
 
 In any collection of image files (most [formats](https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html) supported), CleanVision can detect the following types of issues:
 
-|     | Issue Type       | Description                                               | Issue Key        | Example                                                                                                             |
-|-----|------------------|-----------------------------------------------------------|------------------|---------------------------------------------------------------------------------------------------------------------|
-| 1   | Exact Duplicates | Images that are identical to each other            | exact_duplicates | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/exact_duplicates.png) |
-| 2   | Near Duplicates  | Images that are visually almost identical          | near_duplicates  | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/near_duplicates.png)  |
-| 3   | Blurry           | Images where details are fuzzy (out of focus)                             | blurry           | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/blurry.png)           |
-| 4   | Low Information  | Images lacking content (little entropy in pixel values) | low_information  | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/low_information.png)  |
-| 5   | Dark             | Irregularly dark images (*under*exposed)                                   | dark             | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/dark.jpg)             |
-| 6   | Light            | Irregularly bright images (*over*exposed)                       | light            | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/light.jpg)            |
-| 7   | Grayscale        | Images lacking color                                      | grayscale        | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/grayscale.jpg)        |
-| 8   | Odd Aspect Ratio | Images with an unusual aspect ratio (overly skinny/wide)            | odd_aspect_ratio | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/odd_aspect_ratio.jpg) |
+|   | Issue Type       | Description                                                     | Issue Key        | Example                                                                                                                                 |
+|---|------------------|-----------------------------------------------------------------|------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| 1 | Exact Duplicates | Images that are identical to each other                         | exact_duplicates | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/exact_duplicates.png)                     |
+| 2 | Near Duplicates  | Images that are visually almost identical                       | near_duplicates  | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/near_duplicates.png)                      |
+| 3 | Blurry           | Images where details are fuzzy (out of focus)                   | blurry           | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/blurry.png)                               |
+| 4 | Low Information  | Images lacking content (little entropy in pixel values)         | low_information  | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/low_information.png)                      |
+| 5 | Dark             | Irregularly dark images (*under*exposed)                        | dark             | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/dark.jpg)                                 |
+| 6 | Light            | Irregularly bright images (*over*exposed)                       | light            | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/light.jpg)                                |
+| 7 | Grayscale        | Images lacking color                                            | grayscale        | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/grayscale.jpg)                            |
+| 8 | Odd Aspect Ratio | Images with an unusual aspect ratio (overly skinny/wide)        | odd_aspect_ratio | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/odd_aspect_ratio.jpg)                     |
+| 9 | Odd Size         | Images which are n times larger or smaller than the median size | odd_size         | <img src="https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/odd_size.png" width=20% height=20%> |
 
 This package is still a work in progress, so expect sharp edges.
 Feel free to submit any found bugs or desired functionality as an [issue][issue]!

@@ -4,6 +4,7 @@ import pytest
 from PIL import Image
 
 import cleanvision
+import math
 from cleanvision.issue_managers import IssueType
 from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
@@ -11,6 +12,7 @@ from cleanvision.issue_managers.image_property import (
     get_image_mode,
     calc_aspect_ratio,
     calc_entropy,
+    calc_image_area_sqrt,
     calc_blurriness,
 )
 from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
@@ -48,6 +50,12 @@ def test_calc_bluriness():
     gray_img = Image.new("RGB", (200, 200), (0, 0, 0)).convert("L")
     blurriness = calc_blurriness(gray_img)
     assert blurriness == 0
+
+
+def test_calc_area():
+    img = Image.new("RGB", (200, 200), (255, 0, 0))
+    area = calc_image_area_sqrt(img)  # img.size[0] * img.size[1]
+    assert area == math.sqrt(200 * 200)
 
 
 @pytest.mark.parametrize(
