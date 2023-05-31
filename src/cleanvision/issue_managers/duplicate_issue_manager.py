@@ -12,7 +12,7 @@ from cleanvision.dataset.base_dataset import Dataset
 from cleanvision.issue_managers import register_issue_manager, IssueType
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import SETS, DUPLICATE, MAX_PROCS
-from cleanvision.utils.utils import get_is_issue_colname
+from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
 
 
 def get_hash(image: Image.Image, params: Dict[str, Any]) -> str:
@@ -173,15 +173,26 @@ class DuplicateIssueManager(IssueManager):
         self.summary = self.summary.astype({"issue_type": str})
 
     def _update_issues(self) -> None:
+        score_df = pd.DataFrame(index=self.issues.index)
+        score_df[get_score_colname(IssueType.EXACT_DUPLICATES.value)] = np.ones(
+            len(score_df)
+        )
+        score_df[get_score_colname(IssueType.NEAR_DUPLICATES.value)] = np.ones(
+            len(score_df)
+        )
+
         for issue_type in self.issue_types:
-            duplicated_images = []
+            score_col = get_score_colname(issue_type)
             for s in self.info[issue_type][SETS]:
-                duplicated_images.extend(s)
-            self.issues[
-                get_is_issue_colname(issue_type)
-            ] = self.issues.index.to_series().apply(
-                lambda x: True if x in duplicated_images else False
-            )
+                score = 1.0 / len(
+                    s
+                )  # will never be 0 because all images in this set are duplicated
+                score_df.loc[s, score_col] = score
+
+            self.issues = self.issues.join(score_df[[score_col]])
+            self.issues[get_is_issue_colname(issue_type)] = [
+                False if x == 1 else True for x in self.issues[score_col]
+            ]
 
     def _update_info(
         self,

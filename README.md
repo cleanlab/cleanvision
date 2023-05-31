@@ -33,7 +33,7 @@ wget -nc 'https://cleanlab-public.s3.amazonaws.com/CleanVision/image_files.zip'
 1. Run CleanVision to audit the images.
 
 ```python
-from cleanvision.imagelab import Imagelab
+from cleanvision import Imagelab
 
 # Specify path to folder containing the image files in your dataset
 imagelab = Imagelab(data_path="FOLDER_WITH_IMAGES/")
@@ -59,9 +59,9 @@ imagelab.report(issue_types=issue_types)
 
 ## More resources on how to use CleanVision
 
-- [Tutorial notebook](https://github.com/cleanlab/cleanvision-examples/blob/main/tutorial.ipynb)
-- [Notebook for running CleanVision on a HuggingFace Dataset](https://github.com/cleanlab/cleanvision-examples/blob/main/huggingface_dataset.ipynb)
-- [Notebook for running CleanVision on a Torchvision Dataset](https://github.com/cleanlab/cleanvision-examples/blob/main/torchvision_dataset.ipynb)
+- [Tutorial](https://cleanvision.readthedocs.io/en/latest/tutorials/tutorial.html)
+- [Run CleanVision on a HuggingFace dataset](https://cleanvision.readthedocs.io/en/latest/tutorials/huggingface_dataset.html)
+- [Run CleanVision on a Torchvision dataset](https://cleanvision.readthedocs.io/en/latest/tutorials/torchvision_dataset.html)
 - [Example script](https://github.com/cleanlab/cleanvision/blob/main/docs/source/tutorials/run.py) that can be run with: `python examples/run.py --path <FOLDER_WITH_IMAGES>`
 - [Additional example notebooks](https://github.com/cleanlab/cleanvision-examples)
 - [Documentation](https://cleanvision.readthedocs.io/)
