@@ -1,7 +1,7 @@
 name: GitHub Markdown Links
 on:
   push:
-  #pull_request:
+  pull_request:
   schedule:
     - cron: '0 8 * * 6'
 jobs:
@@ -17,7 +17,7 @@ jobs:
           find . -name '*.html' -delete
       - run: |
           find . -name '*.md' -exec pandoc -i {} -o {}.html \;
-      - uses: anishathalye/proof-html@v2
+      - uses: anishathalye/proof-html@v1
         with:
           directory: .
           check_favicon: false
