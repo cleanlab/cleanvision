@@ -1,0 +1,76 @@
+name: Build and publish distribution
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  publish-test:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Install build dependencies
+        run: pip install build
+      - name: Build distributions
+        run: python -m build
+      - name: Publish package to PyPI
+        if: github.repository == 'cleanlab/cleanvision'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository-url: https://test.pypi.org/legacy/
+  publish:
+    needs: [ publish-test ]
+    # This condition ensures publish-test succeeded before running this job
+    if: needs.publish-test.result == 'success'
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Install build dependencies
+        run: pip install build
+      - name: Build distributions
+        run: python -m build
+      - name: Publish package to PyPI
+        if: github.repository == 'cleanlab/cleanvision'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+  bump-version:
+    runs-on: "ubuntu-latest"
+    needs: [publish]
+    # This condition ensures publish succeeded before running this job
+    if: needs.publish.result == 'success'
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Install dependencies
+        run: |
+          pip install -U pip
+          pip install -e .
+          pip install --upgrade bump2version
+      - name: Set current version
+        run: echo "CURRENT_VERSION=$(python .github/scripts/get_version.py)" >> "$GITHUB_ENV"
+      - name: Bump version
+        run: bump2version --current-version "${{ env.CURRENT_VERSION }}" patch pyproject.toml
+      - name: Commit and push
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          file_pattern: pyproject.toml
+          branch: main
+          commit_message: Bump patch version

@@ -3,16 +3,16 @@ Imagelab is the core class in CleanVision for finding all types of issues in an 
 The methods in this module should suffice for most use-cases,
 but advanced users can get extra flexibility via the code in other CleanVision modules.
 """
+from __future__ import annotations
 
-import os
-import pickle
-from typing import List, Dict, Any, Optional, Tuple, TypeVar, Type
-from typing import TYPE_CHECKING
+import random
+from typing import TYPE_CHECKING, TypeVar, List, Dict, Any, Optional, Tuple, Type
 
 import numpy as np
 import pandas as pd
 from PIL import Image
 
+import cleanvision
 from cleanvision.dataset.torch_dataset import TorchDataset
 from cleanvision.dataset.utils import build_dataset
 from cleanvision.issue_managers import (
@@ -28,6 +28,7 @@ from cleanvision.utils.constants import (
     DUPLICATE_ISSUE_TYPES_LIST,
     SETS,
 )
+from cleanvision.utils.serialize import Serializer
 from cleanvision.utils.utils import (
     deep_update_dict,
     get_is_issue_colname,
@@ -42,8 +43,6 @@ if TYPE_CHECKING:  # pragma: no cover
     from torchvision.datasets.vision import VisionDataset
 
 __all__ = ["Imagelab"]
-
-OBJECT_FILENAME = "imagelab.pkl"
 TImagelab = TypeVar("TImagelab", bound="Imagelab")
 
 
@@ -108,7 +107,7 @@ class Imagelab:
 
     .. code-block:: python
 
-        from cleanvision.imagelab import Imagelab
+        from cleanvision import Imagelab
         imagelab = Imagelab(data_path="FOLDER_WITH_IMAGES/")
         imagelab.find_issues()
         imagelab.report()
@@ -132,7 +131,7 @@ class Imagelab:
         self.info: Dict[str, Any] = {"statistics": {}}
         self.issue_summary: pd.DataFrame = pd.DataFrame(
             columns=["issue_type", "num_images"]
-        )
+        ).astype({"issue_type": str, "num_images": np.int64})
 
         self.issues: pd.DataFrame = pd.DataFrame(index=self._dataset.index)
         self._issue_types: List[str] = []
@@ -140,6 +139,7 @@ class Imagelab:
 
         # can be loaded from a file later
         self._config: Dict[str, Any] = self._set_default_config()
+        self.cleanvision_version: str = cleanvision.__version__
         self._path = ""
         self.verbosity = verbosity
 
@@ -498,14 +498,17 @@ class Imagelab:
                 )
 
         elif viz_name == "image_sets":
-            image_set_indices = list(self.info[issue_type][SETS][:num_images])
+            image_sets_indices = sorted(
+                self.info[issue_type][SETS], key=len, reverse=True
+            )
+            image_sets_indices = image_sets_indices[:num_images]
             image_sets = []
-            for indices in image_set_indices:
+            for indices in image_sets_indices:
                 image_sets.append([self._dataset[index] for index in indices])
 
             title_sets = [
                 [self._dataset.get_name(index) for index in s]
-                for s in image_set_indices
+                for s in image_sets_indices
             ]
 
             if image_sets:
@@ -516,9 +519,11 @@ class Imagelab:
                     cell_size=cell_size,
                 )
 
+    # todo: compress this code
     def visualize(
         self,
         image_files: Optional[List[str]] = None,
+        indices: Optional[List[str | int]] = None,
         issue_types: Optional[List[str]] = None,
         num_images: int = 4,
         cell_size: Tuple[int, int] = (2, 2),
@@ -537,6 +542,12 @@ class Imagelab:
 
         image_files : List[str], optional
             List of filepaths for images to visualize.
+
+        indices: List[str|int], optional
+            List of indices of images in the dataset to visualize.
+            If the dataset is a local data_path, the indices are filepaths, which is also the index in `imagelab.issues` dataframe.
+            If the dataset is a huggingface or torchvision dataset, indices are of type int and corresponding to the indices in the dataset object.
+
 
         issue_types: List[str], optional
             List of issue types to visualize. For each type of issue, will show a few images representing the top-most severe instances of this issue in the dataset.
@@ -596,18 +607,22 @@ class Imagelab:
                 ncols=self._config["visualize_num_images_per_row"],
                 cell_size=cell_size,
             )
+        elif indices:
+            images = [self._dataset[i] for i in indices]
+            titles = [self._dataset.get_name(i) for i in indices]
+            VizManager.individual_images(
+                images,
+                titles,
+                ncols=self._config["visualize_num_images_per_row"],
+                cell_size=cell_size,
+            )
         else:
             # todo: write test
             print("Sample images from the dataset")
+
             if image_files is None:
-                image_indices = list(
-                    np.random.choice(
-                        self._dataset.index,
-                        min(
-                            num_images, len(self._dataset)
-                        ),  # in case the len(dataset) < 4
-                        replace=False,
-                    )
+                image_indices = random.sample(
+                    self._dataset.index, min(num_images, len(self._dataset))
                 )
                 images = [self._dataset[i] for i in image_indices]
                 titles = [self._dataset.get_name(i) for i in image_indices]
@@ -626,8 +641,8 @@ class Imagelab:
         return self.info["statistics"]
 
     def save(self, path: str, force: bool = False) -> None:
-        """Saves this ImageLab instance into a folder at the given path.
-        Your saved Imagelab should be loaded from the same version of the CleanVision package.
+        """Saves this Imagelab instance, :py:attr:`issues` and :py:attr:`issue_summary` into a folder at the given path.
+        Your saved Imagelab should be loaded from the same version of the CleanVision package to avoid inconsistencies.
         This method does not save your image files.
 
         Parameters
@@ -637,67 +652,28 @@ class Imagelab:
 
         force: bool, default=False
             If set to True, any existing files at `path` will be overwritten.
-
-        Raises
-        ------
-        ValueError
-            If `allow_overwrite` is set to False, and an existing path is specified for saving Imagelab instance.
         """
-        path_exists = os.path.exists(path)
-        if not path_exists:
-            os.mkdir(path)
-        else:
-            if force:
-                print(
-                    f"WARNING: Existing files will be overwritten by newly saved files at: {path}"
-                )
-            else:
-                raise FileExistsError("Please specify a new path or set force=True")
-
-        self._path = path
-        object_file = os.path.join(self._path, OBJECT_FILENAME)
-        with open(object_file, "wb") as f:
-            pickle.dump(self, f)
-
-        print(f"Saved Imagelab to folder: {path}")
-        print(
-            "The data path and dataset must be not be changed to maintain consistent state when loading this Imagelab"
-        )
+        Serializer.serialize(path=path, imagelab=self, force=force)
 
     @classmethod
     def load(
         cls: Type[TImagelab], path: str, data_path: Optional[str] = None
-    ) -> TImagelab:
+    ) -> Imagelab:
         """Loads Imagelab from given path.
-
 
         Parameters
         ----------
         path : str
             Path to the saved Imagelab folder previously specified in :py:meth:`Imagelab.save` (not the individual pickle file).
         data_path : str
-            Path to image dataset previously used in Imagelab.
-            If the `data_path` is changed, Imagelab will not be loaded as some of its functionalities depend on it.
-            You should be using the same version of the CleanVision package previously used when saving the Imagelab.
+            Path to image dataset previously used in Imagelab, if your data exists locally as images in a folder.
+            If the `data_path` is changed, the code will break as Imagelab functionalities are dependent on it.
+            You should be using the same version of the CleanVision package previously used when saving Imagelab.
 
         Returns
         -------
         Imagelab
             Returns a saved instance of Imagelab
         """
-        if not os.path.exists(path):
-            raise ValueError(f"No folder found at specified path: {path}")
-
-        object_file = os.path.join(path, OBJECT_FILENAME)
-        with open(object_file, "rb") as f:
-            imagelab: TImagelab = pickle.load(f)
-
-        # todo: use hash for validating
-        # if data_path is not None:
-        #     filepaths = get_filepaths(data_path)
-        #     if set(filepaths) != set(imagelab._filepaths):
-        #         raise ValueError(
-        #             "Absolute path of image(s) has changed in the dataset. Cannot load Imagelab."
-        #         )
-        print("Successfully loaded Imagelab")
+        imagelab = Serializer.deserialize(path)
         return imagelab

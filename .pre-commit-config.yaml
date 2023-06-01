@@ -3,8 +3,16 @@ repos:
     rev: 22.3.0
     hooks:
       - id: black
+
   - repo: https://github.com/kynan/nbstripout
     rev: 0.6.1
     hooks:
       - id: nbstripout
         description: Clears output and some metadata from notebooks
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        args: ['--ignore=E203,E501,E722,E401,W503 src tests --count --show-source --statistics']
+
