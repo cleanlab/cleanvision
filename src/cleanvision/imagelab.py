@@ -16,7 +16,6 @@ import cleanvision
 from cleanvision.dataset.torch_dataset import TorchDataset
 from cleanvision.dataset.utils import build_dataset
 from cleanvision.issue_managers import (
-    IssueType,
     IssueManagerFactory,
     ISSUE_MANAGER_REGISTRY,
 )
@@ -27,6 +26,7 @@ from cleanvision.utils.constants import (
     IMAGE_PROPERTY_ISSUE_TYPES_LIST,
     DUPLICATE_ISSUE_TYPES_LIST,
     SETS,
+    DEFAULT_ISSUE_TYPES,
 )
 from cleanvision.utils.serialize import Serializer
 from cleanvision.utils.utils import (
@@ -140,7 +140,6 @@ class Imagelab:
         # can be loaded from a file later
         self._config: Dict[str, Any] = self._set_default_config()
         self.cleanvision_version: str = cleanvision.__version__
-        self._path = ""
         self.verbosity = verbosity
 
     def _set_default_config(self) -> Dict[str, Any]:
@@ -156,28 +155,20 @@ class Imagelab:
             "visualize_num_images_per_row": 4,
             "report_examples_per_issue_values": [4, 8, 16, 32],
             "report_max_prevalence": 0.5,
-            "default_issue_types": [
-                IssueType.DARK.value,
-                IssueType.LIGHT.value,
-                IssueType.ODD_ASPECT_RATIO.value,
-                IssueType.LOW_INFORMATION.value,
-                IssueType.EXACT_DUPLICATES.value,
-                IssueType.NEAR_DUPLICATES.value,
-                IssueType.BLURRY.value,
-                IssueType.GRAYSCALE.value,
-            ],
             "report_cell_size": (2, 2),
         }
 
-    def list_default_issue_types(self) -> List[str]:
+    @staticmethod
+    def list_default_issue_types() -> List[str]:
         """Returns a list of the issue types that are run by default in :py:meth:`Imagelab.find_issues`"""
-        return self._config["default_issue_types"]
+        return DEFAULT_ISSUE_TYPES
 
-    def list_possible_issue_types(self) -> List[str]:
+    @staticmethod
+    def list_possible_issue_types() -> List[str]:
         """Returns a list of all the possible issue types that can be run in :py:meth:`Imagelab.find_issues`
         This list will also include custom issue types if properly added.
         """
-        issue_types = self.list_default_issue_types()
+        issue_types = Imagelab.list_default_issue_types()
         issue_types.extend(ISSUE_MANAGER_REGISTRY.keys())
         return list(set(issue_types))
 
@@ -186,8 +177,7 @@ class Imagelab:
     ) -> Dict[str, Any]:
         if not issue_types_with_params:
             to_compute_issues_with_params: Dict[str, Any] = {
-                issue_type.value: {}
-                for issue_type in self._config["default_issue_types"]
+                issue_type: {} for issue_type in self.list_default_issue_types()
             }
         else:
             to_compute_issues_with_params = {
