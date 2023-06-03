@@ -7,8 +7,8 @@ own ideas or addressing [existing issues][issues].
 
 If you are unsure or confused about anything, please go ahead and submit your
 issue or pull request anyways! We appreciate all contributions, and we'll do
-our best to incorporate your feedback or code into CleanVision. 
-You can also chat with our developers in [Slack](https://cleanlab.ai/slack).
+our best to incorporate your feedback or code into CleanVision.
+You can also chat with our developers in [Slack][slack].
 
 Detailed contributing instructions can be found in the [Development Guide](DEVELOPMENT.md), please read this carefully!
 
@@ -49,10 +49,10 @@ in [DEVELOPMENT.md](DEVELOPMENT.md).
 ---
 
 If you have any questions about contributing to CleanVision, feel free to
-[ask][discussions]!
+[ask][slack]!
 
 [issue]: https://github.com/cleanlab/cleanvision/issues/new
 [issues]: https://github.com/cleanlab/cleanvision/issues
 [fork]: https://github.com/cleanlab/cleanvision/fork
 [pr]: https://github.com/cleanlab/cleanvision/pulls
-[discussions]: https://github.com/cleanlab/cleanvision/discussions
+[slack]: https://cleanlab.ai/slack

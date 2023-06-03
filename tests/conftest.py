@@ -35,9 +35,7 @@ def generate_single_image_file(tmpdir_factory, img_name="img.png", arr=None):
     return str(fn)
 
 
-@pytest.fixture(scope="session")
-def generate_local_dataset(tmp_path_factory, n_classes, images_per_class):
-    """Generates n temporary images for testing and returns dir of images"""
+def generate_local_dataset_base(tmp_path_factory, n_classes, images_per_class):
     tmp_image_dir = tmp_path_factory.mktemp("data")
     for i in range(n_classes):
         class_dir = tmp_image_dir / f"class_{i}"
@@ -73,3 +71,15 @@ def get_example_s3_filepaths():
         "aaea36e9.jpg",
     ]
     return [f"{raw_path}{i}" for i in near_dups]
+
+
+@pytest.fixture(scope="session")
+def generate_local_dataset(tmp_path_factory, n_classes, images_per_class):
+    """Generates n temporary images for testing and returns dir of images"""
+    return generate_local_dataset_base(tmp_path_factory, n_classes, images_per_class)
+
+
+@pytest.fixture(scope="function")
+def generate_local_dataset_once(tmp_path_factory, n_classes, images_per_class):
+    """Generates n temporary images for testing and returns dir of images"""
+    return generate_local_dataset_base(tmp_path_factory, n_classes, images_per_class)

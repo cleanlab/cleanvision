@@ -11,7 +11,7 @@ import pandas as pd
 import cleanvision
 
 if TYPE_CHECKING:  # pragma: no cover
-    from cleanvision.imagelab import Imagelab
+    from cleanvision import Imagelab
 
 # Constants:
 OBJECT_FILENAME = "imagelab.pkl"
