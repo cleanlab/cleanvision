@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Dict
 
 from PIL import Image
 
@@ -18,10 +18,11 @@ class FSDataset(Dataset):
         self,
         data_folder: Optional[str] = None,
         filepaths: Optional[List[str]] = None,
-        storage_opts: Optional[dict] = {},
+        storage_opts: Dict[str, str] = {},
     ) -> None:
         super().__init__()
         self.storage_opts = storage_opts
+        ignore_missing = self.storage_opts.pop("ignore_missing_keys", False)
         if data_folder:
             # See: https://filesystem-spec.readthedocs.io/en/latest/api.html#other-known-implementations
             # contains a list of known implementations that may resolve through that url
@@ -37,6 +38,10 @@ class FSDataset(Dataset):
             self._filepaths = filepaths
             # here we assume all of the provided filepaths are from the same filesystem
             self.fs, _ = fsspec.core.url_to_fs(self._filepaths[0], **self.storage_opts)
+            if ignore_missing:
+                self._filepaths = [
+                    path for path in self._filepaths if self.fs.exists(path)
+                ]
         self._set_index()
 
     def __len__(self) -> int:

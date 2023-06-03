@@ -208,3 +208,18 @@ def test_filepath_dataset_run(generate_local_dataset, images_per_class):
     imagelab.report()
     assert len(imagelab.issues.columns) == 14
     assert len(imagelab.issues) == images_per_class
+
+
+@pytest.mark.usefixtures("set_plt_show")
+def test_s3_dataset(capsys, get_example_s3_filepaths):
+    imagelab = Imagelab(filepaths=get_example_s3_filepaths)
+    imagelab.find_issues(
+        issue_types={
+            "near_duplicates": {},
+        }
+    )
+    assert len(imagelab.issues.columns) == 1
+    captured = capsys.readouterr()
+    imagelab.report()
+    captured = capsys.readouterr()
+    assert len(captured) > 0
