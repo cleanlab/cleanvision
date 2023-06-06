@@ -421,6 +421,13 @@ class Imagelab:
             if print_summary:
                 self._pprint_issue_summary(issue_summary)
             for issue_type in filtered_issue_types:
+                if (
+                    self.issue_summary.query(f"issue_type == '{issue_type}'")[
+                        "num_images"
+                    ].values[0]
+                    == 0
+                ):
+                    continue
                 print(f"{' ' + issue_type + ' images ':-^60}\n")
                 print(
                     f"Number of examples with this issue: {self.issues[get_is_issue_colname(issue_type)].sum()}\n"
