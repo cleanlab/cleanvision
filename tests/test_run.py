@@ -125,7 +125,7 @@ def test_custom_issue_manager(generate_local_dataset, len_dataset):
     "n_jobs_given",
     [1, 2, None],
 )
-def test_jobs(generate_local_dataset, monkeypatch, n_jobs_given):
+def test_jobs(generate_local_dataset, n_jobs_given):
     imagelab = Imagelab(data_path=generate_local_dataset)
 
     class MockPool:
