@@ -148,7 +148,7 @@ class Imagelab:
         """
         return {
             "visualize_num_images_per_row": 4,
-            "report_examples_per_issue_values": [4, 8, 16, 32],
+            "report_num_images": 4,
             "report_max_prevalence": 0.5,
             "report_cell_size": (2, 2),
         }
@@ -341,14 +341,10 @@ class Imagelab:
                 )
         return issue_to_report
 
-    def _get_report_args(
-        self, verbosity: int, user_supplied_args: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _get_report_args(self, user_supplied_args: Dict[str, Any]) -> Dict[str, Any]:
         report_args = {
             "max_prevalence": self._config["report_max_prevalence"],
-            "examples_per_issue": self._config["report_examples_per_issue_values"][
-                verbosity - 1
-            ],
+            "num_images": self._config["report_num_images"],
             "cell_size": self._config["report_cell_size"],
         }
 
@@ -363,8 +359,8 @@ class Imagelab:
         issue_types: Optional[List[str]] = None,
         max_prevalence: Optional[float] = None,
         num_images: Optional[int] = None,
-        print_summary: bool = True,
         verbosity: int = 1,
+        print_summary: bool = True,
     ) -> None:
         """Prints summary of the issues found in your dataset.
         By default, this method depicts the images representing top-most severe instances of each issue type.
@@ -402,10 +398,10 @@ class Imagelab:
             imagelab.report(issue_types=issue_types)
 
         """
-        assert isinstance(verbosity, int) and 0 < verbosity < 5
+        assert isinstance(verbosity, int) and 0 <= verbosity < 5
 
         user_supplied_args = locals()
-        report_args = self._get_report_args(verbosity, user_supplied_args)
+        report_args = self._get_report_args(user_supplied_args)
 
         issue_types_to_report = (
             issue_types if issue_types else self.issue_summary["issue_type"].tolist()
@@ -420,8 +416,9 @@ class Imagelab:
             self.issue_summary["issue_type"].isin(filtered_issue_types)
         ]
         if len(issue_summary) > 0:
-            if print_summary:
+            if verbosity:
                 print("Issues found in images in order of severity in the dataset\n")
+            if print_summary:
                 self._pprint_issue_summary(issue_summary)
             for issue_type in filtered_issue_types:
                 print(f"{' ' + issue_type + ' images ':-^60}\n")
@@ -431,11 +428,7 @@ class Imagelab:
                 )
                 self._visualize(
                     issue_type,
-                    (
-                        report_args["examples_per_issue"]
-                        if num_images is None
-                        else num_images
-                    ),
+                    report_args["num_images"],
                     report_args["cell_size"],
                 )
         else:
