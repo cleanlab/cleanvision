@@ -11,6 +11,12 @@ from cleanvision.issue_managers.image_property import BrightnessProperty
 from cleanvision.issue_managers.image_property_issue_manager import (
     compute_scores_wrapper,
 )
+from cleanvision.issue_managers import ISSUE_MANAGER_REGISTRY
+
+
+@pytest.fixture()
+def remove_custom():
+    ISSUE_MANAGER_REGISTRY.pop("custom", None)
 
 
 @pytest.fixture()
@@ -20,6 +26,7 @@ def imagelab():
     return imagelab
 
 
+@pytest.mark.usefixtures("remove_custom")
 @pytest.mark.usefixtures("set_plt_show")
 def test_imagelab_run(capsys, imagelab):
     imagelab.find_issues()
