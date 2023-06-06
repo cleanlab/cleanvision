@@ -1,12 +1,12 @@
-from unittest.mock import patch
-from cleanvision import Imagelab
-from cleanvision.utils.utils import get_filepaths
 import random
+from unittest.mock import patch
+
+import pytest
 from PIL import Image
 
 import cleanvision
-
-import pytest
+from cleanvision import Imagelab
+from cleanvision.utils.utils import get_filepaths
 
 
 @pytest.fixture()

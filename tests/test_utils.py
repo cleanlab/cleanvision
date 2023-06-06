@@ -1,12 +1,13 @@
+import multiprocessing
+
+import numpy as np
+import pandas as pd
+import psutil
+import pytest
 from PIL import Image
 
-from cleanvision.utils.utils import get_filepaths, update_df, get_max_n_jobs
 import cleanvision
-import pandas as pd
-import multiprocessing
-import numpy as np
-import pytest
-import psutil
+from cleanvision.utils.utils import get_filepaths, get_max_n_jobs, update_df
 
 
 class TestUtils:

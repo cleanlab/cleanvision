@@ -1,12 +1,14 @@
 import os
+from pathlib import Path
+
 import numpy as np
-from PIL import Image
 import pytest
 import torchvision
 from datasets import load_dataset
-from pathlib import Path
-from cleanvision.dataset.folder_dataset import FolderDataset
+from PIL import Image
+
 from cleanvision import Imagelab
+from cleanvision.dataset.folder_dataset import FolderDataset
 from cleanvision.issue_managers.image_property import BrightnessProperty
 from cleanvision.issue_managers.image_property_issue_manager import (
     compute_scores_wrapper,
