@@ -169,7 +169,9 @@ class Imagelab:
         This list will also include custom issue types if properly added.
         """
         issue_types = Imagelab.list_default_issue_types()
-        issue_types.extend(ISSUE_MANAGER_REGISTRY.keys())
+        for key in ISSUE_MANAGER_REGISTRY:
+            if key not in [IMAGE_PROPERTY, DUPLICATE]:
+                issue_types.append(key)
         return list(set(issue_types))
 
     def _get_issues_to_compute(

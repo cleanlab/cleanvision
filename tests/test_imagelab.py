@@ -1,5 +1,6 @@
 from cleanvision.imagelab import Imagelab
 from cleanvision.dataset.folder_dataset import FolderDataset
+from docs.source.tutorials.custom_issue_manager import CustomIssueManager
 
 
 class TestImagelab:
@@ -26,5 +27,8 @@ class TestImagelab:
         assert imagelab.issue_summary.empty
         assert imagelab.issues.empty
 
-    def list_possible_issue_types(self):
-        Imagelab.list_possible_issue_types()
+    def test_list_possible_issue_types(self):
+        issue_name = CustomIssueManager.issue_name
+        possible_issues = Imagelab.list_possible_issue_types()
+        assert len(possible_issues) == 10
+        assert issue_name in possible_issues
