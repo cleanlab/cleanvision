@@ -52,7 +52,6 @@ def test_visualize_sample_images(
 def test_visualize_sample_images_hf_dataset(
     monkeypatch, capsys, hf_imagelab, hf_dataset
 ):
-
     sample_indices = [0, 1, 2]
 
     def mock_sample(*args, **kwargs):
@@ -75,7 +74,6 @@ def test_visualize_sample_images_hf_dataset(
 def test_visualize_sample_images_torch_dataset(
     monkeypatch, capsys, torch_imagelab, torch_dataset
 ):
-
     sample_indices = [0, 1, 2]
 
     def mock_sample(*args, **kwargs):
