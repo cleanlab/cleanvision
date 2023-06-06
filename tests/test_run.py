@@ -11,12 +11,6 @@ from cleanvision.issue_managers.image_property import BrightnessProperty
 from cleanvision.issue_managers.image_property_issue_manager import (
     compute_scores_wrapper,
 )
-from cleanvision.issue_managers import ISSUE_MANAGER_REGISTRY
-
-
-@pytest.fixture()
-def remove_custom():
-    ISSUE_MANAGER_REGISTRY.pop("custom", None)
 
 
 @pytest.fixture()
@@ -26,7 +20,6 @@ def imagelab():
     return imagelab
 
 
-@pytest.mark.usefixtures("remove_custom")
 @pytest.mark.usefixtures("set_plt_show")
 def test_imagelab_run(capsys, imagelab):
     imagelab.find_issues()
@@ -270,3 +263,38 @@ def test_filepath_dataset_size_custom_threshold(generate_local_dataset_once):
     imagelab.find_issues({"odd_size": {"threshold": 11.0}})
     assert len(imagelab.issues.columns) == 2  # Only size
     assert len(imagelab.issues[imagelab.issues["is_odd_size_issue"]]) == 0
+
+
+def test_new_issue_registration(generate_local_dataset, len_dataset):
+    from docs.source.tutorials.custom_issue_manager import CustomIssueManager
+
+    issue_name = CustomIssueManager.issue_name
+    possible_issues = Imagelab.list_possible_issue_types()
+    assert len(possible_issues) == 10
+    assert issue_name in possible_issues
+
+    imagelab = Imagelab(data_path=generate_local_dataset)
+    issue_types = {issue_name: {}}
+    imagelab.find_issues(issue_types)
+
+    assert set(imagelab.issue_summary["issue_type"].values) == set([issue_name])
+    assert len(imagelab.issues) == len_dataset
+    assert set(["is_custom_issue", "custom_score"]) == set(imagelab.issues.columns)
+    assert set(["statistics", "custom"]) == set(imagelab.info.keys())
+
+
+def test_list_default_issue_types():
+    default_issues = Imagelab.list_default_issue_types()
+    assert set(default_issues) == set(
+        [
+            "dark",
+            "light",
+            "odd_aspect_ratio",
+            "low_information",
+            "exact_duplicates",
+            "near_duplicates",
+            "blurry",
+            "grayscale",
+            "odd_size",
+        ]
+    )
