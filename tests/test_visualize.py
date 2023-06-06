@@ -129,3 +129,11 @@ def test_visualize_indices_torch(torch_imagelab, torch_dataset):
 
     images = [torch_dataset[i][0] for i in sample_indices]
     mock_viz_method.call_args.args[0] == images
+
+
+@pytest.mark.usefixtures("set_plt_show")
+def test_visualize_empty_list(folder_imagelab):
+    with pytest.raises(ValueError, match="issue_types list is empty"):
+        folder_imagelab.visualize(issue_types=[])
+    with pytest.raises(ValueError, match="image_files list is empty"):
+        folder_imagelab.visualize(image_files=[])

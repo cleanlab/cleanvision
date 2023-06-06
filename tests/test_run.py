@@ -3,8 +3,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-import torchvision
-from datasets import load_dataset
 from PIL import Image
 
 from cleanvision import Imagelab
@@ -156,30 +154,18 @@ def test_compute_scores(generate_single_image_file):
     _ = compute_scores_wrapper(args)
 
 
-def test_hf_dataset_run(generate_local_dataset, len_dataset):
-    hf_dataset = load_dataset(
-        "imagefolder", data_dir=generate_local_dataset, split="train"
-    )
+def test_hf_dataset_run(hf_dataset):
     imagelab = Imagelab(hf_dataset=hf_dataset, image_key="image")
     imagelab.find_issues()
     assert len(imagelab.issues.columns) == 18
-    assert len(imagelab.issues) == len_dataset
+    assert len(imagelab.issues) == len(hf_dataset)
 
 
-def test_torch_dataset_run(generate_local_dataset, len_dataset):
-    torch_ds = torchvision.datasets.ImageFolder(root=generate_local_dataset)
-    imagelab = Imagelab(torchvision_dataset=torch_ds)
+def test_torch_dataset_run(torch_dataset):
+    imagelab = Imagelab(torchvision_dataset=torch_dataset)
     imagelab.find_issues()
     assert len(imagelab.issues.columns) == 18
-    assert len(imagelab.issues) == len_dataset
-
-
-@pytest.mark.usefixtures("set_plt_show")
-def test_visualize_given_imagefiles(generate_local_dataset):
-    imagelab = Imagelab(data_path=generate_local_dataset)
-    files = os.listdir(generate_local_dataset / "class_0")
-    filepaths = [os.path.join(generate_local_dataset / "class_0", f) for f in files]
-    imagelab.visualize(image_files=filepaths)
+    assert len(imagelab.issues) == len(torch_dataset)
 
 
 def test_run_imagelab_given_filepaths(generate_local_dataset, images_per_class):
@@ -191,7 +177,7 @@ def test_run_imagelab_given_filepaths(generate_local_dataset, images_per_class):
     assert len(imagelab.issues) == images_per_class
 
 
-def test_filepath_dataset_size_to_large(generate_local_dataset_once):
+def test_odd_size_too_large_image(generate_local_dataset_once):
     """
     Size issue is defined based on the area of an image. If the sqrt(width * height) is larger than the median
     sqrt(width * height)*threshold(default 10),is_odd_size_issue is set to True. In this example, the median area is sqrt(300x300) so 300.
@@ -212,7 +198,7 @@ def test_filepath_dataset_size_to_large(generate_local_dataset_once):
 
 
 @pytest.mark.usefixtures("set_plt_show")
-def test_filepath_dataset_size_to_small(generate_local_dataset_once):
+def test_odd_size_too_small_image(generate_local_dataset_once):
     """
     Size issue is defined based on the area of an image. If the sqrt(width * height) is larger than the median
     sqrt(width * height)*threshold(default 10),is_odd_size_issue is set to True. In this example, the median area is sqrt(300x300) so 300.
@@ -237,7 +223,7 @@ def test_filepath_dataset_size_to_small(generate_local_dataset_once):
     assert len(imagelab.issues[imagelab.issues["is_odd_size_issue"]]) == 1
 
 
-def test_filepath_dataset_size_custom_threshold(generate_local_dataset_once):
+def test_custom_threshold_for_odd_size(generate_local_dataset_once):
     """
     With default threshold the small image would be flagged (See test_filepath_dataset_size_to_small). However,
      with a custom threshold of 11 instead of 10, the imaage is within the allowed range and should not be flagged.
@@ -276,14 +262,6 @@ def test_list_default_issue_types():
             "odd_size",
         ]
     )
-
-
-@pytest.mark.usefixtures("set_plt_show")
-def test_visualize_empty_list(imagelab):
-    with pytest.raises(ValueError, match="issue_types list is empty"):
-        imagelab.visualize(issue_types=[])
-    with pytest.raises(ValueError, match="image_files list is empty"):
-        imagelab.visualize(image_files=[])
 
 
 def test_new_issue_registration(generate_local_dataset, len_dataset):
