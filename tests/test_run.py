@@ -265,6 +265,23 @@ def test_filepath_dataset_size_custom_threshold(generate_local_dataset_once):
     assert len(imagelab.issues[imagelab.issues["is_odd_size_issue"]]) == 0
 
 
+def test_list_default_issue_types():
+    default_issues = Imagelab.list_default_issue_types()
+    assert set(default_issues) == set(
+        [
+            "dark",
+            "light",
+            "odd_aspect_ratio",
+            "low_information",
+            "exact_duplicates",
+            "near_duplicates",
+            "blurry",
+            "grayscale",
+            "odd_size",
+        ]
+    )
+
+
 def test_new_issue_registration(generate_local_dataset, len_dataset):
     from docs.source.tutorials.custom_issue_manager import CustomIssueManager
 
@@ -281,20 +298,3 @@ def test_new_issue_registration(generate_local_dataset, len_dataset):
     assert len(imagelab.issues) == len_dataset
     assert set(["is_custom_issue", "custom_score"]) == set(imagelab.issues.columns)
     assert set(["statistics", "custom"]) == set(imagelab.info.keys())
-
-
-def test_list_default_issue_types():
-    default_issues = Imagelab.list_default_issue_types()
-    assert set(default_issues) == set(
-        [
-            "dark",
-            "light",
-            "odd_aspect_ratio",
-            "low_information",
-            "exact_duplicates",
-            "near_duplicates",
-            "blurry",
-            "grayscale",
-            "odd_size",
-        ]
-    )
