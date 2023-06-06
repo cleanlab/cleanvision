@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from PIL import Image
+from datasets import load_dataset
+import torchvision
 
 
 @pytest.fixture(scope="session")
@@ -51,6 +53,20 @@ def generate_local_dataset_base(tmp_path_factory, n_classes, images_per_class):
             fn = class_dir / img_name
             img.save(fn)
     return tmp_image_dir
+
+
+@pytest.fixture(scope="session")
+def hf_dataset(generate_local_dataset):
+    hf_dataset = load_dataset(
+        "imagefolder", data_dir=generate_local_dataset, split="train"
+    )
+    return hf_dataset
+
+
+@pytest.fixture(scope="session")
+def torch_dataset(generate_local_dataset):
+    torch_ds = torchvision.datasets.ImageFolder(root=generate_local_dataset)
+    return torch_ds
 
 
 @pytest.fixture(scope="session")

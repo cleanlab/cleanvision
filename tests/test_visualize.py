@@ -3,13 +3,33 @@ from cleanvision import Imagelab
 from cleanvision.utils.utils import get_filepaths
 import random
 from PIL import Image
-from datasets import load_dataset
+
 import cleanvision
-import torchvision
+
+import pytest
 
 
-def test_visualize_sample_images(generate_local_dataset, monkeypatch, capsys):
+@pytest.fixture()
+def folder_imagelab(generate_local_dataset):
     imagelab = Imagelab(data_path=generate_local_dataset)
+    return imagelab
+
+
+@pytest.fixture()
+def hf_imagelab(hf_dataset):
+    imagelab = Imagelab(hf_dataset=hf_dataset, image_key="image")
+    return imagelab
+
+
+@pytest.fixture()
+def torch_imagelab(torch_dataset):
+    imagelab = Imagelab(torchvision_dataset=torch_dataset)
+    return imagelab
+
+
+def test_visualize_sample_images(
+    generate_local_dataset, monkeypatch, capsys, folder_imagelab
+):
     filepaths = get_filepaths(generate_local_dataset)[:3]
 
     def mock_sample(*args, **kwargs):
@@ -20,7 +40,7 @@ def test_visualize_sample_images(generate_local_dataset, monkeypatch, capsys):
     with patch.object(
         cleanvision.utils.viz_manager.VizManager, "individual_images", return_value=None
     ) as mock_viz_method:
-        imagelab.visualize()
+        folder_imagelab.visualize()
 
     captured = capsys.readouterr()
     assert "Sample images from the dataset" in captured.out
@@ -30,12 +50,9 @@ def test_visualize_sample_images(generate_local_dataset, monkeypatch, capsys):
 
 
 def test_visualize_sample_images_hf_dataset(
-    generate_local_dataset, monkeypatch, capsys
+    monkeypatch, capsys, hf_imagelab, hf_dataset
 ):
-    hf_dataset = load_dataset(
-        "imagefolder", data_dir=generate_local_dataset, split="train"
-    )
-    imagelab = Imagelab(hf_dataset=hf_dataset, image_key="image")
+
     sample_indices = [0, 1, 2]
 
     def mock_sample(*args, **kwargs):
@@ -46,7 +63,7 @@ def test_visualize_sample_images_hf_dataset(
     with patch.object(
         cleanvision.utils.viz_manager.VizManager, "individual_images", return_value=None
     ) as mock_viz_method:
-        imagelab.visualize()
+        hf_imagelab.visualize()
 
     captured = capsys.readouterr()
     assert "Sample images from the dataset" in captured.out
@@ -56,10 +73,9 @@ def test_visualize_sample_images_hf_dataset(
 
 
 def test_visualize_sample_images_torch_dataset(
-    generate_local_dataset, monkeypatch, capsys
+    monkeypatch, capsys, torch_imagelab, torch_dataset
 ):
-    torch_ds = torchvision.datasets.ImageFolder(root=generate_local_dataset)
-    imagelab = Imagelab(torchvision_dataset=torch_ds)
+
     sample_indices = [0, 1, 2]
 
     def mock_sample(*args, **kwargs):
@@ -70,10 +86,46 @@ def test_visualize_sample_images_torch_dataset(
     with patch.object(
         cleanvision.utils.viz_manager.VizManager, "individual_images", return_value=None
     ) as mock_viz_method:
-        imagelab.visualize()
+        torch_imagelab.visualize()
 
     captured = capsys.readouterr()
     assert "Sample images from the dataset" in captured.out
 
-    images = [torch_ds[i][0] for i in sample_indices]
+    images = [torch_dataset[i][0] for i in sample_indices]
+    mock_viz_method.call_args.args[0] == images
+
+
+def test_visualize_indices(folder_imagelab, generate_local_dataset):
+    filepaths = get_filepaths(generate_local_dataset)[:3]
+
+    with patch.object(
+        cleanvision.utils.viz_manager.VizManager, "individual_images", return_value=None
+    ) as mock_viz_method:
+        folder_imagelab.visualize(indices=filepaths)
+
+    images = [Image.open(filepath) for filepath in filepaths]
+    mock_viz_method.call_args.args[0] == images
+
+
+def test_visualize_indices_hf(hf_imagelab, hf_dataset):
+    sample_indices = [0, 1, 2]
+
+    with patch.object(
+        cleanvision.utils.viz_manager.VizManager, "individual_images", return_value=None
+    ) as mock_viz_method:
+        hf_imagelab.visualize(indices=sample_indices)
+
+    images = [hf_dataset[i]["image"] for i in sample_indices]
+    mock_viz_method.call_args.args[0] == images
+
+
+def test_visualize_indices_torch(torch_imagelab, torch_dataset):
+    sample_indices = [0, 1, 2]
+
+    with patch.object(
+        cleanvision.utils.viz_manager.VizManager, "individual_images", return_value=None
+    ) as mock_viz_method:
+        torch_imagelab.visualize(indices=sample_indices)
+
+    images = [torch_dataset[i][0] for i in sample_indices]
     mock_viz_method.call_args.args[0] == images
