@@ -13,7 +13,7 @@ from cleanvision.issue_managers.image_property_issue_manager import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def imagelab():
     data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "./data")
     imagelab = Imagelab(data_path=data_path)
@@ -173,12 +173,6 @@ def test_torch_dataset_run(generate_local_dataset, len_dataset):
 
 
 @pytest.mark.usefixtures("set_plt_show")
-def test_visualize_sample_images(generate_local_dataset):
-    imagelab = Imagelab(data_path=generate_local_dataset)
-    imagelab.visualize()
-
-
-@pytest.mark.usefixtures("set_plt_show")
 def test_visualize_given_imagefiles(generate_local_dataset):
     imagelab = Imagelab(data_path=generate_local_dataset)
     files = os.listdir(generate_local_dataset / "class_0")
@@ -280,6 +274,14 @@ def test_list_default_issue_types():
             "odd_size",
         ]
     )
+
+
+@pytest.mark.usefixtures("set_plt_show")
+def test_visualize_empty_list(imagelab):
+    with pytest.raises(ValueError, match="issue_types list is empty"):
+        imagelab.visualize(issue_types=[])
+    with pytest.raises(ValueError, match="image_files list is empty"):
+        imagelab.visualize(image_files=[])
 
 
 def test_new_issue_registration(generate_local_dataset, len_dataset):

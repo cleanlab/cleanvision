@@ -582,12 +582,12 @@ class Imagelab:
             imagelab.visualize(issue_types=issue_types)
 
         """
-        if issue_types:
+        if issue_types is not None:
             if len(issue_types) == 0:
                 raise ValueError("issue_types list is empty")
             for issue_type in issue_types:
                 self._visualize(issue_type, num_images, cell_size)
-        elif image_files:
+        elif image_files is not None:
             # todo: write test
             if len(image_files) == 0:
                 raise ValueError("image_files list is empty.")
@@ -609,7 +609,7 @@ class Imagelab:
                 cell_size=cell_size,
             )
         else:
-            # todo: write test
+
             print("Sample images from the dataset")
 
             if image_files is None:
