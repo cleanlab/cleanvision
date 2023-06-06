@@ -6,7 +6,7 @@ but advanced users can get extra flexibility via the code in other CleanVision m
 from __future__ import annotations
 
 import random
-from typing import TYPE_CHECKING, TypeVar, List, Dict, Any, Optional, Tuple, Type
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -15,26 +15,23 @@ from PIL import Image
 import cleanvision
 from cleanvision.dataset.torch_dataset import TorchDataset
 from cleanvision.dataset.utils import build_dataset
-from cleanvision.issue_managers import (
-    IssueManagerFactory,
-    ISSUE_MANAGER_REGISTRY,
-)
+from cleanvision.issue_managers import ISSUE_MANAGER_REGISTRY, IssueManagerFactory
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import (
-    IMAGE_PROPERTY,
-    DUPLICATE,
-    IMAGE_PROPERTY_ISSUE_TYPES_LIST,
-    DUPLICATE_ISSUE_TYPES_LIST,
-    SETS,
     DEFAULT_ISSUE_TYPES,
+    DUPLICATE,
+    DUPLICATE_ISSUE_TYPES_LIST,
+    IMAGE_PROPERTY,
+    IMAGE_PROPERTY_ISSUE_TYPES_LIST,
+    SETS,
 )
 from cleanvision.utils.serialize import Serializer
 from cleanvision.utils.utils import (
     deep_update_dict,
     get_is_issue_colname,
+    get_max_n_jobs,
     get_score_colname,
     update_df,
-    get_max_n_jobs,
 )
 from cleanvision.utils.viz_manager import VizManager
 
@@ -121,7 +118,6 @@ class Imagelab:
         hf_dataset: Optional["datasets.Dataset"] = None,
         image_key: Optional[str] = None,
         torchvision_dataset: Optional["VisionDataset"] = None,
-        verbosity: int = 1,
     ) -> None:
         self._dataset = build_dataset(
             data_path, filepaths, hf_dataset, image_key, torchvision_dataset
@@ -137,10 +133,9 @@ class Imagelab:
         self._issue_types: List[str] = []
         self._issue_managers: Dict[str, IssueManager] = {}
 
-        # can be loaded from a file later
+        # TODO: can be loaded from a file later
         self._config: Dict[str, Any] = self._set_default_config()
         self.cleanvision_version: str = cleanvision.__version__
-        self.verbosity = verbosity
 
     def _set_default_config(self) -> Dict[str, Any]:
         """Sets default values for various config variables used in Imagelab class
@@ -189,7 +184,10 @@ class Imagelab:
         return to_compute_issues_with_params
 
     def find_issues(
-        self, issue_types: Optional[Dict[str, Any]] = None, n_jobs: Optional[int] = None
+        self,
+        issue_types: Optional[Dict[str, Any]] = None,
+        n_jobs: Optional[int] = None,
+        verbose: bool = True,
     ) -> None:
         """Finds issues in the dataset.
         If `issue_types` is not provided, dataset is checked for a default set of issue types.
@@ -237,7 +235,7 @@ class Imagelab:
 
         """
         to_compute_issues_with_params = self._get_issues_to_compute(issue_types)
-        if self.verbosity:
+        if verbose:
             print(
                 f"Checking for {', '.join([issue_type for issue_type in to_compute_issues_with_params.keys()])} images ..."
             )
@@ -276,7 +274,7 @@ class Imagelab:
             by=["num_images"], ascending=False
         )
         self.issue_summary = self.issue_summary.reset_index(drop=True)
-        if self.verbosity:
+        if verbose:
             print(
                 f"Issue checks completed. {self.issue_summary['num_images'].sum()} issues found in the dataset. To see a detailed report of issues found, use imagelab.report()."
             )
@@ -409,14 +407,9 @@ class Imagelab:
         user_supplied_args = locals()
         report_args = self._get_report_args(verbosity, user_supplied_args)
 
-        if issue_types:
-            issue_types_to_report = issue_types
-        else:
-            # Remove issues with zero images from the report
-            non_zero_issue_types = self.issue_summary[
-                self.issue_summary["num_images"] > 0
-            ]["issue_type"].tolist()
-            issue_types_to_report = non_zero_issue_types
+        issue_types_to_report = (
+            issue_types if issue_types else self.issue_summary["issue_type"].tolist()
+        )
 
         # filter issues based on max_prevalence in the dataset
         filtered_issue_types = self._filter_report(
@@ -446,8 +439,9 @@ class Imagelab:
                     report_args["cell_size"],
                 )
         else:
-            if self.verbosity:
-                print("No issues found.")
+            print(
+                "Please specify some issue_types to check for in imagelab.find_issues()."
+            )
 
     def _pprint_issue_summary(self, issue_summary: pd.DataFrame) -> None:
         issue_summary_copy = issue_summary.copy()
