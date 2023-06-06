@@ -609,7 +609,6 @@ class Imagelab:
                 cell_size=cell_size,
             )
         else:
-
             print("Sample images from the dataset")
 
             if image_files is None:
