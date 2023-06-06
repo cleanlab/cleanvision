@@ -15,125 +15,133 @@ from docs.source.tutorials.custom_issue_manager import CustomIssueManager
 
 
 @pytest.mark.usefixtures("set_plt_show")
-def test_example1(capsys, generate_local_dataset):
-    imagelab = Imagelab(data_path=generate_local_dataset)  # initialize imagelab
-    imagelab.list_default_issue_types()  # list default checks
-
-    # ==== Test list_default_issue_types() lists all default isssue types====
-    DEFAULT_ISSUE_TYPES = [
-        "dark",
-        "light",
-        "odd_aspect_ratio",
-        "low_information",
-        "exact_duplicates",
-        "near_duplicates",
-        "blurry",
-        "grayscale",
-        "odd_size",
-    ]
-    captured = capsys.readouterr()
-
-    for issue_type in DEFAULT_ISSUE_TYPES:
-        assert issue_type in captured.out
-
-    for issue_type in imagelab._issue_types:
-        assert issue_type in captured.out
-
-    # ===[TODO] Test visualize produces some result ===
-    # imagelab.visualize()  # visualize random images in dataset
-
-    # === Test find_issues() finds issues in dataset ===
-    assert len(imagelab.issue_summary) == 0
-    imagelab.find_issues()  # Find issues in the dataset
-    assert len(imagelab.issue_summary) > 0
-
-    # === Test report() produces print output ===
-    captured = capsys.readouterr()
+def test_imagelab_run(capsys):
+    data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "./data")
+    imagelab = Imagelab(data_path=data_path)
+    imagelab.find_issues()
     imagelab.report()
     captured = capsys.readouterr()
-    assert len(captured) > 0
 
-    # === [TODO] Test visualize works as needed ===
-    # imagelab.visualize(
-    #     issue_types=["blurry"], num_images=8
-    # )  # visualize images that have specific issues
-    #
-    # # Get all images with blurry issue type
-    # blurry_images = imagelab.issues[
-    #     imagelab.issues["is_blurry_issue"] == True
-    #     ].index.to_list()
-    # imagelab.visualize(image_files=blurry_images)  # visualize the given image files
+    assert len(imagelab.issue_summary) == 9
+    assert len(imagelab.issues) == 10
+    assert "statistics" in imagelab.info
+    for key in [
+        "color_space",
+        "entropy",
+        "brightness",
+        "blurriness",
+        "aspect_ratio",
+        "size",
+    ]:
+        assert key in imagelab.info["statistics"]
 
-    # === Test miscellaneous extra information about datasset
-    assert set(imagelab.info.keys()) == set(DEFAULT_ISSUE_TYPES + ["statistics"])
-    for key in ["color_space", "entropy", "brightness", "blurriness", "aspect_ratio"]:
-        assert key in list(imagelab.info["statistics"].keys())
+    assert imagelab.info["exact_duplicates"]["num_sets"] == 1
+    assert imagelab.info["near_duplicates"]["num_sets"] == 1
+    assert len(imagelab.issues.query("is_dark_issue")) == 1
+    assert len(imagelab.issues.query("is_odd_size_issue")) == 1
+    assert len(imagelab.issues.query("is_odd_aspect_ratio_issue")) == 1
+    assert len(imagelab.issues.query("is_low_information_issue")) == 2
+    assert len(imagelab.issues.query("is_light_issue")) == 1
+    assert len(imagelab.issues.query("is_grayscale_issue")) == 1
+    assert len(imagelab.issues.query("is_blurry_issue")) == 1
+    assert len(imagelab.issues.query("is_exact_duplicates_issue")) == 2
+    assert len(imagelab.issues.query("is_near_duplicates_issue")) == 2
+    assert "Issues found in images in order of severity in the dataset" in captured.out
+    assert "Number of examples with this issue:" in captured.out
+    assert "Examples representing most severe instances of this issue:" in captured.out
 
 
-@pytest.mark.usefixtures("set_plt_show")
-def test_example2(generate_local_dataset, tmp_path):
-    imagelab = Imagelab(data_path=generate_local_dataset)  # initialize imagelab
+def test_incremental_issue_finding(generate_local_dataset, len_dataset):
+    imagelab = Imagelab(data_path=generate_local_dataset)
     issue_types = {"near_duplicates": {}}
     imagelab.find_issues(issue_types)
-    imagelab.report()
-    save_folder = tmp_path / "T_save_folder/"
 
-    imagelab.save(
-        save_folder
-    )  # optional, just included to show how to save/load this as a file
+    assert len(imagelab.issue_summary) == 1
+    assert "near_duplicates" in imagelab.issue_summary["issue_type"].values
+    assert len(imagelab.issues) == len_dataset
+    assert set(["is_near_duplicates_issue", "near_duplicates_score"]) == set(
+        imagelab.issues.columns
+    )
+    assert set(["statistics", "near_duplicates", "exact_duplicates"]) == set(
+        imagelab.info.keys()
+    )
 
-    # Check for additional types of issues using existing Imagelab
-    imagelab = Imagelab.load(save_folder, generate_local_dataset)
     issue_types = {"light": {}, "low_information": {}}
     imagelab.find_issues(issue_types)
-    imagelab.report()
 
-    # Check for an issue with a different threshold
-    issue_types = {"dark": {"threshold": 0.2}}
-    imagelab.find_issues(issue_types)
-    imagelab.report(issue_types=issue_types.keys())  # report only specific issues
+    assert len(imagelab.issue_summary) == 3
+    assert set(["light", "low_information", "near_duplicates"]) == set(
+        imagelab.issue_summary["issue_type"].values
+    )
+    assert len(imagelab.issues) == len_dataset
+    assert set(
+        [
+            "is_near_duplicates_issue",
+            "near_duplicates_score",
+            "is_light_issue",
+            "light_score",
+            "is_low_information_issue",
+            "low_information_score",
+        ]
+    ) == set(imagelab.issues.columns)
+    assert set(
+        [
+            "statistics",
+            "near_duplicates",
+            "exact_duplicates",
+            "light",
+            "low_information",
+        ]
+    ) == set(imagelab.info.keys())
+    assert set(["brightness", "entropy"]) == set(imagelab.info["statistics"].keys())
+    assert set(
+        [
+            "brightness_perc_99",
+            "brightness_perc_95",
+            "brightness_perc_90",
+            "brightness_perc_15",
+            "brightness_perc_10",
+            "brightness_perc_5",
+            "brightness_perc_1",
+        ]
+    ) == set(imagelab.info["light"].keys())
 
 
 @pytest.mark.usefixtures("set_plt_show")
-def test_example3(generate_local_dataset):
-    imagelab = Imagelab(data_path=generate_local_dataset)
-    imagelab.find_issues()
-    imagelab.report(["near_duplicates"])
-
-    issue_types = {"near_duplicates": {"hash_type": "phash"}}
-    imagelab.find_issues(issue_types)
-    imagelab.report(issue_types=issue_types.keys())
-
-    # Customize report and visualize
-
-    # Change verbosity
-    imagelab.report(verbosity=3)
-
-    # Report arg values here will overwrite verbosity defaults
-    # Find top examples suffering from issues that are not present in more than 1% of the dataset
-    imagelab.report(max_prevalence=0.01)
-
-    # Increase cell_size in the grid
-    imagelab.visualize(issue_types=["light"], num_images=8, cell_size=(3, 3))
-
-
-@pytest.mark.usefixtures("set_plt_show")
-def test_example4(generate_local_dataset):
+def test_custom_issue_manager(generate_local_dataset, len_dataset):
     imagelab = Imagelab(data_path=generate_local_dataset)
     issue_name = CustomIssueManager.issue_name
-    imagelab.list_possible_issue_types()
 
     issue_types = {issue_name: {}}
     imagelab.find_issues(issue_types)  # check for custom issue type
 
-    imagelab.find_issues()  # also check for default issue types
-    imagelab.report()
+    assert set(imagelab.issue_summary["issue_type"].values) == set([issue_name])
+    assert len(imagelab.issues) == len_dataset
+    assert set(["is_custom_issue", "custom_score"]) == set(imagelab.issues.columns)
+    assert set(["statistics", "custom"]) == set(imagelab.info.keys())
 
 
-@pytest.mark.usefixtures("set_plt_show")
-def test_jobs(generate_local_dataset):
+@pytest.mark.parametrize(
+    "n_jobs_given",
+    [1, 2, None],
+)
+def test_jobs(generate_local_dataset, monkeypatch, n_jobs_given):
     imagelab = Imagelab(data_path=generate_local_dataset)
-    imagelab.find_issues(n_jobs=1)
+
+    class MockPool:
+        def __init__(self, n_jobs):
+            if n_jobs_given:
+                assert n_jobs == n_jobs_given
+            else:
+                assert n_jobs > 1
+
+        def __enter__(self):
+            pass
+
+        def __exit__(self):
+            pass
+
+    imagelab.find_issues(n_jobs=n_jobs_given)
 
 
 def test_compute_scores(generate_single_image_file):
@@ -151,40 +159,22 @@ def test_compute_scores(generate_single_image_file):
     _ = compute_scores_wrapper(args)
 
 
-@pytest.mark.usefixtures("set_plt_show")
-def test_example5(generate_local_dataset):
-    imagelab = Imagelab(data_path=generate_local_dataset)
-    imagelab.find_issues({"blurry": {}})
-    imagelab.find_issues({"dark": {}})
-    imagelab.report()
-    # Also test the reverse direction:
-    # TODO: this direction maybe can be made faster since blurry-check depends on dark-score
-    imagelab = Imagelab(data_path=generate_local_dataset)
-    imagelab.find_issues({"dark": {}})
-    imagelab.find_issues({"blurry": {}})
-    imagelab.report()
-
-
-@pytest.mark.usefixtures("set_plt_show")
-def test_hf_dataset_run(generate_local_dataset, n_classes, images_per_class):
+def test_hf_dataset_run(generate_local_dataset, len_dataset):
     hf_dataset = load_dataset(
         "imagefolder", data_dir=generate_local_dataset, split="train"
     )
     imagelab = Imagelab(hf_dataset=hf_dataset, image_key="image")
     imagelab.find_issues()
-    imagelab.report()
     assert len(imagelab.issues.columns) == 18
-    assert len(imagelab.issues) == n_classes * images_per_class
+    assert len(imagelab.issues) == len_dataset
 
 
-@pytest.mark.usefixtures("set_plt_show")
-def test_torch_dataset_run(generate_local_dataset, n_classes, images_per_class):
+def test_torch_dataset_run(generate_local_dataset, len_dataset):
     torch_ds = torchvision.datasets.ImageFolder(root=generate_local_dataset)
     imagelab = Imagelab(torchvision_dataset=torch_ds)
     imagelab.find_issues()
-    imagelab.report()
     assert len(imagelab.issues.columns) == 18
-    assert len(imagelab.issues) == n_classes * images_per_class
+    assert len(imagelab.issues) == len_dataset
 
 
 @pytest.mark.usefixtures("set_plt_show")
@@ -201,36 +191,16 @@ def test_visualize_given_imagefiles(generate_local_dataset):
     imagelab.visualize(image_files=filepaths)
 
 
-@pytest.mark.usefixtures("set_plt_show")
-def test_filepath_dataset_run(generate_local_dataset, images_per_class):
+def test_run_imagelab_given_filepaths(generate_local_dataset, images_per_class):
     files = os.listdir(generate_local_dataset / "class_0")
     filepaths = [os.path.join(generate_local_dataset / "class_0", f) for f in files]
     imagelab = Imagelab(filepaths=filepaths)
     imagelab.find_issues()
-    imagelab.report()
     assert len(imagelab.issues.columns) == 18
     assert len(imagelab.issues) == images_per_class
 
 
-@pytest.mark.usefixtures("set_plt_show")
-def test_filepath_dataset_size_negative(generate_local_dataset_once, images_per_class):
-    """
-
-    All images are same size, so no image should have an size issue
-
-    """
-    files = os.listdir(generate_local_dataset_once / "class_0")
-    filepaths = [
-        os.path.join(generate_local_dataset_once / "class_0", f) for f in files
-    ]
-    imagelab = Imagelab(filepaths=filepaths)
-    imagelab.find_issues()
-    assert len(imagelab.issues.columns) == 18
-    assert len(imagelab.issues[imagelab.issues["is_odd_size_issue"]]) == 0
-
-
-@pytest.mark.usefixtures("set_plt_show")
-def test_filepath_dataset_size_to_large(generate_local_dataset_once, images_per_class):
+def test_filepath_dataset_size_to_large(generate_local_dataset_once):
     """
     Size issue is defined based on the area of an image. If the sqrt(width * height) is larger than the median
     sqrt(width * height)*threshold(default 10),is_odd_size_issue is set to True. In this example, the median area is sqrt(300x300) so 300.
@@ -251,7 +221,7 @@ def test_filepath_dataset_size_to_large(generate_local_dataset_once, images_per_
 
 
 @pytest.mark.usefixtures("set_plt_show")
-def test_filepath_dataset_size_to_small(generate_local_dataset_once, images_per_class):
+def test_filepath_dataset_size_to_small(generate_local_dataset_once):
     """
     Size issue is defined based on the area of an image. If the sqrt(width * height) is larger than the median
     sqrt(width * height)*threshold(default 10),is_odd_size_issue is set to True. In this example, the median area is sqrt(300x300) so 300.
@@ -276,10 +246,7 @@ def test_filepath_dataset_size_to_small(generate_local_dataset_once, images_per_
     assert len(imagelab.issues[imagelab.issues["is_odd_size_issue"]]) == 1
 
 
-@pytest.mark.usefixtures("set_plt_show")
-def test_filepath_dataset_size_custom_threshold(
-    generate_local_dataset_once, images_per_class
-):
+def test_filepath_dataset_size_custom_threshold(generate_local_dataset_once):
     """
     With default threshold the small image would be flagged (See test_filepath_dataset_size_to_small). However,
      with a custom threshold of 11 instead of 10, the imaage is within the allowed range and should not be flagged.

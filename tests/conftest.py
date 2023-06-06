@@ -14,6 +14,11 @@ def images_per_class():
     return 10
 
 
+@pytest.fixture(scope="session")
+def len_dataset(n_classes, images_per_class):
+    return n_classes * images_per_class
+
+
 @pytest.fixture()
 def set_plt_show(monkeypatch):
     monkeypatch.setattr(plt, "show", lambda: None)
