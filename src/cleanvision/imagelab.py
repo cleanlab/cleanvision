@@ -588,7 +588,6 @@ class Imagelab:
             for issue_type in issue_types:
                 self._visualize(issue_type, num_images, cell_size)
         elif image_files is not None:
-            # todo: write test
             if len(image_files) == 0:
                 raise ValueError("image_files list is empty.")
             images = [Image.open(path) for path in image_files]

@@ -102,9 +102,11 @@ def test_visualize_indices(folder_imagelab, generate_local_dataset):
         cleanvision.utils.viz_manager.VizManager, "individual_images", return_value=None
     ) as mock_viz_method:
         folder_imagelab.visualize(indices=filepaths)
+        folder_imagelab.visualize(image_files=filepaths)
 
     images = [Image.open(filepath) for filepath in filepaths]
     mock_viz_method.call_args.args[0] == images
+    mock_viz_method.call_count == 2
 
 
 def test_visualize_indices_hf(hf_imagelab, hf_dataset):
