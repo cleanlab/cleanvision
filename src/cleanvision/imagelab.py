@@ -202,6 +202,8 @@ class Imagelab:
             Number of processing threads used by multiprocessing.
             Default None sets to the number of cores on your CPU (physical cores if you have psutil package installed, otherwise logical cores).
             Set this to 1 to disable parallel processing (if its causing issues). Windows users may see a speed-up with n_jobs=1.
+        verbose : bool, default=True
+            If True, prints helpful information while checking for issues.
 
         Examples
         --------
@@ -381,6 +383,9 @@ class Imagelab:
 
         verbosity : int, {1, 2, 3, 4}
             Increasing verbosity increases the detail of the report. Set this to 1 to report less information, or to 4 to report the most information.
+
+        print_summary : bool, default=True
+            If True, prints the summary of issues found in the dataset.
 
         Examples
         --------
