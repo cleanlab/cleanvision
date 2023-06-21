@@ -6,7 +6,7 @@ but advanced users can get extra flexibility via the code in other CleanVision m
 from __future__ import annotations
 
 import random
-from typing import TYPE_CHECKING, TypeVar, List, Dict, Any, Optional, Tuple, Type
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -15,26 +15,23 @@ from PIL import Image
 import cleanvision
 from cleanvision.dataset.torch_dataset import TorchDataset
 from cleanvision.dataset.utils import build_dataset
-from cleanvision.issue_managers import (
-    IssueType,
-    IssueManagerFactory,
-    ISSUE_MANAGER_REGISTRY,
-)
+from cleanvision.issue_managers import ISSUE_MANAGER_REGISTRY, IssueManagerFactory
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import (
-    IMAGE_PROPERTY,
+    DEFAULT_ISSUE_TYPES,
     DUPLICATE,
-    IMAGE_PROPERTY_ISSUE_TYPES_LIST,
     DUPLICATE_ISSUE_TYPES_LIST,
+    IMAGE_PROPERTY,
+    IMAGE_PROPERTY_ISSUE_TYPES_LIST,
     SETS,
 )
 from cleanvision.utils.serialize import Serializer
 from cleanvision.utils.utils import (
     deep_update_dict,
     get_is_issue_colname,
+    get_max_n_jobs,
     get_score_colname,
     update_df,
-    get_max_n_jobs,
 )
 from cleanvision.utils.viz_manager import VizManager
 
@@ -136,7 +133,7 @@ class Imagelab:
         self._issue_types: List[str] = []
         self._issue_managers: Dict[str, IssueManager] = {}
 
-        # can be loaded from a file later
+        # TODO: can be loaded from a file later
         self._config: Dict[str, Any] = self._set_default_config()
         self.cleanvision_version: str = cleanvision.__version__
 
@@ -151,47 +148,33 @@ class Imagelab:
         """
         return {
             "visualize_num_images_per_row": 4,
-            "report_examples_per_issue_values": [4, 8, 16, 32],
+            "report_num_images": 4,
             "report_max_prevalence": 0.5,
-            "default_issue_types": [
-                IssueType.DARK,
-                IssueType.LIGHT,
-                IssueType.ODD_ASPECT_RATIO,
-                IssueType.LOW_INFORMATION,
-                IssueType.EXACT_DUPLICATES,
-                IssueType.NEAR_DUPLICATES,
-                IssueType.BLURRY,
-                IssueType.GRAYSCALE,
-                IssueType.ODD_SIZE,
-            ],
+            "report_cell_size": (2, 2),
         }
 
-    def list_default_issue_types(self) -> None:
-        """Prints list of the issue types detected by default if no types are specified in :py:meth:`Imagelab.find_issues`"""
+    @staticmethod
+    def list_default_issue_types() -> List[str]:
+        """Returns a list of the issue types that are run by default in :py:meth:`Imagelab.find_issues`"""
+        return DEFAULT_ISSUE_TYPES
 
-        print("Default issue type checked by Imagelab:\n")
-        print(
-            *[issue_type.value for issue_type in self._config["default_issue_types"]],
-            sep="\n",
-        )
-
-    def list_possible_issue_types(self) -> None:
-        """Prints list of all possible issue types that can be detected in a dataset.
-        This list will also include custom issue types if you properly add them.
+    @staticmethod
+    def list_possible_issue_types() -> List[str]:
+        """Returns a list of all the possible issue types that can be run in :py:meth:`Imagelab.find_issues`
+        This list will also include custom issue types if properly added.
         """
-        print("All possible issues checked by Imagelab:\n")
-        issue_types = {issue_type.value for issue_type in IssueType}
-        issue_types.update(ISSUE_MANAGER_REGISTRY.keys())
-        print(*issue_types, sep="\n")
-        print("\n")
+        issue_types = Imagelab.list_default_issue_types()
+        for key in ISSUE_MANAGER_REGISTRY:
+            if key not in [IMAGE_PROPERTY, DUPLICATE]:
+                issue_types.append(key)
+        return list(set(issue_types))
 
     def _get_issues_to_compute(
         self, issue_types_with_params: Optional[Dict[str, Any]]
     ) -> Dict[str, Any]:
         if not issue_types_with_params:
             to_compute_issues_with_params: Dict[str, Any] = {
-                issue_type.value: {}
-                for issue_type in self._config["default_issue_types"]
+                issue_type: {} for issue_type in self.list_default_issue_types()
             }
         else:
             to_compute_issues_with_params = {
@@ -201,7 +184,10 @@ class Imagelab:
         return to_compute_issues_with_params
 
     def find_issues(
-        self, issue_types: Optional[Dict[str, Any]] = None, n_jobs: Optional[int] = None
+        self,
+        issue_types: Optional[Dict[str, Any]] = None,
+        n_jobs: Optional[int] = None,
+        verbose: bool = True,
     ) -> None:
         """Finds issues in the dataset.
         If `issue_types` is not provided, dataset is checked for a default set of issue types.
@@ -216,6 +202,8 @@ class Imagelab:
             Number of processing threads used by multiprocessing.
             Default None sets to the number of cores on your CPU (physical cores if you have psutil package installed, otherwise logical cores).
             Set this to 1 to disable parallel processing (if its causing issues). Windows users may see a speed-up with n_jobs=1.
+        verbose : bool, default=True
+            If True, prints helpful information while checking for issues.
 
         Examples
         --------
@@ -249,9 +237,10 @@ class Imagelab:
 
         """
         to_compute_issues_with_params = self._get_issues_to_compute(issue_types)
-        print(
-            f"Checking for {', '.join([issue_type for issue_type in to_compute_issues_with_params.keys()])} images ..."
-        )
+        if verbose:
+            print(
+                f"Checking for {', '.join([issue_type for issue_type in to_compute_issues_with_params.keys()])} images ..."
+            )
 
         # update issue_types
         self._issue_types = list(
@@ -287,9 +276,10 @@ class Imagelab:
             by=["num_images"], ascending=False
         )
         self.issue_summary = self.issue_summary.reset_index(drop=True)
-        print(
-            "Issue checks completed. To see a detailed report of issues found, use imagelab.report()."
-        )
+        if verbose:
+            print(
+                f"Issue checks completed. {self.issue_summary['num_images'].sum()} issues found in the dataset. To see a detailed report of issues found, use imagelab.report()."
+            )
         return
 
     def _update_info(self, issue_manager_info: Dict[str, Any]) -> None:
@@ -353,14 +343,11 @@ class Imagelab:
                 )
         return issue_to_report
 
-    def _get_report_args(
-        self, verbosity: int, user_supplied_args: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _get_report_args(self, user_supplied_args: Dict[str, Any]) -> Dict[str, Any]:
         report_args = {
             "max_prevalence": self._config["report_max_prevalence"],
-            "examples_per_issue": self._config["report_examples_per_issue_values"][
-                verbosity - 1
-            ],
+            "num_images": self._config["report_num_images"],
+            "cell_size": self._config["report_cell_size"],
         }
 
         non_none_args = {
@@ -375,6 +362,7 @@ class Imagelab:
         max_prevalence: Optional[float] = None,
         num_images: Optional[int] = None,
         verbosity: int = 1,
+        print_summary: bool = True,
     ) -> None:
         """Prints summary of the issues found in your dataset.
         By default, this method depicts the images representing top-most severe instances of each issue type.
@@ -396,6 +384,9 @@ class Imagelab:
         verbosity : int, {1, 2, 3, 4}
             Increasing verbosity increases the detail of the report. Set this to 1 to report less information, or to 4 to report the most information.
 
+        print_summary : bool, default=True
+            If True, prints the summary of issues found in the dataset.
+
         Examples
         --------
         Default usage
@@ -412,19 +403,14 @@ class Imagelab:
             imagelab.report(issue_types=issue_types)
 
         """
-        assert isinstance(verbosity, int) and 0 < verbosity < 5
+        assert isinstance(verbosity, int) and 0 <= verbosity < 5
 
         user_supplied_args = locals()
-        report_args = self._get_report_args(verbosity, user_supplied_args)
+        report_args = self._get_report_args(user_supplied_args)
 
-        if issue_types:
-            issue_types_to_report = issue_types
-        else:
-            # Remove issues with zero images from the report
-            non_zero_issue_types = self.issue_summary[
-                self.issue_summary["num_images"] > 0
-            ]["issue_type"].tolist()
-            issue_types_to_report = non_zero_issue_types
+        issue_types_to_report = (
+            issue_types if issue_types else self.issue_summary["issue_type"].tolist()
+        )
 
         # filter issues based on max_prevalence in the dataset
         filtered_issue_types = self._filter_report(
@@ -435,19 +421,32 @@ class Imagelab:
             self.issue_summary["issue_type"].isin(filtered_issue_types)
         ]
         if len(issue_summary) > 0:
-            print("Issues found in order of severity in the dataset\n")
-            self._pprint_issue_summary(issue_summary)
-
-            self.visualize(
-                issue_types=filtered_issue_types,
-                num_images=(
-                    report_args["examples_per_issue"]
-                    if num_images is None
-                    else num_images
-                ),
-            )
+            if verbosity:
+                print("Issues found in images in order of severity in the dataset\n")
+            if print_summary:
+                self._pprint_issue_summary(issue_summary)
+            for issue_type in filtered_issue_types:
+                if (
+                    self.issue_summary.query(f"issue_type == '{issue_type}'")[
+                        "num_images"
+                    ].values[0]
+                    == 0
+                ):
+                    continue
+                print(f"{' ' + issue_type + ' images ':-^60}\n")
+                print(
+                    f"Number of examples with this issue: {self.issues[get_is_issue_colname(issue_type)].sum()}\n"
+                    f"Examples representing most severe instances of this issue:\n"
+                )
+                self._visualize(
+                    issue_type,
+                    report_args["num_images"],
+                    report_args["cell_size"],
+                )
         else:
-            print("No issues found.")
+            print(
+                "Please specify some issue_types to check for in imagelab.find_issues()."
+            )
 
     def _pprint_issue_summary(self, issue_summary: pd.DataFrame) -> None:
         issue_summary_copy = issue_summary.copy()
@@ -477,16 +476,6 @@ class Imagelab:
             sorted_df = self.issues.sort_values(by=get_score_colname(issue_type))
             sorted_df = sorted_df[sorted_df[get_is_issue_colname(issue_type)] == 1]
 
-            examples_str = "examples" if len(sorted_df) > 1 else "example"
-            if len(sorted_df) < num_images:
-                print(
-                    f"Found {len(sorted_df)} {examples_str} with {issue_type} issue in the dataset."
-                )
-            else:
-                print(
-                    f"\nTop {num_images} {examples_str} with {issue_type} issue in the dataset."
-                )
-
             scores = sorted_df.head(num_images)[get_score_colname(issue_type)]
             titles = [f"score : {x:.4f}" for x in scores]
             indices = scores.index.tolist()
@@ -507,16 +496,6 @@ class Imagelab:
             image_sets = []
             for indices in image_sets_indices:
                 image_sets.append([self._dataset[index] for index in indices])
-
-            sets_str = "sets" if len(image_sets) > 1 else "set"
-            if len(image_sets) < num_images:
-                print(
-                    f"Found {len(image_sets)} {sets_str} of images with {issue_type} issue in the dataset."
-                )
-            else:
-                print(
-                    f"\nTop {num_images} {sets_str} of images with {issue_type} issue"
-                )
 
             title_sets = [
                 [self._dataset.get_name(index) for index in s]
@@ -602,13 +581,12 @@ class Imagelab:
             imagelab.visualize(issue_types=issue_types)
 
         """
-        if issue_types:
+        if issue_types is not None:
             if len(issue_types) == 0:
                 raise ValueError("issue_types list is empty")
             for issue_type in issue_types:
                 self._visualize(issue_type, num_images, cell_size)
-        elif image_files:
-            # todo: write test
+        elif image_files is not None:
             if len(image_files) == 0:
                 raise ValueError("image_files list is empty.")
             images = [Image.open(path) for path in image_files]
@@ -629,7 +607,6 @@ class Imagelab:
                 cell_size=cell_size,
             )
         else:
-            # todo: write test
             print("Sample images from the dataset")
 
             if image_files is None:
