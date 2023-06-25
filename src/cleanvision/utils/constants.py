@@ -21,12 +21,30 @@ MAX_RESOLUTION_FOR_BLURRY_DETECTION = 64
 
 IMAGE_FILE_EXTENSIONS: List[str] = [
     "*.jpg",
+    "*.JPG",
     "*.jpeg",
-    "*.gif",
-    "*.jp2",
-    "*.TIFF",
-    "*.WebP",
-    "*.PNG",
     "*.JPEG",
+    "*.gif",
+    "*.GIF",
+    "*.jp2",
+    "*.JP2",
     "*.png",
+    "*.PNG",
+    "*.tiff",
+    "*.TIFF",
+    "*.webp",
+    "*.WebP",
+    "*.WEBP",
 ]  # filetypes supported by PIL
+
+DEFAULT_ISSUE_TYPES = [
+    "dark",
+    "light",
+    "odd_aspect_ratio",
+    "low_information",
+    "exact_duplicates",
+    "near_duplicates",
+    "blurry",
+    "grayscale",
+    "odd_size",
+]

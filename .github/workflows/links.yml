@@ -5,7 +5,7 @@ on:
   schedule:
     - cron: '0 8 * * 6'
 jobs:
-  test:
+  test-links:
     runs-on: ubuntu-latest
     steps:
       - run: sudo apt-get update -y

@@ -1,9 +1,13 @@
+import multiprocessing
+
+import numpy as np
+import pandas as pd
+import psutil
+import pytest
 from PIL import Image
 
-from cleanvision.utils.utils import get_filepaths, update_df
-import pandas as pd
-import numpy as np
-import pytest
+import cleanvision
+from cleanvision.utils.utils import get_filepaths, get_max_n_jobs, update_df
 
 
 class TestUtils:
@@ -74,3 +78,21 @@ class TestUtils:
             assert num_common_cols == 0 or updated_df[common_col_names].equals(
                 old_df[common_col_names]
             )
+
+    def test_get_max_n_jobs(self, monkeypatch):
+        def mock_physical_cores(*args, **kwargs):
+            return 4
+
+        def mock_logical_cores(*args, **kwargs):
+            return 8
+
+        monkeypatch.setattr(psutil, "cpu_count", mock_physical_cores)
+        monkeypatch.setattr(multiprocessing, "cpu_count", mock_logical_cores)
+
+        monkeypatch.setattr(cleanvision.utils.utils, "PSUTIL_EXISTS", True)
+        njobs = get_max_n_jobs()
+        assert njobs == 4
+
+        monkeypatch.setattr(cleanvision.utils.utils, "PSUTIL_EXISTS", False)
+        njobs = get_max_n_jobs()
+        assert njobs == 8

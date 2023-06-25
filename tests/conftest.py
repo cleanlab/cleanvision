@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from PIL import Image
+from datasets import load_dataset
+import torchvision
 
 
 @pytest.fixture(scope="session")
@@ -12,6 +14,11 @@ def n_classes():
 @pytest.fixture(scope="session")
 def images_per_class():
     return 10
+
+
+@pytest.fixture(scope="session")
+def len_dataset(n_classes, images_per_class):
+    return n_classes * images_per_class
 
 
 @pytest.fixture()
@@ -71,6 +78,20 @@ def get_example_s3_filepaths():
         "aaea36e9.jpg",
     ]
     return [f"{raw_path}{i}" for i in near_dups]
+
+
+@pytest.fixture(scope="session")
+def hf_dataset(generate_local_dataset):
+    hf_dataset = load_dataset(
+        "imagefolder", data_dir=generate_local_dataset, split="train"
+    )
+    return hf_dataset
+
+
+@pytest.fixture(scope="session")
+def torch_dataset(generate_local_dataset):
+    torch_ds = torchvision.datasets.ImageFolder(root=generate_local_dataset)
+    return torch_ds
 
 
 @pytest.fixture(scope="session")
