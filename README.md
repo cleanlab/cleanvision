@@ -126,7 +126,7 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See [GNU Affero General Public LICENSE](https://github.com/cleanlab/cleanvision/blob/main/LICENSE) for details.
 
-For enterprise teams that want to use CleanVision in production workflows but are unable to open-source their code, you can contact us to discuss alternative commerical licensing: team@cleanlab.ai
+For enterprise teams that want to use CleanVision in production workflows but are unable to open-source their code, you can contact us to discuss alternative commercial licensing: team@cleanlab.ai
 
 
 [issue]: https://github.com/cleanlab/cleanvision/issues/new
