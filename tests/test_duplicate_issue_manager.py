@@ -248,6 +248,15 @@ def test_get_hash():
     hash = get_hash(img, {"hash_type": "phash", "hash_size": 2})
     assert hash is not None
 
+    hash = get_hash(img, {"hash_type": "ahash", "hash_size": 2})
+    assert hash is not None
+
+    hash = get_hash(img, {"hash_type": "dhash", "hash_size": 2})
+    assert hash is not None
+
+    hash = get_hash(img, {"hash_type": "chash", "hash_size": 2})
+    assert hash is not None
+
     # Test calling function with not a real hash
     with pytest.raises(ValueError, match="not supported"):
         get_hash(img, {"hash_type": "fake_hash"})
