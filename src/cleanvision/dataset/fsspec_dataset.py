@@ -18,11 +18,12 @@ class FSDataset(Dataset):
         self,
         data_folder: Optional[str] = None,
         filepaths: Optional[List[str]] = None,
-        storage_opts: Dict[str, str] = {},
+        storage_opts: Optional[Dict[str, str]] = {},
     ) -> None:
         super().__init__()
         self.storage_opts = storage_opts
-        ignore_missing = self.storage_opts.pop("ignore_missing_keys", False)
+        if self.storage_opts:
+            ignore_missing = self.storage_opts.pop("ignore_missing_keys", False)
         if data_folder:
             # See: https://filesystem-spec.readthedocs.io/en/latest/api.html#other-known-implementations
             # contains a list of known implementations that may resolve through that url
