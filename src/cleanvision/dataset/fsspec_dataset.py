@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from typing import List, Optional, Union, Dict
+import os
+import pathlib
+from typing import Dict, List, Optional, Union
 
+import fsspec
 from PIL import Image
 
-from cleanvision.utils.constants import IMAGE_FILE_EXTENSIONS
 from cleanvision.dataset.base_dataset import Dataset
-import fsspec
-import pathlib
-import os
+from cleanvision.utils.constants import IMAGE_FILE_EXTENSIONS
 
 
 class FSDataset(Dataset):
@@ -18,12 +18,11 @@ class FSDataset(Dataset):
         self,
         data_folder: Optional[str] = None,
         filepaths: Optional[List[str]] = None,
-        storage_opts: Optional[Dict[str, str]] = {},
+        storage_opts: Dict[str, str] = {},
     ) -> None:
         super().__init__()
         self.storage_opts = storage_opts
-        if self.storage_opts:
-            ignore_missing = self.storage_opts.pop("ignore_missing_keys", False)
+        ignore_missing = self.storage_opts.pop("ignore_missing_keys", False)
         if data_folder:
             # See: https://filesystem-spec.readthedocs.io/en/latest/api.html#other-known-implementations
             # contains a list of known implementations that may resolve through that url

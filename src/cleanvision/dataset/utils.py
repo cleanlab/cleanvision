@@ -18,7 +18,7 @@ def build_dataset(
     hf_dataset: Optional["datasets.Dataset"] = None,
     image_key: Optional[str] = None,
     torchvision_dataset: Optional["VisionDataset"] = None,
-    storage_opts: Optional[Dict[str, str]] = {},
+    storage_opts: Dict[str, str] = {},
 ) -> Dataset:
     if data_path:
         return FSDataset(data_folder=data_path, storage_opts=storage_opts)
