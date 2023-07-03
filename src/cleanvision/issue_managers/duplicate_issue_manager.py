@@ -24,6 +24,12 @@ def get_hash(image: Image.Image, params: Dict[str, Any]) -> str:
         return str(imagehash.whash(image, hash_size=hash_size))
     elif hash_type == "phash":
         return str(imagehash.phash(image, hash_size=hash_size))
+    elif hash_type == "ahash":
+        return str(imagehash.average_hash(image, hash_size=hash_size))
+    elif hash_type == "dhash":
+        return str(imagehash.dhash(image, hash_size=hash_size))
+    elif hash_type == "chash":
+        return str(imagehash.colorhash(image, binbits=hash_size))
     else:
         raise ValueError("Hash type not supported")
 
