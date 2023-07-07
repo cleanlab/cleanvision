@@ -491,7 +491,7 @@ class Imagelab:
             if issue_type == IssueType.ODD_SIZE.value:
                 additional_info = []
                 for image in images:
-                    additional_info.append(f"size: {image.size}")
+                    additional_info.append(f"original size: {image.size}")
 
             if images:
                 VizManager.individual_images(
