@@ -15,7 +15,11 @@ from PIL import Image
 import cleanvision
 from cleanvision.dataset.torch_dataset import TorchDataset
 from cleanvision.dataset.utils import build_dataset
-from cleanvision.issue_managers import ISSUE_MANAGER_REGISTRY, IssueManagerFactory
+from cleanvision.issue_managers import (
+    ISSUE_MANAGER_REGISTRY,
+    IssueManagerFactory,
+    IssueType,
+)
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import (
     DEFAULT_ISSUE_TYPES,
@@ -477,15 +481,25 @@ class Imagelab:
             sorted_df = sorted_df[sorted_df[get_is_issue_colname(issue_type)] == 1]
 
             scores = sorted_df.head(num_images)[get_score_colname(issue_type)]
-            titles = [f"score : {x:.4f}" for x in scores]
             indices = scores.index.tolist()
             images = [self._dataset[i] for i in indices]
+
+            titles = [f"score : {x:.4f}" for x in scores]
+
+            # Add size information for odd sized images
+            additional_info = None
+            if issue_type == IssueType.ODD_SIZE.value:
+                additional_info = []
+                for image in images:
+                    additional_info.append(f"size: {image.size}")
+
             if images:
                 VizManager.individual_images(
                     images=images,
                     titles=titles,
                     ncols=self._config["visualize_num_images_per_row"],
                     cell_size=cell_size,
+                    additional_info=additional_info,
                 )
 
         elif viz_name == "image_sets":
