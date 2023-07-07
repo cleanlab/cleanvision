@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 import math
 import matplotlib.axes
@@ -13,9 +13,10 @@ class VizManager:
         titles: List[str],
         ncols: int,
         cell_size: Tuple[int, int],
+        additional_info: Optional[List[str]] = None,
     ) -> None:
         """Plots a list of images in a grid."""
-        plot_image_grid(images, titles, ncols, cell_size)
+        plot_image_grid(images, titles, ncols, cell_size, additional_info)
 
     @staticmethod
     def image_sets(
@@ -38,7 +39,11 @@ def set_image_on_axes(image: Image.Image, ax: matplotlib.axes.Axes, title: str) 
 
 
 def plot_image_grid(
-    images: List[Image.Image], titles: List[str], ncols: int, cell_size: Tuple[int, int]
+    images: List[Image.Image],
+    titles: List[str],
+    ncols: int,
+    cell_size: Tuple[int, int],
+    additional_info: Optional[List[str]] = None,
 ) -> None:
     nrows = math.ceil(len(images) / ncols)
     ncols = min(ncols, len(images))
@@ -75,7 +80,9 @@ def plot_image_grid(
                     if truncate_from_front
                     else (titles[i][:chars_allowed] + "...")
                 )
-
+    if additional_info is not None:
+        for i in range(len(images)):
+            titles[i] = f"{titles[i]}\n{additional_info[i]}"
     if nrows > 1:
         idx = 0
         for i in range(nrows):

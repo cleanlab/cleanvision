@@ -487,11 +487,11 @@ class Imagelab:
             titles = [f"score : {x:.4f}" for x in scores]
 
             # Add size information for odd sized images
+            additional_info = None
             if issue_type == IssueType.ODD_SIZE.value:
-                new_titles = []
-                for i, title in enumerate(titles):
-                    new_titles.append(title + "\n" + f"size: {images[i].size}")
-                titles = new_titles
+                additional_info = []
+                for image in images:
+                    additional_info.append(f"size: {image.size}")
 
             if images:
                 VizManager.individual_images(
@@ -499,6 +499,7 @@ class Imagelab:
                     titles=titles,
                     ncols=self._config["visualize_num_images_per_row"],
                     cell_size=cell_size,
+                    additional_info=additional_info,
                 )
 
         elif viz_name == "image_sets":
