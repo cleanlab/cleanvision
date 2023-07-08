@@ -100,6 +100,8 @@ CleanVision supports Linux, macOS, and Windows and runs on Python 3.7+.
 * The best place to learn is [our Slack community](https://cleanlab.ai/slack). Join the discussion there to see how
   folks are using this library, discuss upcoming features, or ask for private support.
 
+* Need professional help with CleanVision?  Join our [\#help Slack channel](https://cleanlab.ai/slack) and message us there, or reach out via email: team@cleanlab.ai
+
 * Interested in contributing? See the [contributing guide](CONTRIBUTING.md). An easy starting point is to
   consider [issues](https://github.com/cleanlab/cleanvision/labels/good%20first%20issue) marked `good first issue` or
   simply reach out in [Slack](https://cleanlab.ai/slack). We welcome your help building a standard open-source library
