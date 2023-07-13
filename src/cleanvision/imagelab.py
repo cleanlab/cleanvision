@@ -367,6 +367,7 @@ class Imagelab:
         num_images: Optional[int] = None,
         verbosity: int = 1,
         print_summary: bool = True,
+        show_id: bool = False,
     ) -> None:
         """Prints summary of the issues found in your dataset.
         By default, this method depicts the images representing top-most severe instances of each issue type.
@@ -446,6 +447,7 @@ class Imagelab:
                     issue_type,
                     report_args["num_images"],
                     report_args["cell_size"],
+                    show_id,
                 )
         else:
             print(
@@ -471,6 +473,7 @@ class Imagelab:
         issue_type: str,
         num_images: int,
         cell_size: Tuple[int, int],
+        show_id: bool,
     ) -> None:
         # todo: remove dependency on issue manager
         issue_manager = self._get_issue_manager(issue_type)
@@ -484,22 +487,21 @@ class Imagelab:
             indices = scores.index.tolist()
             images = [self._dataset[i] for i in indices]
 
-            titles = [f"score : {x:.4f}" for x in scores]
-
-            # Add size information for odd sized images
-            additional_info = None
+            # construct title info
+            title_info = {"scores": [f"score : {x:.4f}" for x in scores]}
+            if show_id:
+                title_info["ids"] = [f"id : {i}" for i in indices]
             if issue_type == IssueType.ODD_SIZE.value:
-                additional_info = []
-                for image in images:
-                    additional_info.append(f"original size: {image.size}")
+                title_info["size"] = [
+                    f"original size: {image.size}" for image in images
+                ]
 
             if images:
                 VizManager.individual_images(
                     images=images,
-                    titles=titles,
+                    title_info=title_info,
                     ncols=self._config["visualize_num_images_per_row"],
                     cell_size=cell_size,
-                    additional_info=additional_info,
                 )
 
         elif viz_name == "image_sets":
@@ -511,15 +513,15 @@ class Imagelab:
             for indices in image_sets_indices:
                 image_sets.append([self._dataset[index] for index in indices])
 
-            title_sets = [
-                [self._dataset.get_name(index) for index in s]
-                for s in image_sets_indices
-            ]
+            title_info_sets = []
+            for s in image_sets_indices:
+                title_info = {"name": [self._dataset.get_name(index) for index in s]}
+                title_info_sets.append(title_info)
 
             if image_sets:
                 VizManager.image_sets(
                     image_sets,
-                    title_sets,
+                    title_info_sets,
                     ncols=self._config["visualize_num_images_per_row"],
                     cell_size=cell_size,
                 )
@@ -532,6 +534,7 @@ class Imagelab:
         issue_types: Optional[List[str]] = None,
         num_images: int = 4,
         cell_size: Tuple[int, int] = (2, 2),
+        show_id: bool = False,
     ) -> None:
         """Show specific images.
 
@@ -599,24 +602,24 @@ class Imagelab:
             if len(issue_types) == 0:
                 raise ValueError("issue_types list is empty")
             for issue_type in issue_types:
-                self._visualize(issue_type, num_images, cell_size)
+                self._visualize(issue_type, num_images, cell_size, show_id)
         elif image_files is not None:
             if len(image_files) == 0:
                 raise ValueError("image_files list is empty.")
             images = [Image.open(path) for path in image_files]
-            titles = [path.split("/")[-1] for path in image_files]
+            title_info = {"path": [path.split("/")[-1] for path in image_files]}
             VizManager.individual_images(
                 images,
-                titles,
+                title_info,
                 ncols=self._config["visualize_num_images_per_row"],
                 cell_size=cell_size,
             )
         elif indices:
             images = [self._dataset[i] for i in indices]
-            titles = [self._dataset.get_name(i) for i in indices]
+            title_info = {"name": [self._dataset.get_name(i) for i in indices]}
             VizManager.individual_images(
                 images,
-                titles,
+                title_info,
                 ncols=self._config["visualize_num_images_per_row"],
                 cell_size=cell_size,
             )
@@ -628,10 +631,12 @@ class Imagelab:
                     self._dataset.index, min(num_images, len(self._dataset))
                 )
                 images = [self._dataset[i] for i in image_indices]
-                titles = [self._dataset.get_name(i) for i in image_indices]
+                title_info = {
+                    "name": [self._dataset.get_name(i) for i in image_indices]
+                }
                 VizManager.individual_images(
                     images,
-                    titles,
+                    title_info,
                     ncols=self._config["visualize_num_images_per_row"],
                     cell_size=cell_size,
                 )
