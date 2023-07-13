@@ -392,6 +392,9 @@ class Imagelab:
         print_summary : bool, default=True
             If True, prints the summary of issues found in the dataset.
 
+        show_id: bool, default=False
+            If True, shows the image id in the report.
+
         Examples
         --------
         Default usage
