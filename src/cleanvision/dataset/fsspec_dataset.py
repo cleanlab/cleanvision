@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-import os
-import pathlib
-from typing import Dict, List, Optional, Union
+from typing import List, Optional, Union, Dict
 
-import fsspec
 from PIL import Image
 
-from cleanvision.dataset.base_dataset import Dataset
 from cleanvision.utils.constants import IMAGE_FILE_EXTENSIONS
+from cleanvision.dataset.base_dataset import Dataset
+import fsspec
+import pathlib
+import os
 
 
 class FSDataset(Dataset):
@@ -71,7 +71,7 @@ class FSDataset(Dataset):
             # lower depths
             path_lower_level = os.path.join(dataset_path, "**", ext)
             for fs_path in (path_top_level, path_lower_level):
-                filetype_images = self.fs.glob(fs_path, **self.storage_opts)
+                filetype_images = self.fs.glob(fs_path)
                 if len(filetype_images) == 0:
                     continue
                 filepaths += filetype_images
