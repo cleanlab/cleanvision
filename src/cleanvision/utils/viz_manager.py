@@ -20,7 +20,7 @@ class VizManager:
     @staticmethod
     def image_sets(
         image_sets: List[List[Image.Image]],
-        title_info_sets: List[Dict],
+        title_info_sets: List[Dict[str, List[str]]],
         ncols: int,
         cell_size: Tuple[int, int],
     ) -> None:
@@ -37,7 +37,7 @@ def set_image_on_axes(image: Image.Image, ax: matplotlib.axes.Axes, title: str) 
     ax.imshow(image, cmap=cmap, vmin=0, vmax=255)
 
 
-def truncate_titles(cell_width: int, titles: str) -> List[str]:
+def truncate_titles(cell_width: int, titles: List[str]) -> List[str]:
     """Converts font size of 7 into inches"""
     CHARACTER_SIZE_INCHES = 7 * (1 / 72)
 
@@ -69,7 +69,7 @@ def truncate_titles(cell_width: int, titles: str) -> List[str]:
     return titles
 
 
-def construct_titles(title_info, cell_width):
+def construct_titles(title_info: Dict[str, List[str]], cell_width: int) -> List[str]:
     keys = list(title_info.keys())
     nimages = len(title_info[keys[0]])
 
