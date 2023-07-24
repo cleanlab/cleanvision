@@ -86,13 +86,23 @@ mypy --strict --install-types --non-interactive --python-version 3.11  src
 
 CleanVision follows the [Black](https://black.readthedocs.io/) code style. This is
 enforced by CI, so please format your code by invoking `black` before submitting a pull request.
+Use the following command to format your code.
+
+```shell
+python -m black src
+```
 
 Generally aim to follow the [PEP-8 coding style](https://peps.python.org/pep-0008/).
 Please do not use wildcard `import *` in any files, instead you should always import the specific functions that you need from a module.
+Use the following command to check for style errors.
+
+```shell
+flake8 --ignore=E203,E501,E722,E401,W503 src tests --count --show-source --statistics
+```
 
 ### Pre-commit hook
 
-This repo uses the [pre-commit framework](https://pre-commit.com/) to easily
+You can also use [pre-commit framework](https://pre-commit.com/) to easily
 set up code style checks that run automatically whenever you make a commit.
 You can install the git hook scripts with:
 
