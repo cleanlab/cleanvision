@@ -177,8 +177,8 @@ def test_run_imagelab_given_filepaths(generate_local_dataset, images_per_class):
     assert len(imagelab.issues) == images_per_class
 
 
-def test_s3_dataset(capsys, get_example_s3_dataset):
-    imagelab = Imagelab(data_path=get_example_s3_dataset, storage_opts={"anon": True})
+def test_s3_dataset(capsys, get_example_s3_filepaths):
+    imagelab = Imagelab(filepaths=get_example_s3_filepaths, storage_opts={"anon": True})
     imagelab.find_issues(
         issue_types={
             "near_duplicates": {},
