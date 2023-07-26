@@ -182,7 +182,8 @@ def test_s3_dataset(capsys, get_example_s3_filepaths):
     imagelab.find_issues(
         issue_types={
             "near_duplicates": {},
-        }
+        },
+        n_jobs=1,
     )
     assert len(imagelab.issues.columns) == 2
     captured = capsys.readouterr()

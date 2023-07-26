@@ -56,12 +56,6 @@ def generate_local_dataset_base(tmp_path_factory, n_classes, images_per_class):
 
 
 @pytest.fixture()
-def get_example_s3_dataset():
-    """Returns a path to a small s3 dataset"""
-    return "s3://cleanvision-test/test_images/"
-
-
-@pytest.fixture()
 def get_example_s3_filepaths():
     """Returns a list of filepaths to a small s3 dataset"""
     raw_path = "s3://amazon-berkeley-objects/images/small/aa/"
