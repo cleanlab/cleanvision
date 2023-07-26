@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from cleanvision.dataset.base_dataset import Dataset
-from cleanvision.dataset.folder_dataset import FolderDataset
+from cleanvision.dataset.fsspec_dataset import FSDataset
 from cleanvision.dataset.hf_dataset import HFDataset
 from cleanvision.dataset.torch_dataset import TorchDataset
 
@@ -18,11 +18,12 @@ def build_dataset(
     hf_dataset: Optional["datasets.Dataset"] = None,
     image_key: Optional[str] = None,
     torchvision_dataset: Optional["VisionDataset"] = None,
+    storage_opts: Dict[str, str] = {},
 ) -> Dataset:
     if data_path:
-        return FolderDataset(data_folder=data_path)
+        return FSDataset(data_folder=data_path, storage_opts=storage_opts)
     elif filepaths:
-        return FolderDataset(filepaths=filepaths)
+        return FSDataset(filepaths=filepaths, storage_opts=storage_opts)
     elif hf_dataset and image_key:
         return HFDataset(hf_dataset, image_key)
     elif torchvision_dataset:

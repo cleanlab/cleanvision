@@ -55,6 +55,25 @@ def generate_local_dataset_base(tmp_path_factory, n_classes, images_per_class):
     return tmp_image_dir
 
 
+@pytest.fixture()
+def get_example_s3_filepaths():
+    """Returns a list of filepaths to a small s3 dataset"""
+    raw_path = "s3://amazon-berkeley-objects/images/small/aa/"
+    near_dups = [
+        "aa4be6a6.jpg",
+        "aa6561ad.jpg",
+        "aa66c206.jpg",
+        "aa8a0fae.jpg",
+        "aa8b5a03.jpg",
+        "aabd664a.jpg",
+        "aac3a821.jpg",
+        "aad93004.jpg",
+        "aae789f2.jpg",
+        "aaea36e9.jpg",
+    ]
+    return [f"{raw_path}{i}" for i in near_dups]
+
+
 @pytest.fixture(scope="session")
 def hf_dataset(generate_local_dataset):
     hf_dataset = load_dataset(

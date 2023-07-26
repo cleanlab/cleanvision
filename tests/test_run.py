@@ -6,7 +6,7 @@ import pytest
 from PIL import Image
 
 from cleanvision import Imagelab
-from cleanvision.dataset.folder_dataset import FolderDataset
+from cleanvision.dataset.fsspec_dataset import FSDataset
 from cleanvision.issue_managers.image_property import BrightnessProperty
 from cleanvision.issue_managers.image_property_issue_manager import (
     compute_scores_wrapper,
@@ -140,7 +140,7 @@ def test_jobs(generate_local_dataset, n_jobs_given):
 
 
 def test_compute_scores(generate_single_image_file):
-    dataset = FolderDataset(filepaths=[generate_single_image_file])
+    dataset = FSDataset(filepaths=[generate_single_image_file])
     image_properties = {
         "dark": BrightnessProperty("dark"),
         "light": BrightnessProperty("light"),
@@ -175,6 +175,37 @@ def test_run_imagelab_given_filepaths(generate_local_dataset, images_per_class):
     imagelab.find_issues()
     assert len(imagelab.issues.columns) == 18
     assert len(imagelab.issues) == images_per_class
+
+
+def test_s3_dataset(capsys, get_example_s3_filepaths):
+    imagelab = Imagelab(filepaths=get_example_s3_filepaths, storage_opts={"anon": True})
+    imagelab.find_issues(
+        issue_types={
+            "near_duplicates": {},
+        },
+        n_jobs=1,
+    )
+    assert len(imagelab.issues.columns) == 2
+    captured = capsys.readouterr()
+    imagelab.report()
+    captured = capsys.readouterr()
+    assert len(captured) > 0
+
+
+def test_filepath_dataset_size_negative(generate_local_dataset_once, images_per_class):
+    """
+
+    All images are same size, so no image should have an size issue
+
+    """
+    files = os.listdir(generate_local_dataset_once / "class_0")
+    filepaths = [
+        os.path.join(generate_local_dataset_once / "class_0", f) for f in files
+    ]
+    imagelab = Imagelab(filepaths=filepaths)
+    imagelab.find_issues()
+    assert len(imagelab.issues.columns) == 18
+    assert len(imagelab.issues[imagelab.issues["is_odd_size_issue"]]) == 0
 
 
 def test_odd_size_too_large_image(generate_local_dataset_once):
