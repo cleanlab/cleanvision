@@ -128,6 +128,15 @@ More on how to get started with CleanVision:
 .. toctree::
    :hidden:
    :maxdepth: 3
+   :caption: Tutorials
+
+   tutorials/tutorial.ipynb
+   tutorials/torchvision_dataset.ipynb
+   tutorials/huggingface_dataset.ipynb
+
+.. toctree::
+   :hidden:
+   :maxdepth: 3
    :caption: API Reference
    :name: _api_reference
 
@@ -135,15 +144,6 @@ More on how to get started with CleanVision:
    cleanvision/issue_managers/index
    cleanvision/dataset/index
    cleanvision/utils/index
-
-.. toctree::
-   :hidden:
-   :maxdepth: 3
-   :caption: Tutorials
-
-   tutorials/tutorial.ipynb
-   tutorials/torchvision_dataset.ipynb
-   tutorials/huggingface_dataset.ipynb
 
 .. toctree::
    :caption: Links
