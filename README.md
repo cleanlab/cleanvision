@@ -90,9 +90,6 @@ In any collection of image files (most [formats](https://pillow.readthedocs.io/e
 | 8 | Odd Aspect Ratio | Images with an unusual aspect ratio (overly skinny/wide)        | odd_aspect_ratio | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/odd_aspect_ratio.jpg)                     |
 | 9 | Odd Size         | Images that are abnormally large or small | odd_size         | <img src="https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/odd_size.png" width=20% height=20%> |
 
-This package is still a work in progress, so expect sharp edges.
-Feel free to submit any found bugs or desired functionality as an [issue][issue]!
-
 CleanVision supports Linux, macOS, and Windows and runs on Python 3.7+.
 
 ## Join our community
