@@ -356,14 +356,20 @@ class SizeProperty(ImageProperty):
     ) -> pd.DataFrame:
         super().get_scores(raw_scores, issue_type, **kwargs)
         assert raw_scores is not None
+
+        image_size_scores = raw_scores[self.score_columns[0]]
+        median_image_size = image_size_scores.median()
+        size_ratios = image_size_scores / median_image_size
+
+        # Computing the values of the two divisions
+        size_division_1 = size_ratios
+        size_division_2 = 1.0 / size_ratios
+
+        # Using np.minimum to determine the element-wise minimum value between the two divisions
+        size_scores = np.minimum(size_division_1, size_division_2)
+
         scores = pd.DataFrame(index=raw_scores.index)
-        scores[get_score_colname(issue_type)] = raw_scores[self.score_columns[0]].apply(
-            lambda x: 1.0
-            / max(
-                x / raw_scores[self.score_columns[0]].median(),
-                raw_scores[self.score_columns[0]].median() / x,
-            )
-        )
+        scores[get_score_colname(issue_type)] = size_scores
         return scores
 
     def mark_issue(
