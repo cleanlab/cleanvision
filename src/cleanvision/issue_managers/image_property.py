@@ -356,13 +356,10 @@ class SizeProperty(ImageProperty):
     ) -> pd.DataFrame:
         super().get_scores(raw_scores, issue_type, **kwargs)
         assert raw_scores is not None
+        median_score = raw_scores[self.score_columns[0]].median()
         scores = pd.DataFrame(index=raw_scores.index)
         scores[get_score_colname(issue_type)] = raw_scores[self.score_columns[0]].apply(
-            lambda x: 1.0
-            / max(
-                x / raw_scores[self.score_columns[0]].median(),
-                raw_scores[self.score_columns[0]].median() / x,
-            )
+            lambda x: 1.0 / max(x / median_score, median_score / x)
         )
         return scores
 
