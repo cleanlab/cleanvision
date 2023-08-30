@@ -152,3 +152,4 @@ More on how to get started with CleanVision:
    Website <https://cleanlab.ai/>
    GitHub <https://github.com/cleanlab/cleanvision.git>
    PyPI <https://pypi.org/project/cleanvision/>
+   Cleanlab Studio <https://cleanlab.ai/studio/?utm_source=cleanvision&utm_medium=docs&utm_campaign=clostostudio>
