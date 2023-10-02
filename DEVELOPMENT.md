@@ -29,7 +29,7 @@ Run the following commands in the repository's root directory.
 ```shell
 python -m pip install --upgrade pip
 ```
-2. Install CleanVision as an editable package
+2. Install CleanVision as an editable package along with all its extra dependencies
 ```shell
 pip install -e ".[all]"
 ```
