@@ -11,4 +11,3 @@ black
 build
 flake8
 psutil
-s3fs>=2023.1.0

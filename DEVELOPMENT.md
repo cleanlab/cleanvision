@@ -31,7 +31,7 @@ python -m pip install --upgrade pip
 ```
 2. Install CleanVision as an editable package
 ```shell
-pip install -e .
+pip install -e ".[all]"
 ```
 3. Install development requirements
 ```shell
