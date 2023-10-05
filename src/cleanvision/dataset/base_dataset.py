@@ -7,7 +7,9 @@ from PIL import Image
 
 
 class Dataset(Sized):
-    """Wrapper class to handle datasets loaded from various sources like: image files in a local folder, huggingface, or torchvision."""
+    """Wrapper class to handle datasets loaded from various sources like:
+    image files in a local folder, huggingface, or torchvision.
+    """
 
     def __init__(self) -> None:
         self.index: List[Union[int, str]] = []

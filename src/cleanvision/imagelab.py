@@ -47,13 +47,12 @@ TImagelab = TypeVar("TImagelab", bound="Imagelab")
 
 class Imagelab:
     """A single class to find all types of issues in image datasets.
-    Imagelab detects issues in any image dataset and thus can be useful in most computer vision tasks including
-    supervised and unsupervised training.
-    Imagelab supports various formats for datasets: local folder containing images, a list of image
-    filepaths, HuggingFace dataset and Torchvision dataset.
-    Specify only one of these arguments: `data_path`, `filepaths`, (`hf_dataset`, `image_key`), `torchvision_dataset`
-
-
+    Imagelab detects issues in any image dataset and thus can be useful in most
+    computer vision tasks including supervised and unsupervised training.
+    Imagelab supports various formats for datasets: local folder containing images, a
+    list of image filepaths, HuggingFace dataset and Torchvision dataset.
+    Specify only one of these arguments: `data_path`, `filepaths`,
+        (`hf_dataset`, `image_key`), `torchvision_dataset`
 
     Parameters
     ----------
@@ -65,33 +64,42 @@ class Imagelab:
         Issue checks will be run on this list of image paths specified in `filepaths`.
 
     hf_dataset: datasets.Dataset
-        Hugging Face dataset with images in PIL format accessible via some key in ``hf_dataset.features``.
+        Hugging Face dataset with images in PIL format accessible via some key
+            in ``hf_dataset.features``.
 
     image_key: str
-        Key used to access images within the Hugging Face `dataset.features` object. For many datasets, this key is just called "image".
-        This argument must be specified if you provide a Hugging Face dataset; for other types of dataset this argument has no effect.
+        Key used to access images within the Hugging Face `dataset.features` object.
+            For many datasets, this key is just called "image".
+            This argument must be specified if you provide a Hugging Face dataset;
+            for other types of dataset this argument has no effect.
 
     torchvision_dataset: torchvision.datasets.vision.VisionDataset
-        torchvision dataset where each individual  example is a tuple containing exactly one image in PIL format.
+        torchvision dataset where each individual  example is a tuple containing
+            exactly one image in PIL format.
 
     Attributes
     ----------
     issues : pd.DataFrame
-        Dataframe where each row corresponds to an image and columns specify which issues were detected in this image.
-        It has two types of columns for each issue type:
+        Dataframe where each row corresponds to an image and columns specify which
+            issues were detected in this image. It has two types of columns
+            for each issue type:
 
-        1. <issue_type>_score - This column contains a quality-score for each image for a particular type of issue.
-        Scores are between 0 and 1, lower values indicate images exhibiting more severe instances of this issue.
+        1. <issue_type>_score - This column contains a quality-score for each image
+            for a particular type of issue. Scores are between 0 and 1, lower values
+            indicate images exhibiting more severe instances of this issue.
 
-        2. is_<issue_type>_issue - This column indicates whether or not the issue_type is detected in each image (a binary decision rather than numeric score).
+        2. is_<issue_type>_issue - This column indicates whether the issue_type is
+            detected in each image (a binary decision rather than numeric score).
 
     issue_summary : pd.DataFrame
-        Dataframe where each row corresponds to a type of issue and columns summarize the overall prevalence of this issue in the dataset.
-        Specifically, it shows the number of images detected with the issue.
+        Dataframe where each row corresponds to a type of issue and columns summarize
+            the overall prevalence of this issue in the dataset.
+            Specifically, it shows the number of images detected with the issue.
 
     info : Dict
-        Nested dictionary that contains statistics and other useful information about the dataset.
-        Also contains additional information saved while checking for issues in the dataset.
+        Nested dictionary that contains statistics and other useful information about
+            the dataset. Also contains additional information saved while checking for
+            issues in the dataset.
 
     Raises
     ------
@@ -163,13 +171,16 @@ class Imagelab:
 
     @staticmethod
     def list_default_issue_types() -> List[str]:
-        """Returns a list of the issue types that are run by default in :py:meth:`Imagelab.find_issues`"""
+        """Returns a list of the issue types that are run by default in :py:meth:
+            `Imagelab.find_issues`
+        """
         return DEFAULT_ISSUE_TYPES
 
     @staticmethod
     def list_possible_issue_types() -> List[str]:
-        """Returns a list of all the possible issue types that can be run in :py:meth:`Imagelab.find_issues`
-        This list will also include custom issue types if properly added.
+        """Returns a list of all the possible issue types that can be run in :py:meth:
+        `Imagelab.find_issues`. This list will also include custom issue types if
+        properly added.
         """
         issue_types = Imagelab.list_default_issue_types()
         for key in ISSUE_MANAGER_REGISTRY:
@@ -197,9 +208,9 @@ class Imagelab:
         n_jobs: Optional[int] = None,
         verbose: bool = True,
     ) -> None:
-        """Finds issues in the dataset.
-        If `issue_types` is not provided, dataset is checked for a default set of issue types.
-        To see default set: :py:meth:`Imagelab.list_default_issue_types`
+        """Finds issues in the dataset. If `issue_types` is not provided, dataset is
+            checked for a default set of issue types. To see default set:
+            :py:meth:`Imagelab.list_default_issue_types`
 
         Parameters
         ----------
