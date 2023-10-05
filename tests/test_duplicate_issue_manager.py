@@ -3,11 +3,11 @@ import pandas as pd
 import pytest
 from PIL import Image
 
-from cleanvision.utils.enums import IssueType
 from cleanvision.issue_managers.duplicate_issue_manager import (
     DuplicateIssueManager,
     get_hash,
 )
+from cleanvision.utils.enums import IssueType
 from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
 
 

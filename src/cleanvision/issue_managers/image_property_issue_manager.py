@@ -6,7 +6,6 @@ from tqdm.auto import tqdm
 
 from cleanvision.dataset.base_dataset import Dataset
 from cleanvision.issue_managers import register_issue_manager
-from cleanvision.utils.enums import IssueType
 from cleanvision.issue_managers.image_property import (
     AspectRatioProperty,
     BlurrinessProperty,
@@ -22,6 +21,7 @@ from cleanvision.utils.constants import (
     IMAGE_PROPERTY_ISSUE_TYPES_LIST,
     MAX_PROCS,
 )
+from cleanvision.utils.enums import IssueType
 from cleanvision.utils.utils import get_is_issue_colname, update_df
 
 

@@ -15,11 +15,7 @@ from PIL import Image
 import cleanvision
 from cleanvision.dataset.torch_dataset import TorchDataset
 from cleanvision.dataset.utils import build_dataset
-from cleanvision.issue_managers import (
-    ISSUE_MANAGER_REGISTRY,
-    IssueManagerFactory,
-)
-from cleanvision.utils.enums import IssueType
+from cleanvision.issue_managers import ISSUE_MANAGER_REGISTRY, IssueManagerFactory
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import (
     DEFAULT_ISSUE_TYPES,
@@ -29,6 +25,7 @@ from cleanvision.utils.constants import (
     IMAGE_PROPERTY_ISSUE_TYPES_LIST,
     SETS,
 )
+from cleanvision.utils.enums import IssueType
 from cleanvision.utils.serialize import Serializer
 from cleanvision.utils.utils import (
     deep_update_dict,
