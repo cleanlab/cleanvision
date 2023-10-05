@@ -12,7 +12,7 @@
 
 ## Testing
 
-> What testing have you done and verified? If you can't test, please say why that is.
+> What testing have you done and verified? Please link to the one unit test that is most end-to-end check of your new functionality. It's ok if your unit tests are not yet comprehensive when you first open the PR, we can revisit them later!  
 
 -
 
