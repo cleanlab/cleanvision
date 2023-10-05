@@ -6,7 +6,7 @@ from typing import Callable, Dict, List, Type
 from cleanvision.utils.base_issue_manager import IssueManager
 
 
-class IssueType(Enum):
+class IssueType(str, Enum):
     DARK = "dark"
     LIGHT = "light"
     ODD_ASPECT_RATIO = "odd_aspect_ratio"
@@ -16,6 +16,15 @@ class IssueType(Enum):
     BLURRY = "blurry"
     GRAYSCALE = "grayscale"
     ODD_SIZE = "odd_size"
+
+
+class HashType(str, Enum):
+    MD5 = "md5"
+    WHASH = "whash"
+    PHASH = "phash"
+    AHASH = "ahash"
+    DHASH = "dhash"
+    CHASH = "chash"
 
 
 ISSUE_MANAGER_REGISTRY: Dict[str, Type[IssueManager]] = {}
