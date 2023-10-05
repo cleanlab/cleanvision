@@ -23,6 +23,6 @@
 
 ## References
 
-> Do you have any relevant URLs or Wiki pages that could help give background information for the changes in this Pull-Request? These are usually StackOverflow posts, Notion wiki pages, Wikipedia articles, or links to APIs and Documentation of third-party packages.
+> Include any extra information that may be helpful to reviewers of your Pull-Request here (e.g. relevant URLs or Wiki pages that could help give background information). If relevant, please include additional code snippets (and their outputs/return values) showing alternative ways to use your newly added methods.
 
 -
