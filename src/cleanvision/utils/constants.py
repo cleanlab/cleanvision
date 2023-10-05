@@ -5,29 +5,20 @@ from cleanvision.issue_managers import IssueType
 IMAGE_PROPERTY: str = "image_property"
 DUPLICATE: str = "duplicate"
 
-# class IssueType(Enum):
-#     DARK = "dark"
-#     LIGHT = "light"
-#     ODD_ASPECT_RATIO = "odd_aspect_ratio"
-#     LOW_INFORMATION = "low_information"
-#     EXACT_DUPLICATES = "exact_duplicates"
-#     NEAR_DUPLICATES = "near_duplicates"
-#     BLURRY = "blurry"
-#     GRAYSCALE = "grayscale"
-#     ODD_SIZE = "odd_size"
 
 IMAGE_PROPERTY_ISSUE_TYPES_LIST: List[str] = [
-    IssueType.DARK.value,  # "dark",
-    IssueType.LIGHT.value,  # "light",
-    IssueType.ODD_ASPECT_RATIO.value,  # "odd_aspect_ratio",
-    IssueType.LOW_INFORMATION.value,  # "low_information",
-    IssueType.BLURRY.value,  # "blurry",
-    IssueType.GRAYSCALE.value,  # "grayscale",
-    IssueType.ODD_SIZE.value,  # "odd_size",
+    IssueType.DARK.value,
+    IssueType.LIGHT.value,
+    IssueType.ODD_ASPECT_RATIO.value,
+    IssueType.LOW_INFORMATION.value,
+    IssueType.BLURRY.value,
+    IssueType.GRAYSCALE.value,
+    IssueType.ODD_SIZE.value,
 ]
+
 DUPLICATE_ISSUE_TYPES_LIST: List[str] = [
-    IssueType.EXACT_DUPLICATES.value,  # "exact_duplicates"
-    IssueType.NEAR_DUPLICATES.value,  #  "near_duplicates"
+    IssueType.EXACT_DUPLICATES.value,
+    IssueType.NEAR_DUPLICATES.value,
 ]
 SETS: str = "sets"
 
@@ -54,22 +45,13 @@ IMAGE_FILE_EXTENSIONS: List[str] = [
 ]  # filetypes supported by PIL
 
 DEFAULT_ISSUE_TYPES = [
-    IssueType.DARK.value,  # "dark",
-    IssueType.LIGHT.value,  # "light",
-    IssueType.ODD_ASPECT_RATIO.value,  # "odd_aspect_ratio",
-    IssueType.LOW_INFORMATION.value,  # "low_information",
-    IssueType.EXACT_DUPLICATES.value,  # "exact_duplicates"
-    IssueType.NEAR_DUPLICATES.value,  # "near_duplicates"
-    IssueType.BLURRY.value,  # "blurry",
-    IssueType.GRAYSCALE.value,  # "grayscale",
-    IssueType.ODD_SIZE.value,  # "odd_size",
-    # "dark",
-    # "light",
-    # "odd_aspect_ratio",
-    # "low_information",
-    # "exact_duplicates",
-    # "near_duplicates",
-    # "blurry",
-    # "grayscale",
-    # "odd_size",
+    IssueType.DARK.value,
+    IssueType.LIGHT.value,
+    IssueType.ODD_ASPECT_RATIO.value,
+    IssueType.LOW_INFORMATION.value,
+    IssueType.EXACT_DUPLICATES.value,
+    IssueType.NEAR_DUPLICATES.value,
+    IssueType.BLURRY.value,
+    IssueType.GRAYSCALE.value,
+    IssueType.ODD_SIZE.value,
 ]
