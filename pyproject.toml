@@ -72,7 +72,7 @@ default_section = "THIRDPARTY"
 
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ["py38"]
 exclude = '''
 /(

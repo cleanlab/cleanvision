@@ -524,8 +524,10 @@ class Imagelab:
                 image_sets.append([self._dataset[index] for index in indices])
 
             title_info_sets = []
-            for s in image_sets_indices:
-                title_info = {"name": [self._dataset.get_name(index) for index in s]}
+            for indices in image_sets_indices:
+                title_info = {
+                    "name": [self._dataset.get_name(index) for index in indices]
+                }
                 title_info_sets.append(title_info)
 
             if image_sets:
@@ -608,6 +610,7 @@ class Imagelab:
             imagelab.visualize(issue_types=issue_types)
 
         """
+
         if issue_types is not None:
             if len(issue_types) == 0:
                 raise ValueError("issue_types list is empty")

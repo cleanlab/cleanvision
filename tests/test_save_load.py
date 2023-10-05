@@ -5,6 +5,7 @@ import pytest
 from pandas.testing import assert_frame_equal, assert_series_equal
 
 import cleanvision
+
 # To ensure backwards compatibility
 from cleanvision.imagelab import Imagelab
 
