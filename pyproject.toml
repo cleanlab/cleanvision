@@ -54,3 +54,18 @@ all = ["cleanvision[huggingface,pytorch,azure,gcs,s3]"]
 "Bug Tracker" = "https://github.com/cleanlab/cleanvision/issues"
 "Documentation" = "https://cleanvision.readthedocs.io/"
 
+[tool.isort]
+py_version = "38"
+line_length = 88
+lines_after_imports = 2
+lines_between_sections = 1
+multi_line_output = 3
+force_grid_wrap = 0
+include_trailing_comma = "true"
+combine_as_imports = "true"
+use_parentheses = "true"
+skip = ["./docs", ".direnv"]
+skip_glob = ["*/__init__.py"]
+skip_gitignore = "true"
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+default_section = "THIRDPARTY"
