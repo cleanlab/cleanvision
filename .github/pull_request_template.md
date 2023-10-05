@@ -1,6 +1,6 @@
 ## Summary
 
-> What is the reason for this Pull-Request? Are you bumping the version?
+> What is the reason for this Pull-Request?
 
 
 
