@@ -9,7 +9,8 @@ from PIL import Image
 from tqdm.auto import tqdm
 
 from cleanvision.dataset.base_dataset import Dataset
-from cleanvision.issue_managers import register_issue_manager, IssueType, HashType
+from cleanvision.issue_managers import register_issue_manager
+from cleanvision.utils.enums import IssueType, HashType
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import DUPLICATE, MAX_PROCS, SETS
 from cleanvision.utils.utils import get_is_issue_colname, get_score_colname

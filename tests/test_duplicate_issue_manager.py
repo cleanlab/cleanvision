@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 from PIL import Image
 
-from cleanvision.issue_managers import IssueType
+from cleanvision.utils.enums import IssueType
 from cleanvision.issue_managers.duplicate_issue_manager import (
     DuplicateIssueManager,
     get_hash,

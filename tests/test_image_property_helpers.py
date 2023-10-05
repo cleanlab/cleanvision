@@ -6,7 +6,7 @@ import pytest
 from PIL import Image
 
 import cleanvision
-from cleanvision.issue_managers import IssueType
+from cleanvision.utils.enums import IssueType
 from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
     calc_aspect_ratio,

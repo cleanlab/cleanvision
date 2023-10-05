@@ -1,6 +1,6 @@
 from typing import List
 
-from cleanvision.issue_managers import IssueType
+from cleanvision.utils.enums import IssueType
 
 IMAGE_PROPERTY: str = "image_property"
 DUPLICATE: str = "duplicate"

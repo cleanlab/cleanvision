@@ -7,7 +7,7 @@ import pandas as pd
 from PIL import ImageFilter, ImageStat
 from PIL.Image import Image
 
-from cleanvision.issue_managers import IssueType
+from cleanvision.utils.enums import IssueType
 from cleanvision.utils.constants import MAX_RESOLUTION_FOR_BLURRY_DETECTION
 from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
 

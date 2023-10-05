@@ -5,7 +5,8 @@ import pandas as pd
 from tqdm.auto import tqdm
 
 from cleanvision.dataset.base_dataset import Dataset
-from cleanvision.issue_managers import IssueType, register_issue_manager
+from cleanvision.issue_managers import register_issue_manager
+from cleanvision.utils.enums import IssueType
 from cleanvision.issue_managers.image_property import (
     AspectRatioProperty,
     BlurrinessProperty,

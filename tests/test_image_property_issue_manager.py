@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from cleanvision.issue_managers import IssueType
+from cleanvision.utils.enums import IssueType
 from cleanvision.issue_managers.image_property_issue_manager import (
     ImagePropertyIssueManager,
 )

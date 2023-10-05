@@ -18,8 +18,8 @@ from cleanvision.dataset.utils import build_dataset
 from cleanvision.issue_managers import (
     ISSUE_MANAGER_REGISTRY,
     IssueManagerFactory,
-    IssueType,
 )
+from cleanvision.utils.enums import IssueType
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import (
     DEFAULT_ISSUE_TYPES,
