@@ -39,7 +39,8 @@ class IssueManager(ABC):
                 raise ValueError(f"{name} is not a valid keyword argument.")
             if value is not None and not isinstance(value, allowed_kwargs[name]):
                 raise ValueError(
-                    f"Valid type for keyword argument {name} can only be {allowed_kwargs[name]}. {name} cannot be type {type(name)}. "
+                    f"Valid type for keyword argument {name} can only be "
+                    f"{allowed_kwargs[name]}. {name} cannot be type {type(name)}."
                 )
 
     @abstractmethod
@@ -55,7 +56,9 @@ class IssueManager(ABC):
 
     @abstractmethod
     def update_params(self, params: Dict[str, Any]) -> None:
-        """Sets params for an issue manager. Default params will be overridden by user provided params"""
+        """Sets params for an issue manager.
+        Default params will be overridden by user provided params
+        """
         raise NotImplementedError
 
     @staticmethod
