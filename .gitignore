@@ -32,7 +32,6 @@ cifar*
 
 # C extensions
 *.so
-**.txt
 
 # Distribution / packaging
 .Python
@@ -138,17 +137,9 @@ dmypy.json
 .pyre/
 
 # Data files
-**/*.json
-*.csv
 **.zip
 **-ubyte
 **.gz
 
 outputs/*
-**.pth
-**.pt
-_data/**
-_model/**
 wandb/**
-
-ENV/**
