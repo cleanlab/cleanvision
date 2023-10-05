@@ -10,6 +10,7 @@ import pandas as pd
 
 import cleanvision
 
+
 if TYPE_CHECKING:  # pragma: no cover
     from cleanvision import Imagelab
 

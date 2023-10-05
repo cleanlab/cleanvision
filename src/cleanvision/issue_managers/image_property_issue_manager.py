@@ -1,30 +1,27 @@
 import multiprocessing
-from typing import Dict, Any, List, Set, Optional, Union
+from typing import Any, Dict, List, Optional, Set, Union
 
 import pandas as pd
 from tqdm.auto import tqdm
 
 from cleanvision.dataset.base_dataset import Dataset
-from cleanvision.issue_managers import register_issue_manager, IssueType
+from cleanvision.issue_managers import IssueType, register_issue_manager
 from cleanvision.issue_managers.image_property import (
-    BrightnessProperty,
     AspectRatioProperty,
-    EntropyProperty,
     BlurrinessProperty,
+    BrightnessProperty,
     ColorSpaceProperty,
+    EntropyProperty,
     ImageProperty,
     SizeProperty,
 )
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import (
     IMAGE_PROPERTY,
-    MAX_PROCS,
     IMAGE_PROPERTY_ISSUE_TYPES_LIST,
+    MAX_PROCS,
 )
-from cleanvision.utils.utils import (
-    get_is_issue_colname,
-    update_df,
-)
+from cleanvision.utils.utils import get_is_issue_colname, update_df
 
 
 def compute_scores(

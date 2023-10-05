@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
-from PIL import Image
-from datasets import load_dataset
 import torchvision
+from datasets import load_dataset
+from PIL import Image
 
 
 @pytest.fixture(scope="session")

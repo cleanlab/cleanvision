@@ -39,6 +39,7 @@ from cleanvision.utils.utils import (
 )
 from cleanvision.utils.viz_manager import VizManager
 
+
 if TYPE_CHECKING:  # pragma: no cover
     import datasets
     from torchvision.datasets.vision import VisionDataset

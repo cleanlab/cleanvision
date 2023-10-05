@@ -3,9 +3,9 @@ import os
 import torchvision
 from datasets import load_dataset
 
+from cleanvision.dataset.fsspec_dataset import FSDataset
 from cleanvision.dataset.hf_dataset import HFDataset
 from cleanvision.dataset.torch_dataset import TorchDataset
-from cleanvision.dataset.fsspec_dataset import FSDataset
 from cleanvision.dataset.utils import build_dataset
 
 

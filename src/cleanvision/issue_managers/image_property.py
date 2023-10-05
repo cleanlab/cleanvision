@@ -1,10 +1,10 @@
 import math
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Union, overload
+from typing import Any, Dict, List, Union, overload
 
 import numpy as np
 import pandas as pd
-from PIL import ImageStat, ImageFilter
+from PIL import ImageFilter, ImageStat
 from PIL.Image import Image
 
 from cleanvision.issue_managers import IssueType

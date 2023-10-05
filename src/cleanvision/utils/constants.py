@@ -1,5 +1,6 @@
 from typing import List
 
+
 IMAGE_PROPERTY: str = "image_property"
 DUPLICATE: str = "duplicate"
 

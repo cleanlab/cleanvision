@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 from PIL import Image
 
 from cleanvision.dataset.base_dataset import Dataset
+
 
 if TYPE_CHECKING:  # pragma: no cover
     import datasets

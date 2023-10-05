@@ -1,7 +1,7 @@
 import importlib
 import os
 from enum import Enum
-from typing import List, Type, Dict, Callable
+from typing import Callable, Dict, List, Type
 
 from cleanvision.utils.base_issue_manager import IssueManager
 

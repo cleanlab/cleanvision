@@ -9,9 +9,9 @@ from PIL import Image
 from tqdm.auto import tqdm
 
 from cleanvision.dataset.base_dataset import Dataset
-from cleanvision.issue_managers import register_issue_manager, IssueType
+from cleanvision.issue_managers import IssueType, register_issue_manager
 from cleanvision.utils.base_issue_manager import IssueManager
-from cleanvision.utils.constants import SETS, DUPLICATE, MAX_PROCS
+from cleanvision.utils.constants import DUPLICATE, MAX_PROCS, SETS
 from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
 
 
@@ -93,6 +93,7 @@ class DuplicateIssueManager(IssueManager):
         to_compute : list
                      List of issue_types to run computation for
         """
+
         to_compute = []
         if SETS not in imagelab_info.get(IssueType.EXACT_DUPLICATES.value, {}):
             to_compute.append(IssueType.EXACT_DUPLICATES.value)

@@ -6,6 +6,7 @@ from cleanvision.issue_managers.image_property_issue_manager import (
     ImagePropertyIssueManager,
 )
 
+
 DARK = IssueType.DARK.value
 BLURRY = IssueType.BLURRY.value
 LIGHT = IssueType.LIGHT.value

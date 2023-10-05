@@ -1,19 +1,20 @@
+import math
+
 import numpy as np
 import pandas as pd
 import pytest
 from PIL import Image
 
 import cleanvision
-import math
 from cleanvision.issue_managers import IssueType
 from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
-    calculate_brightness,
-    get_image_mode,
     calc_aspect_ratio,
+    calc_blurriness,
     calc_entropy,
     calc_image_area_sqrt,
-    calc_blurriness,
+    calculate_brightness,
+    get_image_mode,
 )
 from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
 
