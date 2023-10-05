@@ -69,3 +69,25 @@ skip_glob = ["*/__init__.py"]
 skip_gitignore = "true"
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 default_section = "THIRDPARTY"
+
+
+[tool.black]
+line-length = 100
+target-version = ["py38"]
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | \.direnv
+  | _build
+  | build
+  | dist
+  | \.env
+  | ENV
+  | \.vscode
+  | \.cache
+  | github
+  | __pycache__
+  | .cloudignore
+)/
+'''
