@@ -12,4 +12,3 @@ build
 flake8
 psutil
 isort
-ruff
