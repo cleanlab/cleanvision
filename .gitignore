@@ -49,7 +49,6 @@ image_files*
 # datasets
 cifar*
 
-cleanlab/*.ipynb
 tests/fasttext_data/
 data/
 docs/_build/
