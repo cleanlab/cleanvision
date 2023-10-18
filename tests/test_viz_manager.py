@@ -1,7 +1,7 @@
 import pytest
 from PIL import Image
 
-from cleanvision.utils.viz_manager import VizManager
+from cleanvision.utils.viz_manager import VizManager, truncate_titles
 
 
 class TestVizManager:
@@ -30,3 +30,14 @@ class TestVizManager:
     )
     def test_image_sets(self, image_sets, title_info_sets):
         VizManager.image_sets(image_sets, title_info_sets, 4, (2, 2))
+
+
+def test_truncate_titles():
+    assert truncate_titles(2, ["/home/usr/proj/dev/product/dataset/images/image_0001.img", "/home/usr/proj/dev"
+                                                                                           "/product/dataset/images"
+                                                                                           "/image_0002.img"]) == ["...es/image_0001.img", "...es/image_0002.img"]
+
+    assert truncate_titles(2, ["image.jpeg", "image2.jpeg"]) == ["image.jpeg", "image2.jpeg"]
+    assert truncate_titles(2, ["/pictures/mount/image_0001.img", "/home/usr/proj/dev"
+                                                                 "/product/dataset/images"
+                                                                 "/image_0002.img"]) == ["/pictures/mount/i...", "/home/usr/proj/de..."]
