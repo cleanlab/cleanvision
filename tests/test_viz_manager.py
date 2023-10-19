@@ -33,11 +33,22 @@ class TestVizManager:
 
 
 def test_truncate_titles():
-    assert truncate_titles(2, ["/home/usr/proj/dev/product/dataset/images/image_0001.img", "/home/usr/proj/dev"
-                                                                                           "/product/dataset/images"
-                                                                                           "/image_0002.img"]) == ["...es/image_0001.img", "...es/image_0002.img"]
+    assert truncate_titles(
+        2,
+        [
+            "/home/usr/proj/dev/product/dataset/images/image_0001.img",
+            "/home/usr/proj/dev/product/dataset/images/image_0002.img",
+        ],
+    ) == ["...es/image_0001.img", "...es/image_0002.img"]
 
-    assert truncate_titles(2, ["image.jpeg", "image2.jpeg"]) == ["image.jpeg", "image2.jpeg"]
-    assert truncate_titles(2, ["/pictures/mount/image_0001.img", "/home/usr/proj/dev"
-                                                                 "/product/dataset/images"
-                                                                 "/image_0002.img"]) == ["/pictures/mount/i...", "/home/usr/proj/de..."]
+    assert truncate_titles(2, ["image.jpeg", "image2.jpeg"]) == [
+        "image.jpeg",
+        "image2.jpeg",
+    ]
+    assert truncate_titles(
+        2,
+        [
+            "/pictures/mount/image_0001.img",
+            "/home/usr/proj/dev/product/dataset/images/image_0002.img",
+        ],
+    ) == ["/pictures/mount/i...", "/home/usr/proj/de..."]
