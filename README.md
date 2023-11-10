@@ -35,14 +35,15 @@ wget -nc 'https://cleanlab-public.s3.amazonaws.com/CleanVision/image_files.zip'
 ```python
 from cleanvision import Imagelab
 
-# Specify path to folder containing the image files in your dataset
-imagelab = Imagelab(data_path="FOLDER_WITH_IMAGES/")
-
-# Automatically check for a predefined list of issues within your dataset
-imagelab.find_issues()
-
-# Produce a neat report of the issues found in your dataset
-imagelab.report()
+if __name__ == '__main__':
+    # Specify path to folder containing the image files in your dataset
+    imagelab = Imagelab(data_path="FOLDER_WITH_IMAGES/")
+    
+    # Automatically check for a predefined list of issues within your dataset
+    imagelab.find_issues()
+    
+    # Produce a neat report of the issues found in your dataset
+    imagelab.report()
 ```
 
 2. CleanVision diagnoses many types of issues, but you can also check for only specific issues.
