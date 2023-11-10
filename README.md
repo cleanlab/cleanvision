@@ -34,6 +34,7 @@ wget -nc 'https://cleanlab-public.s3.amazonaws.com/CleanVision/image_files.zip'
 
 ```python
 from cleanvision import Imagelab
+
 if __name__ == '__main__':
     # Specify path to folder containing the image files in your dataset
     imagelab = Imagelab(data_path="FOLDER_WITH_IMAGES/")
