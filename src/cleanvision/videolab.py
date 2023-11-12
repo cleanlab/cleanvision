@@ -52,7 +52,7 @@ class FrameSampler:
                     frame_pil.save(sample_sub_dir / image_file_name)
 
 
-class Videolab(Imagelab):
+class Videolab:
     """A single class to find all types of issues in video datasets."""
 
     def __init__(
@@ -86,7 +86,7 @@ class Videolab(Imagelab):
         cluster_frame_samples: Dict[str, List[str]] = {}
 
         # looper over index
-        for img_path in self.issues.index:
+        for img_path in self.imagelab.issues.index:
             # get frame sample parent
             sample_dir = Path(img_path).parents[0]
 
@@ -108,7 +108,7 @@ class Videolab(Imagelab):
     def _aggregate_issues(self) -> pd.DataFrame:
         """Aggregate Imagelab issues into a single frame for each video."""
         # convert booleans to floats
-        pure_float_issues = self.issues * 1
+        pure_float_issues = self.imagelab.issues * 1
 
         # store new aggregate_issues
         aggregate_issues = []
@@ -130,7 +130,9 @@ class Videolab(Imagelab):
         agg_df = pd.concat(aggregate_issues)
 
         # create lists of columns
-        issue_columns = [get_is_issue_colname(issue) for issue in self._issue_types]
+        issue_columns = [
+            get_is_issue_colname(issue) for issue in self.imagelab._issue_types
+        ]
 
         # convert float represent average booleans back to booleans
         agg_df[issue_columns] = agg_df[issue_columns].astype(bool)
@@ -144,7 +146,7 @@ class Videolab(Imagelab):
         summary_dict = {}
 
         # loop over issue type
-        for issue_type in self._issue_types:
+        for issue_type in self.imagelab._issue_types:
             # add individual type summaries
             summary_dict[issue_type] = {
                 "num_images": self.agg_issues[get_is_issue_colname(issue_type)].sum()
@@ -167,15 +169,15 @@ class Videolab(Imagelab):
         n_jobs: Optional[int] = None,
         verbose: bool = True,
     ) -> None:
-        """Sampe frames before call Imagelab.find_issues."""
+        """Sample frames before calling find_issues and aggregating."""
         # create sample frames
         self._sample_frames(Path(frame_samples_dir), frame_samples_interval)
 
-        # call parent constructor
-        super().__init__(frame_samples_dir)
+        # get imagelab instance
+        self.imagelab = Imagelab(frame_samples_dir)
 
-        # call parent find_issues on sampled frames
-        super().find_issues(issue_types, n_jobs, verbose)
+        # use imagelab to find issues in frames
+        self.imagelab.find_issues(issue_types, n_jobs, verbose)
 
         # update aggregate issues/summary
         self.agg_issues = self._aggregate_issues()
@@ -194,14 +196,14 @@ class Videolab(Imagelab):
         assert isinstance(verbosity, int) and 0 <= verbosity < 5
 
         user_supplied_args = locals()
-        report_args = self._get_report_args(user_supplied_args)
+        report_args = self.imagelab._get_report_args(user_supplied_args)
 
         issue_types_to_report = (
             issue_types if issue_types else self.agg_summary["issue_type"].tolist()
         )
 
         # filter issues based on max_prevalence in the dataset
-        filtered_issue_types = self._filter_report(
+        filtered_issue_types = self.imagelab._filter_report(
             issue_types_to_report, report_args["max_prevalence"]
         )
 
@@ -212,7 +214,7 @@ class Videolab(Imagelab):
             if verbosity:
                 print("Issues found in videos in order of severity in the dataset\n")
             if print_summary:
-                self._pprint_issue_summary(issue_summary)
+                self.imagelab._pprint_issue_summary(issue_summary)
             for issue_type in filtered_issue_types:
                 if (
                     self.agg_summary.query(f"issue_type == {issue_type!r}")[
@@ -227,7 +229,7 @@ class Videolab(Imagelab):
                     f"{self.agg_issues[get_is_issue_colname(issue_type)].sum()}\n"
                     f"Examples representing most severe instances of this issue:\n"
                 )
-                self._visualize(
+                self.imagelab._visualize(
                     issue_type,
                     report_args["num_images"],
                     report_args["cell_size"],
@@ -248,7 +250,7 @@ class Videolab(Imagelab):
         print_summary: bool = True,
         show_id: bool = False,
     ) -> None:
-        """Prints summary of the issues found in your dataset."""
+        """Prints summary of the aggregate issues found in your dataset."""
         # report on video frame samples
         self._aggregate_report(
             issue_types,
