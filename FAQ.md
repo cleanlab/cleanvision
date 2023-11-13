@@ -57,6 +57,10 @@ if __name__ == "__main__":
     imagelab.find_issues()
     imagelab.report()
 ```
+OR use `n_jobs=1`
+```python
+imagelab.find_issues(n_jobs=1)
+```
 
 
 
