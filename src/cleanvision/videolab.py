@@ -1,8 +1,8 @@
 """Videolab is an extension of Imagelab for finding issues in a video dataset."""
+from importlib import import_module
 from pathlib import Path
 from typing import Any, Dict, Generator, List, Optional
 
-import av
 import pandas as pd
 from PIL.Image import Image
 
@@ -16,8 +16,18 @@ class FrameSampler:
     """Simplest frame sampling strategy."""
 
     def __init__(self, k: int) -> None:
-        """Store frame sample interval k."""
+        """Store frame sample interval k and import PyAV."""
+        # storing frame sampling interval
         self.k = k
+
+        # attempting to import PyAV
+        try:
+            self.av = import_module("av")
+        except ImportError as error:
+            raise ImportError(
+                "Cannot import package `av`. "
+                "Please install it via `pip install av` and then try again."
+            ) from error
 
     def _create_frame_sample_sub_dir(self, video_file: Path, output_dir: Path) -> Path:
         """Create a unique sub direcotry for storing frame samples from a video file."""
@@ -34,7 +44,7 @@ class FrameSampler:
         sample_sub_dir = self._create_frame_sample_sub_dir(video_file, output_dir)
 
         # open video file for streaming
-        with av.open(str(video_file)) as container:
+        with self.av.open(str(video_file)) as container:
             # get video stream
             stream = container.streams.video[0]
 
