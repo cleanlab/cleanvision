@@ -66,7 +66,7 @@ imagelab.report(issue_types=issue_types)
 - [Additional example notebooks](https://github.com/cleanlab/cleanvision-examples)
 - [Documentation](https://cleanvision.readthedocs.io/)
 - [Blog Post](https://cleanlab.ai/blog/cleanvision/)
-- [FAQ](FAQ.md)
+- [FAQ](https://cleanvision.readthedocs.io/en/latest/faq.html)
 
 ## *Clean* your data for better Computer *Vision*
 
