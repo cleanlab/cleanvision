@@ -1,15 +1,64 @@
 """Videolab is an extension of Imagelab for finding issues in a video dataset."""
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Optional
+from typing import Any, Dict, Generator, Iterator, List, Optional, Union
 
 import pandas as pd
 from PIL.Image import Image
+from tqdm.auto import tqdm
 
+from cleanvision.dataset.base_dataset import Dataset
 from cleanvision.imagelab import Imagelab
 from cleanvision.utils.utils import get_is_issue_colname
 
 VIDEO_FILE_EXTENSIONS = ["*.mp4", "*.avi", "*.mkv", "*.mov", "*.webm"]
+
+
+class VideoDataset(Dataset):
+    """Wrapper class to handle video datasets."""
+
+    def __init__(
+        self,
+        data_folder: Optional[str] = None,
+        filepaths: Optional[List[str]] = None,
+    ) -> None:
+        """Determine video dataset source and populate index."""
+        # check if data folder is given
+        if data_folder:
+            # get filepaths from video dataset directory
+            self._filepaths = [
+                str(path) for path in self.__get_filepaths(Path(data_folder))
+            ]
+
+        else:
+            # store user supplied video file paths
+            assert filepaths is not None
+            self._filepaths = filepaths
+
+        # create index
+        self._set_index()
+
+    def __len__(self) -> int:
+        """Get video dataset file count."""
+        return len(self.index)
+
+    def __iter__(self) -> Iterator[Union[int, str]]:
+        """Defining the iteration behavior."""
+        return iter(self.index)
+
+    def _set_index(self) -> None:
+        """Create internal storage for filepaths."""
+        self.index = [path for path in self._filepaths]
+
+    def __get_filepaths(self, dataset_path: Path) -> Generator[Path, None, None]:
+        """Scan file system for video files and grab their file paths."""
+        # notify user
+        print(f"Reading videos from {dataset_path}")
+
+        # iterate over video file extensions
+        for ext in VIDEO_FILE_EXTENSIONS:
+            # loop through video paths matching ext
+            yield from dataset_path.glob(f"**/{ext}")
 
 
 class FrameSampler:
@@ -29,37 +78,42 @@ class FrameSampler:
                 "Please install it via `pip install av` and then try again."
             ) from error
 
-    def _create_frame_sample_sub_dir(self, video_file: Path, output_dir: Path) -> Path:
+    def _create_frame_sample_sub_dir(self, output_dir: Path, idx: int) -> Path:
         """Create a unique sub direcotry for storing frame samples from a video file."""
-        # create new sub directory from video file name
-        sub_dir = output_dir / video_file.name
+        # create new sub directory from video_dataset index
+        sub_dir = output_dir / str(idx)
         sub_dir.mkdir(parents=True)
 
         # return path to new sub dir
         return sub_dir
 
-    def sample(self, video_file: Path, output_dir: Path) -> None:
+    def sample(self, video_dataset: VideoDataset, output_dir: Path) -> None:
         """Loop through frames and store every k-th frame."""
-        # create frame samples sub directory
-        sample_sub_dir = self._create_frame_sample_sub_dir(video_file, output_dir)
+        # notify of sampling
+        print(f"Sampling frames at every {self.k} frames ...")
 
-        # open video file for streaming
-        with self.av.open(str(video_file)) as container:
-            # get video stream
-            stream = container.streams.video[0]
+        # iterate over video files in video data directory
+        for idx, video_file in enumerate(tqdm(video_dataset)):
+            # create frame samples sub directory
+            sample_sub_dir = self._create_frame_sample_sub_dir(output_dir, idx)
 
-            # iterate frames
-            for frame_indx, frame in enumerate(container.decode(stream)):
-                # check for k-th frame
-                if not frame_indx % self.k:
-                    # get PIL image
-                    frame_pil: Image = frame.to_image()
+            # open video file for streaming
+            with self.av.open(str(video_file)) as container:
+                # get video stream
+                stream = container.streams.video[0]
 
-                    # use frame timestamp as image file name
-                    image_file_name = str(frame.time) + ".jpg"
+                # iterate frames
+                for frame_indx, frame in enumerate(container.decode(stream)):
+                    # check for k-th frame
+                    if not frame_indx % self.k:
+                        # get PIL image
+                        frame_pil: Image = frame.to_image()
 
-                    # save to output dir
-                    frame_pil.save(sample_sub_dir / image_file_name)
+                        # use frame timestamp as image file name
+                        image_file_name = str(frame.time) + ".jpg"
+
+                        # save to output dir
+                        frame_pil.save(sample_sub_dir / image_file_name)
 
 
 class Videolab:
@@ -67,28 +121,20 @@ class Videolab:
 
     def __init__(
         self,
-        video_dir: str,
+        video_dir: Optional[str] = None,
+        video_filepaths: Optional[List[str]] = None,
     ) -> None:
         """Create Path object from video directory string."""
-        # store video directory path
-        self.video_dir: Path = Path(video_dir)
-
-    def _find_videos(self) -> Generator[Path, None, None]:
-        """Iterate over video files in video directory."""
-        # iterate over video file extensions
-        for ext in VIDEO_FILE_EXTENSIONS:
-            # loop through video paths matching ext
-            yield from self.video_dir.glob(f"**/{ext}")
+        # store video dataset
+        self.video_dataset: VideoDataset = VideoDataset(video_dir, video_filepaths)
 
     def _sample_frames(self, samples_dir: Path, sample_interval: int) -> None:
         """Get sample frames."""
         # setup frame sampler
         frame_sampler = FrameSampler(sample_interval)
 
-        # iterate over video files in video data directory
-        for video_file in self._find_videos():
-            # sample frames from target video data directory
-            frame_sampler.sample(video_file, samples_dir)
+        # sample frames from target video data directory
+        frame_sampler.sample(self.video_dataset, samples_dir)
 
     def _parent_dir_frame_samples_dict(self) -> Dict[str, List[str]]:
         """Creates dictionary of parent directory and frame samples."""
