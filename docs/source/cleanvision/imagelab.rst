@@ -1,8 +1,6 @@
 Imagelab
 ========
 
-.. _imagelab:
-
 .. automodule:: cleanvision.imagelab
    :autosummary:
    :members:
