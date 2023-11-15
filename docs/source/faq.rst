@@ -20,7 +20,7 @@ Yes, you can specify issues like ``light`` or ``blurry`` in the issue_types argu
 3. **What dataset formats does CleanVision support?**
 
 
-Apart from plain image files, CleanVision also works with HuggingFace and Torchvision datasets. You can use the dataset objects as is with the ``image_key`` argument.
+Apart from plain image files stored locally or in the cloud, CleanVision also works with HuggingFace and Torchvision datasets. You can use the dataset objects as is with the ``image_key`` argument.
 
 .. code-block:: python3
 
