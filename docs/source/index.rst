@@ -4,47 +4,50 @@
 
 Documentation
 =======================================
+
 CleanVision automatically detects various issues in image datasets, such as images that are: (near) duplicates, blurry,
 over/under-exposed, etc. This data-centric AI package is designed as a quick first step for any computer vision project
 to find problems in your dataset, which you may want to address before applying machine learning.
 
 
 Installation
-============
+------------
 
-To install the latest stable version (recommended):
+.. tabs::
 
-.. code-block:: console
+   .. tab:: pip
 
-   $ pip install cleanvision
+      .. code-block:: bash
 
+         pip install cleanvision
 
-To install the bleeding-edge developer version:
+      To install the package with all optional dependencies:
 
-.. code-block:: console
+      .. code-block:: bash
 
-   $ pip install git+https://github.com/cleanlab/cleanvision.git
+         pip install "cleanvision[all]"
 
-To install with HuggingFace optional dependencies
+   .. tab:: source
 
-.. code-block:: console
+      .. code-block:: bash
 
-   $ pip install "cleanvision[huggingface]"
+         pip install git+https://github.com/cleanlab/cleanvision.git
 
-To install with Torchvision optional dependencies
+      To install the package with all optional dependencies:
 
-.. code-block:: console
+      .. code-block:: bash
 
-   $ pip install "cleanvision[pytorch]"
-
-
-
+         pip install "git+https://github.com/cleanlab/cleanvision.git#egg=cleanvision[all]"
 
 
-Quickstart
-===========
 
-1. Using CleanVision to audit your image data is as simple as running the code below:
+
+How to Use CleanVision
+----------------------
+
+Basic Usage
+^^^^^^^^^^^
+Here's how to quickly audit your image data:
 
 
 .. code-block:: python3
@@ -60,8 +63,9 @@ Quickstart
     # Produce a neat report of the issues found in your dataset
     imagelab.report()
 
-2. CleanVision diagnoses many types of issues, but you can also check for only specific issues:
-
+Targeted Issue Detection
+^^^^^^^^^^^^^^^^^^^^^^^^
+You can also focus on specific issues:
 
 .. code-block:: python3
 
@@ -72,8 +76,9 @@ Quickstart
     # Produce a report with only the specified issue_types
     imagelab.report(issue_types.keys())
 
-3. Run CleanVision on a Hugging Face dataset
-
+Integration with Hugging Face Dataset
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Easily use CleanVision with a Hugging Face dataset:
 
 .. code-block:: python3
 
@@ -90,7 +95,9 @@ Quickstart
 
     imagelab.report()
 
-4. Run CleanVision on a Torchvision dataset
+Integration with Torchvision Dataset
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+CleanVision works smoothly with Torchvision datasets too:
 
 
 .. code-block:: python3
@@ -111,29 +118,32 @@ Quickstart
     imagelab.report()
 
 
-More on how to get started with CleanVision:
-- `Example Python script <https://github.com/cleanlab/cleanvision/blob/main/docs/source/tutorials/run.py>`_
-- `Example Notebooks <https://github.com/cleanlab/cleanvision-examples>`_
-- `How To Contribute <https://github.com/cleanlab/cleanvision/blob/main/CONTRIBUTING.md>`_
+Additional Resources
+--------------------
+- Get started with our `Example Notebook <https://cleanvision.readthedocs.io/en/latest/tutorials/tutorial.html>`_
+- Explore more `Example Notebooks <https://github.com/cleanlab/cleanvision-examples>`_
+- Learn how to contribute in the `Contribution Guide <https://github.com/cleanlab/cleanvision/blob/main/CONTRIBUTING.md>`_
 
 
 .. toctree::
    :hidden:
-   :maxdepth: 1
-   :caption: Getting Started
 
    Quickstart <self>
-.. _api-reference:
 
+
+.. _tutorials:
 .. toctree::
    :hidden:
    :maxdepth: 3
    :caption: Tutorials
+   :name: _tutorials
 
-   tutorials/tutorial.ipynb
+   How to Use CleanVision <tutorials/tutorial.ipynb>
    tutorials/torchvision_dataset.ipynb
    tutorials/huggingface_dataset.ipynb
+   Frequently Asked Questions <faq>
 
+.. _api-reference:
 .. toctree::
    :hidden:
    :maxdepth: 3
@@ -153,3 +163,4 @@ More on how to get started with CleanVision:
    GitHub <https://github.com/cleanlab/cleanvision.git>
    PyPI <https://pypi.org/project/cleanvision/>
    Cleanlab Studio <https://cleanlab.ai/studio/?utm_source=cleanvision&utm_medium=docs&utm_campaign=clostostudio>
+
