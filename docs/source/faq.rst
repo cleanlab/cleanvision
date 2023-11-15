@@ -61,7 +61,7 @@ A fix around this issue is to run CleanVision in the main namespace like this
         imagelab.find_issues()
         imagelab.report()
 
-OR use `n_jobs=1` to disable parallel processing:
+OR use ``n_jobs=1`` to disable parallel processing:
 
 .. code-block:: python3
 
