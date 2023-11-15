@@ -217,6 +217,39 @@ class Videolab:
         # return aggregate summary
         return agg_summary
 
+    @staticmethod
+    def list_default_issue_types() -> List[str]:
+        """Returns list of the default issue types."""
+        return [
+            issue
+            for issue in Imagelab.list_default_issue_types()
+            if "duplicates" not in issue
+        ]
+
+    @staticmethod
+    def list_possible_issue_types() -> List[str]:
+        """Returns list of all possible issue types including custom issues."""
+        return Imagelab.list_possible_issue_types()
+
+    def _get_issues_to_compute(
+        self, issue_types_with_params: Optional[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """Configure default issue types if needed."""
+        # use defaults if no issue types supplied
+        if not issue_types_with_params:
+            to_compute_issues_with_params: Dict[str, Any] = {
+                issue_type: {} for issue_type in self.list_default_issue_types()
+            }
+
+        # ... just get user supplied issue types
+        else:
+            to_compute_issues_with_params = {
+                issue_type_str: params
+                for issue_type_str, params in issue_types_with_params.items()
+            }
+
+        return to_compute_issues_with_params
+
     def find_issues(
         self,
         frame_samples_dir: str,
@@ -231,6 +264,9 @@ class Videolab:
 
         # get imagelab instance
         self.imagelab = Imagelab(frame_samples_dir)
+
+        # get default issues if user supplied none
+        issue_types = self._get_issues_to_compute(issue_types)
 
         # use imagelab to find issues in frames
         self.imagelab.find_issues(issue_types, n_jobs, verbose)
