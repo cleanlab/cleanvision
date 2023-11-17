@@ -1,18 +1,26 @@
 from typing import List
 
+from cleanvision.utils.enums import IssueType
+
+
 IMAGE_PROPERTY: str = "image_property"
 DUPLICATE: str = "duplicate"
 
+
 IMAGE_PROPERTY_ISSUE_TYPES_LIST: List[str] = [
-    "dark",
-    "light",
-    "odd_aspect_ratio",
-    "low_information",
-    "blurry",
-    "grayscale",
-    "odd_size",
+    IssueType.DARK.value,
+    IssueType.LIGHT.value,
+    IssueType.ODD_ASPECT_RATIO.value,
+    IssueType.LOW_INFORMATION.value,
+    IssueType.BLURRY.value,
+    IssueType.GRAYSCALE.value,
+    IssueType.ODD_SIZE.value,
 ]
-DUPLICATE_ISSUE_TYPES_LIST: List[str] = ["exact_duplicates", "near_duplicates"]
+
+DUPLICATE_ISSUE_TYPES_LIST: List[str] = [
+    IssueType.EXACT_DUPLICATES.value,
+    IssueType.NEAR_DUPLICATES.value,
+]
 SETS: str = "sets"
 
 # max number of processes that can be forked/spawned for multiprocessing
@@ -38,13 +46,13 @@ IMAGE_FILE_EXTENSIONS: List[str] = [
 ]  # filetypes supported by PIL
 
 DEFAULT_ISSUE_TYPES = [
-    "dark",
-    "light",
-    "odd_aspect_ratio",
-    "low_information",
-    "exact_duplicates",
-    "near_duplicates",
-    "blurry",
-    "grayscale",
-    "odd_size",
+    IssueType.DARK.value,
+    IssueType.LIGHT.value,
+    IssueType.ODD_ASPECT_RATIO.value,
+    IssueType.LOW_INFORMATION.value,
+    IssueType.EXACT_DUPLICATES.value,
+    IssueType.NEAR_DUPLICATES.value,
+    IssueType.BLURRY.value,
+    IssueType.GRAYSCALE.value,
+    IssueType.ODD_SIZE.value,
 ]

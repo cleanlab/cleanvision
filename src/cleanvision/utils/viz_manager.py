@@ -1,6 +1,6 @@
-from typing import List, Tuple, Dict
-
 import math
+from typing import Dict, List, Tuple
+
 import matplotlib.axes
 import matplotlib.pyplot as plt
 from PIL import Image

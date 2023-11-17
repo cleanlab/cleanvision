@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from typing import List, Optional, Union, Dict
+import os
+import pathlib
+from typing import Dict, List, Optional, Union
 
+import fsspec
 from PIL import Image
 
-from cleanvision.utils.constants import IMAGE_FILE_EXTENSIONS
 from cleanvision.dataset.base_dataset import Dataset
-import fsspec
-import pathlib
-import os
+from cleanvision.utils.constants import IMAGE_FILE_EXTENSIONS
 
 
 class FSDataset(Dataset):

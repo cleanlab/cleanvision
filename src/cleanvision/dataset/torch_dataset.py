@@ -6,6 +6,7 @@ from PIL import Image
 
 from cleanvision.dataset.base_dataset import Dataset
 
+
 if TYPE_CHECKING:  # pragma: no cover
     from torchvision.datasets.vision import VisionDataset
 

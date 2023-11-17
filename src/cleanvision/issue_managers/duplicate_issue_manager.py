@@ -9,26 +9,27 @@ from PIL import Image
 from tqdm.auto import tqdm
 
 from cleanvision.dataset.base_dataset import Dataset
-from cleanvision.issue_managers import register_issue_manager, IssueType
+from cleanvision.issue_managers import register_issue_manager
 from cleanvision.utils.base_issue_manager import IssueManager
-from cleanvision.utils.constants import SETS, DUPLICATE, MAX_PROCS
+from cleanvision.utils.constants import DUPLICATE, MAX_PROCS, SETS
+from cleanvision.utils.enums import HashType, IssueType
 from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
 
 
 def get_hash(image: Image.Image, params: Dict[str, Any]) -> str:
     hash_type, hash_size = params["hash_type"], params.get("hash_size", None)
-    if hash_type == "md5":
+    if hash_type == HashType.MD5:
         pixels = np.asarray(image)
         return hashlib.md5(pixels.tobytes()).hexdigest()
-    elif hash_type == "whash":
+    elif hash_type == HashType.WHASH:
         return str(imagehash.whash(image, hash_size=hash_size))
-    elif hash_type == "phash":
+    elif hash_type == HashType.PHASH:
         return str(imagehash.phash(image, hash_size=hash_size))
-    elif hash_type == "ahash":
+    elif hash_type == HashType.AHASH:
         return str(imagehash.average_hash(image, hash_size=hash_size))
-    elif hash_type == "dhash":
+    elif hash_type == HashType.DHASH:
         return str(imagehash.dhash(image, hash_size=hash_size))
-    elif hash_type == "chash":
+    elif hash_type == HashType.CHASH:
         return str(imagehash.colorhash(image, binbits=hash_size))
     else:
         raise ValueError("Hash type not supported")
@@ -64,8 +65,11 @@ class DuplicateIssueManager(IssueManager):
 
     def get_default_params(self) -> Dict[str, Any]:
         return {
-            IssueType.EXACT_DUPLICATES.value: {"hash_type": "md5"},
-            IssueType.NEAR_DUPLICATES.value: {"hash_type": "phash", "hash_size": 8},
+            IssueType.EXACT_DUPLICATES.value: {"hash_type": HashType.MD5},
+            IssueType.NEAR_DUPLICATES.value: {
+                "hash_type": HashType.PHASH,
+                "hash_size": 8,
+            },
         }
 
     def update_params(self, params: Dict[str, Any]) -> None:
@@ -93,6 +97,7 @@ class DuplicateIssueManager(IssueManager):
         to_compute : list
                      List of issue_types to run computation for
         """
+
         to_compute = []
         if SETS not in imagelab_info.get(IssueType.EXACT_DUPLICATES.value, {}):
             to_compute.append(IssueType.EXACT_DUPLICATES.value)

@@ -1,4 +1,3 @@
-.idea/
 .DS_Store
 __pycache__/
 .vscode/
@@ -21,3 +20,84 @@ image_files*
 
 # datasets
 cifar*
+
+# Byte-compiled / optimized / DLL files
+*.py[cod]
+*$py.class
+
+# development environment configuration files
+.idea
+.idea/**
+.vscode
+.vscode/**
+
+# Python Environments
+.direnv
+.env
+.venv
+env/
+venv/
+env.bak/
+venv.bak/
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+develop-eggs/**
+downloads/**
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+.installed.cfg
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage*
+.cache
+*.cover
+*.py,cover
+.hypothesis/**
+.pytest_cache/**
+
+# log files
+*.log
+logs/**
+
+# IPython
+profile_default/
+ipython_config.py
+__pypackages__/
+
+# mkdocs documentation
+/site
+
+# mypy cache
+.mypy_cache/
+.dmypy.json
+
+# Data files
+**.zip
+**-ubyte
+**.gz
+**.tar
+**.7Z
+**.BZ2
+**.rar
+
+# other files
+outputs/**
+wandb/**

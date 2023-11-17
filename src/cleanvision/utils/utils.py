@@ -1,11 +1,12 @@
 import glob
 import multiprocessing
 import os
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 import pandas as pd
 
 from cleanvision.utils.constants import IMAGE_FILE_EXTENSIONS
+
 
 # psutil is a package used to count physical cores for multiprocessing
 # This package is not necessary, because we can always fall back to logical cores as the default
