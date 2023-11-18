@@ -148,7 +148,7 @@ class Videolab:
 
     @staticmethod
     def _parent_dir_frame_samples_dict(
-        frame_issues: pd.Dataframe,
+        frame_issues: pd.DataFrame,
     ) -> Dict[str, List[str]]:
         """Creates dictionary of parent directory and frame samples."""
         # set dict
@@ -174,7 +174,7 @@ class Videolab:
         # get cluster dict
         return cluster_frame_samples
 
-    def _aggregate_issues(self, frame_issues: pd.Dataframe) -> pd.DataFrame:
+    def _aggregate_issues(self, frame_issues: pd.DataFrame) -> pd.DataFrame:
         """Aggregate Imagelab issues into a single frame for each video."""
         # convert booleans to floats
         pure_float_issues = frame_issues * 1
@@ -209,7 +209,7 @@ class Videolab:
         # return the aggregated dataframe
         return agg_df
 
-    def _aggregate_summary(self, aggregate_issues: pd.Dataframe) -> pd.DataFrame:
+    def _aggregate_summary(self, aggregate_issues: pd.DataFrame) -> pd.DataFrame:
         """Create issues summary for aggregate issues."""
         # setup issue summary storage
         summary_dict = {}
