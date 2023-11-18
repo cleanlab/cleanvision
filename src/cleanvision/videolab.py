@@ -1,7 +1,11 @@
 """Videolab is an extension of Imagelab for finding issues in a video dataset."""
+from __future__ import annotations
+
+import pickle
+from copy import deepcopy
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Dict, Generator, Iterator, List, Optional, Union
+from typing import Any, Dict, Generator, Iterator, List, Optional, Type, TypeVar, Union
 
 import pandas as pd
 from PIL.Image import Image
@@ -11,7 +15,13 @@ from cleanvision.dataset.base_dataset import Dataset
 from cleanvision.imagelab import Imagelab
 from cleanvision.utils.utils import get_is_issue_colname
 
+OBJECT_FILENAME = "videolab.pkl"
+ISSUES_FILENAME = "frame_issues.csv"
+ISSUE_SUMMARY_FILENAME = "frame_issue_summary.csv"
 VIDEO_FILE_EXTENSIONS = ["*.mp4", "*.avi", "*.mkv", "*.mov", "*.webm"]
+
+__all__ = ["Videolab"]
+TVideolab = TypeVar("TVideolab", bound="Videolab")
 
 
 class VideoDataset(Dataset):
@@ -136,13 +146,16 @@ class Videolab:
         # sample frames from target video data directory
         frame_sampler.sample(self.video_dataset, samples_dir)
 
-    def _parent_dir_frame_samples_dict(self) -> Dict[str, List[str]]:
+    @staticmethod
+    def _parent_dir_frame_samples_dict(
+        frame_issues: pd.Dataframe,
+    ) -> Dict[str, List[str]]:
         """Creates dictionary of parent directory and frame samples."""
         # set dict
         cluster_frame_samples: Dict[str, List[str]] = {}
 
         # looper over index
-        for img_path in self.imagelab.issues.index:
+        for img_path in frame_issues.index:
             # get frame sample parent
             sample_dir = Path(img_path).parents[0]
 
@@ -161,16 +174,16 @@ class Videolab:
         # get cluster dict
         return cluster_frame_samples
 
-    def _aggregate_issues(self) -> pd.DataFrame:
+    def _aggregate_issues(self, frame_issues: pd.Dataframe) -> pd.DataFrame:
         """Aggregate Imagelab issues into a single frame for each video."""
         # convert booleans to floats
-        pure_float_issues = self.imagelab.issues * 1
+        pure_float_issues = frame_issues * 1
 
         # store new aggregate_issues
         aggregate_issues = []
 
         # loop over clusters
-        for _, indexes in self._parent_dir_frame_samples_dict().items():
+        for _, indexes in self._parent_dir_frame_samples_dict(frame_issues).items():
             # get all frame issues for sample_dir subset
             frame_issues = pure_float_issues.loc[indexes]
 
@@ -196,7 +209,7 @@ class Videolab:
         # return the aggregated dataframe
         return agg_df
 
-    def _aggregate_summary(self) -> pd.DataFrame:
+    def _aggregate_summary(self, aggregate_issues: pd.Dataframe) -> pd.DataFrame:
         """Create issues summary for aggregate issues."""
         # setup issue summary storage
         summary_dict = {}
@@ -205,7 +218,7 @@ class Videolab:
         for issue_type in self.imagelab._issue_types:
             # add individual type summaries
             summary_dict[issue_type] = {
-                "num_images": self.agg_issues[get_is_issue_colname(issue_type)].sum()
+                "num_images": aggregate_issues[get_is_issue_colname(issue_type)].sum()
             }
 
         # reshape summary dataframe
@@ -231,25 +244,6 @@ class Videolab:
         """Returns list of all possible issue types including custom issues."""
         return Imagelab.list_possible_issue_types()
 
-    def _get_issues_to_compute(
-        self, issue_types_with_params: Optional[Dict[str, Any]]
-    ) -> Dict[str, Any]:
-        """Configure default issue types if needed."""
-        # use defaults if no issue types supplied
-        if not issue_types_with_params:
-            to_compute_issues_with_params: Dict[str, Any] = {
-                issue_type: {} for issue_type in self.list_default_issue_types()
-            }
-
-        # ... just get user supplied issue types
-        else:
-            to_compute_issues_with_params = {
-                issue_type_str: params
-                for issue_type_str, params in issue_types_with_params.items()
-            }
-
-        return to_compute_issues_with_params
-
     def find_issues(
         self,
         frame_samples_dir: str,
@@ -265,73 +259,21 @@ class Videolab:
         # get imagelab instance
         self.imagelab = Imagelab(frame_samples_dir)
 
-        # get default issues if user supplied none
-        issue_types = self._get_issues_to_compute(issue_types)
+        # set default issue types
+        setattr(
+            self.imagelab, "list_default_issue_types", self.list_default_issue_types
+        )
 
         # use imagelab to find issues in frames
         self.imagelab.find_issues(issue_types, n_jobs, verbose)
 
+        # get frame issues
+        self.frame_issues = self.imagelab.issues
+        self.frame_issue_summary = self.imagelab.issue_summary
+
         # update aggregate issues/summary
-        self.agg_issues = self._aggregate_issues()
-        self.agg_summary = self._aggregate_summary()
-
-    def _aggregate_report(
-        self,
-        issue_types: Optional[List[str]] = None,
-        max_prevalence: Optional[float] = None,
-        num_images: Optional[int] = None,
-        verbosity: int = 1,
-        print_summary: bool = True,
-        show_id: bool = False,
-    ) -> None:
-        """Create report visualization for aggregate issues."""
-        assert isinstance(verbosity, int) and 0 <= verbosity < 5
-
-        user_supplied_args = locals()
-        report_args = self.imagelab._get_report_args(user_supplied_args)
-
-        issue_types_to_report = (
-            issue_types if issue_types else self.agg_summary["issue_type"].tolist()
-        )
-
-        # filter issues based on max_prevalence in the dataset
-        filtered_issue_types = self.imagelab._filter_report(
-            issue_types_to_report, report_args["max_prevalence"]
-        )
-
-        issue_summary = self.agg_summary[
-            self.agg_summary["issue_type"].isin(filtered_issue_types)
-        ]
-        if len(issue_summary) > 0:
-            if verbosity:
-                print("Issues found in videos in order of severity in the dataset\n")
-            if print_summary:
-                self.imagelab._pprint_issue_summary(issue_summary)
-            for issue_type in filtered_issue_types:
-                if (
-                    self.agg_summary.query(f"issue_type == {issue_type!r}")[
-                        "num_images"
-                    ].values[0]
-                    == 0
-                ):
-                    continue
-                print(f"{' ' + issue_type + ' frames ':-^60}\n")
-                print(
-                    f"Number of examples with this issue: "
-                    f"{self.agg_issues[get_is_issue_colname(issue_type)].sum()}\n"
-                    f"Examples representing most severe instances of this issue:\n"
-                )
-                self.imagelab._visualize(
-                    issue_type,
-                    report_args["num_images"],
-                    report_args["cell_size"],
-                    show_id,
-                )
-        else:
-            print(
-                "Please specify some issue_types to "
-                "check for in videolab.find_issues()."
-            )
+        self.imagelab.issues = self._aggregate_issues(self.frame_issues)
+        self.imagelab.issue_summary = self._aggregate_summary(self.imagelab.issues)
 
     def report(
         self,
@@ -344,7 +286,7 @@ class Videolab:
     ) -> None:
         """Prints summary of the aggregate issues found in your dataset."""
         # report on video frame samples
-        self._aggregate_report(
+        self.imagelab.report(
             issue_types,
             max_prevalence,
             num_images,
@@ -352,3 +294,83 @@ class Videolab:
             print_summary,
             show_id,
         )
+
+    def get_stats(self) -> Any:
+        """Returns dict of statistics computed from video frames."""
+        return self.imagelab.info["statistics"]
+
+    def save(self, path: str, force: bool = False) -> None:
+        """Saves this Videolab instance."""
+        # get pathlib Path object
+        root_save_path = Path(path)
+
+        # check if videolab root save path exists
+        if not root_save_path.exists():
+            # create otherwise
+            root_save_path.mkdir(parents=True, exist_ok=True)
+        else:
+            if not force:
+                raise FileExistsError("Please specify a new path or set force=True")
+            print(
+                "WARNING: Existing files will be overwritten "
+                f"by newly saved files at: {root_save_path}"
+            )
+
+        # create specific imagelab sub directory
+        imagelab_sub_dir = str(root_save_path / "imagelab")
+
+        # now save imagelab to subdir
+        self.imagelab.save(imagelab_sub_dir, force)
+
+        # save aggregate dataframes
+        self.frame_issues.to_csv(root_save_path / ISSUES_FILENAME)
+        self.frame_issue_summary.to_csv(root_save_path / ISSUE_SUMMARY_FILENAME)
+
+        # copy videolab object
+        videolab_copy = deepcopy(self)
+
+        # clear out dataframes
+        videolab_copy.frame_issues = None
+        videolab_copy.frame_issue_summary = None
+
+        # Save the imagelab object to disk.
+        with open(root_save_path / OBJECT_FILENAME, "wb") as f:
+            pickle.dump(videolab_copy, f)
+
+        print(f"Saved Videolab to folder: {root_save_path}")
+        print(
+            "The data path and dataset must be not be changed to maintain consistent "
+            "state when loading this Videolab"
+        )
+
+    @classmethod
+    def load(cls: Type[TVideolab], path: str) -> Videolab:
+        """Loads Videolab from given path."""
+        # get pathlib Path object
+        root_save_path = Path(path)
+
+        # check if path exists
+        if not root_save_path.exists():
+            raise ValueError(f"No folder found at specified path: {path}")
+
+        with open(root_save_path / OBJECT_FILENAME, "rb") as f:
+            videolab: Videolab = pickle.load(f)
+
+        # Load the issues from disk.
+        videolab.frame_issues = pd.read_csv(
+            root_save_path / ISSUES_FILENAME, index_col=0
+        )
+        videolab.frame_issue_summary = pd.read_csv(
+            root_save_path / ISSUE_SUMMARY_FILENAME, index_col=0
+        )
+
+        # create specific imagelab sub directory
+        imagelab_sub_dir = str(root_save_path / "imagelab")
+
+        # store imagelab object
+        videolab.imagelab = Imagelab.load(imagelab_sub_dir)
+
+        # notify user
+        print("Successfully loaded Videolab")
+
+        return videolab
