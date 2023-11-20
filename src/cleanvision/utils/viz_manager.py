@@ -113,4 +113,4 @@ def plot_image_grid(
             set_image_on_axes(images[i], axes[i], titles[i])
     else:
         set_image_on_axes(images[0], axes, titles[0])
-    plt.show()  # type: ignore
+    plt.show()
