@@ -1,17 +1,18 @@
+# editor/OS cache files
 .idea/
 .DS_Store
-__pycache__/
 .vscode/
+**/.DS_Store
 
 # jupyter notebooks
 .ipynb_checkpoints/
 
-# packaging
+# Distribution / packaging
+build/
 dist/
 *.egg-info/
-build/
 
-# Coverage
+# Unit test / coverage reports
 .coverage
 coverage.xml
 
@@ -21,3 +22,28 @@ image_files*
 
 # datasets
 cifar*
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.direnv
+
+# Data files
+**.zip
+**-ubyte
+**.gz
+**.tar
+**.7Z
+**.BZ2
+**.rar
