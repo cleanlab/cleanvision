@@ -35,6 +35,10 @@ class FSDataset(Dataset):
             self._filepaths = self.__get_filepaths(dataset_path)
         else:
             assert filepaths is not None
+            if len(filepaths) != len(set(filepaths)):
+                raise ValueError(
+                    "Duplicate filepaths found in the provided list, please remove these duplicates."
+                )
             self._filepaths = filepaths
             # here we assume all of the provided filepaths are from the same filesystem
             self.fs, _ = fsspec.core.url_to_fs(self._filepaths[0], **self.storage_opts)

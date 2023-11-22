@@ -177,6 +177,12 @@ def test_run_imagelab_given_filepaths(generate_local_dataset, images_per_class):
     assert len(imagelab.issues) == images_per_class
 
 
+def test_raise_error_given_duplicate_filepaths():
+    filepaths = ["/home/user/file0.jpg", "/home/user/file1.jpg", "/home/user/file0.jpg"]
+    with pytest.raises(ValueError, match="Duplicate"):
+        Imagelab(filepaths=filepaths)
+
+
 def test_s3_dataset(capsys, get_example_s3_filepaths):
     imagelab = Imagelab(filepaths=get_example_s3_filepaths, storage_opts={"anon": True})
     imagelab.find_issues(
