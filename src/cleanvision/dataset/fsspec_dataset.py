@@ -37,7 +37,7 @@ class FSDataset(Dataset):
             assert filepaths is not None
             if len(filepaths) != len(set(filepaths)):
                 raise ValueError(
-                    "Duplicate paths found in the list, please remove duplicate filepaths from the list."
+                    "Duplicate filepaths found in the provided list, please remove these duplicates."
                 )
             self._filepaths = filepaths
             # here we assume all of the provided filepaths are from the same filesystem
