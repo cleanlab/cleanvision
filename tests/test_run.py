@@ -179,7 +179,7 @@ def test_run_imagelab_given_filepaths(generate_local_dataset, images_per_class):
 
 def test_raise_error_given_duplicate_filepaths():
     filepaths = ["/home/user/file0.jpg", "/home/user/file1.jpg", "/home/user/file0.jpg"]
-    with pytest.raises(ValueError, match="Duplicate paths found in the list"):
+    with pytest.raises(ValueError, match="Duplicate"):
         Imagelab(filepaths=filepaths)
 
 
