@@ -22,7 +22,7 @@ from cleanvision.issue_managers import (
 )
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import (
-    DEFAULT_ISSUE_TYPES,
+    DEFAULT_ISSUE_TYPES_IMAGELAB,
     DUPLICATE,
     DUPLICATE_ISSUE_TYPES_LIST,
     IMAGE_PROPERTY,
@@ -166,7 +166,7 @@ class Imagelab:
     @staticmethod
     def list_default_issue_types() -> List[str]:
         """Returns a list of the issue types that are run by default in :py:meth:`Imagelab.find_issues`"""
-        return DEFAULT_ISSUE_TYPES
+        return DEFAULT_ISSUE_TYPES_IMAGELAB
 
     @staticmethod
     def list_possible_issue_types() -> List[str]:

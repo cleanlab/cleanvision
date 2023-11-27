@@ -37,13 +37,23 @@ IMAGE_FILE_EXTENSIONS: List[str] = [
     "*.WEBP",
 ]  # filetypes supported by PIL
 
-DEFAULT_ISSUE_TYPES = [
+DEFAULT_ISSUE_TYPES_IMAGELAB = [
     "dark",
     "light",
     "odd_aspect_ratio",
     "low_information",
     "exact_duplicates",
     "near_duplicates",
+    "blurry",
+    "grayscale",
+    "odd_size",
+]
+
+DEFAULT_ISSUE_TYPES_VIDEOLAB = [
+    "dark",
+    "light",
+    "odd_aspect_ratio",
+    "low_information",
     "blurry",
     "grayscale",
     "odd_size",

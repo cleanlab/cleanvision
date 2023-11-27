@@ -14,6 +14,8 @@ from tqdm.auto import tqdm
 from cleanvision.dataset.base_dataset import Dataset
 from cleanvision.imagelab import Imagelab
 from cleanvision.utils.utils import get_is_issue_colname
+from cleanvision.utils.constants import DEFAULT_ISSUE_TYPES_VIDEOLAB
+import os
 
 OBJECT_FILENAME = "videolab.pkl"
 ISSUES_FILENAME = "frame_issues.csv"
@@ -233,11 +235,7 @@ class Videolab:
     @staticmethod
     def list_default_issue_types() -> List[str]:
         """Returns list of the default issue types."""
-        return [
-            issue
-            for issue in Imagelab.list_default_issue_types()
-            if "duplicates" not in issue
-        ]
+        return DEFAULT_ISSUE_TYPES_VIDEOLAB
 
     @staticmethod
     def list_possible_issue_types() -> List[str]:
@@ -246,15 +244,20 @@ class Videolab:
 
     def find_issues(
         self,
-        frame_samples_dir: str,
-        frame_samples_interval: int,
+        frame_samples_dir: Optional[str] = None,
+        frame_sampling_interval: int = 30,
         issue_types: Optional[Dict[str, Any]] = None,
         n_jobs: Optional[int] = None,
         verbose: bool = True,
     ) -> None:
         """Sample frames before calling find_issues and aggregating."""
+        if not frame_samples_dir:
+            frame_samples_dir = os.path.join(os.getcwd(), "frames")
+
+        # todo: handle case where frame dir already exists
+
         # create sample frames
-        self._sample_frames(Path(frame_samples_dir), frame_samples_interval)
+        self._sample_frames(Path(frame_samples_dir), frame_sampling_interval)
 
         # get imagelab instance
         self.imagelab = Imagelab(frame_samples_dir)
