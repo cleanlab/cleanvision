@@ -262,13 +262,15 @@ class Videolab:
         # get imagelab instance
         self.imagelab = Imagelab(frame_samples_dir)
 
-        # set default issue types
-        setattr(
-            self.imagelab, "list_default_issue_types", self.list_default_issue_types
-        )
+        if not issue_types:
+            issue_types = {
+                issue_type: {} for issue_type in self.list_default_issue_types()
+            }
 
         # use imagelab to find issues in frames
-        self.imagelab.find_issues(issue_types, n_jobs, verbose)
+        self.imagelab.find_issues(
+            issue_types=issue_types, n_jobs=n_jobs, verbose=verbose
+        )
 
         # get frame issues
         self.frame_issues = self.imagelab.issues
