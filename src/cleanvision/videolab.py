@@ -2,10 +2,8 @@
 from __future__ import annotations
 
 
-import pickle
-from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Type, TypeVar
+from typing import Any, Dict, List, Optional, TypeVar
 from cleanvision.utils.frame_sampler import FrameSampler
 import pandas as pd
 from tqdm.auto import tqdm
@@ -14,6 +12,9 @@ from cleanvision.imagelab import Imagelab
 from cleanvision.utils.utils import get_is_issue_colname
 from cleanvision.utils.constants import DEFAULT_ISSUE_TYPES_VIDEOLAB
 from cleanvision.dataset.video_dataset import VideoDataset
+from PIL import Image
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
 
 OBJECT_FILENAME = "videolab.pkl"
@@ -163,7 +164,7 @@ class Videolab:
 
         # use imagelab to find issues in frames
         self.imagelab.find_issues(
-            issue_types=self.issue_types, n_jobs=n_jobs, verbose=verbose
+            issue_types=self.issue_types, n_jobs=n_jobs, verbose=False
         )
 
         # get frame issues
@@ -184,6 +185,12 @@ class Videolab:
             ]
         )
 
+    def _pprint_issue_summary(self, issue_summary: pd.DataFrame) -> None:
+        issue_summary_copy = issue_summary.copy()
+        issue_summary_copy.dropna(axis=1, how="all", inplace=True)
+        issue_summary_copy.fillna("N/A", inplace=True)
+        print(issue_summary_copy.to_markdown(), "\n")
+
     def report(
         self,
         issue_types: Optional[List[str]] = None,
@@ -194,92 +201,83 @@ class Videolab:
         show_id: bool = False,
     ) -> None:
         """Prints summary of the aggregate issues found in your dataset."""
-        # report on video frame samples
-        self.imagelab.report(
-            issue_types,
-            max_prevalence,
-            num_images,
-            verbosity,
-            print_summary,
-            show_id,
+
+        issue_types_to_report = (
+            issue_types if issue_types else self.issue_summary["issue_type"].tolist()
         )
 
-    def get_stats(self) -> Any:
-        """Returns dict of statistics computed from video frames."""
-        return self.imagelab.info["statistics"]
-
-    def save(self, path: str, force: bool = False) -> None:
-        """Saves this Videolab instance."""
-        # get pathlib Path object
-        root_save_path = Path(path)
-
-        # check if videolab root save path exists
-        if not root_save_path.exists():
-            # create otherwise
-            root_save_path.mkdir(parents=True, exist_ok=True)
+        issue_summary = self.issue_summary[
+            self.issue_summary["issue_type"].isin(issue_types_to_report)
+        ]
+        if len(issue_summary) > 0:
+            if verbosity:
+                print("Issues found in videos in order of severity in the dataset\n")
+            if print_summary:
+                self._pprint_issue_summary(issue_summary)
+            for issue_type in issue_types_to_report:
+                if (
+                    self.issue_summary.query(f"issue_type == '{issue_type}'")[
+                        "num_videos"
+                    ].values[0]
+                    == 0
+                ):
+                    continue
+                print(f"{' ' + issue_type + ' videos ':-^60}\n")
+                print(
+                    f"Number of examples with this issue: {self.issues[get_is_issue_colname(issue_type)].sum()}\n"
+                    f"Examples representing most severe instances of this issue:\n"
+                )
+                # self._visualize(
+                #     issue_type,
+                #     report_args["num_images"],
+                #     report_args["cell_size"],
+                #     show_id,
+                # )
         else:
-            if not force:
-                raise FileExistsError("Please specify a new path or set force=True")
             print(
-                "WARNING: Existing files will be overwritten "
-                f"by newly saved files at: {root_save_path}"
+                "Please specify some issue_types to check for in videolab.find_issues()."
             )
 
-        # create specific imagelab sub directory
-        imagelab_sub_dir = str(root_save_path / "imagelab")
+    def visualize(self, issue_types):
+        for issue_type in issue_types:
+            colname = get_is_issue_colname(issue_type)
+            video_paths = self.issues[self.issues[colname] is True].index.tolist()
+            self.rev_idx = {path: i for i, path in enumerate(self.video_dataset.index)}
 
-        # now save imagelab to subdir
-        self.imagelab.save(imagelab_sub_dir, force)
+            frames_list = []
+            for path in video_paths:
+                frame_dir = self.video_dataset.frames_dir / str(self.rev_idx[path])
+                frames_list.append(
+                    [Image.open(frame_path) for frame_path in frame_dir.iterdir()]
+                )
 
-        # save aggregate dataframes
-        self._frame_level_issues.to_csv(root_save_path / ISSUES_FILENAME)
-        self.frame_issue_summary.to_csv(root_save_path / ISSUE_SUMMARY_FILENAME)
+            # Define the number of animations and frames
+            num_animations = min(4, len(video_paths))
+            num_frames = 100
 
-        # copy videolab object
-        videolab_copy = deepcopy(self)
+            # Create a figure with subplots
+            fig, axes = plt.subplots(1, num_animations, figsize=(8, 8))
 
-        # clear out dataframes
-        videolab_copy._frame_level_issues = None
-        videolab_copy.frame_issue_summary = None
+            # Initialize data for each animation
+            initial_data = [frames[0] for frames in frames_list]
+            images = frames_list
 
-        # Save the imagelab object to disk.
-        with open(root_save_path / OBJECT_FILENAME, "wb") as f:
-            pickle.dump(videolab_copy, f)
+            # Function to initialize the subplots
+            def init():
+                for ax, data in zip(axes, initial_data):
+                    ax.imshow(data)
+                    ax.axis("off")
+                return axes
 
-        print(f"Saved Videolab to folder: {root_save_path}")
-        print(
-            "The data path and dataset must be not be changed to maintain consistent "
-            "state when loading this Videolab"
-        )
+            # Function to update the subplots for each frame
+            def update(frame):
+                for ax, image in zip(axes, images):
+                    ax.imshow(image[frame])
+                return axes
 
-    @classmethod
-    def load(cls: Type[TVideolab], path: str) -> Videolab:
-        """Loads Videolab from given path."""
-        # get pathlib Path object
-        root_save_path = Path(path)
+            FuncAnimation(
+                fig, update, frames=num_frames, init_func=init, blit=True, interval=100
+            )
 
-        # check if path exists
-        if not root_save_path.exists():
-            raise ValueError(f"No folder found at specified path: {path}")
-
-        with open(root_save_path / OBJECT_FILENAME, "rb") as f:
-            videolab: Videolab = pickle.load(f)
-
-        # Load the issues from disk.
-        videolab._frame_level_issues = pd.read_csv(
-            root_save_path / ISSUES_FILENAME, index_col=0
-        )
-        videolab.frame_issue_summary = pd.read_csv(
-            root_save_path / ISSUE_SUMMARY_FILENAME, index_col=0
-        )
-
-        # create specific imagelab sub directory
-        imagelab_sub_dir = str(root_save_path / "imagelab")
-
-        # store imagelab object
-        videolab.imagelab = Imagelab.load(imagelab_sub_dir)
-
-        # notify user
-        print("Successfully loaded Videolab")
-
-        return videolab
+            plt.tight_layout()
+        plt.show()
