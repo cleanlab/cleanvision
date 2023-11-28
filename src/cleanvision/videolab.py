@@ -89,6 +89,13 @@ class Videolab:
         ]
 
         agg_df = frame_issues.groupby("video_path").agg("mean")
+        agg_df = agg_df.astype(
+            {
+                get_is_issue_colname(issue_type): "bool"
+                for issue_type in self.issue_types
+            }
+        )
+
         return agg_df
 
     def _aggregate_summary(self, aggregate_issues: pd.DataFrame) -> pd.DataFrame:
@@ -148,25 +155,34 @@ class Videolab:
         self.imagelab = Imagelab(data_path=str(self.video_dataset.frames_dir))
 
         if not issue_types:
-            issue_types = {
+            self.issue_types = {
                 issue_type: {} for issue_type in self.list_default_issue_types()
             }
+        else:
+            self.issue_types = issue_types
 
         # use imagelab to find issues in frames
         self.imagelab.find_issues(
-            issue_types=issue_types, n_jobs=n_jobs, verbose=verbose
+            issue_types=self.issue_types, n_jobs=n_jobs, verbose=verbose
         )
 
         # get frame issues
-        self.frame_level_issues = self.imagelab.issues
-        self.frame_issue_summary = self.imagelab.issue_summary
+        self._frame_level_issues = self.imagelab.issues
 
         # update aggregate issues/summary
 
         # todo: change aggregate method to use video path as index
 
-        self.issues = self._aggregate_issues(self.frame_level_issues.copy())
-        self.imagelab.issue_summary = self._aggregate_summary(self.imagelab.issues)
+        self.issues = self._aggregate_issues(self._frame_level_issues.copy())
+        self.issue_summary = pd.DataFrame(
+            [
+                {
+                    "issue_type": issue_type,
+                    "num_videos": self.issues[get_is_issue_colname(issue_type)].sum(),
+                }
+                for issue_type in self.issue_types
+            ]
+        )
 
     def report(
         self,
@@ -216,14 +232,14 @@ class Videolab:
         self.imagelab.save(imagelab_sub_dir, force)
 
         # save aggregate dataframes
-        self.frame_level_issues.to_csv(root_save_path / ISSUES_FILENAME)
+        self._frame_level_issues.to_csv(root_save_path / ISSUES_FILENAME)
         self.frame_issue_summary.to_csv(root_save_path / ISSUE_SUMMARY_FILENAME)
 
         # copy videolab object
         videolab_copy = deepcopy(self)
 
         # clear out dataframes
-        videolab_copy.frame_level_issues = None
+        videolab_copy._frame_level_issues = None
         videolab_copy.frame_issue_summary = None
 
         # Save the imagelab object to disk.
@@ -250,7 +266,7 @@ class Videolab:
             videolab: Videolab = pickle.load(f)
 
         # Load the issues from disk.
-        videolab.frame_level_issues = pd.read_csv(
+        videolab._frame_level_issues = pd.read_csv(
             root_save_path / ISSUES_FILENAME, index_col=0
         )
         videolab.frame_issue_summary = pd.read_csv(
