@@ -58,3 +58,5 @@ DEFAULT_ISSUE_TYPES_VIDEOLAB = [
     "grayscale",
     "odd_size",
 ]
+
+VIDEO_FILE_EXTENSIONS: List[str] = ["*.mp4", "*.avi", "*.mkv", "*.mov", "*.webm"]
