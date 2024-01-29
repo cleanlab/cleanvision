@@ -64,7 +64,7 @@ jobs:
       - name: Install flake8
         run: pip install flake8
       - name: Lint with flake8
-        run: flake8 --ignore=E203,E501,E722,E401,W503 src tests --count --show-source --statistics
+        run: flake8 --ignore=E203,E501,E722,E401,W503,E704 src tests --count --show-source --statistics
   nblint:
     name: Lint Notebooks
     runs-on: ubuntu-latest
