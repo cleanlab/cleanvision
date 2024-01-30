@@ -55,6 +55,7 @@ jobs:
       - uses: psf/black@stable
         with:
           options: "--check -t py37 -t py38 -t py39 -t py310 -t py311"
+          jupyter: true
   pylint:
     name: Lint with flake8 for syntax+other error codes
     runs-on: ubuntu-latest
