@@ -2,18 +2,18 @@ import numpy as np
 import pandas as pd
 import pytest
 from PIL import Image
+from pytest import approx
 
 import cleanvision
-import math
 from cleanvision.issue_managers import IssueType
 from cleanvision.issue_managers.image_property import (
     BrightnessProperty,
-    calculate_brightness,
-    get_image_mode,
     calc_aspect_ratio,
+    calc_blurriness,
     calc_entropy,
     calc_image_area_sqrt,
-    calc_blurriness,
+    calculate_brightness,
+    get_image_mode,
 )
 from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
 
@@ -54,8 +54,8 @@ def test_calc_bluriness():
 
 def test_calc_area():
     img = Image.new("RGB", (200, 200), (255, 0, 0))
-    area = calc_image_area_sqrt(img)  # img.size[0] * img.size[1]
-    assert area == math.sqrt(200 * 200)
+    area = calc_image_area_sqrt(img)
+    assert area == approx(200)
 
 
 @pytest.mark.parametrize(
