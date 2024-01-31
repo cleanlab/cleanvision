@@ -3,6 +3,7 @@ Imagelab is the core class in CleanVision for finding all types of issues in an 
 The methods in this module should suffice for most use-cases,
 but advanced users can get extra flexibility via the code in other CleanVision modules.
 """
+
 from __future__ import annotations
 
 import random

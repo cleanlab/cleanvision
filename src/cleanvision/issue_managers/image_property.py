@@ -73,8 +73,7 @@ def calc_avg_brightness(image: Image) -> float:
 
 
 @overload
-def calculate_brightness(red: float, green: float, blue: float) -> float:
-    ...
+def calculate_brightness(red: float, green: float, blue: float) -> float: ...
 
 
 @overload
@@ -82,8 +81,7 @@ def calculate_brightness(
     red: "np.ndarray[Any, Any]",
     green: "np.ndarray[Any, Any]",
     blue: "np.ndarray[Any, Any]",
-) -> "np.ndarray[Any, Any]":
-    ...
+) -> "np.ndarray[Any, Any]": ...
 
 
 def calculate_brightness(
@@ -127,9 +125,11 @@ class BrightnessProperty(ImageProperty):
     def __init__(self, issue_type: str) -> None:
         self.issue_type = issue_type
         self._score_columns = [
-            "brightness_perc_99"
-            if self.issue_type == IssueType.DARK.value
-            else "brightness_perc_5"
+            (
+                "brightness_perc_99"
+                if self.issue_type == IssueType.DARK.value
+                else "brightness_perc_5"
+            )
         ]
 
     def calculate(self, image: Image) -> Dict[str, Union[float, str]]:

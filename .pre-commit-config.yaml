@@ -1,8 +1,9 @@
 repos:
-  - repo: https://github.com/psf/black
-    rev: 22.3.0
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 24.1.1
     hooks:
-      - id: black
+      - id: black-jupyter
+        language_version: python3.11
 
   - repo: https://github.com/kynan/nbstripout
     rev: 0.6.1
@@ -11,8 +12,8 @@ repos:
         description: Clears output and some metadata from notebooks
 
   - repo: https://github.com/pycqa/flake8
-    rev: 6.0.0
+    rev: 7.0.0
     hooks:
       - id: flake8
-        args: ['--ignore=E203,E501,E722,E401,W503 src tests --count --show-source --statistics']
+        args: ['--ignore=E203,E501,E722,E401,W503,E704 src tests --count --show-source --statistics']
 
