@@ -137,5 +137,5 @@ class TestBrightnessHelper:
         ],
     )
     def test_mark_issue(self, image_property, scores, threshold, expected_mark):
-        mark = image_property.mark_issue(scores, threshold, "fake_issue")
+        mark = image_property.mark_issue(scores, "fake_issue", threshold)
         assert all(mark == expected_mark)
