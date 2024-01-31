@@ -77,8 +77,7 @@ def calc_avg_brightness(image: Image) -> float:
 
 
 @overload
-def calculate_brightness(red: float, green: float, blue: float) -> float:
-    ...
+def calculate_brightness(red: float, green: float, blue: float) -> float: ...
 
 
 @overload
@@ -86,8 +85,7 @@ def calculate_brightness(
     red: "np.ndarray[Any, Any]",
     green: "np.ndarray[Any, Any]",
     blue: "np.ndarray[Any, Any]",
-) -> "np.ndarray[Any, Any]":
-    ...
+) -> "np.ndarray[Any, Any]": ...
 
 
 def calculate_brightness(
