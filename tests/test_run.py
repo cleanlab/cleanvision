@@ -112,6 +112,7 @@ def test_incremental_issue_finding(generate_local_dataset, len_dataset):
             "brightness_perc_10",
             "brightness_perc_5",
             "brightness_perc_1",
+            "brightness",
         ]
     ) == set(imagelab.info["light"].keys())
 
