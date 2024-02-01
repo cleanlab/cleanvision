@@ -241,23 +241,20 @@ class ImagePropertyIssueManager(IssueManager):
             issue_type: self.image_properties[issue_type].name
             for issue_type in self.issue_types
         }
-        issue_columns = {
-            issue_type: [
-                col
-                for col in agg_computations.columns
-                if col.startswith(property_names[issue_type] + "_")
-            ]
-            for issue_type in self.issue_types
-        }
 
         for issue_type in self.issue_types:
-            self.info["statistics"][property_names[issue_type]] = agg_computations[
-                property_names[issue_type]
+            property_name = property_names[issue_type]
+
+            self.info["statistics"][property_name] = agg_computations[
+                property_name
+            ].describe()
+
+            issue_columns = [
+                col for col in agg_computations.columns if col.startswith(property_name)
             ]
+
             self.info[issue_type] = (
-                agg_computations[issue_columns[issue_type]]
-                if len(issue_columns[issue_type]) > 0
-                else {}
+                agg_computations[issue_columns] if len(issue_columns) > 0 else {}
             )
 
     def update_summary(self) -> None:
