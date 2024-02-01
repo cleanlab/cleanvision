@@ -373,16 +373,20 @@ class SizeProperty(ImageProperty):
             q3 + iqr_factor * size_iqr,
         )
         mid_threshold = (min_threshold + max_threshold) / 2
-        threshold_distance = (max_threshold - min_threshold) / 2
+        threshold_gap = max_threshold - min_threshold
         distance = np.absolute(size - mid_threshold)
 
-        if threshold_distance > 0:
-            norm_dist = (distance * self.threshold) / threshold_distance
-            score_values = 1 - np.clip(norm_dist, 0, 1)
+        if threshold_gap > 0:
+            norm_value = threshold_gap
+            self.threshold = 0.5
+        elif threshold_gap == 0:
+            norm_value = mid_threshold
+            self.threshold = 1.0
         else:
-            norm_value = np.min(distance) / 0.5
-            norm_dist = distance / norm_value
-            score_values = 1 - np.clip(norm_dist, 0, 1)
+            raise ValueError("threshold_gap should be non negative")
+
+        norm_dist = distance / norm_value
+        score_values = 1 - np.clip(norm_dist, 0, 1)
 
         scores = pd.DataFrame(index=raw_scores.index)
         scores[get_score_colname(issue_type)] = score_values

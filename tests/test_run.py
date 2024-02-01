@@ -220,7 +220,7 @@ def test_odd_size_too_large_image(generate_local_dataset_once):
     sqrt(width * height)*threshold(default 10),is_odd_size_issue is set to True. In this example, the median area is sqrt(300x300) so 300.
     An image with 3001 x 3001 has an value of 3001 so its more than 10x smaller and thus should be flagged.
     """
-    arr = np.random.randint(low=0, high=256, size=(3001, 3001, 3), dtype=np.uint8)
+    arr = np.random.randint(low=0, high=256, size=(400, 400, 3), dtype=np.uint8)
     img = Image.fromarray(arr, mode="RGB")
     img.save(Path(generate_local_dataset_once / "class_0" / "larger.png"))
 
@@ -244,7 +244,7 @@ def test_odd_size_too_small_image(generate_local_dataset_once):
     arr = np.random.randint(
         low=0,
         high=256,
-        size=(29, 29, 3),
+        size=(200, 200, 3),
         dtype=np.uint8,  # 30 x 30 pixel image should be detected
     )
     img = Image.fromarray(arr, mode="RGB")
@@ -265,23 +265,26 @@ def test_custom_threshold_for_odd_size(generate_local_dataset_once):
     With default threshold the small image would be flagged (See test_filepath_dataset_size_to_small). However,
      with a custom threshold of 11 instead of 10, the imaage is within the allowed range and should not be flagged.
     """
-    arr = np.random.randint(
-        low=0,
-        high=256,
-        size=(29, 29, 3),
-        dtype=np.uint8,  # 29 x 29 pixel image should not be detected with threshold 11
-    )
-    img = Image.fromarray(arr, mode="RGB")
-    img.save(Path(generate_local_dataset_once / "class_0" / "smaller.png"))
+    for i in range(5):
+        arr = np.random.randint(
+            low=0,
+            high=256,
+            size=(100 * (i + 1), 100 * (i + 1), 3),
+            dtype=np.uint8,
+        )
+        img = Image.fromarray(arr, mode="RGB")
+        img.save(Path(generate_local_dataset_once / "class_0" / f"odd_{i}.png"))
 
     files = os.listdir(generate_local_dataset_once / "class_0")
     filepaths = [
         os.path.join(generate_local_dataset_once / "class_0", f) for f in files
     ]
     imagelab = Imagelab(filepaths=filepaths)
-    imagelab.find_issues({"odd_size": {"threshold": 11.0}})
+    imagelab.find_issues(
+        {"odd_size": {"threshold": 0.5}}
+    )  # for this case default threshold is 1.0
     assert len(imagelab.issues.columns) == 2  # Only size
-    assert len(imagelab.issues[imagelab.issues["is_odd_size_issue"]]) == 0
+    assert len(imagelab.issues[imagelab.issues["is_odd_size_issue"]]) == 2
 
 
 def test_list_default_issue_types():
