@@ -502,9 +502,7 @@ class Imagelab:
             if show_id:
                 title_info["ids"] = [f"id : {i}" for i in indices]
             if issue_type == IssueType.ODD_SIZE.value:
-                title_info["size"] = [
-                    f"original size: {image.size}" for image in images
-                ]
+                title_info["size"] = [f"size: {image.size}" for image in images]
 
             if images:
                 VizManager.individual_images(
