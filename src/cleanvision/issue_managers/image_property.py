@@ -254,7 +254,7 @@ class BlurrinessProperty(ImageProperty):
         ratio = max(image.width, image.height) / self.max_resolution
         if ratio > 1:
             resized_image = image.resize(
-                (int(image.width // ratio), int(image.height // ratio))
+                (max(int(image.width // ratio), 1), max(int(image.height // ratio), 1))
             )
         else:
             resized_image = image.copy()
