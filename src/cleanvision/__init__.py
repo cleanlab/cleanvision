@@ -1,5 +1,7 @@
 import sys
+
 from cleanvision.imagelab import Imagelab as _Imagelab
+from cleanvision.videolab import Videolab as _Videolab
 
 PYTHON_VERSION_INFO = sys.version_info
 
@@ -21,3 +23,4 @@ except Exception:
     pass
 
 Imagelab = _Imagelab
+Videolab = _Videolab

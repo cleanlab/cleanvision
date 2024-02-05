@@ -19,6 +19,8 @@ coverage.xml
 # Misc
 results/
 image_files*
+data/
+frames
 
 # datasets
 cifar*
