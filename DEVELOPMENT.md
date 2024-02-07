@@ -123,7 +123,7 @@ pip install -r docs/requirements.txt
 sphinx-build docs/source cleanvision-docs
 ```
 
-**Note for faster build**: Executing the Jupyter Notebooks (i.e., the .ipynb files) that make up some portion of the docs, such as the tutorials, takes a long time. If you want to skip rendering these, set the environment variable `SKIP_NOTEBOOKS=1`. You can either set this using `export SKIP_NOTEBOOKS=1`
+**Note for faster build**: Executing the Jupyter Notebooks (i.e., the .ipynb files) that make up some portion of the docs, such as the tutorials, takes a long time. If you want to skip rendering these, set the environment variable `SKIP_NOTEBOOKS=1`. You can set this using `export SKIP_NOTEBOOKS=1`.
 
 4. To view the docs open the file `cleanvision-docs/index.html` file in a browser.
 
