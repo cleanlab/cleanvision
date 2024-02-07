@@ -1,10 +1,10 @@
 import math
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Union, overload
+from typing import Any, Dict, List, Optional, Union, overload
 
 import numpy as np
 import pandas as pd
-from PIL import ImageStat, ImageFilter
+from PIL import ImageFilter, ImageStat
 from PIL.Image import Image
 
 from cleanvision.issue_managers import IssueType
@@ -48,12 +48,16 @@ class ImageProperty(ABC):
         return
 
     def mark_issue(
-        self, scores: pd.DataFrame, threshold: float, issue_type: str
+        self,
+        scores: pd.DataFrame,
+        issue_type: str,
+        threshold: Optional[float] = None,
     ) -> pd.DataFrame:
         is_issue = pd.DataFrame(index=scores.index)
-        is_issue[get_is_issue_colname(issue_type)] = (
-            scores[get_score_colname(issue_type)] < threshold
-        )
+        is_issue_colname, score_colname = get_is_issue_colname(
+            issue_type
+        ), get_score_colname(issue_type)
+        is_issue[is_issue_colname] = scores[score_colname] < threshold
         return is_issue
 
 
@@ -294,8 +298,8 @@ def calc_color_space(image: Image) -> str:
 
 
 def calc_image_area_sqrt(image: Image) -> float:
-    size = image.size
-    return math.sqrt(size[0] * size[1])
+    w, h = image.size
+    return math.sqrt(w) * math.sqrt(h)
 
 
 class ColorSpaceProperty(ImageProperty):
@@ -326,12 +330,14 @@ class ColorSpaceProperty(ImageProperty):
         return scores
 
     def mark_issue(
-        self, scores: pd.DataFrame, threshold: float, issue_type: str
+        self, scores: pd.DataFrame, issue_type: str, threshold: Optional[float] = None
     ) -> pd.DataFrame:
         is_issue = pd.DataFrame(index=scores.index)
-        is_issue[get_is_issue_colname(issue_type)] = (
-            1 - scores[get_score_colname(issue_type)]
-        ).astype("bool")
+        is_issue_colname, score_colname = get_is_issue_colname(
+            issue_type
+        ), get_score_colname(issue_type)
+
+        is_issue[is_issue_colname] = (1 - scores[score_colname]).astype("bool")
         return is_issue
 
 
@@ -344,6 +350,7 @@ class SizeProperty(ImageProperty):
 
     def __init__(self) -> None:
         self._score_columns = [self.name]
+        self.threshold = 0.5  # todo: this ensures that the scores are evenly distributed across the range
 
     def calculate(self, image: Image) -> Dict[str, Union[float, str]]:
         return {self.name: calc_image_area_sqrt(image)}
@@ -352,35 +359,49 @@ class SizeProperty(ImageProperty):
         self,
         raw_scores: pd.DataFrame,
         issue_type: str,
+        iqr_factor: float = 3.0,
         **kwargs: Any,
     ) -> pd.DataFrame:
         super().get_scores(raw_scores, issue_type, **kwargs)
         assert raw_scores is not None
 
-        image_size_scores = raw_scores[self.score_columns[0]]
-        median_image_size = image_size_scores.median()
-        size_ratios = image_size_scores / median_image_size
+        size = raw_scores[self.name]
+        q1, q3 = np.percentile(size, [25, 75])
+        size_iqr = q3 - q1
+        min_threshold, max_threshold = (
+            q1 - iqr_factor * size_iqr,
+            q3 + iqr_factor * size_iqr,
+        )
+        mid_threshold = (min_threshold + max_threshold) / 2
+        threshold_gap = max_threshold - min_threshold
+        distance = np.absolute(size - mid_threshold)
 
-        # Computing the values of the two divisions
-        size_division_1 = size_ratios
-        size_division_2 = 1.0 / size_ratios
+        if threshold_gap > 0:
+            norm_value = threshold_gap
+            self.threshold = 0.5
+        elif threshold_gap == 0:
+            norm_value = mid_threshold
+            self.threshold = 1.0
+        else:
+            raise ValueError("threshold_gap should be non negative")
 
-        # Using np.minimum to determine the element-wise minimum value between the two divisions
-        size_scores = np.minimum(size_division_1, size_division_2)
+        norm_dist = distance / norm_value
+        score_values = 1 - np.clip(norm_dist, 0, 1)
 
         scores = pd.DataFrame(index=raw_scores.index)
-        scores[get_score_colname(issue_type)] = size_scores
+        scores[get_score_colname(issue_type)] = score_values
         return scores
 
     def mark_issue(
-        self, scores: pd.DataFrame, threshold: float, issue_type: str
+        self, scores: pd.DataFrame, issue_type: str, threshold: Optional[float] = None
     ) -> pd.DataFrame:
+        threshold = self.threshold if threshold is None else threshold
+        is_issue_colname, score_colname = get_is_issue_colname(
+            issue_type
+        ), get_score_colname(issue_type)
+
         is_issue = pd.DataFrame(index=scores.index)
-        is_issue[get_is_issue_colname(issue_type)] = np.where(
-            scores[get_score_colname(issue_type)] < 1.0 / threshold,
-            True,
-            False,
-        )
+        is_issue[is_issue_colname] = scores[score_colname] < threshold
         return is_issue
 
 

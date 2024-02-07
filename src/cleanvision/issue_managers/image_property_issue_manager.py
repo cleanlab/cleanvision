@@ -1,30 +1,27 @@
 import multiprocessing
-from typing import Dict, Any, List, Set, Optional, Union
+from typing import Any, Dict, List, Optional, Set, Union
 
 import pandas as pd
 from tqdm.auto import tqdm
 
 from cleanvision.dataset.base_dataset import Dataset
-from cleanvision.issue_managers import register_issue_manager, IssueType
+from cleanvision.issue_managers import IssueType, register_issue_manager
 from cleanvision.issue_managers.image_property import (
-    BrightnessProperty,
     AspectRatioProperty,
-    EntropyProperty,
     BlurrinessProperty,
+    BrightnessProperty,
     ColorSpaceProperty,
+    EntropyProperty,
     ImageProperty,
     SizeProperty,
 )
 from cleanvision.utils.base_issue_manager import IssueManager
 from cleanvision.utils.constants import (
     IMAGE_PROPERTY,
-    MAX_PROCS,
     IMAGE_PROPERTY_ISSUE_TYPES_LIST,
+    MAX_PROCS,
 )
-from cleanvision.utils.utils import (
-    get_is_issue_colname,
-    update_df,
-)
+from cleanvision.utils.utils import get_is_issue_colname, update_df
 
 
 def compute_scores(
@@ -72,7 +69,7 @@ class ImagePropertyIssueManager(IssueManager):
                 "color_threshold": 0.18,
             },
             IssueType.GRAYSCALE.value: {},
-            IssueType.ODD_SIZE.value: {"threshold": 10.0},
+            IssueType.ODD_SIZE.value: {"iqr_factor": 3.0},
         }
 
     def update_params(self, params: Dict[str, Any]) -> None:
@@ -203,11 +200,15 @@ class ImagePropertyIssueManager(IssueManager):
             score_columns = agg_computations[score_column_names]
 
             issue_scores = self.image_properties[issue_type].get_scores(
-                score_columns, issue_type, **self.params[issue_type]
+                raw_scores=score_columns,
+                issue_type=issue_type,
+                **self.params[issue_type],
             )
 
             is_issue = self.image_properties[issue_type].mark_issue(
-                issue_scores, self.params[issue_type].get("threshold"), issue_type
+                scores=issue_scores,
+                issue_type=issue_type,
+                threshold=self.params[issue_type].get("threshold"),
             )
             self.issues = self.issues.join(issue_scores)
             self.issues = self.issues.join(is_issue)
@@ -240,23 +241,20 @@ class ImagePropertyIssueManager(IssueManager):
             issue_type: self.image_properties[issue_type].name
             for issue_type in self.issue_types
         }
-        issue_columns = {
-            issue_type: [
-                col
-                for col in agg_computations.columns
-                if col.startswith(property_names[issue_type] + "_")
-            ]
-            for issue_type in self.issue_types
-        }
 
         for issue_type in self.issue_types:
-            self.info["statistics"][property_names[issue_type]] = agg_computations[
-                property_names[issue_type]
+            property_name = property_names[issue_type]
+
+            self.info["statistics"][property_name] = agg_computations[
+                property_name
+            ].describe()
+
+            issue_columns = [
+                col for col in agg_computations.columns if col.startswith(property_name)
             ]
+
             self.info[issue_type] = (
-                agg_computations[issue_columns[issue_type]]
-                if len(issue_columns[issue_type]) > 0
-                else {}
+                agg_computations[issue_columns] if len(issue_columns) > 0 else {}
             )
 
     def update_summary(self) -> None:

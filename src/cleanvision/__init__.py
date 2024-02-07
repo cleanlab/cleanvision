@@ -1,10 +1,12 @@
 import sys
+from typing import Any, Union
+
 from cleanvision.imagelab import Imagelab as _Imagelab
 
 PYTHON_VERSION_INFO = sys.version_info
 
 
-def get_version() -> str:
+def get_version() -> Union[str, Any]:
     if sys.version_info.major >= 3 and sys.version_info.minor >= 8:
         import importlib.metadata
 
@@ -12,7 +14,7 @@ def get_version() -> str:
     else:
         import importlib_metadata
 
-        return importlib_metadata.version("cleanvision")  # type:ignore
+        return importlib_metadata.version("cleanvision")
 
 
 try:
