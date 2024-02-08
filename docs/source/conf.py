@@ -77,7 +77,6 @@ copybutton_prompt_is_regexp = True
 
 html_title = ""
 html_theme = "furo"
-html_static_path = ["_static"]
 html_logo = "https://raw.githubusercontent.com/cleanlab/assets/master/cleanlab/cleanlab_logo_only.png"
 
 html_theme_options = {
