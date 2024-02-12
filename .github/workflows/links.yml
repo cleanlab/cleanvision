@@ -25,3 +25,5 @@ jobs:
           ignore_missing_alt: true
           ignore_url_re: |
             ^https:\/\/twitter.com\/CleanlabAI
+          swap_urls: |
+            {"^(\\..*)\\.md(#?.*)$": "\\1.md.html\\2",
