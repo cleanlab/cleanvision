@@ -5,7 +5,7 @@
 Documentation
 =======================================
 
-CleanVision automatically detects various issues in image datasets, such as images that are: (near) duplicates, blurry,
+CleanVision automatically detects various issues in your image data, such as images that are: (near) duplicates, blurry,
 over/under-exposed, etc. This data-centric AI package is designed as a quick first step for any computer vision project
 to find problems in your dataset, which you may want to address before applying machine learning.
 
@@ -120,9 +120,9 @@ CleanVision works smoothly with Torchvision datasets too:
 
 Additional Resources
 --------------------
-- Get started with our `Example Notebook <https://cleanvision.readthedocs.io/en/latest/tutorials/tutorial.html>`_
-- Explore more `Example Notebooks <https://github.com/cleanlab/cleanvision-examples>`_
-- Learn how to contribute in the `Contribution Guide <https://github.com/cleanlab/cleanvision/blob/main/CONTRIBUTING.md>`_
+- Get started with `Starter Tutorial <tutorials/tutorial.ipynb>`_.
+- View more `code examples <https://github.com/cleanlab/cleanvision-examples>`_ that demonstrate how to use CleanVision on various datasets.
+- Interested in contributing to CleanVision? Check out our `Contribution Guide <https://github.com/cleanlab/cleanvision/blob/main/CONTRIBUTING.md>`_ to get started.
 
 
 .. toctree::
