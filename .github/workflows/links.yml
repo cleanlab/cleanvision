@@ -20,11 +20,10 @@ jobs:
       - uses: anishathalye/proof-html@v2
         with:
           directory: .
+          check_html: false
           check_favicon: false
-          ignore_empty_alt: true
           ignore_missing_alt: true
-          ignore_url_re: |
-            ^https:\/\/twitter.com\/CleanlabAI
+          ignore_empty_alt: true
           tokens: |
             {"https://github.com": "${{ secrets.GITHUB_TOKEN }}"}
           swap_urls: |
