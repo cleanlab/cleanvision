@@ -10,7 +10,7 @@ CleanVision is independent of any machine learning tasks as it directly works on
 2. **Can I check for specific issues in my dataset?**
 
 
-Yes, you can specify issues like ``light`` or ``blurry`` in the issue_types argument when calling ``Imagelab.find_issues``
+Yes, you can specify issues like ``light`` or ``blurry`` in the issue_types argument when calling :py:meth:`~cleanvision.imagelab.Imagelab.find_issues`
 
 .. code-block:: python3
 
