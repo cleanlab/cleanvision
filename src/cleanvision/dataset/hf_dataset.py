@@ -29,7 +29,7 @@ class HFDataset(Dataset):
 
     def __getitem__(self, item: Union[int, str]) -> Optional[Image.Image]:
         try:
-            image = self._data[item][self._image_key]
+            image: Image.Image = self._data[item][self._image_key]
             return image
         except Exception as e:
             print(f"Could not load image at index: {item}\n", e)
