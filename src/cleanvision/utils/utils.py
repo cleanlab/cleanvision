@@ -51,6 +51,7 @@ def get_filepaths(
     """
 
     abs_dir_path = os.path.abspath(os.path.expanduser(dir_path))
+    # ToDo: Suppress print according to verbosity level
     print(f"Reading images from {abs_dir_path}")
     filepaths = []
     for ext in IMAGE_FILE_EXTENSIONS:

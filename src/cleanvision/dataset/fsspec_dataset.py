@@ -19,6 +19,7 @@ class FSDataset(Dataset):
         data_folder: Optional[str] = None,
         filepaths: Optional[List[str]] = None,
         storage_opts: Dict[str, str] = {},
+        verbose: bool = True,
     ) -> None:
         super().__init__()
         self.storage_opts = storage_opts
@@ -32,7 +33,7 @@ class FSDataset(Dataset):
             self.fs, dataset_path = fsspec.core.url_to_fs(
                 data_folder, **self.storage_opts
             )
-            self._filepaths = self.__get_filepaths(dataset_path)
+            self._filepaths = self.__get_filepaths(dataset_path, verbose)
         else:
             assert filepaths is not None
             if len(filepaths) != len(set(filepaths)):
@@ -64,10 +65,11 @@ class FSDataset(Dataset):
         assert isinstance(item, str)
         return item.split("/")[-1]
 
-    def __get_filepaths(self, dataset_path: str) -> List[str]:
+    def __get_filepaths(self, dataset_path: str, verbose: bool) -> List[str]:
         """See an issue here: https://github.com/fsspec/filesystem_spec/issues/1019
         There's a problem with proper patterning on /**/ in fsspec"""
-        print(f"Reading images from {dataset_path}")
+        if verbose:
+            print(f"Reading images from {dataset_path}")
         filepaths = []
         for ext in IMAGE_FILE_EXTENSIONS:
             # initial *.ext search, top level

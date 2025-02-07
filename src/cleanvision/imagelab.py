@@ -124,6 +124,7 @@ class Imagelab:
         image_key: Optional[str] = None,
         torchvision_dataset: Optional["VisionDataset"] = None,
         storage_opts: Dict[str, Any] = {},
+        verbose: bool = True,
     ) -> None:
         self._dataset = build_dataset(
             data_path,
@@ -132,6 +133,7 @@ class Imagelab:
             image_key,
             torchvision_dataset,
             storage_opts=storage_opts,
+            verbose=verbose,
         )
         if len(self._dataset) == 0:
             raise ValueError("No images found in the dataset specified")
@@ -276,6 +278,7 @@ class Imagelab:
                 dataset=self._dataset,
                 imagelab_info=self.info,
                 n_jobs=n_jobs,
+                verbose=verbose,
             )
 
             # update issues, issue_summary and info
