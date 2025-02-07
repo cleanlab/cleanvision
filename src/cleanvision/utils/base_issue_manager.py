@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from tabnanny import verbose
 from typing import Dict, Any
 
 import pandas as pd
@@ -32,6 +33,7 @@ class IssueManager(ABC):
             "dataset": Dataset,
             "imagelab_info": Dict[str, Any],
             "n_jobs": int,
+            "verbose": bool,
         }
 
         for name, value in kwargs.items():
