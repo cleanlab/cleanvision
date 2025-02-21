@@ -126,7 +126,9 @@ class DuplicateIssueManager(IssueManager):
 
         results: List[Dict[str, Union[str, int]]] = []
         if n_jobs == 1:
-            for idx in tqdm(dataset.index, leave=verbose, desc="Computing hashes", smoothing=0):
+            for idx in tqdm(
+                dataset.index, leave=verbose, desc="Computing hashes", smoothing=0
+            ):
                 results.append(compute_hash(idx, dataset, to_compute, self.params))
         else:
             args = [
@@ -145,7 +147,10 @@ class DuplicateIssueManager(IssueManager):
                         p.imap_unordered(
                             compute_hash_wrapper, args, chunksize=chunksize
                         ),
-                        total=len(dataset), leave=verbose, desc="Computing hashes", smoothing=0,
+                        total=len(dataset),
+                        leave=verbose,
+                        desc="Computing hashes",
+                        smoothing=0,
                     )
                 )
 

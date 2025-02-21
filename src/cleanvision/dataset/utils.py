@@ -22,9 +22,13 @@ def build_dataset(
     verbose: bool = True,
 ) -> Dataset:
     if data_path:
-        return FSDataset(data_folder=data_path, storage_opts=storage_opts, verbose=verbose)
+        return FSDataset(
+            data_folder=data_path, storage_opts=storage_opts, verbose=verbose
+        )
     elif filepaths:
-        return FSDataset(filepaths=filepaths, storage_opts=storage_opts, verbose=verbose)
+        return FSDataset(
+            filepaths=filepaths, storage_opts=storage_opts, verbose=verbose
+        )
     elif hf_dataset and image_key:
         return HFDataset(hf_dataset, image_key)
     elif torchvision_dataset:

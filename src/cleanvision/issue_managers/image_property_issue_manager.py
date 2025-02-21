@@ -139,7 +139,9 @@ class ImagePropertyIssueManager(IssueManager):
         if to_be_computed:
             results: List[Dict[str, Union[int, float, str]]] = []
             if n_jobs == 1:
-                for idx in tqdm(dataset.index, leave=verbose, desc="Computing scores", smoothing=0):
+                for idx in tqdm(
+                    dataset.index, leave=verbose, desc="Computing scores", smoothing=0
+                ):
                     results.append(
                         compute_scores(
                             idx, dataset, to_be_computed, self.image_properties
@@ -162,7 +164,10 @@ class ImagePropertyIssueManager(IssueManager):
                             p.imap_unordered(
                                 compute_scores_wrapper, args, chunksize=chunksize
                             ),
-                            total=len(dataset), leave=verbose, desc="Computing scores", smoothing=0,
+                            total=len(dataset),
+                            leave=verbose,
+                            desc="Computing scores",
+                            smoothing=0,
                         )
                     )
 
