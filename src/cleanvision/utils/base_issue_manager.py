@@ -32,6 +32,7 @@ class IssueManager(ABC):
             "dataset": Dataset,
             "imagelab_info": Dict[str, Any],
             "n_jobs": int,
+            "verbose": bool,
         }
 
         for name, value in kwargs.items():
