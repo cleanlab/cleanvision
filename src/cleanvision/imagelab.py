@@ -75,7 +75,10 @@ class Imagelab:
         This argument must be specified if you provide a Hugging Face dataset; for other types of dataset this argument has no effect.
 
     torchvision_dataset: torchvision.datasets.vision.VisionDataset
-        torchvision dataset where each individual  example is a tuple containing exactly one image in PIL format.
+        torchvision dataset where each individual example is a tuple containing exactly one image in PIL format.
+
+    verbose: bool
+        Optional flag that you can set False to suppress printing.
 
     Attributes
     ----------
