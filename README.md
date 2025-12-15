@@ -13,9 +13,6 @@ CleanVision is super simple -- run the same couple lines of Python code to audit
 [![os](https://img.shields.io/badge/platform-noarch-lightgrey)](https://pypi.org/pypi/cleanvision/)
 [![py\_versions](https://img.shields.io/badge/python-3.7%2B-blue)](https://pypi.org/pypi/cleanvision/)
 [![codecov](https://codecov.io/github/cleanlab/cleanvision/branch/main/graph/badge.svg?token=y1N6MluN9H)](https://codecov.io/gh/cleanlab/cleanvision)
-[![Slack Community](https://img.shields.io/static/v1?logo=slack&style=flat&color=white&label=slack&message=community)](https://cleanlab.ai/slack)
-[![Twitter](https://img.shields.io/twitter/follow/CleanlabAI?style=social)](https://twitter.com/CleanlabAI)
-[![Cleanlab Studio](https://raw.githubusercontent.com/cleanlab/assets/master/shields/cl-studio-shield.svg)](https://cleanlab.ai/studio/?utm_source=github&utm_medium=readme&utm_campaign=clostostudio)
 
 ## Installation
 ```shell
@@ -57,15 +54,15 @@ imagelab.report(issue_types=issue_types)
 ```
 
 
-## More resources on how to use CleanVision
+## More resources
 
 - [Tutorial](https://cleanvision.readthedocs.io/en/latest/tutorials/tutorial.html)
+- [Blog](https://cleanlab.ai/blog/cleanvision/)
+- [Documentation](https://cleanvision.readthedocs.io/)
 - [Run CleanVision on a HuggingFace dataset](https://cleanvision.readthedocs.io/en/latest/tutorials/huggingface_dataset.html)
 - [Run CleanVision on a Torchvision dataset](https://cleanvision.readthedocs.io/en/latest/tutorials/torchvision_dataset.html)
 - [Example script](https://github.com/cleanlab/cleanvision/blob/main/docs/source/tutorials/run.py) that can be run with: `python examples/run.py --path <FOLDER_WITH_IMAGES>`
 - [Additional example notebooks](https://github.com/cleanlab/cleanvision-examples)
-- [Documentation](https://cleanvision.readthedocs.io/)
-- [Blog Post](https://cleanlab.ai/blog/cleanvision/)
 - [FAQ](https://cleanvision.readthedocs.io/en/latest/faq.html)
 
 ## *Clean* your data for better Computer *Vision*
@@ -91,27 +88,18 @@ In any collection of image files (most [formats](https://pillow.readthedocs.io/e
 | 8 | Odd Aspect Ratio | Images with an unusual aspect ratio (overly skinny/wide)        | odd_aspect_ratio | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/odd_aspect_ratio.jpg)                     |
 | 9 | Odd Size         | Images that are abnormally large or small compared to the rest of the dataset | odd_size         | <img src="https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/odd_size.png" width=20% height=20%> |
 
-CleanVision supports Linux, macOS, and Windows and runs on Python 3.7+.
+CleanVision supports Linux, macOS, and Windows and runs on Python 3.7+. Learn more from our [blog](https://cleanlab.ai/blog/cleanvision/).
 
-## Join our community
-
-* The best place to learn is [our Slack community](https://cleanlab.ai/slack). Join the discussion there to see how
-  folks are using this library, discuss upcoming features, or ask for private support.
-
-* Need professional help with CleanVision?  Join our [\#help Slack channel](https://cleanlab.ai/slack) and message us there, or reach out via email: team@cleanlab.ai
+## Community
 
 * Interested in contributing? See the [contributing guide](CONTRIBUTING.md). An easy starting point is to
-  consider [issues](https://github.com/cleanlab/cleanvision/labels/good%20first%20issue) marked `good first issue` or
-  simply reach out in [Slack](https://cleanlab.ai/slack). We welcome your help building a standard open-source library
-  for data-centric computer vision!
+  consider [issues](https://github.com/cleanlab/cleanvision/labels/good%20first%20issue) marked `good first issue`.
 
 * Ready to start adding your own code? See the [development guide](DEVELOPMENT.md).
 
 * Have an issue? [Search existing issues](https://github.com/cleanlab/cleanvision/issues?q=is%3Aissue)
   or [submit a new issue](https://github.com/cleanlab/cleanvision/issues/new/choose).
 
-* Have ideas for the future of data-centric computer vision? Check
-  out [our active/planned Projects and what we could use your help with](https://github.com/cleanlab/cleanvision/projects).
 
 ## License
 
