@@ -101,20 +101,4 @@ CleanVision supports Linux, macOS, and Windows and runs on Python 3.7+. Learn mo
   or [submit a new issue](https://github.com/cleanlab/cleanvision/issues/new/choose).
 
 
-## License
-
-Copyright (c) 2022 Cleanlab Inc.
-
-cleanvision is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public
-License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
-version.
-
-cleanvision is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
-warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-See [GNU Affero General Public LICENSE](https://github.com/cleanlab/cleanvision/blob/main/LICENSE) for details.
-
-Commercial licensing is available for enterprise teams that want to use CleanVision in production workflows, but are unable to open-source their code [as is required by the current license](https://github.com/cleanlab/cleanvision/blob/main/LICENSE). Please email us: team@cleanlab.ai
-
-
 [issue]: https://github.com/cleanlab/cleanvision/issues/new
