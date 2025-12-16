@@ -57,8 +57,8 @@ imagelab.report(issue_types=issue_types)
 ## More resources
 
 - [Tutorial](https://cleanvision.readthedocs.io/en/latest/tutorials/tutorial.html)
-- [Blog](https://cleanlab.ai/blog/cleanvision/)
 - [Documentation](https://cleanvision.readthedocs.io/)
+- [Blog](https://cleanlab.ai/blog/cleanvision/)
 - [Run CleanVision on a HuggingFace dataset](https://cleanvision.readthedocs.io/en/latest/tutorials/huggingface_dataset.html)
 - [Run CleanVision on a Torchvision dataset](https://cleanvision.readthedocs.io/en/latest/tutorials/torchvision_dataset.html)
 - [Example script](https://github.com/cleanlab/cleanvision/blob/main/docs/source/tutorials/run.py) that can be run with: `python examples/run.py --path <FOLDER_WITH_IMAGES>`
