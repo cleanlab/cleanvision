@@ -62,7 +62,7 @@ class ImageProperty(ABC):
 
 
 def calc_avg_brightness(image: Image) -> float:
-    stat = ImageStat.Stat(image)
+    stat = ImageStat.Stat(image)  # type:ignore
     try:
         red, green, blue = stat.mean
     except ValueError:
@@ -197,7 +197,7 @@ class AspectRatioProperty(ImageProperty):
 
 
 def calc_entropy(image: Image) -> float:
-    entropy = image.entropy()
+    entropy = image.entropy()  # type:ignore
     assert isinstance(
         entropy, float
     )  # PIL does not have type ann stub so need to assert function return
@@ -235,7 +235,7 @@ class EntropyProperty(ImageProperty):
 
 def calc_blurriness(gray_image: Image) -> float:
     edges = get_edges(gray_image)
-    blurriness = ImageStat.Stat(edges).var[0]
+    blurriness = ImageStat.Stat(edges).var[0]  # type:ignore
     return np.sqrt(blurriness)  # type:ignore
 
 
@@ -289,7 +289,7 @@ class BlurrinessProperty(ImageProperty):
 
 
 def get_edges(gray_image: Image) -> Image:
-    edges = gray_image.filter(ImageFilter.FIND_EDGES)
+    edges: Image = gray_image.filter(ImageFilter.FIND_EDGES)  # type:ignore
     return edges
 
 

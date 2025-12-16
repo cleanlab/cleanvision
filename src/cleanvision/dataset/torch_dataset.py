@@ -6,6 +6,7 @@ from PIL import Image
 
 from cleanvision.dataset.base_dataset import Dataset
 
+
 if TYPE_CHECKING:  # pragma: no cover
     from torchvision.datasets.vision import VisionDataset
 
@@ -26,7 +27,8 @@ class TorchDataset(Dataset):
         return len(self._data)
 
     def __getitem__(self, item: Union[int, str]) -> Image.Image:
-        return self._data[item][self._image_idx]
+        image: Image.Image = self._data[item][self._image_idx]
+        return image
 
     def get_name(self, index: Union[int, str]) -> str:
         return f"idx: {index}"
