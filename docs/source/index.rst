@@ -159,11 +159,6 @@ Additional Resources
    :caption: Links
    :hidden:
 
-   Website <https://cleanlab.ai/>
    GitHub <https://github.com/cleanlab/cleanvision.git>
    PyPI <https://pypi.org/project/cleanvision/>
-   Community Discussions <https://cleanlab.ai/slack>
-   Blog <https://cleanlab.ai/blog/>
-   Videos <https://www.youtube.com/@CleanlabAI/playlists>
-   Cleanlab Studio (Easy Mode) <https://cleanlab.ai/studio/?utm_source=cleanvision&utm_medium=docs&utm_campaign=clostostudio>
-   Cleanlab Studio Docs <https://help.cleanlab.ai>
+   Blog <https://cleanlab.ai/blog/cleanvision/>
