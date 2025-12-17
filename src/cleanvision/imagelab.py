@@ -503,7 +503,7 @@ class Imagelab:
             indices = scores.index.tolist()
             images = [self._dataset[i] for i in indices]
             for image in images:
-                assert isinstance(image, Image.Image), "image must be of type Image.Image"
+                assert isinstance(image, Image.Image)
 
             # construct title info
             title_info = {"scores": [f"score : {x:.4f}" for x in scores]}
@@ -530,7 +530,7 @@ class Imagelab:
                 image_sets.append([self._dataset[index] for index in indices])
             for image_set in image_sets:
                 for img in image_set:
-                    assert isinstance(img, Image.Image), "image must be of type Image.Image"
+                    assert isinstance(img, Image.Image)
 
             title_info_sets = []
             for s in image_sets_indices:
