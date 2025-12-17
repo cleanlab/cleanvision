@@ -31,6 +31,8 @@ jobs:
         shell: bash
       - name: Test with coverage
         run: pytest --verbose --cov=src/cleanvision/ --cov-config .coveragerc --cov-report=xml tests/
+        env:
+          MPLBACKEND: Agg
       - uses: codecov/codecov-action@v3
 
   typecheck:
