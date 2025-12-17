@@ -20,7 +20,10 @@ def get_hash(image: Image.Image, params: Dict[str, Any]) -> str:
     if hash_type == "md5":
         pixels = np.asarray(image)
         return hashlib.md5(pixels.tobytes()).hexdigest()
-    elif hash_type == "whash":
+
+    if not isinstance(hash_size, int):
+        raise ValueError("hash_size must be declared as a int in params")
+    if hash_type == "whash":
         return str(imagehash.whash(image, hash_size=hash_size))
     elif hash_type == "phash":
         return str(imagehash.phash(image, hash_size=hash_size))
