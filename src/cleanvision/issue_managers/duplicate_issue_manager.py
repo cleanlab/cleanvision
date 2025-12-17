@@ -29,17 +29,19 @@ def get_hash(image: Image.Image, params: Dict[str, Any]) -> str:
 
     if not isinstance(hash_size, int):
         raise ValueError("hash_size must be declared as a int in params")
-    
+
     if hash_type == "whash":
         return str(imagehash.whash(image, hash_size=hash_size))
-    if hash_type == "phash":
+    elif hash_type == "phash":
         return str(imagehash.phash(image, hash_size=hash_size))
-    if hash_type == "ahash":
+    elif hash_type == "ahash":
         return str(imagehash.average_hash(image, hash_size=hash_size))
-    if hash_type == "dhash":
+    elif hash_type == "dhash":
         return str(imagehash.dhash(image, hash_size=hash_size))
-    if hash_type == "chash":
+    elif hash_type == "chash":
         return str(imagehash.colorhash(image, binbits=hash_size))
+    else:
+        raise ValueError("hash_type not supported")
 
 
 def compute_hash(
