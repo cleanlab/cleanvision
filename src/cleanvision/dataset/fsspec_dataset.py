@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Optional, Union, Dict
 
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 from cleanvision.utils.constants import IMAGE_FILE_EXTENSIONS
 from cleanvision.dataset.base_dataset import Dataset
@@ -82,6 +82,18 @@ class FSDataset(Dataset):
                     continue
                 filepaths += filetype_images
         unique_filepaths = list(set(filepaths))
+        valid_filepaths = []
+        for idx, path in enumerate(unique_filepaths):
+            try:
+                with self.fs.open(path, "rb", **self.storage_opts) as f:
+                    img = Image.open(f)
+                    img.verify()   # integrity check (no pixel decode)
+                valid_filepaths.append(path)
+                del img
+            except (UnidentifiedImageError, OSError, ValueError):
+                # silently drop corrupt images
+                if verbose:
+                    print(f"Skipping corrupted image: {path}")
         return sorted(
-            unique_filepaths
+            valid_filepaths
         )  # sort image names alphabetically and numerically
