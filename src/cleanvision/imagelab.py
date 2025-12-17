@@ -7,7 +7,7 @@ but advanced users can get extra flexibility via the code in other CleanVision m
 from __future__ import annotations
 
 import random
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar, cast
 
 import numpy as np
 import pandas as pd
