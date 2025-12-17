@@ -1,4 +1,4 @@
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Sequence
 
 import math
 import matplotlib.axes
@@ -9,7 +9,7 @@ from PIL import Image
 class VizManager:
     @staticmethod
     def individual_images(
-        images: List[Image.Image],
+        images: Sequence[Image.Image],
         title_info: Dict[str, List[str]],
         ncols: int,
         cell_size: Tuple[int, int],
@@ -86,7 +86,7 @@ def construct_titles(title_info: Dict[str, List[str]], cell_width: int) -> List[
 
 
 def plot_image_grid(
-    images: List[Image.Image],
+    images: Sequence[Image.Image],
     title_info: Dict[str, List[str]],
     ncols: int,
     cell_size: Tuple[int, int],
