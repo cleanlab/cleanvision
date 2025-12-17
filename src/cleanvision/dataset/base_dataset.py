@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sized
-from typing import List, Union
+from typing import List, Union, Optional
 
 from PIL import Image
 
@@ -20,7 +20,7 @@ class Dataset(Sized):
         """Returns the number of examples in the dataset"""
         raise NotImplementedError
 
-    def __getitem__(self, item: Union[int, str]) -> Image.Image:
+    def __getitem__(self, item: Union[int, str]) -> Optional[Image.Image]:
         """Returns the image at a given index"""
         raise NotImplementedError
 

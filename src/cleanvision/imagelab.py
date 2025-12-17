@@ -7,7 +7,7 @@ but advanced users can get extra flexibility via the code in other CleanVision m
 from __future__ import annotations
 
 import random
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar, cast
 
 import numpy as np
 import pandas as pd
@@ -502,6 +502,7 @@ class Imagelab:
             scores = sorted_df.head(num_images)[get_score_colname(issue_type)]
             indices = scores.index.tolist()
             images = [self._dataset[i] for i in indices]
+            images = cast(list[Image.Image], images)
 
             # construct title info
             title_info = {"scores": [f"score : {x:.4f}" for x in scores]}
@@ -526,6 +527,7 @@ class Imagelab:
             image_sets = []
             for indices in image_sets_indices:
                 image_sets.append([self._dataset[index] for index in indices])
+            image_sets = cast(list[list[Image.Image]], image_sets)
 
             title_info_sets = []
             for s in image_sets_indices:
@@ -620,7 +622,7 @@ class Imagelab:
         elif image_files is not None:
             if len(image_files) == 0:
                 raise ValueError("image_files list is empty.")
-            images = [Image.open(path) for path in image_files]
+            images: List[Image.Image] = [Image.open(path) for path in image_files]
             title_info = {"path": [path.split("/")[-1] for path in image_files]}
             VizManager.individual_images(
                 images,
@@ -629,7 +631,7 @@ class Imagelab:
                 cell_size=cell_size,
             )
         elif indices:
-            images = [self._dataset[i] for i in indices]
+            images = [cast(Image.Image, self._dataset[i]) for i in indices]
             title_info = {"name": [self._dataset.get_name(i) for i in indices]}
             VizManager.individual_images(
                 images,
@@ -644,7 +646,7 @@ class Imagelab:
                 image_indices = random.sample(
                     self._dataset.index, min(num_images, len(self._dataset))
                 )
-                images = [self._dataset[i] for i in image_indices]
+                images = [cast(Image.Image, self._dataset[i]) for i in image_indices]
                 title_info = {
                     "name": [self._dataset.get_name(i) for i in image_indices]
                 }
