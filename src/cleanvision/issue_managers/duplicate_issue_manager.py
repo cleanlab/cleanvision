@@ -19,7 +19,9 @@ def get_hash(image: Image.Image, params: Dict[str, Any]) -> str:
     hash_type, hash_size = params["hash_type"], params.get("hash_size", None)
     supported_types = ["md5", "whash", "phash", "ahash", "dhash", "chash"]
     if hash_type not in supported_types:
-        raise ValueError(f"Hash type `{hash_type}` is not supported. Must be one of: {supported_types}")
+        raise ValueError(
+            f"Hash type `{hash_type}` is not supported. Must be one of: {supported_types}"
+        )
 
     if hash_type == "md5":
         pixels = np.asarray(image)
@@ -27,15 +29,16 @@ def get_hash(image: Image.Image, params: Dict[str, Any]) -> str:
 
     if not isinstance(hash_size, int):
         raise ValueError("hash_size must be declared as a int in params")
+    
     if hash_type == "whash":
         return str(imagehash.whash(image, hash_size=hash_size))
-    elif hash_type == "phash":
+    if hash_type == "phash":
         return str(imagehash.phash(image, hash_size=hash_size))
-    elif hash_type == "ahash":
+    if hash_type == "ahash":
         return str(imagehash.average_hash(image, hash_size=hash_size))
-    elif hash_type == "dhash":
+    if hash_type == "dhash":
         return str(imagehash.dhash(image, hash_size=hash_size))
-    elif hash_type == "chash":
+    if hash_type == "chash":
         return str(imagehash.colorhash(image, binbits=hash_size))
 
 
