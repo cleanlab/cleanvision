@@ -623,7 +623,6 @@ class Imagelab:
             if len(image_files) == 0:
                 raise ValueError("image_files list is empty.")
             images: List[Image.Image] = [Image.open(path) for path in image_files]
-            images = cast(list[Image.Image], images)
             title_info = {"path": [path.split("/")[-1] for path in image_files]}
             VizManager.individual_images(
                 images,
