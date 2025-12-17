@@ -632,6 +632,7 @@ class Imagelab:
             )
         elif indices:
             images = [self._dataset[i] for i in indices]
+            images = cast(list[Image.Image], images)
             title_info = {"name": [self._dataset.get_name(i) for i in indices]}
             VizManager.individual_images(
                 images,
@@ -647,6 +648,7 @@ class Imagelab:
                     self._dataset.index, min(num_images, len(self._dataset))
                 )
                 images = [self._dataset[i] for i in image_indices]
+                images = cast(list[Image.Image], images)
                 title_info = {
                     "name": [self._dataset.get_name(i) for i in image_indices]
                 }
