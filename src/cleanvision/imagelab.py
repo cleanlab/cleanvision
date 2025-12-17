@@ -622,7 +622,8 @@ class Imagelab:
         elif image_files is not None:
             if len(image_files) == 0:
                 raise ValueError("image_files list is empty.")
-            images = [Image.open(path) for path in image_files]
+            images: List[Image.Image] = [Image.open(path) for path in image_files]
+            images = cast(list[Image.Image], images)
             title_info = {"path": [path.split("/")[-1] for path in image_files]}
             VizManager.individual_images(
                 images,
@@ -631,8 +632,7 @@ class Imagelab:
                 cell_size=cell_size,
             )
         elif indices:
-            images = [self._dataset[i] for i in indices]
-            images = cast(list[Image.Image], images)
+            images = [cast(Image.Image, self._dataset[i]) for i in indices]
             title_info = {"name": [self._dataset.get_name(i) for i in indices]}
             VizManager.individual_images(
                 images,
@@ -647,8 +647,7 @@ class Imagelab:
                 image_indices = random.sample(
                     self._dataset.index, min(num_images, len(self._dataset))
                 )
-                images = [self._dataset[i] for i in image_indices]
-                images = cast(list[Image.Image], images)
+                images = [cast(Image.Image, self._dataset[i]) for i in image_indices]
                 title_info = {
                     "name": [self._dataset.get_name(i) for i in image_indices]
                 }
