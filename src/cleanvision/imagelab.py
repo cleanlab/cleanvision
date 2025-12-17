@@ -527,7 +527,7 @@ class Imagelab:
             image_sets = []
             for indices in image_sets_indices:
                 image_sets.append([self._dataset[index] for index in indices])
-            image_sets = cast(list[list[[Image.Image]], image_sets)
+            image_sets = cast(list[list[Image.Image]], image_sets)
 
             title_info_sets = []
             for s in image_sets_indices:
