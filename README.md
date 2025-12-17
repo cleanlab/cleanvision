@@ -11,7 +11,7 @@ CleanVision is super simple -- run the same couple lines of Python code to audit
 [![Read the Docs](https://readthedocs.org/projects/cleanvision/badge/?version=latest)](https://cleanvision.readthedocs.io/en/latest/)
 [![pypi](https://img.shields.io/pypi/v/cleanvision?color=blue)](https://pypi.org/pypi/cleanvision/)
 [![os](https://img.shields.io/badge/platform-noarch-lightgrey)](https://pypi.org/pypi/cleanvision/)
-[![py\_versions](https://img.shields.io/badge/python-3.7%2B-blue)](https://pypi.org/pypi/cleanvision/)
+[![py\_versions](https://img.shields.io/badge/python-3.10%2B-blue)](https://pypi.org/pypi/cleanvision/)
 [![codecov](https://codecov.io/github/cleanlab/cleanvision/branch/main/graph/badge.svg?token=y1N6MluN9H)](https://codecov.io/gh/cleanlab/cleanvision)
 
 ## Installation
@@ -88,7 +88,7 @@ In any collection of image files (most [formats](https://pillow.readthedocs.io/e
 | 8 | Odd Aspect Ratio | Images with an unusual aspect ratio (overly skinny/wide)        | odd_aspect_ratio | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/odd_aspect_ratio.jpg)                     |
 | 9 | Odd Size         | Images that are abnormally large or small compared to the rest of the dataset | odd_size         | <img src="https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/odd_size.png" width=20% height=20%> |
 
-CleanVision supports Linux, macOS, and Windows and runs on Python 3.7+. Learn more from our [blog](https://cleanlab.ai/blog/cleanvision/).
+CleanVision supports Linux, macOS, and Windows and runs on Python 3.10+. Learn more from our [blog](https://cleanlab.ai/blog/cleanvision/).
 
 ## Community
 
