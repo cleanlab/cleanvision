@@ -502,8 +502,7 @@ class Imagelab:
             scores = sorted_df.head(num_images)[get_score_colname(issue_type)]
             indices = scores.index.tolist()
             images = [self._dataset[i] for i in indices]
-            for image in images:
-                assert isinstance(image, Image.Image)
+            images = cast(list[Image.Image], images)
 
             # construct title info
             title_info = {"scores": [f"score : {x:.4f}" for x in scores]}
@@ -528,9 +527,7 @@ class Imagelab:
             image_sets = []
             for indices in image_sets_indices:
                 image_sets.append([self._dataset[index] for index in indices])
-            for image_set in image_sets:
-                for img in image_set:
-                    assert isinstance(img, Image.Image)
+            image_sets = cast(list[list[[Image.Image]], image_sets)
 
             title_info_sets = []
             for s in image_sets_indices:
