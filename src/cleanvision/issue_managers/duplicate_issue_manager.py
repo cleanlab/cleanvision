@@ -17,6 +17,10 @@ from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
 
 def get_hash(image: Image.Image, params: Dict[str, Any]) -> str:
     hash_type, hash_size = params["hash_type"], params.get("hash_size", None)
+    supported_types = ["md5", "whash", "phash", "ahash", "dhash", "chash"]
+    if not hash_type in supported_types: 
+        raise ValueError(f"Hash type `{hash_type}` is not supported. Must be one of: {supported_types}")
+
     if hash_type == "md5":
         pixels = np.asarray(image)
         return hashlib.md5(pixels.tobytes()).hexdigest()
@@ -33,8 +37,6 @@ def get_hash(image: Image.Image, params: Dict[str, Any]) -> str:
         return str(imagehash.dhash(image, hash_size=hash_size))
     elif hash_type == "chash":
         return str(imagehash.colorhash(image, binbits=hash_size))
-    else:
-        raise ValueError("Hash type not supported")
 
 
 def compute_hash(
