@@ -18,7 +18,7 @@ from cleanvision.utils.utils import get_is_issue_colname, get_score_colname
 def get_hash(image: Image.Image, params: Dict[str, Any]) -> str:
     hash_type, hash_size = params["hash_type"], params.get("hash_size", None)
     supported_types = ["md5", "whash", "phash", "ahash", "dhash", "chash"]
-    if not hash_type in supported_types: 
+    if hash_type not in supported_types:
         raise ValueError(f"Hash type `{hash_type}` is not supported. Must be one of: {supported_types}")
 
     if hash_type == "md5":
