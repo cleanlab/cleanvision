@@ -24,6 +24,7 @@ jobs:
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository-url: https://test.pypi.org/legacy/
+          verbose: true
   publish:
     needs: [ publish-test ]
     # This condition ensures publish-test succeeded before running this job
