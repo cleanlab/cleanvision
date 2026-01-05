@@ -26,6 +26,9 @@ jobs:
           ignore_empty_alt: true
           tokens: |
             {"https://github.com": "${{ secrets.GITHUB_TOKEN }}"}
+          ignore_url: |
+            https://openai.com
+            https://openai.com/research/dall-e-2-pre-training-mitigations
           swap_urls: |
             {"^(\\..*)\\.md(#?.*)$": "\\1.md.html\\2",
              "^(https://github\\.com/.*)#.*$": "\\1"}
