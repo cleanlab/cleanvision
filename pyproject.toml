@@ -4,21 +4,18 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cleanvision"
-version = "0.3.7"
+version = "0.3.8"
 authors = [
     { name = "Cleanlab Inc.", email = "team@cleanlab.ai" },
 ]
 description = "Find issues in image datasets"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 keywords = ["computer_vision", "cv", "image_data", "issue_detection", "data_quality", "image_quality", "machine_learning", "data_cleaning", "image_deduplication"]
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python",
