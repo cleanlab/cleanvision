@@ -419,3 +419,32 @@ def get_image_mode(image: Image) -> str:
             return "L"
         else:
             return "UNK"
+
+def get_entropy(image: Image) -> float:
+    """Returns the entropy of the image."""
+    return calc_entropy(image)
+
+def get_brightness(image: Image) -> float:
+    """Return average brightness of an image."""
+    return calc_avg_brightness(image)
+
+def get_brightness_percentiles(image: Image, percentiles: List[int]=[1, 5, 10, 15, 90, 95, 99]) -> np.ndarray:
+    """Return brightness percentiles of an image."""
+    return calc_percentile_brightness(image, percentiles)
+
+def get_aspect_ratio(image: Image) -> float:
+    """Return aspect ratio score of an image."""
+    return calc_aspect_ratio(image)
+
+def get_blurriness(image: Image) -> float:
+    """Return blurriness score of an image."""
+    gray = image.convert("L")
+    return calc_blurriness(gray)
+
+def get_color_space(image: Image) -> str:
+    """Return image color space (mode)."""
+    return calc_color_space(image)
+
+def get_image_size_score(image: Image) -> float:
+    """Return sqrt-area size score of an image."""
+    return calc_image_area_sqrt(image)
