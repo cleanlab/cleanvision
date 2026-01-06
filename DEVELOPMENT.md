@@ -141,10 +141,12 @@ endings match the project style.
 The docs for this repo are hosted by readthedocs.io and can be found [here](https://cleanvision.readthedocs.io/en/latest/).
 
 
-## Publishing Release
-- Ensure all **Checks** are successful for your release related PR after getting approvals from other code maintainers.
+## Releasing new version
+
 - Merge all release related PRs.
+- Ensure all **Checks** are successful for your release related PR after getting approvals from other code maintainers.
+- Check version number listed in pyproject.toml matches desired new version. 
 - Go to the Releases in the Github repo and draft a new release.
-- Create a new tag in the format `v{version}` corresponding to the version being released and click *Generate  release notes*.
-- Before publishing the release, ensure all checks are satisfied as the release on TestPypi and Pypi is automated and an error will result in publishing a new version.
-- Publish release
+- Create a new tag in the format `v{version}` corresponding to the version being released, and click *Generate  release notes*.
+- Once you publish the release in Gitub, there is automated release process in Github Actions that will push to TestPypi and PyPi. However this will error due to permissions, but  just ignore these errors and just push to PyPi manually.
+- Increment version in pyproject.toml
