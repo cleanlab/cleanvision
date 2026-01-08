@@ -103,6 +103,10 @@ html_sidebars = {
         "sidebar/scroll-end.html",
     ]
 }
+
+# for blog html:
+html_extra_path = ["static_pages"]
+
 napoleon_use_ivar = True
 # https://stackoverflow.com/questions/12206334/sphinx-autosummary-toctree-contains-reference-to-nonexisting-document-warnings
 numpydoc_show_class_members = True
