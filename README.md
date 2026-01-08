@@ -58,7 +58,7 @@ imagelab.report(issue_types=issue_types)
 
 - [Tutorial](https://cleanvision.readthedocs.io/en/latest/tutorials/tutorial.html)
 - [Documentation](https://cleanvision.readthedocs.io/)
-- [Blog](https://cleanlab.ai/blog/cleanvision/)
+- [Blog](https://cleanvision.readthedocs.io/en/latest/blog.html)
 - [Run CleanVision on a HuggingFace dataset](https://cleanvision.readthedocs.io/en/latest/tutorials/huggingface_dataset.html)
 - [Run CleanVision on a Torchvision dataset](https://cleanvision.readthedocs.io/en/latest/tutorials/torchvision_dataset.html)
 - [Example script](https://github.com/cleanlab/cleanvision/blob/main/docs/source/tutorials/run.py) that can be run with: `python examples/run.py --path <FOLDER_WITH_IMAGES>`
@@ -88,17 +88,9 @@ In any collection of image files (most [formats](https://pillow.readthedocs.io/e
 | 8 | Odd Aspect Ratio | Images with an unusual aspect ratio (overly skinny/wide)        | odd_aspect_ratio | ![](https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/odd_aspect_ratio.jpg)                     |
 | 9 | Odd Size         | Images that are abnormally large or small compared to the rest of the dataset | odd_size         | <img src="https://raw.githubusercontent.com/cleanlab/assets/master/cleanvision/example_issue_images/odd_size.png" width=20% height=20%> |
 
-CleanVision supports Linux, macOS, and Windows and runs on Python 3.10+. Learn more from our [blog](https://cleanlab.ai/blog/cleanvision/).
-
-## Community
-
-* Interested in contributing? See the [contributing guide](CONTRIBUTING.md). An easy starting point is to
-  consider [issues](https://github.com/cleanlab/cleanvision/labels/good%20first%20issue) marked `good first issue`.
-
-* Ready to start adding your own code? See the [development guide](DEVELOPMENT.md).
-
-* Have an issue? [Search existing issues](https://github.com/cleanlab/cleanvision/issues?q=is%3Aissue)
-  or [submit a new issue](https://github.com/cleanlab/cleanvision/issues/new/choose).
+CleanVision supports Linux, macOS, and Windows and runs on Python 3.10+. Learn more from our [blog](https://cleanvision.readthedocs.io/en/latest/blog.html).
 
 
-[issue]: https://github.com/cleanlab/cleanvision/issues/new
+## Have a question? 
+
+Search the resources listed above and existing [GitHub Issues](https://github.com/cleanlab/cleanvision/issues?q=is%3Aissue), or [submit a new Issue](https://github.com/cleanlab/cleanvision/issues/new/choose).
