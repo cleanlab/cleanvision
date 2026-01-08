@@ -161,4 +161,4 @@ Additional Resources
 
    GitHub <https://github.com/cleanlab/cleanvision.git>
    PyPI <https://pypi.org/project/cleanvision/>
-   Blog </blog.html>
+   Blog <https://cleanvision.readthedocs.io/en/latest/blog.html>
