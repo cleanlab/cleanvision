@@ -139,9 +139,10 @@ Additional Resources
    :name: _tutorials
 
    How to Use CleanVision <tutorials/tutorial.ipynb>
-   tutorials/torchvision_dataset.ipynb
-   tutorials/huggingface_dataset.ipynb
-   Frequently Asked Questions <faq>
+    tutorials/torchvision_dataset.ipynb
+    tutorials/huggingface_dataset.ipynb
+    Frequently Asked Questions <faq>
+    Issue Examples Gallery <issue_examples>
 
 .. _api-reference:
 .. toctree::
