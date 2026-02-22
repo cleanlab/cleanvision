@@ -46,6 +46,10 @@ To contribute your code to the library, you'll want to [fork the repo](https://d
 Detailed development instructions, such as how to run the tests, are available
 in [DEVELOPMENT.md](DEVELOPMENT.md).
 
+### Documentation and example images
+
+You can help grow the **Issue Examples Gallery** in the docs by adding compelling example images. Images are stored in the [cleanlab/assets](https://github.com/cleanlab/assets/tree/master/cleanvision/example_issue_images) repo (not in CleanVision). Add images there and update `docs/source/issue_examples.rst` with new ``.. figure::`` blocks and captions (dataset, label). See the "Adding more examples" section on that page for details.
+
 ---
 
 If you have any questions about contributing to CleanVision, feel free to
