@@ -24,7 +24,7 @@ pip install cleanvision
 Download an example dataset (optional). Or just use any collection of image files you have.
 
 ```shell
-wget -nc 'https://cleanlab-public.s3.amazonaws.com/CleanVision/image_files.zip'
+wget -nc 'https://huggingface.co/datasets/Cleanlab/cleanvision-sample-images/resolve/main/image_files.zip'
 ```
 
 1. Run CleanVision to audit the images.
