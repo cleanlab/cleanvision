@@ -20,6 +20,38 @@ def imagelab():
     return imagelab
 
 
+@pytest.mark.parametrize("mode,channels", [("L", 1), ("RGB", 3), ("RGBA", 4)])
+@pytest.mark.parametrize("n_jobs", [1, 2])
+def test_exact_duplicates_preserve_image_dimensions(tmp_path, mode, channels, n_jobs):
+    pixels = bytes(range(6 * channels))
+    original = Image.frombytes(mode, (3, 2), pixels)
+    reshaped = Image.frombytes(mode, (2, 3), pixels)
+    changed = Image.frombytes(mode, (3, 2), bytes([99]) + pixels[1:])
+    paths = [
+        tmp_path / name
+        for name in ["original.png", "copy.tif", "reshaped.png", "changed.png"]
+    ]
+    for image, path in zip([original, original, reshaped, changed], paths):
+        image.save(path)
+
+    imagelab = Imagelab(filepaths=[str(path) for path in paths], verbose=False)
+    imagelab.find_issues(issue_types={"exact_duplicates": {}}, n_jobs=n_jobs)
+
+    assert {
+        frozenset(group) for group in imagelab.info["exact_duplicates"]["sets"]
+    } == {frozenset(str(path) for path in paths[:2])}
+    assert imagelab.issues["is_exact_duplicates_issue"].tolist() == [
+        True,
+        True,
+        False,
+        False,
+    ]
+    np.testing.assert_array_equal(
+        imagelab.issues["exact_duplicates_score"], [0.5, 0.5, 1.0, 1.0]
+    )
+    assert imagelab.issue_summary["num_images"].tolist() == [2]
+
+
 @pytest.mark.usefixtures("set_plt_show")
 def test_imagelab_run(capsys, imagelab):
     imagelab.find_issues()
