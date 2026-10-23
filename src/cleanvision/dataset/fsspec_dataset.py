@@ -22,7 +22,7 @@ class FSDataset(Dataset):
         verbose: bool = True,
     ) -> None:
         super().__init__()
-        self.storage_opts = storage_opts
+        self.storage_opts = storage_opts.copy()
         ignore_missing = self.storage_opts.pop("ignore_missing_keys", False)
         if data_folder:
             # See: https://filesystem-spec.readthedocs.io/en/latest/api.html#other-known-implementations
