@@ -61,16 +61,41 @@ def test_calc_area():
 @pytest.mark.parametrize(
     "image,expected_mode",
     [
-        [Image.new("RGB", (164, 164), (255, 255, 255)), "RGB"],
-        [Image.new("RGB", (164, 164)), "RGB"],
+        [Image.new("RGB", (164, 164), (255, 255, 255)), "L"],
+        [Image.new("RGB", (164, 164)), "L"],
         [Image.new("L", (164, 164)), "L"],
         [Image.new("RGB", (164, 164), (255, 160, 255)), "RGB"],
+        [Image.new("RGB", (164, 164), (100, 100, 101)), "RGB"],
+        [Image.new("RGBA", (164, 164), (100, 100, 100, 255)), "RGBA"],
+        [Image.new("RGBA", (164, 164), (100, 100, 100, 100)), "RGBA"],
+        [Image.new("LA", (164, 164), (100, 255)), "LA"],
+        [Image.new("P", (164, 164)), "P"],
     ],
-    ids=["white", "black", "grayscale", "rgb"],
+    ids=[
+        "white",
+        "black",
+        "grayscale",
+        "rgb",
+        "rgb_nearly_gray",
+        "rgba",
+        "rgba_gray",
+        "la",
+        "palette",
+    ],
 )
 def test_get_image_mode(image, expected_mode):
     mode = get_image_mode(image)
     assert mode == expected_mode
+
+
+def test_get_image_mode_gray_converted_to_rgb_saved_and_reloaded(tmp_path):
+    gradient = np.tile(np.arange(64, dtype=np.uint8), (64, 1))
+    path = tmp_path / "gray_as_rgb.png"
+    Image.fromarray(gradient, mode="L").convert("RGB").save(path)
+
+    with Image.open(path) as image:
+        assert image.mode == "RGB"
+        assert get_image_mode(image) == "L"
 
 
 class TestBrightnessHelper:

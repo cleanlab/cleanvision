@@ -46,13 +46,34 @@ def test_imagelab_run(capsys, imagelab):
     assert len(imagelab.issues.query("is_odd_aspect_ratio_issue")) == 1
     assert len(imagelab.issues.query("is_low_information_issue")) == 2
     assert len(imagelab.issues.query("is_light_issue")) == 1
-    assert len(imagelab.issues.query("is_grayscale_issue")) == 1
+    assert len(imagelab.issues.query("is_grayscale_issue")) == 2
     assert len(imagelab.issues.query("is_blurry_issue")) == 1
     assert len(imagelab.issues.query("is_exact_duplicates_issue")) == 2
     assert len(imagelab.issues.query("is_near_duplicates_issue")) == 2
     assert "Issues found in images in order of severity in the dataset" in captured.out
     assert "Number of examples with this issue:" in captured.out
     assert "Examples representing most severe instances of this issue:" in captured.out
+
+
+def test_grayscale_issue_detects_gray_images_saved_as_rgb(tmp_path):
+    gradient = np.tile(np.arange(0, 256, 4, dtype=np.uint8), (64, 1))
+
+    gray_l = Image.fromarray(gradient, mode="L")
+    gray_l.save(tmp_path / "gray_l.png")
+    gray_l.convert("RGB").save(tmp_path / "gray_as_rgb.png")
+
+    color = np.stack([gradient, gradient[:, ::-1], gradient], axis=-1)
+    Image.fromarray(color, mode="RGB").save(tmp_path / "color_rgb.png")
+
+    imagelab = Imagelab(data_path=str(tmp_path))
+    imagelab.find_issues({"grayscale": {}})
+
+    flagged = imagelab.issues.query("is_grayscale_issue").index
+
+    assert sorted(Path(p).name for p in flagged) == [
+        "gray_as_rgb.png",
+        "gray_l.png",
+    ]
 
 
 def test_get_stats(imagelab):

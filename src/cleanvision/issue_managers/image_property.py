@@ -409,6 +409,14 @@ def get_image_mode(image: Image) -> str:
     if image.mode:
         image_mode = image.mode
         assert isinstance(image_mode, str)
+
+        if image_mode == "RGB":
+            imarr = np.asarray(image)
+            if (imarr[..., 0] == imarr[..., 1]).all() and (
+                imarr[..., 1] == imarr[..., 2]
+            ).all():
+                return "L"
+
         return image_mode
     else:
         imarr = np.asarray(image)
